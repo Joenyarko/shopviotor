@@ -1,0 +1,124 @@
+import React, { useState } from 'react';
+import { useNavigate, Link, useLocation, useSearchParams } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { useAuth } from '../../contexts/AuthContext';
+import { Eye, EyeOff, AlertCircle, RefreshCw } from 'lucide-react';
+
+const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const { login } = useAuth();
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: {
+      email: '',
+      password: ''
+    }
+  });
+
+  // Support both ?redirect= query param and React Router location state
+  const redirectTo = searchParams.get('redirect') || location.state?.from?.pathname || '/dashboard';
+
+  const onSubmit = async (data) => {
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const user = await login(data);
+      if (user.role === 'admin' || user.role === 'super_admin') {
+        navigate('/admin');
+      } else {
+        navigate(redirectTo, { replace: true });
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.message || 'These credentials do not match our records.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-xl font-bold text-secondary-900 dark:text-white">Sign In to Your Account</h3>
+        <p className="text-xs text-secondary-500 mt-1">Access your deals, barter, and orders.</p>
+      </div>
+
+      {errorMsg && (
+        <div className="p-3 bg-accent-50 dark:bg-accent-950/20 text-accent-600 dark:text-accent-400 rounded-lg flex items-start gap-2.5 text-sm border border-accent-200/50">
+          <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <span>{errorMsg}</span>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Email Address</label>
+          <input
+            type="email"
+            {...register('email', { 
+              required: 'Email is required',
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: 'Invalid email address'
+              }
+            })}
+            placeholder="name@domain.com"
+            className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+          />
+          {errors.email && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.email.message}</span>}
+        </div>
+
+        <div>
+          <div className="flex justify-between items-center">
+            <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Password</label>
+            <Link to="/forgot-password" className="text-xs text-primary-600 hover:underline">Forgot password?</Link>
+          </div>
+          <div className="relative mt-1.5">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              {...register('password', { 
+                required: 'Password is required',
+                minLength: {
+                  value: 6,
+                  message: 'Password must be at least 6 characters'
+                }
+              })}
+              placeholder="••••••••"
+              className="w-full px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-2.5 text-secondary-500"
+            >
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+          </div>
+          {errors.password && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.password.message}</span>}
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full premium-button-primary py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2"
+        >
+          {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Sign In'}
+        </button>
+      </form>
+
+      <div className="text-center text-sm text-secondary-500">
+        Don't have an account?{' '}
+        <Link to="/register" className="text-primary-600 font-semibold hover:underline">Create Account</Link>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
+export { Login };

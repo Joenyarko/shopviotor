@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ─── Primary SEO ───────────────────────────────────────── -->
+    <title>VIOTOR — The ATU Student Marketplace | Buy, Sell, Trade in Ghana</title>
+    <meta name="description" content="VIOTOR is the premier student marketplace at ATU Ghana. Buy, sell, barter, hire-purchase and trade products securely. Electronics, fashion, groceries & more." />
+    <meta name="keywords" content="ATU marketplace, Ghana online shopping, buy sell Ghana, student marketplace, electronics Ghana, barter trade Ghana, VIOTOR" />
+    <meta name="author" content="VIOTOR Marketplace" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://shopviotor.com" />
+
+    <!-- ─── Open Graph (Facebook, WhatsApp, LinkedIn) ─────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VIOTOR Marketplace" />
+    <meta property="og:title" content="VIOTOR — The ATU Student Marketplace" />
+    <meta property="og:description" content="Buy, sell, barter and trade products securely on Ghana's premier student marketplace. Shop electronics, fashion, groceries & more." />
+    <meta property="og:url" content="https://shopviotor.com" />
+    <meta property="og:image" content="https://shopviotor.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="en_GH" />
+
+    <!-- ─── Twitter / X Cards ─────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@ViotorGH" />
+    <meta name="twitter:title" content="VIOTOR — The ATU Student Marketplace" />
+    <meta name="twitter:description" content="Ghana's premier student marketplace. Buy, sell, barter & trade securely." />
+    <meta name="twitter:image" content="https://shopviotor.com/og-image.jpg" />
+
+    <!-- ─── Security Meta Tags ────────────────────────────────── -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- ─── PWA & Theme ──────────────────────────────────────── -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#ffb800" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="VIOTOR" />
+
+    <!-- ─── JSON-LD Structured Data ──────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "VIOTOR Marketplace",
+          "url": "https://shopviotor.com",
+          "logo": "https://shopviotor.com/icon-192.png",
+          "sameAs": [],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "areaServed": "GH",
+            "availableLanguage": "English"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "name": "VIOTOR Marketplace",
+          "url": "https://shopviotor.com",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://shopviotor.com/products?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- ─── Paystack Inline SDK ──────────────────────────────── -->
+    <script src="https://js.paystack.co/v1/inline.js" async></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
