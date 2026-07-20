@@ -35,6 +35,9 @@ const Products = () => {
   const [availableForHp, setAvailableForHp] = useState(false);
   const [availableForLayaway, setAvailableForLayaway] = useState(false);
   const [layawayTotalBoxes, setLayawayTotalBoxes] = useState('');
+  const [availableForPreorder, setAvailableForPreorder] = useState(false);
+  const [preorderDepositAmount, setPreorderDepositAmount] = useState('');
+  const [preorderExpectedDate, setPreorderExpectedDate] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
 
   // Image states
@@ -69,6 +72,7 @@ const Products = () => {
     setMainCategoryId(''); setSubCategoryId(''); setSubSubCategoryId(''); setBrandId(''); setCondition('new'); setStatus('active');
     setDescription(''); setIsNegotiable(false); setAvailableForTrade(false);
     setAvailableForHp(false); setAvailableForLayaway(false); setLayawayTotalBoxes(''); 
+    setAvailableForPreorder(false); setPreorderDepositAmount(''); setPreorderExpectedDate('');
     setIsFeatured(false); setImageFiles([]); setImagePreviews([]);
     setExistingImages([]); setActiveImageIdx(0); setVariations([]);
     setErrorMsg(''); setActiveTab('basic');
@@ -110,6 +114,9 @@ const Products = () => {
     setAvailableForHp(!!product.available_for_hire_purchase);
     setAvailableForLayaway(!!product.available_for_layaway);
     setLayawayTotalBoxes(product.layaway_total_boxes || '');
+    setAvailableForPreorder(!!product.available_for_preorder);
+    setPreorderDepositAmount(product.preorder_deposit_amount || '');
+    setPreorderExpectedDate(product.preorder_expected_date || '');
     setIsFeatured(!!product.is_featured);
     setExistingImages(product.images || []);
     setImageFiles([]); setImagePreviews([]); setActiveImageIdx(0);
@@ -192,6 +199,12 @@ const Products = () => {
     
     if (availableForLayaway && layawayTotalBoxes) {
       formData.append('layaway_total_boxes', layawayTotalBoxes);
+    }
+
+    formData.append('available_for_preorder', availableForPreorder ? '1' : '0');
+    if (availableForPreorder) {
+      if (preorderDepositAmount) formData.append('preorder_deposit_amount', preorderDepositAmount);
+      if (preorderExpectedDate) formData.append('preorder_expected_date', preorderExpectedDate);
     }
     formData.append('is_featured', isFeatured ? '1' : '0');
     if (variations.length > 0) formData.append('variations', JSON.stringify(variations));
@@ -405,6 +418,7 @@ const Products = () => {
                       { label: 'Available for Barter', val: availableForTrade, set: setAvailableForTrade },
                       { label: 'Available for HP', val: availableForHp, set: setAvailableForHp },
                       { label: 'Available for Layaway', val: availableForLayaway, set: setAvailableForLayaway },
+                      { label: 'Available for Pre-Order', val: availableForPreorder, set: setAvailableForPreorder },
                     ].map(({ label, val, set }) => (
                       <label key={label} className="flex items-center gap-2 text-sm text-secondary-700 dark:text-secondary-200 cursor-pointer select-none">
                         <div onClick={() => set(!val)} className={`w-10 h-5 rounded-full transition-colors flex items-center ${val ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-700'}`}>
@@ -430,6 +444,23 @@ const Products = () => {
                         <div className="p-3 bg-white dark:bg-secondary-900 border border-secondary-300 dark:border-secondary-600 rounded-xl text-sm text-secondary-700 dark:text-secondary-300">
                           {layawayTotalBoxes && price ? `GHS ${(parseFloat(price) / parseInt(layawayTotalBoxes)).toFixed(2)}` : 'GHS 0.00'}
                         </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {availableForPreorder && (
+                    <div className="grid grid-cols-2 gap-4 p-4 mt-2 bg-secondary-50 dark:bg-secondary-800 rounded-xl border border-secondary-200 dark:border-secondary-700">
+                      <div className="col-span-2">
+                        <p className="text-sm font-bold text-secondary-900 dark:text-white">Pre-Order Configuration</p>
+                        <p className="text-xs text-secondary-500">Set the required deposit and the expected arrival date.</p>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Required Deposit (GHS)</label>
+                        <input type="number" min="0" step="0.01" value={preorderDepositAmount} onChange={e => setPreorderDepositAmount(e.target.value)} className={inputClass} placeholder="e.g. 500" />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Expected Arrival Date</label>
+                        <input type="date" value={preorderExpectedDate} onChange={e => setPreorderExpectedDate(e.target.value)} className={inputClass} />
                       </div>
                     </div>
                   )}

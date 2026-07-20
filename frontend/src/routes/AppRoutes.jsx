@@ -35,6 +35,9 @@ import SellRequest from '../pages/services/SellRequest';
 import BarterRequest from '../pages/services/BarterRequest';
 import HirePurchase from '../pages/services/HirePurchase';
 import Layaway from '../pages/services/Layaway';
+import PreOrders from '../pages/services/PreOrders';
+import PreOrderDetail from '../pages/services/PreOrderDetail';
+import MyPreOrders from '../pages/customer/MyPreOrders';
 import Raffles from '../pages/services/Raffles';
 import RaffleDetail from '../pages/services/RaffleDetail';
 import RaffleWinners from '../pages/services/RaffleWinners';
@@ -61,6 +64,7 @@ import AdminFlashSales from '../pages/admin/FlashSales';
 import AdminCollections from '../pages/admin/Collections';
 import AdminHirePurchase from '../pages/admin/HirePurchase';
 import AdminLayaway from '../pages/admin/AdminLayaway';
+import AdminPreOrders from '../pages/admin/AdminPreOrders';
 import VendorStores from '../pages/admin/VendorStores';
 import VendorLayout from '../layouts/VendorLayout';
 import VendorDashboard from '../pages/vendor/VendorDashboard';
@@ -129,6 +133,11 @@ const AppRoutes = () => {
         <Route path="/layaway" element={<ProtectedRoute><Layaway /></ProtectedRoute>} />
         <Route path="/layaway/start" element={<ProtectedRoute><LayawayDetail /></ProtectedRoute>} />
         <Route path="/my-layaways" element={<ProtectedRoute><MyLayaways /></ProtectedRoute>} />
+        
+        <Route path="/pre-orders" element={<ProtectedRoute><PreOrders /></ProtectedRoute>} />
+        <Route path="/pre-orders/:uuid" element={<ProtectedRoute><PreOrderDetail /></ProtectedRoute>} />
+        <Route path="/my-pre-orders" element={<ProtectedRoute><MyPreOrders /></ProtectedRoute>} />
+
         <Route path="/become-a-vendor" element={<ProtectedRoute><StoreApplication /></ProtectedRoute>} />
         <Route path="/raffles" element={<ProtectedRoute><Raffles /></ProtectedRoute>} />
         <Route path="/raffles/:uuid" element={<ProtectedRoute><RaffleDetail /></ProtectedRoute>} />
@@ -158,6 +167,7 @@ const AppRoutes = () => {
         <Route path="/admin/sells" element={<AdminSellRequests />} />
         <Route path="/admin/hire-purchase" element={<AdminHirePurchase />} />
         <Route path="/admin/layaway" element={<AdminLayaway />} />
+        <Route path="/admin/pre-orders" element={<AdminPreOrders />} />
         <Route path="/admin/vendor-stores" element={<VendorStores />} />
         <Route path="/admin/raffles" element={<AdminRaffles />} />
         <Route path="/admin/ads" element={<AdsManager />} />

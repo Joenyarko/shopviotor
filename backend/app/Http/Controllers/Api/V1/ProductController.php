@@ -16,7 +16,7 @@ class ProductController extends Controller
     {
         $products = $this->productRepo->getActive(
             $request->input('per_page', 15),
-            $request->only(['category_id', 'brand_id', 'min_price', 'max_price', 'condition', 'city', 'sort'])
+            $request->only(['category_id', 'brand_id', 'min_price', 'max_price', 'condition', 'city', 'sort', 'available_for_preorder'])
         );
 
         return response()->json([

@@ -48,6 +48,7 @@ const AdminLayout = () => {
     { name: 'Layaway Plans', path: '/admin/layaway', icon: Layers3 },
     { name: 'Vendor Stores', path: '/admin/vendor-stores', icon: Store },
     { name: 'Raffles', path: '/admin/raffles', icon: Ticket },
+    { name: 'Pre-Orders', path: '/admin/pre-orders', icon: Package },
     { name: 'Marketing Ads', path: '/admin/ads', icon: Layers },
     { name: 'Promo Popups', path: '/admin/campaigns', icon: Layers },
     { name: 'Flash Sales', path: '/admin/flash-sales', icon: Tag },

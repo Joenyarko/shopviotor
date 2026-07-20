@@ -16,7 +16,8 @@ import {
   LogOut,
   ChevronDown,
   LayoutDashboard,
-  Ticket
+  Ticket,
+  Package
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -175,6 +176,13 @@ const Navbar = () => {
                       className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
                     >
                       <Ticket className="w-4 h-4" /> My Tickets
+                    </Link>
+                    <Link
+                      to="/my-pre-orders"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
+                    >
+                      <Package className="w-4 h-4" /> My Pre-Orders
                     </Link>
                     <button
                       onClick={() => {

@@ -55,6 +55,20 @@ const MainLayout = () => {
           >
             Raffles
           </NavLink>
+          <span className="text-white/30">|</span>
+          <NavLink 
+            to="/pre-orders" 
+            className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
+          >
+            Pre-Orders
+          </NavLink>
+          <span className="text-white/30">|</span>
+          <NavLink 
+            to="/become-a-vendor" 
+            className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
+          >
+            Become a Vendor
+          </NavLink>
         </div>
       </div>
 

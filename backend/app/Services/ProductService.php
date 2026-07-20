@@ -31,6 +31,11 @@ class ProductService
                 $data['layaway_total_boxes'] = null;
             }
 
+            if (empty($data['available_for_preorder'])) {
+                $data['preorder_deposit_amount'] = null;
+                $data['preorder_expected_date'] = null;
+            }
+
             $product = $this->productRepo->create($data);
 
             if (!empty($images)) {
@@ -58,6 +63,13 @@ class ProductService
                 } else {
                     $data['layaway_box_price'] = null;
                     $data['layaway_total_boxes'] = null;
+                }
+            }
+
+            if (isset($data['available_for_preorder'])) {
+                if (!$data['available_for_preorder']) {
+                    $data['preorder_deposit_amount'] = null;
+                    $data['preorder_expected_date'] = null;
                 }
             }
 

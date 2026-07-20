@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import layawayService from '../../services/layawayService';
-import { Package, RefreshCw, Eye, Check, X } from 'lucide-react';
+import { Package, RefreshCw, Eye, Check, X, PlusCircle } from 'lucide-react';
+import LayawayProductModal from '../../components/admin/LayawayProductModal';
 
 const AdminLayaway = () => {
   const [layaways, setLayaways] = useState([]);
@@ -8,6 +9,7 @@ const AdminLayaway = () => {
   const [selectedLayaway, setSelectedLayaway] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
   const [processing, setProcessing] = useState(false);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   
   // Settings Tab State
   const [termsText, setTermsText] = useState('');
@@ -85,11 +87,16 @@ const AdminLayaway = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
-          <Package className="w-6 h-6 text-primary-500" /> Layaway Plans
-        </h2>
-        <p className="text-sm text-secondary-500 mt-1">Manage all customer layaway/susu savings plans.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
+            <Package className="w-6 h-6 text-primary-500" /> Layaway Plans
+          </h2>
+          <p className="text-sm text-secondary-500 mt-1">Manage all customer layaway/susu savings plans.</p>
+        </div>
+        <button onClick={() => setIsProductModalOpen(true)} className="inline-flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-secondary-900 px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-colors">
+          <PlusCircle className="w-4 h-4" /> Add Layaway Product
+        </button>
       </div>
 
       {/* Tabs */}
@@ -251,6 +258,15 @@ const AdminLayaway = () => {
         </div>
       </div>
       )}
+
+      {/* Quick Add Layaway Product Modal */}
+      <LayawayProductModal 
+        isOpen={isProductModalOpen}
+        onClose={() => setIsProductModalOpen(false)}
+        onSuccess={() => {
+          // If we want to do something on success, e.g. show a toast
+        }}
+      />
     </div>
   );
 };

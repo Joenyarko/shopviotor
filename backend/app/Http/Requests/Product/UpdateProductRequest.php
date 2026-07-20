@@ -53,6 +53,9 @@ class UpdateProductRequest extends FormRequest
             'available_for_trade'         => ['boolean'],
             'available_for_layaway'       => ['boolean'],
             'layaway_total_boxes'         => ['nullable', 'integer', 'min:1'],
+            'available_for_preorder'      => ['boolean'],
+            'preorder_deposit_amount'     => ['nullable', 'numeric', 'min:0'],
+            'preorder_expected_date'      => ['nullable', 'date'],
             'images'                      => ['nullable', 'array', 'max:10'],
             'images.*'                    => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
         ];

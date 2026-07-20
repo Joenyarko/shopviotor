@@ -128,6 +128,10 @@ Route::prefix('v1')->group(function () {
         Route::post('/layaways/{uuid}/pay', [LayawayController::class, 'pay']);
         Route::get('/layaways/settings/terms', [LayawayController::class, 'terms']);
 
+        // Pre-Orders
+        Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\PreOrderController::class, 'index']);
+        Route::post('/pre-orders', [\App\Http\Controllers\Api\V1\PreOrderController::class, 'store']);
+
         // Store Application (any authenticated user can apply)
         Route::post('/stores/apply', [StoreController::class, 'apply']);
         Route::get('/stores/my-store', [StoreController::class, 'myStore']);
@@ -191,6 +195,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/layaways/{uuid}', [AdminLayawayController::class, 'show']);
             Route::post('/layaways/{uuid}/release', [AdminLayawayController::class, 'release']);
             Route::post('/layaways/{uuid}/cancel', [AdminLayawayController::class, 'cancel']);
+
+            // Pre-Orders (Admin)
+            Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\Admin\PreOrderController::class, 'index']);
+            Route::post('/pre-orders/{uuid}/status', [\App\Http\Controllers\Api\V1\Admin\PreOrderController::class, 'updateStatus']);
 
             // Vendor Stores (Admin)
             Route::get('/stores', [AdminStoreController::class, 'index']);

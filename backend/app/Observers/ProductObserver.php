@@ -29,6 +29,9 @@ class ProductObserver
         Cache::forget("product:{$product->uuid}");
         Cache::forget("products:featured");
         Cache::forget("products:category:{$product->category_id}");
-        Cache::tags(['products'])->flush();
+        Cache::forget("products:all");
+        Cache::forget("products:list");
+        // Note: Cache::tags() requires a tagging-compatible driver (redis/memcached).
+        // Using file driver, we flush individual known keys instead.
     }
 }
