@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import preorderService from '../../services/preorderService';
 import { Package, RefreshCw, Check, X, Eye } from 'lucide-react';
-import { format } from 'date-fns';
 
 const AdminPreOrders = () => {
   const [preOrders, setPreOrders] = useState([]);
@@ -109,7 +108,7 @@ const AdminPreOrders = () => {
                       <div className="text-xs text-secondary-500">Total: GHS {parseFloat(order.total_price).toFixed(2)}</div>
                     </td>
                     <td className="p-4">
-                      {order.expected_date ? format(new Date(order.expected_date), 'MMM dd, yyyy') : 'TBD'}
+                      {order.expected_date ? new Date(order.expected_date).toLocaleDateString() : 'TBD'}
                     </td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${statusBadge(order.status)}`}>
