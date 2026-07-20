@@ -38,6 +38,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminCollectionController;
 use App\Http\Controllers\Api\V1\Admin\AdminHirePurchaseController;
 use App\Http\Controllers\Api\V1\Admin\AdminLayawayController;
 use App\Http\Controllers\Api\V1\Admin\AdminStoreController;
+use App\Http\Controllers\Api\V1\Admin\SettingController as AdminSettingController;
 
 Route::prefix('v1')->group(function () {
     
@@ -125,6 +126,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/layaways', [LayawayController::class, 'store']);
         Route::get('/layaways/{uuid}', [LayawayController::class, 'show']);
         Route::post('/layaways/{uuid}/pay', [LayawayController::class, 'pay']);
+        Route::get('/layaways/settings/terms', [LayawayController::class, 'terms']);
 
         // Store Application (any authenticated user can apply)
         Route::post('/stores/apply', [StoreController::class, 'apply']);
@@ -202,6 +204,10 @@ Route::prefix('v1')->group(function () {
         Route::post('marketing/campaigns/{uuid}', [AdminCampaignController::class, 'update']); // Use POST for FormData with _method=PUT later if needed, or stick to POST for file uploads
         Route::apiResource('marketing/flash-sales', AdminFlashSaleController::class)->parameters(['flash-sales' => 'uuid']);
         Route::apiResource('marketing/collections', AdminCollectionController::class)->parameters(['collections' => 'uuid']);
+
+        // Settings
+        Route::get('/settings/layaway-terms', [AdminSettingController::class, 'getLayawayTerms']);
+        Route::post('/settings/layaway-terms', [AdminSettingController::class, 'updateLayawayTerms']);
     });
     });
 });

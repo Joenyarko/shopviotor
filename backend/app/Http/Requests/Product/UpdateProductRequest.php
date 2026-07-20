@@ -52,8 +52,7 @@ class UpdateProductRequest extends FormRequest
             'available_for_hire_purchase' => ['boolean'],
             'available_for_trade'         => ['boolean'],
             'available_for_layaway'       => ['boolean'],
-            'layaway_daily_amount'        => ['nullable', 'numeric', 'min:0'],
-            'layaway_weekly_amount'       => ['nullable', 'numeric', 'min:0'],
+            'layaway_total_boxes'         => ['nullable', 'integer', 'min:1'],
             'images'                      => ['nullable', 'array', 'max:10'],
             'images.*'                    => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
         ];

@@ -22,6 +22,8 @@ class Layaway extends Model
         'customer_phone', 'customer_address',
     ];
 
+    protected $appends = ['progress_percentage', 'ticked_boxes'];
+
     protected function casts(): array
     {
         return [
@@ -54,5 +56,12 @@ class Layaway extends Model
     {
         if ($this->product_price == 0) return 100;
         return round(($this->total_paid / $this->product_price) * 100, 1);
+    }
+
+    public function getTickedBoxesAttribute(): int
+    {
+        $boxPrice = $this->product?->layaway_box_price;
+        if (!$boxPrice || $boxPrice <= 0) return 0;
+        return (int) floor($this->total_paid / $boxPrice);
     }
 }

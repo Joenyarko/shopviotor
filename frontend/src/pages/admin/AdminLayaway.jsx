@@ -8,6 +8,11 @@ const AdminLayaway = () => {
   const [selectedLayaway, setSelectedLayaway] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
   const [processing, setProcessing] = useState(false);
+  
+  // Settings Tab State
+  const [termsText, setTermsText] = useState('');
+  const [savingTerms, setSavingTerms] = useState(false);
+  const [loadingTerms, setLoadingTerms] = useState(false);
 
   const loadLayaways = async () => {
     setLoading(true);
@@ -19,7 +24,33 @@ const AdminLayaway = () => {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { loadLayaways(); }, [activeTab]);
+  useEffect(() => { 
+    if (activeTab === 'settings') {
+      loadTerms();
+    } else {
+      loadLayaways(); 
+    }
+  }, [activeTab]);
+
+  const loadTerms = async () => {
+    setLoadingTerms(true);
+    try {
+      const res = await layawayService.adminGetTerms();
+      setTermsText(res.data?.data?.layaway_terms || '');
+    } catch (e) {
+        console.error(e);
+    } finally { setLoadingTerms(false); }
+  };
+
+  const saveTerms = async () => {
+    setSavingTerms(true);
+    try {
+      await layawayService.adminSaveTerms({ layaway_terms: termsText });
+      alert('Terms saved successfully!');
+    } catch (e) {
+      alert(e.response?.data?.message || 'Failed to save terms');
+    } finally { setSavingTerms(false); }
+  };
 
   const handleRelease = async (uuid) => {
     if (!window.confirm('Mark this layaway as released/delivered?')) return;
@@ -62,18 +93,44 @@ const AdminLayaway = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-secondary-200 dark:border-secondary-800 gap-1">
-        {['all', 'active', 'completed', 'cancelled'].map(tab => (
+      <div className="flex border-b border-secondary-200 dark:border-secondary-800 gap-1 overflow-x-auto">
+        {['all', 'active', 'completed', 'cancelled', 'settings'].map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`px-5 py-3 text-sm font-semibold capitalize border-b-2 transition-colors ${activeTab === tab ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400'}`}>
-            {tab === 'all' ? 'All Plans' : tab}
+            className={`px-5 py-3 text-sm font-semibold capitalize border-b-2 transition-colors whitespace-nowrap ${activeTab === tab ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400'}`}>
+            {tab === 'all' ? 'All Plans' : tab === 'settings' ? 'Global Settings' : tab}
           </button>
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Table */}
-        <div className="lg:col-span-2">
+      {activeTab === 'settings' ? (
+        <div className="max-w-3xl bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 shadow-sm">
+          <h3 className="font-bold text-secondary-900 dark:text-white mb-4">Layaway / Susu Terms & Conditions</h3>
+          <p className="text-sm text-secondary-500 mb-6">These terms will be displayed to customers when they register for a new layaway plan.</p>
+          
+          {loadingTerms ? (
+             <div className="flex justify-center py-8"><RefreshCw className="w-6 h-6 text-primary-500 animate-spin" /></div>
+          ) : (
+            <div className="space-y-4">
+              <textarea
+                value={termsText}
+                onChange={e => setTermsText(e.target.value)}
+                className="w-full bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-xl px-4 py-3 text-sm text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-[300px]"
+                placeholder="Enter your global layaway terms and conditions here..."
+              />
+              <button 
+                onClick={saveTerms} 
+                disabled={savingTerms}
+                className="px-6 py-2.5 bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold rounded-xl text-sm disabled:opacity-50"
+              >
+                {savingTerms ? 'Saving...' : 'Save Terms'}
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Table */}
+          <div className="lg:col-span-2">
           {loading ? (
             <div className="flex justify-center py-16"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
           ) : layaways.length === 0 ? (
@@ -193,6 +250,7 @@ const AdminLayaway = () => {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 };

@@ -24,6 +24,13 @@ class ProductService
             $images = $data['images'] ?? [];
             unset($data['images']);
 
+            if (!empty($data['available_for_layaway']) && !empty($data['layaway_total_boxes'])) {
+                $data['layaway_box_price'] = $data['price'] / $data['layaway_total_boxes'];
+            } else {
+                $data['layaway_box_price'] = null;
+                $data['layaway_total_boxes'] = null;
+            }
+
             $product = $this->productRepo->create($data);
 
             if (!empty($images)) {
@@ -43,6 +50,16 @@ class ProductService
 
             $images = $data['images'] ?? [];
             unset($data['images']);
+
+            if (isset($data['available_for_layaway'])) {
+                if ($data['available_for_layaway'] && !empty($data['layaway_total_boxes'])) {
+                    $price = $data['price'] ?? $product->price;
+                    $data['layaway_box_price'] = $price / $data['layaway_total_boxes'];
+                } else {
+                    $data['layaway_box_price'] = null;
+                    $data['layaway_total_boxes'] = null;
+                }
+            }
 
             $product->update($data);
 

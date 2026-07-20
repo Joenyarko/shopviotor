@@ -18,6 +18,15 @@ const LayawayDetail = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [createdLayaway, setCreatedLayaway] = useState(null);
 
+  const [terms, setTerms] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  React.useEffect(() => {
+    layawayService.getTerms()
+      .then(res => setTerms(res.data?.data?.layaway_terms || ''))
+      .catch(console.error);
+  }, []);
+
   if (!product) {
     return (
       <div className="max-w-md mx-auto text-center py-20 dark:text-white space-y-4">
@@ -37,6 +46,10 @@ const LayawayDetail = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!acceptedTerms) {
+      setErrorMsg('You must accept the terms and conditions.');
+      return;
+    }
     if (initialPayment < 0) {
       setErrorMsg('Payment amount cannot be negative.');
       return;
@@ -51,6 +64,7 @@ const LayawayDetail = () => {
         notes: notes || undefined,
         customer_phone: customerPhone,
         customer_address: customerAddress,
+        accepted_terms: acceptedTerms,
       });
       setCreatedLayaway(res.data?.data);
       setSuccess(true);
@@ -88,20 +102,19 @@ const LayawayDetail = () => {
             </div>
           </div>
 
-          {(product.layaway_daily_amount || product.layaway_weekly_amount) && (
-            <div className="bg-accent-50 dark:bg-accent-950/20 border border-accent-200 dark:border-accent-800 rounded-2xl p-4 flex gap-6">
-              {product.layaway_daily_amount && (
-                <div>
-                  <p className="text-xs font-bold text-accent-700 dark:text-accent-400 uppercase tracking-wider">Daily Payment</p>
-                  <p className="font-black text-secondary-900 dark:text-white text-lg">GHS {product.layaway_daily_amount}</p>
+          {product.layaway_total_boxes && (
+            <div className="bg-accent-50 dark:bg-accent-950/20 border border-accent-200 dark:border-accent-800 rounded-2xl p-6 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-bold text-accent-700 dark:text-accent-400 uppercase tracking-wider">Susu Plan / Box Pricing</p>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <p className="font-black text-secondary-900 dark:text-white text-3xl">GHS {product.layaway_box_price?.toLocaleString()}</p>
+                  <p className="text-secondary-500 font-bold">per box</p>
                 </div>
-              )}
-              {product.layaway_weekly_amount && (
-                <div>
-                  <p className="text-xs font-bold text-accent-700 dark:text-accent-400 uppercase tracking-wider">Weekly Payment</p>
-                  <p className="font-black text-secondary-900 dark:text-white text-lg">GHS {product.layaway_weekly_amount}</p>
-                </div>
-              )}
+              </div>
+              <div className="text-right">
+                <p className="text-secondary-500 text-sm font-bold">Total Boxes Required</p>
+                <p className="font-black text-secondary-900 dark:text-white text-2xl">{product.layaway_total_boxes}</p>
+              </div>
             </div>
           )}
 
@@ -228,6 +241,25 @@ const LayawayDetail = () => {
                   className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                 />
               </div>
+
+              {/* Terms and Conditions */}
+              {terms && (
+                <div className="space-y-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
+                  <h3 className="font-bold text-secondary-900 dark:text-white">Terms & Conditions</h3>
+                  <div className="p-4 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-xl text-sm text-secondary-600 dark:text-secondary-400 max-h-48 overflow-y-auto whitespace-pre-wrap">
+                    {terms}
+                  </div>
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${acceptedTerms ? 'bg-primary-500 border-primary-500 text-secondary-900' : 'bg-white dark:bg-secondary-900 border-secondary-300 dark:border-secondary-700'}`}>
+                      {acceptedTerms && <CheckCircle2 className="w-3.5 h-3.5" />}
+                    </div>
+                    <input type="checkbox" className="hidden" checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} />
+                    <span className="text-sm font-semibold text-secondary-700 dark:text-secondary-300 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors">
+                      I have read and accept the Layaway / Susu Terms and Conditions
+                    </span>
+                  </label>
+                </div>
+              )}
 
               <button
                 type="submit"

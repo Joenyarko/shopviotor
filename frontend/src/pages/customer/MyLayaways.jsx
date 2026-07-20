@@ -125,19 +125,35 @@ const MyLayaways = () => {
                       <span className={`text-xs font-bold px-3 py-1 rounded-full ${config.color}`}>{config.label}</span>
                     </div>
 
-                    {/* Progress Bar */}
-                    <div className="space-y-1.5">
-                      <div className="flex justify-between text-xs font-semibold text-secondary-600 dark:text-secondary-400">
-                        <span>Payment Progress</span>
-                        <span className="text-primary-600 dark:text-primary-400">{layaway.progress_percentage}%</span>
+                    {/* Progress Bar / Box Grid */}
+                    {layaway.product?.layaway_total_boxes ? (
+                      <div className="space-y-3 pt-2">
+                        <div className="flex justify-between text-xs font-semibold text-secondary-600 dark:text-secondary-400">
+                          <span>Susu Box Progress ({layaway.ticked_boxes || 0} / {layaway.product.layaway_total_boxes} boxes)</span>
+                          <span className="text-primary-600 dark:text-primary-400">GHS {layaway.product.layaway_box_price} / box</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {Array.from({ length: layaway.product.layaway_total_boxes }).map((_, i) => (
+                            <div key={i} className={`w-6 h-6 rounded flex items-center justify-center border text-[10px] font-bold ${i < (layaway.ticked_boxes || 0) ? 'bg-emerald-500 border-emerald-600 text-white shadow-sm' : 'bg-secondary-100 dark:bg-secondary-800 border-secondary-200 dark:border-secondary-700 text-secondary-400'}`}>
+                              {i < (layaway.ticked_boxes || 0) ? <CheckCircle2 className="w-3.5 h-3.5" /> : i + 1}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="h-3 bg-secondary-100 dark:bg-secondary-800 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-700 ${layaway.status === 'completed' ? 'bg-emerald-500' : 'bg-gradient-to-r from-primary-500 to-accent-500'}`}
-                          style={{ width: `${Math.min(100, layaway.progress_percentage)}%` }}
-                        />
+                    ) : (
+                      <div className="space-y-1.5 pt-2">
+                        <div className="flex justify-between text-xs font-semibold text-secondary-600 dark:text-secondary-400">
+                          <span>Payment Progress</span>
+                          <span className="text-primary-600 dark:text-primary-400">{layaway.progress_percentage}%</span>
+                        </div>
+                        <div className="h-3 bg-secondary-100 dark:bg-secondary-800 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-700 ${layaway.status === 'completed' ? 'bg-emerald-500' : 'bg-gradient-to-r from-primary-500 to-accent-500'}`}
+                            style={{ width: `${Math.min(100, layaway.progress_percentage)}%` }}
+                          />
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Payment amounts */}
                     <div className="grid grid-cols-3 gap-4">

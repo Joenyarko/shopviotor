@@ -39,6 +39,7 @@ class LayawayController extends Controller
             'notes'                   => 'nullable|string|max:500',
             'customer_phone'          => 'required|string|max:20',
             'customer_address'        => 'required|string|max:1000',
+            'accepted_terms'          => 'required|accepted',
         ]);
 
         // Resolve product UUID to ID
@@ -204,5 +205,15 @@ class LayawayController extends Controller
         }
 
         return $data;
+    }
+
+    public function terms(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'layaway_terms' => \App\Models\Setting::getValue('layaway_terms', '')
+            ]
+        ]);
     }
 }

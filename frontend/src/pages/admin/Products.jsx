@@ -34,8 +34,7 @@ const Products = () => {
   const [availableForTrade, setAvailableForTrade] = useState(false);
   const [availableForHp, setAvailableForHp] = useState(false);
   const [availableForLayaway, setAvailableForLayaway] = useState(false);
-  const [layawayDailyAmount, setLayawayDailyAmount] = useState('');
-  const [layawayWeeklyAmount, setLayawayWeeklyAmount] = useState('');
+  const [layawayTotalBoxes, setLayawayTotalBoxes] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
 
   // Image states
@@ -69,7 +68,7 @@ const Products = () => {
     setName(''); setPrice(''); setComparePrice(''); setStock('');
     setMainCategoryId(''); setSubCategoryId(''); setSubSubCategoryId(''); setBrandId(''); setCondition('new'); setStatus('active');
     setDescription(''); setIsNegotiable(false); setAvailableForTrade(false);
-    setAvailableForHp(false); setAvailableForLayaway(false); setLayawayDailyAmount(''); setLayawayWeeklyAmount(''); 
+    setAvailableForHp(false); setAvailableForLayaway(false); setLayawayTotalBoxes(''); 
     setIsFeatured(false); setImageFiles([]); setImagePreviews([]);
     setExistingImages([]); setActiveImageIdx(0); setVariations([]);
     setErrorMsg(''); setActiveTab('basic');
@@ -110,8 +109,7 @@ const Products = () => {
     setAvailableForTrade(!!product.available_for_trade);
     setAvailableForHp(!!product.available_for_hire_purchase);
     setAvailableForLayaway(!!product.available_for_layaway);
-    setLayawayDailyAmount(product.layaway_daily_amount || '');
-    setLayawayWeeklyAmount(product.layaway_weekly_amount || '');
+    setLayawayTotalBoxes(product.layaway_total_boxes || '');
     setIsFeatured(!!product.is_featured);
     setExistingImages(product.images || []);
     setImageFiles([]); setImagePreviews([]); setActiveImageIdx(0);
@@ -186,13 +184,14 @@ const Products = () => {
     formData.append('condition', condition);
     formData.append('status', status);
     formData.append('description', description);
+    formData.append('is_featured', isFeatured ? '1' : '0');
     formData.append('is_negotiable', isNegotiable ? '1' : '0');
     formData.append('available_for_trade', availableForTrade ? '1' : '0');
     formData.append('available_for_hire_purchase', availableForHp ? '1' : '0');
     formData.append('available_for_layaway', availableForLayaway ? '1' : '0');
-    if (availableForLayaway) {
-      if (layawayDailyAmount) formData.append('layaway_daily_amount', layawayDailyAmount);
-      if (layawayWeeklyAmount) formData.append('layaway_weekly_amount', layawayWeeklyAmount);
+    
+    if (availableForLayaway && layawayTotalBoxes) {
+      formData.append('layaway_total_boxes', layawayTotalBoxes);
     }
     formData.append('is_featured', isFeatured ? '1' : '0');
     if (variations.length > 0) formData.append('variations', JSON.stringify(variations));
@@ -419,16 +418,18 @@ const Products = () => {
                   {availableForLayaway && (
                     <div className="grid grid-cols-2 gap-4 p-4 mt-2 bg-secondary-50 dark:bg-secondary-800 rounded-xl border border-secondary-200 dark:border-secondary-700">
                       <div className="col-span-2">
-                        <p className="text-sm font-bold text-secondary-900 dark:text-white">Layaway Configuration</p>
-                        <p className="text-xs text-secondary-500">Set the required daily or weekly payments.</p>
+                        <p className="text-sm font-bold text-secondary-900 dark:text-white">Layaway / Susu Box Configuration</p>
+                        <p className="text-xs text-secondary-500">Set the total number of boxes. The price per box will be automatically calculated.</p>
                       </div>
                       <div>
-                        <label className={labelClass}>Daily Amount (GHS)</label>
-                        <input type="number" min="0" step="0.01" value={layawayDailyAmount} onChange={e => setLayawayDailyAmount(e.target.value)} className={inputClass} placeholder="e.g. 5.00" />
+                        <label className={labelClass}>Total Boxes</label>
+                        <input type="number" min="1" step="1" value={layawayTotalBoxes} onChange={e => setLayawayTotalBoxes(e.target.value)} className={inputClass} placeholder="e.g. 50" />
                       </div>
                       <div>
-                        <label className={labelClass}>Weekly Amount (GHS)</label>
-                        <input type="number" min="0" step="0.01" value={layawayWeeklyAmount} onChange={e => setLayawayWeeklyAmount(e.target.value)} className={inputClass} placeholder="e.g. 35.00" />
+                        <label className={labelClass}>Calculated Price Per Box</label>
+                        <div className="p-3 bg-white dark:bg-secondary-900 border border-secondary-300 dark:border-secondary-600 rounded-xl text-sm text-secondary-700 dark:text-secondary-300">
+                          {layawayTotalBoxes && price ? `GHS ${(parseFloat(price) / parseInt(layawayTotalBoxes)).toFixed(2)}` : 'GHS 0.00'}
+                        </div>
                       </div>
                     </div>
                   )}

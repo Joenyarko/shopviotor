@@ -121,7 +121,14 @@ const Layaway = () => {
                 </div>
                 <div className="p-4 flex flex-col flex-1">
                   <h3 className="font-bold text-sm text-secondary-900 dark:text-white line-clamp-2 mb-1">{product.name}</h3>
-                  <p className="text-primary-600 dark:text-primary-400 font-bold text-base mb-3">GHS {parseFloat(product.price).toLocaleString()}</p>
+                  {product.layaway_box_price && product.layaway_total_boxes ? (
+                    <div className="mb-3">
+                      <p className="text-primary-600 dark:text-primary-400 font-bold text-base">GHS {parseFloat(product.layaway_box_price).toLocaleString()} <span className="text-xs text-secondary-500 font-semibold uppercase tracking-wider">/ box</span></p>
+                      <p className="text-xs text-secondary-500 font-semibold">{product.layaway_total_boxes} boxes total</p>
+                    </div>
+                  ) : (
+                    <p className="text-primary-600 dark:text-primary-400 font-bold text-base mb-3">GHS {parseFloat(product.price).toLocaleString()}</p>
+                  )}
                   <p className="text-xs text-secondary-500 dark:text-secondary-400 mb-4 flex-1">
                     Start paying in contributions. Receive when fully paid!
                   </p>

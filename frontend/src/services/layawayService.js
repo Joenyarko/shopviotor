@@ -12,6 +12,11 @@ const layawayService = {
   adminGetLayaway: (uuid) => apiClient.get(`/admin/layaways/${uuid}`),
   adminRelease: (uuid) => apiClient.post(`/admin/layaways/${uuid}/release`),
   adminCancel: (uuid, reason) => apiClient.post(`/admin/layaways/${uuid}/cancel`, { reason }),
+
+  // Settings
+  getTerms: () => apiClient.get('/layaways/settings/terms'),
+  adminGetTerms: () => apiClient.get('/admin/settings/layaway-terms'),
+  adminSaveTerms: (data) => apiClient.post('/admin/settings/layaway-terms', data),
 };
 
 export default layawayService;
