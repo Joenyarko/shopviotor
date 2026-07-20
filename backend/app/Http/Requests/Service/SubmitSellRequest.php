@@ -14,10 +14,11 @@ class SubmitSellRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id'  => ['required', 'exists:categories,id'],
-            'brand_id'     => ['nullable', 'exists:brands,id'],
-            'item_name'    => ['required', 'string', 'max:255'],
-            'description'  => ['required', 'string'],
+            'category_id'    => ['required', 'exists:categories,uuid'],
+            'brand_id'       => ['nullable', 'exists:brands,uuid'],
+            'item_name'      => ['required', 'string', 'max:255'],
+            'contact_number' => ['required', 'string', 'max:20'],
+            'description'    => ['required', 'string'],
             'condition'    => ['required', 'in:new,used,refurbished'],
             'asking_price' => ['required', 'numeric', 'min:1'],
             'images'       => ['required', 'array', 'min:1', 'max:5'],

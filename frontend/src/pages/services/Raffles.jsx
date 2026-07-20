@@ -83,7 +83,7 @@ function RaffleCard({ raffle }) {
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-xxs text-secondary-500 text-right">{progress.toFixed(1)}% filled</p>
+          <p className="text-xxs text-secondary-500 dark:text-secondary-400 text-right">{progress.toFixed(1)}% filled</p>
         </div>
 
         {/* Countdown */}
@@ -97,7 +97,7 @@ function RaffleCard({ raffle }) {
             ].map(({ val, label }) => (
               <div key={label} className="text-center bg-secondary-800 rounded-lg p-1.5">
                 <div className="text-white font-bold text-sm tabular-nums">{String(val).padStart(2, '0')}</div>
-                <div className="text-secondary-500 text-xxs">{label}</div>
+                <div className="text-secondary-500 dark:text-secondary-400 text-xxs">{label}</div>
               </div>
             ))}
           </div>
@@ -107,7 +107,7 @@ function RaffleCard({ raffle }) {
       {/* Footer */}
       <div className="px-5 pb-5 flex items-center justify-between">
         <div>
-          <p className="text-xxs text-secondary-500 font-semibold uppercase">Ticket Price</p>
+          <p className="text-xxs text-secondary-500 dark:text-secondary-400 font-semibold uppercase">Ticket Price</p>
           <p className="text-primary-400 font-extrabold text-lg">GHS {parseFloat(raffle.ticket_price || 0).toFixed(2)}</p>
         </div>
         <div className="flex items-center gap-1.5 bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold text-xs px-4 py-2.5 rounded-xl transition-colors">
@@ -239,7 +239,7 @@ const Raffles = () => {
                   <Icon className="w-4 h-4" />
                   <span className="text-2xl font-extrabold text-white">{val}</span>
                 </div>
-                <p className="text-secondary-500 text-xs">{label}</p>
+                <p className="text-secondary-500 dark:text-secondary-400 text-xs">{label}</p>
               </div>
             ))}
           </div>
@@ -251,7 +251,7 @@ const Raffles = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-extrabold text-secondary-900 dark:text-white">How It Works</h2>
-            <p className="text-secondary-500 mt-2 text-sm">Simple, transparent, and secure. Three steps to your dream prize.</p>
+            <p className="text-secondary-500 dark:text-secondary-400 mt-2 text-sm">Simple, transparent, and secure. Three steps to your dream prize.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
@@ -263,9 +263,9 @@ const Raffles = () => {
                 <div className={`${color} w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md`}>
                   <Icon className="w-7 h-7 text-white" />
                 </div>
-                <span className="absolute top-3 right-4 text-5xl font-extrabold text-secondary-100 dark:text-secondary-800 select-none">{num}</span>
+                <span className="absolute top-3 right-4 text-5xl font-extrabold text-secondary-100 dark:text-secondary-800 dark:text-secondary-100 select-none">{num}</span>
                 <h3 className="font-bold text-secondary-900 dark:text-white">{title}</h3>
-                <p className="text-secondary-500 text-xs mt-2 leading-relaxed">{desc}</p>
+                <p className="text-secondary-500 dark:text-secondary-400 text-xs mt-2 leading-relaxed">{desc}</p>
               </div>
             ))}
           </div>
@@ -334,7 +334,7 @@ const Raffles = () => {
       <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-6 py-16">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-extrabold text-secondary-900 mb-3">Ready to Win Your Next Prize?</h2>
-          <p className="text-secondary-800 text-sm mb-6">Join thousands of winners. Every ticket is your chance to change your story.</p>
+          <p className="text-secondary-800 dark:text-secondary-100 text-sm mb-6">Join thousands of winners. Every ticket is your chance to change your story.</p>
           <Link to="#active-raffles" className="inline-flex items-center gap-2 bg-secondary-900 text-white hover:bg-secondary-800 font-bold px-8 py-3.5 rounded-2xl transition-colors text-sm">
             <Ticket className="w-5 h-5" /> Buy Tickets Now
           </Link>

@@ -11,10 +11,20 @@ class SubmitTradeRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation()
+    {
+        if ($this->product_id && !is_numeric($this->product_id)) {
+            $product = \App\Models\Product::where('uuid', $this->product_id)->first();
+            if ($product) {
+                $this->merge(['product_id' => $product->id]);
+            }
+        }
+    }
+
     public function rules(): array
     {
         return [
-            'product_id'          => ['required', 'exists:products,id'], // The item the user wants
+            'product_id'          => ['nullable', 'exists:products,id'], // The item the user wants (nullable for open trades)
             'notes'               => ['nullable', 'string', 'max:500'],
             'items'               => ['required', 'array', 'min:1'], // Items user is offering
             'items.*.item_name'   => ['required', 'string', 'max:255'],

@@ -179,7 +179,7 @@ const Categories = () => {
                               ) : subSub.icon && !iconMap[subSub.icon] && !iconMap[subSub.name] ? (
                                 <span className="text-2xl">{subSub.icon}</span>
                               ) : (
-                                <IconComponent className="w-8 h-8 text-secondary-400 dark:text-secondary-500 group-hover:text-primary-500 transition-colors" />
+                                <IconComponent className="w-8 h-8 text-secondary-400 dark:text-secondary-500 dark:text-secondary-400 group-hover:text-primary-500 transition-colors" />
                               )}
                             </div>
                             <span className="text-xs font-medium text-secondary-700 dark:text-secondary-300 group-hover:text-primary-600 line-clamp-2 leading-tight">

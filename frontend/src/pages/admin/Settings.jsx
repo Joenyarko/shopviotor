@@ -26,12 +26,12 @@ const Settings = () => {
         <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
           <SettingsIcon className="w-6 h-6 text-primary-500" /> Platform Settings
         </h2>
-        <p className="text-sm text-secondary-500 mt-1">Configure global application variables, taxes, and service status.</p>
+        <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Configure global application variables, taxes, and service status.</p>
       </div>
 
       <form onSubmit={handleSave} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-6">
         <div>
-          <label className="block text-xs font-bold text-secondary-500 uppercase">Store / Site Name</label>
+          <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase">Store / Site Name</label>
           <input
             type="text"
             required
@@ -42,7 +42,7 @@ const Settings = () => {
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-secondary-500 uppercase">Momo Service Surcharge (%)</label>
+          <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase">Momo Service Surcharge (%)</label>
           <input
             type="number"
             step="0.1"

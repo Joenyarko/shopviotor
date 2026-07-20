@@ -1,0 +1,29 @@
+import apiClient from '../api/client';
+
+const vendorService = {
+  // Store management
+  applyForStore: (formData) => apiClient.post('/stores/apply', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  getMyStore: () => apiClient.get('/stores/my-store'),
+  updateMyStore: (formData) => apiClient.post('/stores/my-store/update', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+
+  // Public stores
+  getStores: (params = {}) => apiClient.get('/stores', { params }),
+  getStore: (slug) => apiClient.get(`/stores/${slug}`),
+
+  // Vendor dashboard & products
+  getDashboard: () => apiClient.get('/vendor/dashboard'),
+  getProducts: (params = {}) => apiClient.get('/vendor/products', { params }),
+  createProduct: (formData) => apiClient.post('/vendor/products', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  updateProduct: (uuid, formData) => apiClient.post(`/vendor/products/${uuid}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  deleteProduct: (uuid) => apiClient.delete(`/vendor/products/${uuid}`),
+
+  // Admin
+  adminGetStores: (params = {}) => apiClient.get('/admin/stores', { params }),
+  adminApproveStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/approve`),
+  adminSuspendStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/suspend`),
+  adminRestoreStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/restore`),
+  adminUpdateCommission: (uuid, rate) => apiClient.post(`/admin/stores/${uuid}/commission`, { commission_rate: rate }),
+};
+
+export default vendorService;
+export { vendorService };

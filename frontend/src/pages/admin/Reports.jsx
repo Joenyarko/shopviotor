@@ -25,12 +25,12 @@ const Reports = () => {
         <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
           <BarChart2 className="w-6 h-6 text-primary-500" /> System Report Exports
         </h2>
-        <p className="text-sm text-secondary-500 mt-1">Export transaction, swap inventory, and financial balances logs.</p>
+        <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Export transaction, swap inventory, and financial balances logs.</p>
       </div>
 
       <form onSubmit={handleGenerate} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-6">
         <div>
-          <label className="block text-xs font-bold text-secondary-500 uppercase">Report Scope</label>
+          <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase">Report Scope</label>
           <select
             value={reportType}
             onChange={(e) => setReportType(e.target.value)}
@@ -44,7 +44,7 @@ const Reports = () => {
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-secondary-500 uppercase">Output Format</label>
+          <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase">Output Format</label>
           <div className="flex gap-4 mt-2">
             {['pdf', 'csv', 'xlsx'].map((f) => (
               <label key={f} className="flex items-center gap-2 text-sm text-secondary-700 dark:text-secondary-300 capitalize cursor-pointer">

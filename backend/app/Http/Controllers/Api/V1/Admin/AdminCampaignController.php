@@ -18,15 +18,22 @@ class AdminCampaignController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $validated = $request->validate([
+        $rules = [
             'title' => 'required|string|max:255',
             'target_url' => 'nullable|string',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'boolean',
             'display_location' => 'required|string',
             'image' => 'required|image|max:5120',
-        ]);
+        ];
+
+        if ($request->filled('start_date')) {
+            $rules['end_date'] = 'nullable|date|after_or_equal:start_date';
+        } else {
+            $rules['end_date'] = 'nullable|date';
+        }
+
+        $validated = $request->validate($rules);
 
         $path = $request->file('image')->store('campaigns', 'public');
 
@@ -50,15 +57,22 @@ class AdminCampaignController extends Controller
     {
         $campaign = Campaign::where('uuid', $uuid)->firstOrFail();
 
-        $validated = $request->validate([
+        $rules = [
             'title' => 'required|string|max:255',
             'target_url' => 'nullable|string',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'boolean',
             'display_location' => 'required|string',
             'image' => 'nullable|image|max:5120',
-        ]);
+        ];
+
+        if ($request->filled('start_date')) {
+            $rules['end_date'] = 'nullable|date|after_or_equal:start_date';
+        } else {
+            $rules['end_date'] = 'nullable|date';
+        }
+
+        $validated = $request->validate($rules);
 
         $campaign->title = $validated['title'];
         $campaign->target_url = $validated['target_url'] ?? null;

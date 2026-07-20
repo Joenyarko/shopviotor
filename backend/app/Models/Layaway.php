@@ -19,6 +19,7 @@ class Layaway extends Model
         'product_price', 'total_paid', 'balance_remaining',
         'payment_count', 'target_completion_date',
         'completed_at', 'cancelled_at', 'notes',
+        'customer_phone', 'customer_address',
     ];
 
     protected function casts(): array

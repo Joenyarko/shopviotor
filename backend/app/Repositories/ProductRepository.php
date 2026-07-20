@@ -12,6 +12,17 @@ class ProductRepository extends BaseRepository
         parent::__construct($model);
     }
 
+    public function getAdminProducts(int $perPage = 15, array $filters = [], array $relations = [])
+    {
+        $query = $this->model->with($relations);
+
+        if (isset($filters['available_for_trade'])) {
+            $query->where('available_for_trade', $filters['available_for_trade']);
+        }
+
+        return $query->latest()->paginate($perPage);
+    }
+
     public function getActive(int $perPage = 15, array $filters = [])
     {
         $query = $this->model->active()->with(['category', 'brand', 'primaryImage']);

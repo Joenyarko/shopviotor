@@ -97,9 +97,9 @@ const Messages = () => {
         </div>
         <div className="flex-1 overflow-y-auto divide-y divide-secondary-100 dark:divide-secondary-800">
           {loading ? (
-            <div className="p-4 text-center text-xs text-secondary-500">Loading chats...</div>
+            <div className="p-4 text-center text-xs text-secondary-500 dark:text-secondary-400">Loading chats...</div>
           ) : conversations.length === 0 ? (
-            <div className="p-8 text-center text-xs text-secondary-500">No active support conversations.</div>
+            <div className="p-8 text-center text-xs text-secondary-500 dark:text-secondary-400">No active support conversations.</div>
           ) : (
             conversations.map((conv) => (
               <button
@@ -128,7 +128,7 @@ const Messages = () => {
             {/* Messages log list */}
             <div className="flex-1 p-4 overflow-y-auto space-y-4">
               {loadingMessages ? (
-                <div className="text-center text-xs text-secondary-500">Loading messages...</div>
+                <div className="text-center text-xs text-secondary-500 dark:text-secondary-400">Loading messages...</div>
               ) : (
                 messages.map((msg) => {
                   const isMe = msg.sender_id !== selectedConv.admin_id; // Check if sender matches customer id
@@ -170,14 +170,14 @@ const Messages = () => {
                   {attachments.map((file, idx) => (
                     <span key={idx} className="inline-flex items-center gap-1 bg-secondary-200 dark:bg-secondary-800 text-xxs px-2 py-0.5 rounded-full">
                       <span className="truncate max-w-[100px]">{file.name}</span>
-                      <button type="button" onClick={() => handleRemoveAttachment(idx)}><X className="w-3 h-3 text-secondary-500" /></button>
+                      <button type="button" onClick={() => handleRemoveAttachment(idx)}><X className="w-3 h-3 text-secondary-500 dark:text-secondary-400" /></button>
                     </span>
                   ))}
                 </div>
               )}
 
               <div className="flex gap-3 items-center">
-                <label className="p-2 text-secondary-500 hover:bg-secondary-250 dark:hover:bg-secondary-800 rounded-full cursor-pointer transition-colors flex-shrink-0">
+                <label className="p-2 text-secondary-500 dark:text-secondary-400 hover:bg-secondary-250 dark:hover:bg-secondary-800 rounded-full cursor-pointer transition-colors flex-shrink-0">
                   <Upload className="w-5 h-5" />
                   <input
                     type="file"
@@ -207,7 +207,7 @@ const Messages = () => {
           <div className="flex-grow flex flex-col justify-center items-center text-center p-8 space-y-4">
             <MessageSquare className="w-12 h-12 text-secondary-300" />
             <h3 className="font-bold text-secondary-900 dark:text-white">Start a Support Conversation</h3>
-            <p className="text-xs text-secondary-500 max-w-xs">
+            <p className="text-xs text-secondary-500 dark:text-secondary-400 max-w-xs">
               Select an existing chat or submit an inquiry to speak directly with our team.
             </p>
           </div>

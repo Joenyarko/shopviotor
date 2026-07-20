@@ -66,7 +66,13 @@ const Campaigns = () => {
       setModalOpen(false);
       fetchCampaigns();
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      if (err.response?.status === 422) {
+        const errors = err.response.data.errors;
+        const messages = Object.values(errors).flat().join('\n');
+        alert('Validation Error:\n' + messages);
+      } else {
+        alert(err.response?.data?.message || err.message);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -85,7 +91,7 @@ const Campaigns = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Promo Popups & Campaigns</h2>
-          <p className="text-sm text-secondary-500">Manage popups and banners.</p>
+          <p className="text-sm text-secondary-500 dark:text-secondary-400">Manage popups and banners.</p>
         </div>
         <button onClick={() => handleOpenEdit()} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
           <Plus className="w-4 h-4" /> Create Popup
@@ -110,7 +116,7 @@ const Campaigns = () => {
               </div>
               <div className="p-4">
                 <h3 className="font-bold text-lg mb-1">{c.title}</h3>
-                <p className="text-xs text-secondary-500 mb-4">{c.display_location}</p>
+                <p className="text-xs text-secondary-500 dark:text-secondary-400 mb-4">{c.display_location}</p>
                 <div className="flex justify-between items-center border-t border-secondary-100 dark:border-secondary-800 pt-3">
                   <div className="text-xs text-secondary-400">
                     {c.start_date ? new Date(c.start_date).toLocaleDateString() : 'Always'} - {c.end_date ? new Date(c.end_date).toLocaleDateString() : 'Forever'}
@@ -131,28 +137,28 @@ const Campaigns = () => {
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl w-full max-w-lg shadow-2xl p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-lg">{editing ? 'Edit Campaign' : 'Create Campaign'}</h3>
-              <button onClick={() => setModalOpen(false)}><X className="w-5 h-5 text-secondary-500" /></button>
+              <button onClick={() => setModalOpen(false)}><X className="w-5 h-5 text-secondary-500 dark:text-secondary-400" /></button>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-secondary-500 mb-1">Title</label>
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Title</label>
                 <input required type="text" value={title} onChange={e=>setTitle(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-500 mb-1">Image {editing ? '(Leave blank to keep)' : '*'}</label>
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Image {editing ? '(Leave blank to keep)' : '*'}</label>
                 <input type="file" required={!editing} accept="image/*" onChange={e=>setImageFile(e.target.files[0])} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-500 mb-1">Target URL (Optional)</label>
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Target URL (Optional)</label>
                 <input type="text" value={targetUrl} onChange={e=>setTargetUrl(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800" placeholder="/products?category=1" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-secondary-500 mb-1">Start Date (Optional)</label>
+                  <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Start Date (Optional)</label>
                   <input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-secondary-500 mb-1">End Date (Optional)</label>
+                  <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">End Date (Optional)</label>
                   <input type="date" value={endDate} onChange={e=>setEndDate(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800" />
                 </div>
               </div>

@@ -38,7 +38,7 @@ const ResetPassword = () => {
     <div className="space-y-6">
       <div>
         <h3 className="text-xl font-bold text-secondary-900 dark:text-white">Reset Password</h3>
-        <p className="text-xs text-secondary-500 mt-1">Please enter your new password below.</p>
+        <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Please enter your new password below.</p>
       </div>
 
       {success ? (

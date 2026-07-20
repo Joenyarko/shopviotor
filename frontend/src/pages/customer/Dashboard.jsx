@@ -37,14 +37,14 @@ const Dashboard = () => {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-extrabold text-secondary-900 dark:text-white">Customer Dashboard</h1>
-        <p className="text-sm text-secondary-500 mt-1">Hello, {user?.first_name}! View and manage your deals and swaps here.</p>
+        <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Hello, {user?.first_name}! View and manage your deals and swaps here.</p>
       </div>
 
       {/* Grid of stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 p-6 rounded-2xl flex items-center justify-between shadow-sm">
           <div>
-            <span className="text-xs font-bold text-secondary-500 uppercase tracking-wider">My Orders</span>
+            <span className="text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">My Orders</span>
             <span className="block text-3xl font-extrabold text-secondary-900 dark:text-white mt-1">
               {loading ? '...' : orders.length}
             </span>
@@ -56,7 +56,7 @@ const Dashboard = () => {
 
         <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 p-6 rounded-2xl flex items-center justify-between shadow-sm">
           <div>
-            <span className="text-xs font-bold text-secondary-500 uppercase tracking-wider">Swaps / Trades</span>
+            <span className="text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Swaps / Trades</span>
             <span className="block text-3xl font-extrabold text-secondary-900 dark:text-white mt-1">
               {loading ? '...' : trades.length}
             </span>
@@ -68,7 +68,7 @@ const Dashboard = () => {
 
         <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 p-6 rounded-2xl flex items-center justify-between shadow-sm">
           <div>
-            <span className="text-xs font-bold text-secondary-500 uppercase tracking-wider">Sell Requests</span>
+            <span className="text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Sell Requests</span>
             <span className="block text-3xl font-extrabold text-secondary-900 dark:text-white mt-1">
               {loading ? '...' : sells.length}
             </span>
@@ -117,14 +117,14 @@ const Dashboard = () => {
               <div className="h-10 bg-secondary-100 dark:bg-secondary-800 rounded-lg" />
             </div>
           ) : orders.length === 0 ? (
-            <p className="text-xs text-secondary-500">No recent transactions recorded.</p>
+            <p className="text-xs text-secondary-500 dark:text-secondary-400">No recent transactions recorded.</p>
           ) : (
             <div className="space-y-3">
               {orders.slice(0, 3).map(order => (
                 <div key={order.id || order.uuid} className="flex justify-between items-center text-sm p-3 border border-secondary-100 dark:border-secondary-800 rounded-lg">
                   <div>
                     <span className="font-bold text-secondary-900 dark:text-white">Order {order.order_number}</span>
-                    <span className="block text-xxs text-secondary-500">{new Date(order.created_at).toLocaleDateString()}</span>
+                    <span className="block text-xxs text-secondary-500 dark:text-secondary-400">{new Date(order.created_at).toLocaleDateString()}</span>
                   </div>
                   <span className="font-semibold capitalize text-primary-600">{order.status}</span>
                 </div>

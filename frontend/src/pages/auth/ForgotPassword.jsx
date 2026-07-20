@@ -33,7 +33,7 @@ const ForgotPassword = () => {
     <div className="space-y-6">
       <div>
         <h3 className="text-xl font-bold text-secondary-900 dark:text-white">Recover Password</h3>
-        <p className="text-xs text-secondary-500 mt-1">We will email you a secure link to reset password.</p>
+        <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">We will email you a secure link to reset password.</p>
       </div>
 
       {success ? (
@@ -81,7 +81,7 @@ const ForgotPassword = () => {
           </button>
           
           <div className="text-center text-sm">
-            <Link to="/login" className="text-secondary-500 hover:underline">Back to Login</Link>
+            <Link to="/login" className="text-secondary-500 dark:text-secondary-400 hover:underline">Back to Login</Link>
           </div>
         </form>
       )}

@@ -11,6 +11,29 @@ class UpdateProductRequest extends FormRequest
         return $this->user()->isAdmin();
     }
 
+    protected function prepareForValidation()
+    {
+        $merge = [];
+        
+        if ($this->category_id && !is_numeric($this->category_id)) {
+            $category = \App\Models\Category::where('uuid', $this->category_id)->first();
+            if ($category) {
+                $merge['category_id'] = $category->id;
+            }
+        }
+
+        if ($this->brand_id && !is_numeric($this->brand_id)) {
+            $brand = \App\Models\Brand::where('uuid', $this->brand_id)->first();
+            if ($brand) {
+                $merge['brand_id'] = $brand->id;
+            }
+        }
+
+        if (!empty($merge)) {
+            $this->merge($merge);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -28,6 +51,9 @@ class UpdateProductRequest extends FormRequest
             'is_negotiable'               => ['boolean'],
             'available_for_hire_purchase' => ['boolean'],
             'available_for_trade'         => ['boolean'],
+            'available_for_layaway'       => ['boolean'],
+            'layaway_daily_amount'        => ['nullable', 'numeric', 'min:0'],
+            'layaway_weekly_amount'       => ['nullable', 'numeric', 'min:0'],
             'images'                      => ['nullable', 'array', 'max:10'],
             'images.*'                    => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
         ];

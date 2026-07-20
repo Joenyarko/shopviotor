@@ -12,6 +12,7 @@ class SellRequestResource extends JsonResource
         return [
             'id'                  => $this->uuid,
             'item_name'           => $this->item_name,
+            'contact_number'      => $this->contact_number,
             'description'         => $this->description,
             'condition'           => $this->condition,
             'asking_price'        => $this->asking_price,
@@ -28,6 +29,10 @@ class SellRequestResource extends JsonResource
             'created_at'          => $this->created_at,
             'category'            => new CategoryResource($this->whenLoaded('category')),
             'brand'               => new BrandResource($this->whenLoaded('brand')),
+            'user'                => [
+                'name' => $this->whenLoaded('user') ? $this->user->full_name : null,
+                'email' => $this->whenLoaded('user') ? $this->user->email : null,
+            ],
         ];
     }
 }

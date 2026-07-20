@@ -1,0 +1,268 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import vendorService from '../../services/vendorService';
+import { Store, Upload, AlertCircle, RefreshCw, CheckCircle2, Phone, MapPin, X, ArrowRight } from 'lucide-react';
+
+const StoreApplication = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    phone: '',
+    whatsapp: '',
+    location: '',
+  });
+  const [logo, setLogo] = useState(null);
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [banner, setBanner] = useState(null);
+  const [bannerPreview, setBannerPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleChange = (e) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setLogo(file);
+    setLogoPreview(URL.createObjectURL(file));
+  };
+
+  const handleBannerChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setBanner(file);
+    setBannerPreview(URL.createObjectURL(file));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name) {
+      setErrorMsg('Store name is required.');
+      return;
+    }
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const data = new FormData();
+      Object.entries(formData).forEach(([k, v]) => v && data.append(k, v));
+      if (logo) data.append('logo', logo);
+      if (banner) data.append('banner', banner);
+
+      await vendorService.applyForStore(data);
+      setSuccess(true);
+    } catch (err) {
+      setErrorMsg(err.response?.data?.message || err.message || 'Failed to submit application.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-16 text-center space-y-6">
+        <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/20 flex items-center justify-center mx-auto">
+          <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+        </div>
+        <h2 className="text-3xl font-black text-secondary-900 dark:text-white">Application Submitted! 🎉</h2>
+        <p className="text-secondary-500 dark:text-secondary-400 max-w-md mx-auto text-lg">
+          We've received your store application and will review it shortly. Once approved, you'll be able to start posting products!
+        </p>
+        <div className="flex gap-4 justify-center">
+          <Link to="/dashboard" className="premium-button-primary px-6 py-2.5 rounded-xl text-sm font-bold">Go to Dashboard</Link>
+          <Link to="/products" className="premium-button-secondary px-6 py-2.5 rounded-xl text-sm font-bold">Browse Products</Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      {/* Hero */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-900 text-white p-10 md:p-12 shadow-2xl">
+        <div className="relative z-10 max-w-2xl space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm w-fit">
+            <Store className="w-4 h-4 text-emerald-300" />
+            <span className="text-xs font-semibold tracking-wider uppercase text-emerald-200">Become a Vendor</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black">Open Your Store on Viotor</h1>
+          <p className="text-emerald-100 text-lg leading-relaxed max-w-xl">
+            Reach thousands of customers. List your products, manage orders, and grow your business — all from one powerful dashboard.
+          </p>
+        </div>
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-emerald-500 rounded-full blur-[120px] opacity-40" />
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Form */}
+        <div className="lg:col-span-2">
+          <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 shadow-xl space-y-6">
+            <h2 className="text-xl font-bold text-secondary-900 dark:text-white">Store Application Form</h2>
+
+            {errorMsg && (
+              <div className="p-3 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 rounded-lg flex gap-2.5 text-sm border border-red-200/50">
+                <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Store Name */}
+              <div>
+                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-1.5">Store Name *</label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="e.g. John's Gadgets Hub"
+                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-1.5">Store Description</label>
+                <textarea
+                  name="description"
+                  rows={3}
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Tell customers what you sell and what makes your store unique..."
+                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Contact */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-1.5">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder="+233 XX XXX XXXX"
+                    className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-1.5">WhatsApp (optional)</label>
+                  <input
+                    type="tel"
+                    name="whatsapp"
+                    value={formData.whatsapp}
+                    onChange={handleChange}
+                    placeholder="+233 XX XXX XXXX"
+                    className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  />
+                </div>
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-1.5">Store Location</label>
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  placeholder="e.g. Accra, East Legon"
+                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                />
+              </div>
+
+              {/* Logo */}
+              <div>
+                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Store Logo</label>
+                <div className="flex items-center gap-4">
+                  {logoPreview ? (
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700">
+                      <img src={logoPreview} alt="logo" className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => { setLogo(null); setLogoPreview(null); }} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="w-20 h-20 rounded-xl border-2 border-dashed border-secondary-300 dark:border-secondary-700 flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 hover:text-emerald-500 text-secondary-400 transition-colors">
+                      <Upload className="w-5 h-5" />
+                      <span className="text-xxs mt-1">Logo</span>
+                      <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                    </label>
+                  )}
+                  <p className="text-xs text-secondary-500 dark:text-secondary-400 max-w-[200px]">Square image recommended. Max 2MB.</p>
+                </div>
+              </div>
+
+              {/* Banner */}
+              <div>
+                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Store Banner</label>
+                {bannerPreview ? (
+                  <div className="relative rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700 h-32">
+                    <img src={bannerPreview} alt="banner" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => { setBanner(null); setBannerPreview(null); }} className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-secondary-300 dark:border-secondary-700 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/10 text-secondary-400 hover:text-emerald-500 transition-colors">
+                    <Upload className="w-7 h-7" />
+                    <span className="text-sm font-medium mt-2">Upload Banner Image</span>
+                    <span className="text-xs mt-0.5">Wide image recommended (e.g. 1400×400). Max 4MB.</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+                  </label>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 transition-colors"
+              >
+                {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Submit Store Application'}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* Info Panel */}
+        <div className="space-y-4">
+          <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white space-y-4">
+            <h3 className="font-bold text-lg">Why Sell on Viotor?</h3>
+            {[
+              { emoji: '🌍', title: 'Wide Reach', desc: 'Access thousands of daily visitors across Ghana.' },
+              { emoji: '📊', title: 'Vendor Dashboard', desc: 'Manage products, track orders and revenue in one place.' },
+              { emoji: '💼', title: 'Free to Apply', desc: 'Zero subscription fees to get started. Just apply and get approved.' },
+              { emoji: '🔒', title: 'Secure Payments', desc: 'All transactions handled securely through the platform.' },
+            ].map(({ emoji, title, desc }) => (
+              <div key={title} className="flex gap-3">
+                <span className="text-xl">{emoji}</span>
+                <div>
+                  <p className="font-bold text-sm">{title}</p>
+                  <p className="text-emerald-100 text-xs mt-0.5">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-5 space-y-3">
+            <h3 className="font-bold text-secondary-900 dark:text-white">What happens next?</h3>
+            <ol className="space-y-2 text-sm text-secondary-600 dark:text-secondary-400">
+              <li className="flex gap-2"><span className="font-bold text-emerald-600">1.</span> Submit your application above.</li>
+              <li className="flex gap-2"><span className="font-bold text-emerald-600">2.</span> Our team reviews your store within 24-48 hours.</li>
+              <li className="flex gap-2"><span className="font-bold text-emerald-600">3.</span> Once approved, your vendor dashboard unlocks.</li>
+              <li className="flex gap-2"><span className="font-bold text-emerald-600">4.</span> Start listing and selling your products!</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StoreApplication;
+export { StoreApplication };

@@ -73,7 +73,7 @@ const ProductDetails = () => {
   return (
     <div className="space-y-8">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm text-secondary-500">
+      <div className="flex items-center gap-2 text-sm text-secondary-500 dark:text-secondary-400">
         <Link to="/" className="hover:text-primary-600">Home</Link>
         <ChevronRight className="w-4 h-4" />
         <Link to="/products" className="hover:text-primary-600">Products</Link>
@@ -126,14 +126,14 @@ const ProductDetails = () => {
             </span>
             <h1 className="text-3xl font-extrabold text-secondary-900 dark:text-white mt-3 leading-tight">{product.name}</h1>
             {product.brand?.name && (
-              <p className="text-sm font-semibold text-secondary-500 mt-1">Brand: {product.brand.name}</p>
+              <p className="text-sm font-semibold text-secondary-500 dark:text-secondary-400 mt-1">Brand: {product.brand.name}</p>
             )}
           </div>
 
           {/* Pricing */}
           <div className="p-6 bg-secondary-100 dark:bg-secondary-900/50 rounded-2xl border border-secondary-200/50 dark:border-secondary-800/50 flex justify-between items-center">
             <div>
-              <span className="block text-xs text-secondary-500 uppercase font-bold tracking-wider">Purchase Price</span>
+              <span className="block text-xs text-secondary-500 dark:text-secondary-400 uppercase font-bold tracking-wider">Purchase Price</span>
               <span className="text-3xl font-extrabold text-secondary-900 dark:text-white">
                 GHS {parseFloat(product.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
@@ -204,7 +204,7 @@ const ProductDetails = () => {
               <h3 className="text-sm font-bold text-secondary-900 dark:text-white uppercase tracking-wide">Options</h3>
               {product.variations.map((variation, vIdx) => (
                 <div key={vIdx}>
-                  <p className="text-xs font-bold text-secondary-500 uppercase tracking-wider mb-2">{variation.name}</p>
+                  <p className="text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider mb-2">{variation.name}</p>
                   <div className="flex flex-wrap gap-2">
                     {variation.options?.map((opt, oIdx) => (
                       <button key={oIdx} className="px-3 py-1.5 border border-secondary-300 dark:border-secondary-600 rounded-lg text-sm font-medium text-secondary-800 dark:text-secondary-200 hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
@@ -227,7 +227,7 @@ const ProductDetails = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-4 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors capitalize ${activeTab === tab ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-800 dark:hover:text-secondary-200'}`}
+              className={`pb-4 text-sm font-bold uppercase tracking-wider border-b-2 transition-colors capitalize ${activeTab === tab ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-secondary-200'}`}
             >
               {tab}
             </button>
@@ -253,7 +253,7 @@ const ProductDetails = () => {
                   ))}
                 </dl>
               ) : (
-                <p className="text-secondary-500 text-sm">No specifications listed for this product.</p>
+                <p className="text-secondary-500 dark:text-secondary-400 text-sm">No specifications listed for this product.</p>
               )}
             </div>
           )}
@@ -269,7 +269,7 @@ const ProductDetails = () => {
                           {Array.from({ length: rev.rating }).map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
                           <span className="text-secondary-900 dark:text-white ml-2">{rev.title}</span>
                         </div>
-                        <p className="text-xs text-secondary-500 mt-1">By {rev.user?.name || 'Customer'}</p>
+                        <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">By {rev.user?.name || 'Customer'}</p>
                       </div>
                       {rev.is_verified_purchase && (
                         <span className="text-xxs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20 dark:text-emerald-400 px-2 py-0.5 rounded flex items-center gap-1 border border-emerald-200/50">
@@ -281,7 +281,7 @@ const ProductDetails = () => {
                   </div>
                 ))
               ) : (
-                <p className="text-secondary-500 text-sm">No reviews yet. Be the first to leave a review!</p>
+                <p className="text-secondary-500 dark:text-secondary-400 text-sm">No reviews yet. Be the first to leave a review!</p>
               )}
             </div>
           )}

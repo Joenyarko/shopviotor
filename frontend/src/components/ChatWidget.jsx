@@ -143,7 +143,7 @@ const ChatWidget = () => {
                   </div>
                   {isUser && (
                     <div className="w-7 h-7 bg-secondary-200 dark:bg-secondary-700 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                      <User className="w-3.5 h-3.5 text-secondary-500" />
+                      <User className="w-3.5 h-3.5 text-secondary-500 dark:text-secondary-400" />
                     </div>
                   )}
                 </div>

@@ -16,7 +16,7 @@ const Cart = () => {
           <ShoppingCart className="w-12 h-12" />
         </div>
         <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
-        <p className="text-secondary-500 text-center mb-8 max-w-md">
+        <p className="text-secondary-500 dark:text-secondary-400 text-center mb-8 max-w-md">
           Looks like you haven't added any products to your cart yet. Let's change that!
         </p>
         <Link to="/products" className="premium-button-primary px-8 py-3 rounded-xl font-bold flex items-center gap-2">
@@ -59,7 +59,7 @@ const Cart = () => {
                 <div className="flex items-center border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800">
                   <button 
                     onClick={() => updateQuantity(item.product_id || item.id, item.quantity - 1)}
-                    className="p-2 text-secondary-500 hover:text-secondary-900 dark:hover:text-white transition-colors"
+                    className="p-2 text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white transition-colors"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
@@ -67,7 +67,7 @@ const Cart = () => {
                   <button 
                     onClick={() => updateQuantity(item.product_id || item.id, item.quantity + 1)}
                     disabled={item.quantity >= (item.stock_quantity || 100)}
-                    className="p-2 text-secondary-500 hover:text-secondary-900 dark:hover:text-white disabled:opacity-50 transition-colors"
+                    className="p-2 text-secondary-500 dark:text-secondary-400 hover:text-secondary-900 dark:hover:text-white disabled:opacity-50 transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -123,13 +123,13 @@ const Cart = () => {
                 >
                   <LogIn className="w-5 h-5" /> Login to Checkout
                 </Link>
-                <p className="text-center text-xs text-secondary-500">
+                <p className="text-center text-xs text-secondary-500 dark:text-secondary-400">
                   Your cart items will be saved. <Link to="/register" className="text-primary-500 hover:underline font-semibold">Create an account</Link> to get started.
                 </p>
               </div>
             )}
             
-            <Link to="/products" className="block text-center mt-4 text-sm text-secondary-500 hover:text-primary-500 font-semibold transition-colors">
+            <Link to="/products" className="block text-center mt-4 text-sm text-secondary-500 dark:text-secondary-400 hover:text-primary-500 font-semibold transition-colors">
               Continue Shopping
             </Link>
           </div>

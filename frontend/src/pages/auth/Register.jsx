@@ -42,7 +42,7 @@ const Register = () => {
     <div className="space-y-6">
       <div>
         <h3 className="text-xl font-bold text-secondary-900 dark:text-white">Create a New Account</h3>
-        <p className="text-xs text-secondary-500 mt-1">Start selling, trading, and buying today.</p>
+        <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Start selling, trading, and buying today.</p>
       </div>
 
       {errorMsg && (
@@ -143,7 +143,7 @@ const Register = () => {
         </button>
       </form>
 
-      <div className="text-center text-sm text-secondary-500">
+      <div className="text-center text-sm text-secondary-500 dark:text-secondary-400">
         Already have an account?{' '}
         <Link to="/login" className="text-primary-600 font-semibold hover:underline">Sign In</Link>
       </div>

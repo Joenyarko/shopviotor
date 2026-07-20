@@ -109,7 +109,7 @@ const ProductList = () => {
         <form onSubmit={handleApplyFilters} className="space-y-6 mt-6">
           {/* Category */}
           <div>
-            <label className="block text-xs font-bold text-secondary-500 uppercase tracking-wider">Category</label>
+            <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Category</label>
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
@@ -124,7 +124,7 @@ const ProductList = () => {
 
           {/* Brand */}
           <div>
-            <label className="block text-xs font-bold text-secondary-500 uppercase tracking-wider">Brand</label>
+            <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Brand</label>
             <select
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
@@ -139,7 +139,7 @@ const ProductList = () => {
 
           {/* Condition */}
           <div>
-            <label className="block text-xs font-bold text-secondary-500 uppercase tracking-wider">Condition</label>
+            <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Condition</label>
             <div className="mt-2 space-y-2">
               {['new', 'used', 'refurbished'].map(cond => (
                 <label key={cond} className="flex items-center gap-2 text-sm text-secondary-700 dark:text-secondary-200 capitalize">
@@ -159,7 +159,7 @@ const ProductList = () => {
 
           {/* Price Range */}
           <div>
-            <label className="block text-xs font-bold text-secondary-500 uppercase tracking-wider">Price Range (GHS)</label>
+            <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">Price Range (GHS)</label>
             <div className="flex gap-2 mt-2">
               <input
                 type="number"
@@ -193,11 +193,11 @@ const ProductList = () => {
             <h1 className="text-xl font-extrabold text-secondary-900 dark:text-white">
               {queryTerm ? `Search Results for "${queryTerm}"` : 'Browse Catalog'}
             </h1>
-            <p className="text-xs text-secondary-500 mt-0.5">{products.length} products found</p>
+            <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">{products.length} products found</p>
           </div>
           
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-secondary-500 flex items-center gap-1"><ArrowUpDown className="w-4 h-4" /> Sort by</span>
+            <span className="text-xs font-semibold text-secondary-500 dark:text-secondary-400 flex items-center gap-1"><ArrowUpDown className="w-4 h-4" /> Sort by</span>
             <select
               value={sort}
               onChange={(e) => {
@@ -225,7 +225,7 @@ const ProductList = () => {
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
-            <p className="text-secondary-500 text-base">No products match your criteria. Try adjusting filters.</p>
+            <p className="text-secondary-500 dark:text-secondary-400 text-base">No products match your criteria. Try adjusting filters.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">

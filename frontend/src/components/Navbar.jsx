@@ -58,12 +58,12 @@ const Navbar = () => {
   return (
     <nav className="bg-white dark:bg-secondary-900 border-b border-secondary-200 dark:border-secondary-800 sticky top-0 z-50 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center gap-4">
+        <div className="flex justify-between h-20 items-center gap-4">
           
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center gap-2">
-              <img src="/shopviotorlogo.jpeg" alt="SHOP VIOTOR Logo" className="h-10 w-auto object-contain rounded-md" />
+              <img src="/shopviotorlogo2.png" alt="SHOP VIOTOR Logo" className="h-16 w-auto object-contain rounded-md" />
               <span className="text-xl font-bold text-primary-500 tracking-tight hidden sm:block">
                 SHOP VIOTOR
               </span>
@@ -90,7 +90,7 @@ const Navbar = () => {
                     {cat.name}
                   </Link>
                 )) : (
-                  <div className="px-4 py-2 text-sm text-secondary-500">Loading...</div>
+                  <div className="px-4 py-2 text-sm text-secondary-500 dark:text-secondary-400">Loading...</div>
                 )}
               </div>
             )}

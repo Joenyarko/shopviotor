@@ -80,7 +80,7 @@ const RaffleWinners = () => {
             ].map(({ val, label }) => (
               <div key={label} className="text-center">
                 <p className="text-2xl font-extrabold text-white">{val}</p>
-                <p className="text-secondary-500 text-xs">{label}</p>
+                <p className="text-secondary-500 dark:text-secondary-400 text-xs">{label}</p>
               </div>
             ))}
           </div>
@@ -134,7 +134,7 @@ const RaffleWinners = () => {
                         </span>
                       </div>
                       {winner.draw_date && (
-                        <p className="text-secondary-500 text-xxs mt-1">
+                        <p className="text-secondary-500 dark:text-secondary-400 text-xxs mt-1">
                           📅 {new Date(winner.draw_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </p>
                       )}
@@ -158,7 +158,7 @@ const RaffleWinners = () => {
       {/* CTA */}
       <div className="bg-gradient-to-br from-primary-600 to-primary-700 px-6 py-12 text-center">
         <h2 className="text-2xl font-extrabold text-secondary-900 mb-2">You Could Be Next! 🎉</h2>
-        <p className="text-secondary-800 text-sm mb-6">Join thousands of players. Buy your ticket for as low as GHS 5!</p>
+        <p className="text-secondary-800 dark:text-secondary-100 text-sm mb-6">Join thousands of players. Buy your ticket for as low as GHS 5!</p>
         <Link to="/raffles" className="inline-flex items-center gap-2 bg-secondary-900 text-white hover:bg-secondary-800 font-bold px-8 py-3.5 rounded-2xl transition-colors text-sm">
           Browse Active Raffles
         </Link>

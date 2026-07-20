@@ -21,8 +21,14 @@ class ProductController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $products = $this->productRepo->paginate(
+        $filters = [];
+        if ($request->has('available_for_trade')) {
+            $filters['available_for_trade'] = filter_var($request->query('available_for_trade'), FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $products = $this->productRepo->getAdminProducts(
             $request->input('per_page', 15),
+            $filters,
             ['category', 'brand']
         );
 

@@ -162,6 +162,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Layaway::class);
     }
 
+    public function store(): HasOne
+    {
+        return $this->hasOne(Store::class);
+    }
+
     public function raffleTickets(): HasMany
     {
         return $this->hasMany(RaffleTicket::class);
@@ -192,5 +197,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isCustomer(): bool
     {
         return $this->role === UserRole::Customer;
+    }
+
+    public function isVendor(): bool
+    {
+        return $this->role === UserRole::Vendor;
     }
 }

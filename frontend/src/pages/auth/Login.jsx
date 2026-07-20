@@ -46,7 +46,7 @@ const Login = () => {
     <div className="space-y-6">
       <div>
         <h3 className="text-xl font-bold text-secondary-900 dark:text-white">Sign In to Your Account</h3>
-        <p className="text-xs text-secondary-500 mt-1">Access your deals, barter, and orders.</p>
+        <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Access your deals, barter, and orders.</p>
       </div>
 
       {errorMsg && (
@@ -95,7 +95,7 @@ const Login = () => {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-2.5 text-secondary-500"
+              className="absolute right-3 top-2.5 text-secondary-500 dark:text-secondary-400"
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
@@ -112,7 +112,7 @@ const Login = () => {
         </button>
       </form>
 
-      <div className="text-center text-sm text-secondary-500">
+      <div className="text-center text-sm text-secondary-500 dark:text-secondary-400">
         Don't have an account?{' '}
         <Link to="/register" className="text-primary-600 font-semibold hover:underline">Create Account</Link>
       </div>

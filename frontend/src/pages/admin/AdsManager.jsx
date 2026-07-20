@@ -100,7 +100,7 @@ const AdsManager = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
           </div>
         ) : ads.length === 0 ? (
-          <div className="p-8 text-center text-secondary-500 flex flex-col items-center">
+          <div className="p-8 text-center text-secondary-500 dark:text-secondary-400 flex flex-col items-center">
             <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
             <p>No ads configured. Add one above to display it on the homepage.</p>
           </div>
@@ -113,7 +113,7 @@ const AdsManager = () => {
                 </div>
                 <div className="flex-grow text-center sm:text-left">
                   <h3 className="font-semibold text-secondary-900 dark:text-white">{ad.title || 'Untitled Ad'}</h3>
-                  <p className="text-xs text-secondary-500 truncate max-w-xs sm:max-w-md mt-1" title={ad.imageUrl}>{ad.imageUrl}</p>
+                  <p className="text-xs text-secondary-500 dark:text-secondary-400 truncate max-w-xs sm:max-w-md mt-1" title={ad.imageUrl}>{ad.imageUrl}</p>
                 </div>
                 <div>
                   <button 

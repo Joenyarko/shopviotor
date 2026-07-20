@@ -33,6 +33,9 @@ const Products = () => {
   const [isNegotiable, setIsNegotiable] = useState(false);
   const [availableForTrade, setAvailableForTrade] = useState(false);
   const [availableForHp, setAvailableForHp] = useState(false);
+  const [availableForLayaway, setAvailableForLayaway] = useState(false);
+  const [layawayDailyAmount, setLayawayDailyAmount] = useState('');
+  const [layawayWeeklyAmount, setLayawayWeeklyAmount] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
 
   // Image states
@@ -66,7 +69,8 @@ const Products = () => {
     setName(''); setPrice(''); setComparePrice(''); setStock('');
     setMainCategoryId(''); setSubCategoryId(''); setSubSubCategoryId(''); setBrandId(''); setCondition('new'); setStatus('active');
     setDescription(''); setIsNegotiable(false); setAvailableForTrade(false);
-    setAvailableForHp(false); setIsFeatured(false); setImageFiles([]); setImagePreviews([]);
+    setAvailableForHp(false); setAvailableForLayaway(false); setLayawayDailyAmount(''); setLayawayWeeklyAmount(''); 
+    setIsFeatured(false); setImageFiles([]); setImagePreviews([]);
     setExistingImages([]); setActiveImageIdx(0); setVariations([]);
     setErrorMsg(''); setActiveTab('basic');
   };
@@ -105,6 +109,9 @@ const Products = () => {
     setIsNegotiable(!!product.is_negotiable);
     setAvailableForTrade(!!product.available_for_trade);
     setAvailableForHp(!!product.available_for_hire_purchase);
+    setAvailableForLayaway(!!product.available_for_layaway);
+    setLayawayDailyAmount(product.layaway_daily_amount || '');
+    setLayawayWeeklyAmount(product.layaway_weekly_amount || '');
     setIsFeatured(!!product.is_featured);
     setExistingImages(product.images || []);
     setImageFiles([]); setImagePreviews([]); setActiveImageIdx(0);
@@ -182,6 +189,11 @@ const Products = () => {
     formData.append('is_negotiable', isNegotiable ? '1' : '0');
     formData.append('available_for_trade', availableForTrade ? '1' : '0');
     formData.append('available_for_hire_purchase', availableForHp ? '1' : '0');
+    formData.append('available_for_layaway', availableForLayaway ? '1' : '0');
+    if (availableForLayaway) {
+      if (layawayDailyAmount) formData.append('layaway_daily_amount', layawayDailyAmount);
+      if (layawayWeeklyAmount) formData.append('layaway_weekly_amount', layawayWeeklyAmount);
+    }
     formData.append('is_featured', isFeatured ? '1' : '0');
     if (variations.length > 0) formData.append('variations', JSON.stringify(variations));
     imageFiles.forEach((file, i) => formData.append(`images[${i}]`, file));
@@ -203,14 +215,14 @@ const Products = () => {
   };
 
   const inputClass = "w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500";
-  const labelClass = "block text-xs font-bold text-secondary-500 uppercase tracking-wide mb-1.5";
+  const labelClass = "block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wide mb-1.5";
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Products Catalog</h2>
-          <p className="text-sm text-secondary-500 mt-1">Manage storefront catalog items and inventory.</p>
+          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Manage storefront catalog items and inventory.</p>
         </div>
         <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
           <Plus className="w-4 h-4" /> Add Product
@@ -220,13 +232,13 @@ const Products = () => {
       {loading ? (
         <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
       ) : products.length === 0 ? (
-        <div className="p-12 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500">No products found.</div>
+        <div className="p-12 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500 dark:text-secondary-400">No products found.</div>
       ) : (
         <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xs">
+                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
                   <th className="p-4">Product</th>
                   <th className="p-4 hidden sm:table-cell">Category</th>
                   <th className="p-4">Price</th>
@@ -279,14 +291,14 @@ const Products = () => {
               <h3 className="font-bold text-secondary-900 dark:text-white text-lg">
                 {editingProduct ? 'Edit Product' : 'Add New Product'}
               </h3>
-              <button onClick={() => { setModalOpen(false); resetForm(); }} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500"><X className="w-5 h-5" /></button>
+              <button onClick={() => { setModalOpen(false); resetForm(); }} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500 dark:text-secondary-400"><X className="w-5 h-5" /></button>
             </div>
 
             {/* Tab bar */}
             <div className="flex border-b border-secondary-200 dark:border-secondary-800 px-5">
               {['basic', 'images', 'variations'].map(tab => (
                 <button key={tab} onClick={() => setActiveTab(tab)}
-                  className={`py-3 px-4 text-sm font-semibold capitalize border-b-2 transition-colors -mb-px ${activeTab === tab ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:hover:text-secondary-300'}`}>
+                  className={`py-3 px-4 text-sm font-semibold capitalize border-b-2 transition-colors -mb-px ${activeTab === tab ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-700 dark:hover:text-secondary-300'}`}>
                   {tab === 'images' ? `Images (${allImages.length}/${MAX_IMAGES})` : tab}
                 </button>
               ))}
@@ -393,6 +405,7 @@ const Products = () => {
                       { label: 'Price Negotiable', val: isNegotiable, set: setIsNegotiable },
                       { label: 'Available for Barter', val: availableForTrade, set: setAvailableForTrade },
                       { label: 'Available for HP', val: availableForHp, set: setAvailableForHp },
+                      { label: 'Available for Layaway', val: availableForLayaway, set: setAvailableForLayaway },
                     ].map(({ label, val, set }) => (
                       <label key={label} className="flex items-center gap-2 text-sm text-secondary-700 dark:text-secondary-200 cursor-pointer select-none">
                         <div onClick={() => set(!val)} className={`w-10 h-5 rounded-full transition-colors flex items-center ${val ? 'bg-primary-500' : 'bg-secondary-300 dark:bg-secondary-700'}`}>
@@ -402,6 +415,23 @@ const Products = () => {
                       </label>
                     ))}
                   </div>
+
+                  {availableForLayaway && (
+                    <div className="grid grid-cols-2 gap-4 p-4 mt-2 bg-secondary-50 dark:bg-secondary-800 rounded-xl border border-secondary-200 dark:border-secondary-700">
+                      <div className="col-span-2">
+                        <p className="text-sm font-bold text-secondary-900 dark:text-white">Layaway Configuration</p>
+                        <p className="text-xs text-secondary-500">Set the required daily or weekly payments.</p>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Daily Amount (GHS)</label>
+                        <input type="number" min="0" step="0.01" value={layawayDailyAmount} onChange={e => setLayawayDailyAmount(e.target.value)} className={inputClass} placeholder="e.g. 5.00" />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Weekly Amount (GHS)</label>
+                        <input type="number" min="0" step="0.01" value={layawayWeeklyAmount} onChange={e => setLayawayWeeklyAmount(e.target.value)} className={inputClass} placeholder="e.g. 35.00" />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -474,7 +504,7 @@ const Products = () => {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={allImages.length >= MAX_IMAGES}
-                    className="w-full border-2 border-dashed border-secondary-300 dark:border-secondary-700 hover:border-primary-500 dark:hover:border-primary-500 rounded-xl py-5 flex flex-col items-center gap-2 text-secondary-500 hover:text-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full border-2 border-dashed border-secondary-300 dark:border-secondary-700 hover:border-primary-500 dark:hover:border-primary-500 rounded-xl py-5 flex flex-col items-center gap-2 text-secondary-500 dark:text-secondary-400 hover:text-primary-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Upload className="w-6 h-6" />
                     <span className="text-sm font-medium">Click to upload images</span>
@@ -486,7 +516,7 @@ const Products = () => {
               {/* ─── TAB: VARIATIONS ─── */}
               {activeTab === 'variations' && (
                 <div className="p-5 space-y-4">
-                  <p className="text-xs text-secondary-500">Add product variations like Size, Color, Material, etc.</p>
+                  <p className="text-xs text-secondary-500 dark:text-secondary-400">Add product variations like Size, Color, Material, etc.</p>
                   {variations.map((variation, vIdx) => (
                     <div key={vIdx} className="border border-secondary-200 dark:border-secondary-700 rounded-xl p-4 space-y-3">
                       <div className="flex items-center gap-3">
@@ -538,7 +568,7 @@ const Products = () => {
                   <button
                     type="button"
                     onClick={addVariation}
-                    className="w-full border-2 border-dashed border-secondary-300 dark:border-secondary-700 hover:border-primary-500 rounded-xl py-3 flex items-center justify-center gap-2 text-secondary-500 hover:text-primary-500 transition-colors text-sm font-semibold"
+                    className="w-full border-2 border-dashed border-secondary-300 dark:border-secondary-700 hover:border-primary-500 rounded-xl py-3 flex items-center justify-center gap-2 text-secondary-500 dark:text-secondary-400 hover:text-primary-500 transition-colors text-sm font-semibold"
                   >
                     <Plus className="w-4 h-4" /> Add Variation Group
                   </button>

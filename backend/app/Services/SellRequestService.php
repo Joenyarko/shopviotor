@@ -30,6 +30,32 @@ class SellRequestService
         });
     }
 
+    public function update(SellRequest $request, array $data): SellRequest
+    {
+        return DB::transaction(function () use ($request, $data) {
+            $images = $data['images'] ?? [];
+            unset($data['images']);
+
+            if (!empty($images)) {
+                $uploadedPaths = [];
+                foreach ($images as $file) {
+                    $path = $file->store("sell-requests/{$request->user_id}", 'public');
+                    $uploadedPaths[] = $path;
+                }
+                $data['images'] = $uploadedPaths;
+            }
+
+            $request->update($data);
+
+            return $request->fresh();
+        });
+    }
+
+    public function delete(SellRequest $request): void
+    {
+        $request->delete();
+    }
+
     public function approve(SellRequest $request, int $reviewerId, float $offeredPrice): SellRequest
     {
         $request->update([

@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import productService from '../services/productService';
+import apiClient from '../api/client';
 import ProductCard from '../components/ProductCard';
 import HeroCarousel from '../components/HeroCarousel';
 import PromoPopup from '../components/marketing/PromoPopup';
@@ -151,7 +152,7 @@ const Landing = () => {
         <div className="flex justify-between items-end">
           <div>
             <h2 className="text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">Explore Categories</h2>
-            <p className="text-sm text-secondary-500">Find exactly what you need by selecting any division below.</p>
+            <p className="text-sm text-secondary-500 dark:text-secondary-400">Find exactly what you need by selecting any division below.</p>
           </div>
           <Link to="/categories" className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
             All Categories <ArrowRight className="w-4 h-4" />
@@ -188,7 +189,7 @@ const Landing = () => {
             </div>
             <div>
               <h3 className="font-bold text-secondary-900 dark:text-white">Verified Sellers & Security</h3>
-              <p className="text-xs text-secondary-500 mt-1">Every listing goes through moderation to ensure clean and legal merchant trades.</p>
+              <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Every listing goes through moderation to ensure clean and legal merchant trades.</p>
             </div>
           </div>
           <div className="flex gap-4">
@@ -197,7 +198,7 @@ const Landing = () => {
             </div>
             <div>
               <h3 className="font-bold text-secondary-900 dark:text-white">Swap & Barter Support</h3>
-              <p className="text-xs text-secondary-500 mt-1">Short on cash? Propose items to trade/swap with sellers directly.</p>
+              <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Short on cash? Propose items to trade/swap with sellers directly.</p>
             </div>
           </div>
           <div className="flex gap-4">
@@ -206,7 +207,7 @@ const Landing = () => {
             </div>
             <div>
               <h3 className="font-bold text-secondary-900 dark:text-white">Direct Buy & HP Options</h3>
-              <p className="text-xs text-secondary-500 mt-1">Get flexible Hire Purchase installment agreements right at checkouts.</p>
+              <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Get flexible Hire Purchase installment agreements right at checkouts.</p>
             </div>
           </div>
         </div>
@@ -217,7 +218,7 @@ const Landing = () => {
         <div className="flex justify-between items-end">
           <div>
             <h2 className="text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">Featured Deals</h2>
-            <p className="text-sm text-secondary-500">Handpicked items and promotions running on the marketplace.</p>
+            <p className="text-sm text-secondary-500 dark:text-secondary-400">Handpicked items and promotions running on the marketplace.</p>
           </div>
           <Link to="/products?featured=true" className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
             See All <ArrowRight className="w-4 h-4" />
@@ -232,7 +233,7 @@ const Landing = () => {
           </div>
         ) : featured.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
-            <p className="text-secondary-500 text-sm">No featured products currently listed.</p>
+            <p className="text-secondary-500 dark:text-secondary-400 text-sm">No featured products currently listed.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -252,7 +253,7 @@ const Landing = () => {
                 {collection.title}
               </h2>
               {collection.description && (
-                <p className="text-sm text-secondary-500">{collection.description}</p>
+                <p className="text-sm text-secondary-500 dark:text-secondary-400">{collection.description}</p>
               )}
             </div>
             <Link to="/products" className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
@@ -273,7 +274,7 @@ const Landing = () => {
         <div className="flex justify-between items-end">
           <div>
             <h2 className="text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">Latest Listings</h2>
-            <p className="text-sm text-secondary-500">Discover fresh listings submitted just now.</p>
+            <p className="text-sm text-secondary-500 dark:text-secondary-400">Discover fresh listings submitted just now.</p>
           </div>
           <Link to="/products" className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
             See All <ArrowRight className="w-4 h-4" />
@@ -288,7 +289,7 @@ const Landing = () => {
           </div>
         ) : latest.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
-            <p className="text-secondary-500 text-sm">No listings found.</p>
+            <p className="text-secondary-500 dark:text-secondary-400 text-sm">No listings found.</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

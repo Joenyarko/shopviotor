@@ -6,7 +6,7 @@ import { Ticket, RefreshCw, Trophy, Clock, CheckCircle, XCircle, ArrowRight } fr
 const statusConfig = {
   active: { label: 'Active', icon: Clock, color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-950/20 border-blue-200/50' },
   won: { label: 'Won! 🏆', icon: Trophy, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-950/20 border-amber-200/50' },
-  lost: { label: 'Not won', icon: XCircle, color: 'text-secondary-500', bg: 'bg-secondary-100 dark:bg-secondary-800 border-secondary-200 dark:border-secondary-700' },
+  lost: { label: 'Not won', icon: XCircle, color: 'text-secondary-500 dark:text-secondary-400', bg: 'bg-secondary-100 dark:bg-secondary-800 border-secondary-200 dark:border-secondary-700' },
   drawn: { label: 'Draw Complete', icon: CheckCircle, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-950/20 border-emerald-200/50' },
 };
 
@@ -55,7 +55,7 @@ const MyTickets = () => {
             </div>
             My Tickets
           </h1>
-          <p className="text-sm text-secondary-500 mt-1">Track all your raffle ticket purchases.</p>
+          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Track all your raffle ticket purchases.</p>
         </div>
         <Link to="/raffles" className="text-sm font-semibold text-primary-600 dark:text-primary-400 flex items-center gap-1 hover:underline">
           Browse Raffles <ArrowRight className="w-4 h-4" />
@@ -72,7 +72,7 @@ const MyTickets = () => {
         ].map(({ key, label, color }) => (
           <div key={key} className={`${color} rounded-xl p-4 text-center border border-secondary-200/50 dark:border-secondary-700/50`}>
             <p className="text-2xl font-extrabold text-secondary-900 dark:text-white">{counts[key] || 0}</p>
-            <p className="text-xs text-secondary-500 mt-0.5">{label}</p>
+            <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">{label}</p>
           </div>
         ))}
       </div>
@@ -136,10 +136,10 @@ const MyTickets = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
-                      <span className="text-xs text-secondary-500">
+                      <span className="text-xs text-secondary-500 dark:text-secondary-400">
                         <span className="font-semibold text-secondary-900 dark:text-white">{ticket.quantity}</span> ticket{ticket.quantity > 1 ? 's' : ''}
                       </span>
-                      <span className="text-xs text-secondary-500">
+                      <span className="text-xs text-secondary-500 dark:text-secondary-400">
                         Paid: <span className="font-semibold text-secondary-900 dark:text-white">GHS {parseFloat(ticket.amount_paid || 0).toFixed(2)}</span>
                       </span>
                       {drawDate && (

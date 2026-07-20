@@ -11,6 +11,29 @@ class StoreProductRequest extends FormRequest
         return $this->user()->isAdmin();
     }
 
+    protected function prepareForValidation()
+    {
+        $merge = [];
+        
+        if ($this->category_id && !is_numeric($this->category_id)) {
+            $category = \App\Models\Category::where('uuid', $this->category_id)->first();
+            if ($category) {
+                $merge['category_id'] = $category->id;
+            }
+        }
+
+        if ($this->brand_id && !is_numeric($this->brand_id)) {
+            $brand = \App\Models\Brand::where('uuid', $this->brand_id)->first();
+            if ($brand) {
+                $merge['brand_id'] = $brand->id;
+            }
+        }
+
+        if (!empty($merge)) {
+            $this->merge($merge);
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -30,6 +53,9 @@ class StoreProductRequest extends FormRequest
             'is_negotiable'               => ['boolean'],
             'available_for_hire_purchase' => ['boolean'],
             'available_for_trade'         => ['boolean'],
+            'available_for_layaway'       => ['boolean'],
+            'layaway_daily_amount'        => ['nullable', 'numeric', 'min:0'],
+            'layaway_weekly_amount'       => ['nullable', 'numeric', 'min:0'],
             'location'                    => ['nullable', 'string', 'max:255'],
             'city'                        => ['nullable', 'string', 'max:100'],
             'region'                      => ['nullable', 'string', 'max:100'],

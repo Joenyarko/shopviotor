@@ -21,7 +21,10 @@ import {
   ChevronRight, 
   Menu, 
   X,
-  Tag
+  Tag,
+  Briefcase,
+  Store,
+  Layers3
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -41,6 +44,9 @@ const AdminLayout = () => {
     { name: 'Payments', path: '/admin/payments', icon: CreditCard },
     { name: 'Trade Requests', path: '/admin/trades', icon: Scale },
     { name: 'Sell Requests', path: '/admin/sells', icon: Truck },
+    { name: 'Hire Purchase', path: '/admin/hire-purchase', icon: Briefcase },
+    { name: 'Layaway Plans', path: '/admin/layaway', icon: Layers3 },
+    { name: 'Vendor Stores', path: '/admin/vendor-stores', icon: Store },
     { name: 'Raffles', path: '/admin/raffles', icon: Ticket },
     { name: 'Marketing Ads', path: '/admin/ads', icon: Layers },
     { name: 'Promo Popups', path: '/admin/campaigns', icon: Layers },
@@ -74,7 +80,7 @@ const AdminLayout = () => {
           <Link to="/" className="text-xl font-bold tracking-wider text-secondary-900 dark:text-white">
             SHOP <span className="text-primary-500">VIOTOR</span> <span className="text-xs bg-primary-100 text-primary-800 dark:bg-primary-900/50 dark:text-primary-300 px-2 py-0.5 rounded-full ml-1">ADMIN</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 text-secondary-500 hover:bg-secondary-100 rounded-md">
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 text-secondary-500 dark:text-secondary-400 hover:bg-secondary-100 rounded-md">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -86,7 +92,7 @@ const AdminLayout = () => {
           </div>
           <div>
             <h4 className="text-sm font-semibold text-secondary-900 dark:text-white leading-tight">{user?.name}</h4>
-            <span className="text-xs text-secondary-500 capitalize">{user?.role}</span>
+            <span className="text-xs text-secondary-500 dark:text-secondary-400 capitalize">{user?.role}</span>
           </div>
         </div>
 

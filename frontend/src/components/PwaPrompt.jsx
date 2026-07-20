@@ -46,7 +46,7 @@ const PwaPrompt = () => {
       </div>
       <div className="flex-grow">
         <h3 className="font-bold text-secondary-900 dark:text-white text-sm">Install App</h3>
-        <p className="text-xs text-secondary-500 mt-1">Tap to install on your home screen for a better experience.</p>
+        <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Tap to install on your home screen for a better experience.</p>
         <div className="mt-3 flex gap-2">
           <button 
             onClick={handleInstall}
@@ -62,7 +62,7 @@ const PwaPrompt = () => {
           </button>
         </div>
       </div>
-      <button onClick={handleDismiss} className="text-secondary-400 hover:text-secondary-600 absolute top-2 right-2">
+      <button onClick={handleDismiss} className="text-secondary-400 hover:text-secondary-600 dark:text-secondary-300 absolute top-2 right-2">
         <X className="w-4 h-4" />
       </button>
     </div>

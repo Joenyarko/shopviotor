@@ -92,7 +92,7 @@ const AdminCategories = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-secondary-900 dark:text-white">Category Management</h1>
-          <p className="text-sm text-secondary-500 mt-1">Manage the categories that appear on the storefront.</p>
+          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Manage the categories that appear on the storefront.</p>
         </div>
         <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
           <Plus className="w-4 h-4" /> Add Category
@@ -111,7 +111,7 @@ const AdminCategories = () => {
           ) : (
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xs">
+                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
                   <th className="p-4">Icon</th>
                   <th className="p-4">Name</th>
                   <th className="p-4 hidden sm:table-cell">Slug</th>
@@ -124,8 +124,8 @@ const AdminCategories = () => {
                   <tr key={cat.id || cat.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                     <td className="p-4 text-2xl">{cat.icon || '🛒'}</td>
                     <td className="p-4 font-semibold text-secondary-900 dark:text-white">{cat.name}</td>
-                    <td className="p-4 text-secondary-500 hidden sm:table-cell font-mono text-xs">{cat.slug}</td>
-                    <td className="p-4 text-secondary-500 hidden md:table-cell truncate max-w-xs">{cat.description || '—'}</td>
+                    <td className="p-4 text-secondary-500 dark:text-secondary-400 hidden sm:table-cell font-mono text-xs">{cat.slug}</td>
+                    <td className="p-4 text-secondary-500 dark:text-secondary-400 hidden md:table-cell truncate max-w-xs">{cat.description || '—'}</td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button onClick={() => handleOpenEdit(cat)} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg"><Edit2 className="w-4 h-4" /></button>
@@ -146,7 +146,7 @@ const AdminCategories = () => {
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
             <div className="p-5 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center bg-secondary-50 dark:bg-secondary-900/50">
               <h3 className="font-bold text-secondary-900 dark:text-white text-lg">{editingCat ? 'Edit Category' : 'Create New Category'}</h3>
-              <button onClick={() => setModalOpen(false)} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500"><X className="w-5 h-5" /></button>
+              <button onClick={() => setModalOpen(false)} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500 dark:text-secondary-400"><X className="w-5 h-5" /></button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -156,7 +156,7 @@ const AdminCategories = () => {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Category Name</label>
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Category Name</label>
                 <input type="text" required value={name}
                   onChange={(e) => { setName(e.target.value); if (!editingCat) setSlug(toSlug(e.target.value)); }}
                   className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -164,14 +164,14 @@ const AdminCategories = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Slug (URL-friendly)</label>
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Slug (URL-friendly)</label>
                 <input type="text" required value={slug} onChange={(e) => setSlug(e.target.value)}
                   className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500"
                   placeholder="e.g. electronics"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Icon — Selected: <span className="text-xl">{icon}</span></label>
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Icon — Selected: <span className="text-xl">{icon}</span></label>
                 <div className="grid grid-cols-10 gap-1 p-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 max-h-28 overflow-y-auto">
                   {ICON_OPTIONS.map((em) => (
                     <button type="button" key={em} onClick={() => setIcon(em)}
@@ -181,7 +181,7 @@ const AdminCategories = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Parent Category (Optional)</label>
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Parent Category (Optional)</label>
                 <select 
                   value={parentId} 
                   onChange={(e) => setParentId(e.target.value)}
@@ -199,7 +199,7 @@ const AdminCategories = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Description (optional)</label>
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Description (optional)</label>
                 <textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)}
                   className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                   placeholder="Short description..."

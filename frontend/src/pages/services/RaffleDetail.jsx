@@ -129,7 +129,7 @@ const RaffleDetail = () => {
   if (!raffle) {
     return (
       <div className="text-center py-24">
-        <p className="text-secondary-500">Raffle not found.</p>
+        <p className="text-secondary-500 dark:text-secondary-400">Raffle not found.</p>
         <Link to="/raffles" className="text-primary-600 font-semibold hover:underline mt-4 inline-block">← Back to Raffles</Link>
       </div>
     );
@@ -140,7 +140,7 @@ const RaffleDetail = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-16">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-secondary-500">
+      <div className="flex items-center gap-2 text-sm text-secondary-500 dark:text-secondary-400">
         <Link to="/raffles" className="flex items-center gap-1 hover:text-primary-600 font-medium">
           <ArrowLeft className="w-4 h-4" /> All Raffles
         </Link>
@@ -189,7 +189,7 @@ const RaffleDetail = () => {
                 <div key={label} className="text-center bg-secondary-50 dark:bg-secondary-800/50 rounded-xl p-3">
                   <Icon className="w-5 h-5 text-primary-500 mx-auto mb-1" />
                   <p className="text-sm font-bold text-secondary-900 dark:text-white">{val}</p>
-                  <p className="text-xxs text-secondary-500 mt-0.5">{label}</p>
+                  <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">{label}</p>
                 </div>
               ))}
             </div>
@@ -211,7 +211,7 @@ const RaffleDetail = () => {
             {/* Countdown */}
             {raffle.draw_date && !countdown.expired && (
               <div>
-                <p className="text-xs font-bold text-secondary-500 uppercase mb-2 flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Draw Countdown</p>
+                <p className="text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-2 flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Draw Countdown</p>
                 <div className="grid grid-cols-4 gap-2">
                   {[
                     { val: countdown.d, label: 'Days' },
@@ -221,7 +221,7 @@ const RaffleDetail = () => {
                   ].map(({ val, label }) => (
                     <div key={label} className="bg-secondary-900 dark:bg-secondary-800 rounded-xl p-3 text-center">
                       <div className="text-2xl font-extrabold text-primary-400 tabular-nums">{String(val).padStart(2, '0')}</div>
-                      <div className="text-secondary-500 text-xxs mt-0.5">{label}</div>
+                      <div className="text-secondary-500 dark:text-secondary-400 text-xxs mt-0.5">{label}</div>
                     </div>
                   ))}
                 </div>
@@ -265,7 +265,7 @@ const RaffleDetail = () => {
                   View My Tickets
                 </Link>
                 <button onClick={() => { setPurchaseSuccess(false); setQuantity(1); setCustomQty(''); }}
-                  className="block w-full text-secondary-500 text-sm hover:text-primary-600 transition-colors">
+                  className="block w-full text-secondary-500 dark:text-secondary-400 text-sm hover:text-primary-600 transition-colors">
                   Buy More Tickets
                 </button>
               </div>
@@ -326,7 +326,7 @@ const RaffleDetail = () => {
                           <span className="text-2xl">{m.icon}</span>
                           <div>
                             <p className="text-sm font-bold text-secondary-900 dark:text-white">{m.label}</p>
-                            <p className="text-xxs text-secondary-500">{m.desc}</p>
+                            <p className="text-xxs text-secondary-500 dark:text-secondary-400">{m.desc}</p>
                           </div>
                           {paymentMethod === m.id && <CheckCircle className="w-5 h-5 text-primary-500 ml-auto flex-shrink-0" />}
                         </button>
@@ -366,7 +366,7 @@ const RaffleDetail = () => {
                   </button>
 
                   {!isAuthenticated && (
-                    <p className="text-center text-xs text-secondary-500">
+                    <p className="text-center text-xs text-secondary-500 dark:text-secondary-400">
                       <Link to="/login" className="text-primary-600 font-semibold hover:underline">Sign in</Link> to purchase tickets
                     </p>
                   )}

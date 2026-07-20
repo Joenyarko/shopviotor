@@ -59,6 +59,17 @@ import AdminBrands from '../pages/admin/Brands';
 import AdminCampaigns from '../pages/admin/Campaigns';
 import AdminFlashSales from '../pages/admin/FlashSales';
 import AdminCollections from '../pages/admin/Collections';
+import AdminHirePurchase from '../pages/admin/HirePurchase';
+import AdminLayaway from '../pages/admin/AdminLayaway';
+import VendorStores from '../pages/admin/VendorStores';
+import VendorLayout from '../layouts/VendorLayout';
+import VendorDashboard from '../pages/vendor/VendorDashboard';
+import VendorProducts from '../pages/vendor/VendorProducts';
+import StoreApplication from '../pages/vendor/StoreApplication';
+import StoreList from '../pages/catalog/StoreList';
+import StoreFront from '../pages/catalog/StoreFront';
+import LayawayDetail from '../pages/services/LayawayDetail';
+import MyLayaways from '../pages/customer/MyLayaways';
 
 // Helper Component: Protect user routes
 const ProtectedRoute = ({ children }) => {
@@ -90,6 +101,9 @@ const AppRoutes = () => {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/cart" element={<Cart />} />
+        {/* Vendor Storefronts (public) */}
+        <Route path="/shops" element={<StoreList />} />
+        <Route path="/shops/:slug" element={<StoreFront />} />
       </Route>
 
       {/* ─── AUTHENTICATION FLOW ───────────────────────────────────────────── */}
@@ -113,6 +127,9 @@ const AppRoutes = () => {
         <Route path="/barter" element={<ProtectedRoute><BarterRequest /></ProtectedRoute>} />
         <Route path="/hire-purchase" element={<ProtectedRoute><HirePurchase /></ProtectedRoute>} />
         <Route path="/layaway" element={<ProtectedRoute><Layaway /></ProtectedRoute>} />
+        <Route path="/layaway/start" element={<ProtectedRoute><LayawayDetail /></ProtectedRoute>} />
+        <Route path="/my-layaways" element={<ProtectedRoute><MyLayaways /></ProtectedRoute>} />
+        <Route path="/become-a-vendor" element={<ProtectedRoute><StoreApplication /></ProtectedRoute>} />
         <Route path="/raffles" element={<ProtectedRoute><Raffles /></ProtectedRoute>} />
         <Route path="/raffles/:uuid" element={<ProtectedRoute><RaffleDetail /></ProtectedRoute>} />
         <Route path="/raffles/winners" element={<ProtectedRoute><RaffleWinners /></ProtectedRoute>} />
@@ -120,6 +137,12 @@ const AppRoutes = () => {
         {/* Commerce */}
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
         <Route path="/payments/callback/:gateway" element={<ProtectedRoute><PaymentCallback /></ProtectedRoute>} />
+      </Route>
+
+      {/* ─── VENDOR DASHBOARD (PROTECTED) ───────────────────────────────────── */}
+      <Route element={<ProtectedRoute><VendorLayout /></ProtectedRoute>}>
+        <Route path="/vendor" element={<VendorDashboard />} />
+        <Route path="/vendor/products" element={<VendorProducts />} />
       </Route>
 
       {/* ─── ADMIN FLOW (PROTECTED) ────────────────────────────────────────── */}
@@ -133,6 +156,9 @@ const AppRoutes = () => {
         <Route path="/admin/payments" element={<AdminPayments />} />
         <Route path="/admin/trades" element={<AdminTradeRequests />} />
         <Route path="/admin/sells" element={<AdminSellRequests />} />
+        <Route path="/admin/hire-purchase" element={<AdminHirePurchase />} />
+        <Route path="/admin/layaway" element={<AdminLayaway />} />
+        <Route path="/admin/vendor-stores" element={<VendorStores />} />
         <Route path="/admin/raffles" element={<AdminRaffles />} />
         <Route path="/admin/ads" element={<AdsManager />} />
         <Route path="/admin/campaigns" element={<AdminCampaigns />} />

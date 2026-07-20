@@ -43,7 +43,7 @@ const Wishlist = () => {
             </div>
             My Wishlist
           </h1>
-          <p className="text-sm text-secondary-500 mt-1">
+          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">
             {!loading && `${wishlistProducts.length} saved item${wishlistProducts.length !== 1 ? 's' : ''}`}
           </p>
         </div>
@@ -73,7 +73,7 @@ const Wishlist = () => {
             <Heart className="w-10 h-10 text-secondary-300 dark:text-secondary-600" />
           </div>
           <h3 className="text-xl font-bold text-secondary-900 dark:text-white">Your wishlist is empty</h3>
-          <p className="text-sm text-secondary-500 mt-2 max-w-xs mx-auto">Browse products and tap the heart icon to save items here.</p>
+          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-2 max-w-xs mx-auto">Browse products and tap the heart icon to save items here.</p>
           <Link to="/products" className="inline-flex items-center gap-2 mt-6 bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold px-6 py-3 rounded-xl transition-colors">
             <ShoppingCart className="w-5 h-5" /> Shop Now
           </Link>

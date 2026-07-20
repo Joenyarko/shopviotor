@@ -119,7 +119,7 @@ const Collections = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Curated Collections</h2>
-          <p className="text-sm text-secondary-500">Manage homepage product groups (e.g. "Top Tech Deals").</p>
+          <p className="text-sm text-secondary-500 dark:text-secondary-400">Manage homepage product groups (e.g. "Top Tech Deals").</p>
         </div>
         <button onClick={() => handleOpenEdit()} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
           <Plus className="w-4 h-4" /> Create Collection
@@ -143,14 +143,14 @@ const Collections = () => {
             <tbody>
               {collections.map(col => (
                 <tr key={col.uuid} className="border-b border-secondary-100 last:border-0 hover:bg-secondary-50">
-                  <td className="p-4 text-secondary-500">{col.sort_order}</td>
+                  <td className="p-4 text-secondary-500 dark:text-secondary-400">{col.sort_order}</td>
                   <td className="p-4">
                     <div className="font-bold">{col.title}</div>
-                    <div className="text-xs text-secondary-500 truncate max-w-xs">{col.description}</div>
+                    <div className="text-xs text-secondary-500 dark:text-secondary-400 truncate max-w-xs">{col.description}</div>
                   </td>
                   <td className="p-4"><span className="bg-secondary-100 px-2 py-1 rounded text-xs font-bold">{col.products?.length || 0} items</span></td>
                   <td className="p-4">
-                    <span className={`text-xxs px-2 py-0.5 font-bold uppercase rounded ${col.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-secondary-100 text-secondary-600'}`}>
+                    <span className={`text-xxs px-2 py-0.5 font-bold uppercase rounded ${col.is_active ? 'bg-emerald-100 text-emerald-700' : 'bg-secondary-100 text-secondary-600 dark:text-secondary-300'}`}>
                       {col.is_active ? 'Active' : 'Draft'}
                     </span>
                   </td>
@@ -172,7 +172,7 @@ const Collections = () => {
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-5 border-b border-secondary-200 flex justify-between items-center bg-white z-10 sticky top-0">
               <h3 className="font-bold text-lg">{editing ? 'Edit Collection' : 'Create Collection'}</h3>
-              <button onClick={() => setModalOpen(false)}><X className="w-5 h-5 text-secondary-500" /></button>
+              <button onClick={() => setModalOpen(false)}><X className="w-5 h-5 text-secondary-500 dark:text-secondary-400" /></button>
             </div>
             
             <div className="flex-grow overflow-y-auto p-6 flex flex-col lg:flex-row gap-8">
@@ -180,15 +180,15 @@ const Collections = () => {
               <div className="w-full lg:w-1/3 space-y-4">
                 <h4 className="font-bold text-sm text-secondary-900 border-b pb-2">Collection Details</h4>
                 <div>
-                  <label className="block text-xs font-bold text-secondary-500 mb-1">Title *</label>
+                  <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Title *</label>
                   <input required type="text" value={title} onChange={e=>setTitle(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-secondary-500 mb-1">Description</label>
+                  <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Description</label>
                   <textarea value={description} onChange={e=>setDescription(e.target.value)} rows="3" className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-secondary-500 mb-1">Sort Order (Display order on homepage)</label>
+                  <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Sort Order (Display order on homepage)</label>
                   <input type="number" value={sortOrder} onChange={e=>setSortOrder(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
                 </div>
                 <label className="flex items-center gap-2 text-sm font-semibold pt-2 cursor-pointer">
@@ -209,7 +209,7 @@ const Collections = () => {
                     placeholder="Search by product name..." 
                     className="flex-grow p-2 border border-secondary-300 rounded-lg text-sm" 
                   />
-                  <button type="button" onClick={handleSearchProduct} className="bg-secondary-100 p-2 rounded-lg text-secondary-700 hover:bg-secondary-200">
+                  <button type="button" onClick={handleSearchProduct} className="bg-secondary-100 p-2 rounded-lg text-secondary-700 dark:text-secondary-200 hover:bg-secondary-200">
                     {searching ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
                   </button>
                 </div>
@@ -244,7 +244,7 @@ const Collections = () => {
             </div>
             
             <div className="p-5 border-t border-secondary-200 bg-secondary-50 flex justify-end gap-3 sticky bottom-0">
-              <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 bg-white border border-secondary-300 text-secondary-700 rounded-xl font-semibold text-sm hover:bg-secondary-100">Cancel</button>
+              <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 bg-white border border-secondary-300 text-secondary-700 dark:text-secondary-200 rounded-xl font-semibold text-sm hover:bg-secondary-100">Cancel</button>
               <button type="button" onClick={handleSubmit} disabled={submitting} className="premium-button-primary px-8 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2">
                 {submitting ? 'Saving...' : 'Save Collection'}
               </button>

@@ -30,7 +30,7 @@ const Dashboard = () => {
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Admin Dashboard</h2>
-        <p className="text-sm text-secondary-500 mt-1">Real-time statistics and overview of VTE Marketplace.</p>
+        <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Real-time statistics and overview of VTE Marketplace.</p>
       </div>
 
       {loading ? (
@@ -39,7 +39,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 flex justify-between items-center shadow-sm">
             <div>
-              <span className="text-xs text-secondary-500 font-semibold uppercase">Total Revenue</span>
+              <span className="text-xs text-secondary-500 dark:text-secondary-400 font-semibold uppercase">Total Revenue</span>
               <span className="block text-2xl font-extrabold text-secondary-900 dark:text-white mt-1">
                 GHS {stats.total_revenue.toLocaleString()}
               </span>
@@ -51,7 +51,7 @@ const Dashboard = () => {
 
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 flex justify-between items-center shadow-sm">
             <div>
-              <span className="text-xs text-secondary-500 font-semibold uppercase">Total Orders</span>
+              <span className="text-xs text-secondary-500 dark:text-secondary-400 font-semibold uppercase">Total Orders</span>
               <span className="block text-2xl font-extrabold text-secondary-900 dark:text-white mt-1">
                 {stats.total_orders}
               </span>
@@ -63,7 +63,7 @@ const Dashboard = () => {
 
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 flex justify-between items-center shadow-sm">
             <div>
-              <span className="text-xs text-secondary-500 font-semibold uppercase">Average Ticket</span>
+              <span className="text-xs text-secondary-500 dark:text-secondary-400 font-semibold uppercase">Average Ticket</span>
               <span className="block text-2xl font-extrabold text-secondary-900 dark:text-white mt-1">
                 GHS {parseFloat(stats.avg_order || 0).toFixed(2)}
               </span>
@@ -75,7 +75,7 @@ const Dashboard = () => {
 
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 flex justify-between items-center shadow-sm">
             <div>
-              <span className="text-xs text-secondary-500 font-semibold uppercase">Active Users</span>
+              <span className="text-xs text-secondary-500 dark:text-secondary-400 font-semibold uppercase">Active Users</span>
               <span className="block text-2xl font-extrabold text-secondary-900 dark:text-white mt-1">
                 2,480
               </span>

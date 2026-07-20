@@ -140,7 +140,7 @@ const AdminRaffles = () => {
   };
 
   const inputClass = "w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500";
-  const labelClass = "block text-xs font-bold text-secondary-500 uppercase tracking-wide mb-1.5";
+  const labelClass = "block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wide mb-1.5";
 
   const getStatusColor = (s) => {
     switch (s) {
@@ -157,7 +157,7 @@ const AdminRaffles = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Raffles Management</h2>
-          <p className="text-sm text-secondary-500 mt-1">Create, configure, and draw prize raffles.</p>
+          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Create, configure, and draw prize raffles.</p>
         </div>
         <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
           <Plus className="w-4 h-4" /> Create Raffle
@@ -172,7 +172,7 @@ const AdminRaffles = () => {
         ].map(({ key, label, icon: Icon }) => (
           <button
             key={key} onClick={() => setTab(key)}
-            className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors ${tab === key ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:hover:text-secondary-300'}`}
+            className={`flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 -mb-px transition-colors ${tab === key ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-700 dark:hover:text-secondary-300'}`}
           >
             <Icon className="w-4 h-4" /> {label}
           </button>
@@ -188,7 +188,7 @@ const AdminRaffles = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xs">
+                  <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
                     <th className="p-4">Raffle</th>
                     <th className="p-4 hidden sm:table-cell">Ticket Price</th>
                     <th className="p-4 hidden md:table-cell">Tickets</th>
@@ -211,7 +211,7 @@ const AdminRaffles = () => {
                             </div>
                             <div className="min-w-0">
                               <p className="font-semibold text-secondary-900 dark:text-white line-clamp-1">{r.title}</p>
-                              {r.category && <p className="text-xxs text-secondary-500 mt-0.5">{r.category}</p>}
+                              {r.category && <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">{r.category}</p>}
                               {/* Mini progress */}
                               <div className="w-24 h-1.5 bg-secondary-200 dark:bg-secondary-700 rounded-full mt-1.5 overflow-hidden">
                                 <div className="h-full bg-primary-500 rounded-full" style={{ width: `${progress}%` }} />
@@ -268,7 +268,7 @@ const AdminRaffles = () => {
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xs">
+                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
                   <th className="p-4">Winner</th>
                   <th className="p-4 hidden sm:table-cell">Raffle</th>
                   <th className="p-4 hidden md:table-cell">Ticket #</th>
@@ -288,7 +288,7 @@ const AdminRaffles = () => {
                       </div>
                     </td>
                     <td className="p-4 text-secondary-600 dark:text-secondary-300 hidden sm:table-cell line-clamp-1">{w.raffle_title || w.raffle?.title || '—'}</td>
-                    <td className="p-4 font-mono text-xxs text-secondary-500 hidden md:table-cell">{w.ticket_number || '—'}</td>
+                    <td className="p-4 font-mono text-xxs text-secondary-500 dark:text-secondary-400 hidden md:table-cell">{w.ticket_number || '—'}</td>
                     <td className="p-4 font-bold text-secondary-900 dark:text-white hidden lg:table-cell">
                       {w.prize_value ? `GHS ${parseFloat(w.prize_value).toLocaleString()}` : '—'}
                     </td>
@@ -309,7 +309,7 @@ const AdminRaffles = () => {
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl w-full max-w-2xl shadow-2xl">
             <div className="p-5 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center sticky top-0 bg-white dark:bg-secondary-900 z-10 rounded-t-2xl">
               <h3 className="font-bold text-secondary-900 dark:text-white text-lg">{editingRaffle ? 'Edit Raffle' : 'Create New Raffle'}</h3>
-              <button onClick={() => { setModalOpen(false); resetForm(); }} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500"><X className="w-5 h-5" /></button>
+              <button onClick={() => { setModalOpen(false); resetForm(); }} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500 dark:text-secondary-400"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {errorMsg && (
@@ -407,9 +407,9 @@ const AdminRaffles = () => {
             <div className="p-5 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center sticky top-0 bg-white dark:bg-secondary-900 z-10">
               <div>
                 <h3 className="font-bold text-secondary-900 dark:text-white">Ticket Holders</h3>
-                <p className="text-xs text-secondary-500 line-clamp-1">{holdersRaffle.title}</p>
+                <p className="text-xs text-secondary-500 dark:text-secondary-400 line-clamp-1">{holdersRaffle.title}</p>
               </div>
-              <button onClick={() => setHoldersRaffle(null)} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500"><X className="w-5 h-5" /></button>
+              <button onClick={() => setHoldersRaffle(null)} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500 dark:text-secondary-400"><X className="w-5 h-5" /></button>
             </div>
             <div className="p-4 space-y-3">
               {holders.length === 0 ? (
@@ -423,7 +423,7 @@ const AdminRaffles = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-bold text-secondary-900 dark:text-white">{h.quantity}× ticket{h.quantity > 1 ? 's' : ''}</p>
-                      <p className="text-xxs text-secondary-500">GHS {parseFloat(h.amount_paid || 0).toFixed(2)}</p>
+                      <p className="text-xxs text-secondary-500 dark:text-secondary-400">GHS {parseFloat(h.amount_paid || 0).toFixed(2)}</p>
                     </div>
                   </div>
                 ))

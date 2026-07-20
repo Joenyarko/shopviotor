@@ -16,12 +16,18 @@ class Product extends Model
     use HasFactory, SoftDeletes, HasUuid, LogsActivity;
 
     protected $fillable = [
-        'uuid', 'user_id', 'category_id', 'brand_id',
+        'uuid', 'user_id', 'store_id', 'category_id', 'brand_id',
         'name', 'slug', 'description', 'short_description',
         'price', 'compare_price', 'cost_price',
         'stock_quantity', 'sku', 'barcode', 'condition', 'status',
-        'is_featured', 'is_negotiable', 'available_for_hire_purchase',
-        'available_for_trade', 'location', 'city', 'region',
+        'is_featured',
+        'is_negotiable',
+        'available_for_hire_purchase',
+        'available_for_layaway',
+        'layaway_daily_amount',
+        'layaway_weekly_amount',
+        'available_for_trade',
+        'location', 'city', 'region',
         'specifications', 'tags', 'views_count', 'likes_count',
         'average_rating', 'reviews_count',
         'meta_title', 'meta_description', 'meta_keywords',
@@ -38,6 +44,7 @@ class Product extends Model
             'is_negotiable'               => 'boolean',
             'available_for_hire_purchase' => 'boolean',
             'available_for_trade'         => 'boolean',
+            'available_for_layaway'       => 'boolean',
             'specifications'              => 'array',
             'tags'                        => 'array',
             'status'                      => ProductStatus::class,
@@ -88,6 +95,11 @@ class Product extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function store(): BelongsTo
+    {
+        return $this->belongsTo(Store::class);
     }
 
     public function category(): BelongsTo

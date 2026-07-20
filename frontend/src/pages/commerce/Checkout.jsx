@@ -153,7 +153,7 @@ const Checkout = () => {
           <CheckCircle className="w-12 h-12" />
         </div>
         <h1 className="text-3xl font-extrabold mb-2">Order Placed! 🎉</h1>
-        <p className="text-secondary-500 mb-2">Your order <span className="font-bold text-secondary-800 dark:text-white">#{orderSuccess.order_number}</span> has been confirmed.</p>
+        <p className="text-secondary-500 dark:text-secondary-400 mb-2">Your order <span className="font-bold text-secondary-800 dark:text-white">#{orderSuccess.order_number}</span> has been confirmed.</p>
         <p className="text-secondary-400 text-sm mb-8">You'll receive a confirmation email shortly.</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link to="/orders" className="premium-button-primary px-8 py-3 rounded-xl font-bold">Track My Order</Link>
@@ -169,7 +169,7 @@ const Checkout = () => {
       <div className="max-w-md mx-auto text-center py-20 dark:text-white space-y-4">
         <ShoppingBag className="w-16 h-16 mx-auto text-secondary-300" />
         <h2 className="text-2xl font-bold">Your Cart is Empty</h2>
-        <p className="text-secondary-500">Add some products before checking out.</p>
+        <p className="text-secondary-500 dark:text-secondary-400">Add some products before checking out.</p>
         <Link to="/products" className="inline-block premium-button-primary px-8 py-3 rounded-xl font-bold">Shop Now</Link>
       </div>
     );
@@ -239,7 +239,7 @@ const Checkout = () => {
                       />
                       <div>
                         <p className="font-semibold text-sm">{addr.label || 'Address'} {addr.is_default && <span className="text-xs bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded ml-1">Default</span>}</p>
-                        <p className="text-secondary-500 text-sm mt-0.5">{addr.street}, {addr.city}, {addr.region}, {addr.country}</p>
+                        <p className="text-secondary-500 dark:text-secondary-400 text-sm mt-0.5">{addr.street}, {addr.city}, {addr.region}, {addr.country}</p>
                       </div>
                     </label>
                   ))}
@@ -273,7 +273,7 @@ const Checkout = () => {
                     </div>
                   ) : (
                     <button onClick={() => setAddingAddress(true)}
-                      className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-secondary-300 dark:border-secondary-700 rounded-xl text-secondary-500 hover:border-primary-400 hover:text-primary-500 transition-all text-sm font-semibold">
+                      className="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-secondary-300 dark:border-secondary-700 rounded-xl text-secondary-500 dark:text-secondary-400 hover:border-primary-400 hover:text-primary-500 transition-all text-sm font-semibold">
                       <Plus className="w-4 h-4" /> Add New Address
                     </button>
                   )}
@@ -301,7 +301,7 @@ const Checkout = () => {
                       onError={e => e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=120&auto=format&fit=crop'} />
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm line-clamp-1">{item.name}</p>
-                      <p className="text-secondary-500 text-xs mt-0.5">Qty: {item.quantity}</p>
+                      <p className="text-secondary-500 dark:text-secondary-400 text-xs mt-0.5">Qty: {item.quantity}</p>
                     </div>
                     <p className="font-bold text-sm">GHS {(item.price * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
                   </div>
@@ -351,7 +351,7 @@ const Checkout = () => {
               {paymentMethod === 'mobile_money' && (
                 <div className="space-y-3 p-4 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
                   <div>
-                    <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Mobile Money Provider</label>
+                    <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Mobile Money Provider</label>
                     <select value={provider} onChange={e => setProvider(e.target.value)}
                       className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
                       <option value="mtn">MTN Mobile Money</option>
@@ -360,7 +360,7 @@ const Checkout = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Mobile Money Number</label>
+                    <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Mobile Money Number</label>
                     <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
                       placeholder="0XX XXX XXXX"
                       className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
@@ -403,15 +403,15 @@ const Checkout = () => {
               ))}
             </div>
             <div className="border-t border-secondary-200 dark:border-secondary-800 mt-4 pt-4 space-y-2 text-sm">
-              <div className="flex justify-between text-secondary-500">
+              <div className="flex justify-between text-secondary-500 dark:text-secondary-400">
                 <span>Subtotal</span>
                 <span>GHS {cartSubtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-secondary-500">
+              <div className="flex justify-between text-secondary-500 dark:text-secondary-400">
                 <span>Shipping</span>
                 <span>GHS {shippingFee.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-secondary-500">
+              <div className="flex justify-between text-secondary-500 dark:text-secondary-400">
                 <span>Tax (5%)</span>
                 <span>GHS {taxFee.toFixed(2)}</span>
               </div>

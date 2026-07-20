@@ -132,7 +132,7 @@ const FlashSaleBanner = () => {
 
                 {/* Scarcity Bar */}
                 <div className="space-y-1.5 mt-auto">
-                  <div className="flex justify-between text-[10px] font-bold text-secondary-500 uppercase tracking-wider">
+                  <div className="flex justify-between text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
                     <span>{product.stock_sold} Sold</span>
                     <span>{product.stock_allocated - product.stock_sold} Left</span>
                   </div>

@@ -64,7 +64,7 @@ const HirePurchase = () => {
       <div className="max-w-md mx-auto text-center py-20 dark:text-white space-y-4">
         <Percent className="w-16 h-16 text-primary-500 mx-auto" />
         <h2 className="text-xl font-bold">No Product Selected</h2>
-        <p className="text-sm text-secondary-500">Please browse our products and click "Buy on Installments".</p>
+        <p className="text-sm text-secondary-500 dark:text-secondary-400">Please browse our products and click "Buy on Installments".</p>
         <Link to="/products" className="inline-block premium-button-primary px-6 rounded-lg text-sm">
           Browse Products
         </Link>
@@ -76,7 +76,7 @@ const HirePurchase = () => {
     <div className="max-w-4xl mx-auto space-y-6 py-8">
       <div>
         <h1 className="text-3xl font-extrabold text-secondary-900 dark:text-white">Hire Purchase Installment Portal</h1>
-        <p className="text-sm text-secondary-500 mt-1">Configure your flexible financing parameters below.</p>
+        <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Configure your flexible financing parameters below.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -101,7 +101,7 @@ const HirePurchase = () => {
             <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-8 text-center space-y-4 transition-colors">
               <CheckCircle2 className="w-16 h-16 text-emerald-500 mx-auto" />
               <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Agreement Initialized!</h2>
-              <p className="text-sm text-secondary-500 max-w-sm mx-auto">
+              <p className="text-sm text-secondary-500 dark:text-secondary-400 max-w-sm mx-auto">
                 Your Hire Purchase plan is set up. You can pay your deposit and start taking deliveries under the dashboard.
               </p>
               <div className="flex gap-4 justify-center">
@@ -140,7 +140,7 @@ const HirePurchase = () => {
                     className="w-28 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-lg text-sm font-bold text-center"
                   />
                 </div>
-                <span className="text-xxs text-secondary-500 block mt-2">Minimum required: GHS {minDeposit.toFixed(2)} (20%)</span>
+                <span className="text-xxs text-secondary-500 dark:text-secondary-400 block mt-2">Minimum required: GHS {minDeposit.toFixed(2)} (20%)</span>
               </div>
 
               {/* Installment Term selection */}
@@ -181,27 +181,27 @@ const HirePurchase = () => {
             <h2 className="text-lg font-bold text-secondary-900 dark:text-white mb-4">Installment Calculator</h2>
             <div className="space-y-4 text-sm pb-4 border-b border-secondary-100 dark:border-secondary-800">
               <div className="flex justify-between">
-                <span className="text-secondary-500">Principal Price</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Principal Price</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {productPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-secondary-500">Interest Cost ({interestRate}%)</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Interest Cost ({interestRate}%)</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {interestAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-secondary-500">Total Obligation</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Total Obligation</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {totalFinanced.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-secondary-500">Down Payment</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Down Payment</span>
                 <span className="font-semibold text-emerald-600">- GHS {deposit.toFixed(2)}</span>
               </div>
             </div>
 
             <div className="pt-4 text-center">
-              <span className="block text-xs text-secondary-500 uppercase font-bold tracking-wider mb-1">Monthly Payment</span>
+              <span className="block text-xs text-secondary-500 dark:text-secondary-400 uppercase font-bold tracking-wider mb-1">Monthly Payment</span>
               <span className="text-2xl font-extrabold text-primary-600 dark:text-primary-400">
-                GHS {monthlyInstallment.toFixed(2)} <span className="text-xs font-normal text-secondary-500">/mo</span>
+                GHS {monthlyInstallment.toFixed(2)} <span className="text-xs font-normal text-secondary-500 dark:text-secondary-400">/mo</span>
               </span>
             </div>
           </aside>

@@ -26,7 +26,7 @@ const Orders = () => {
         <h1 className="text-3xl font-extrabold text-secondary-900 dark:text-white flex items-center gap-2">
           <ShoppingBag className="w-8 h-8 text-primary-500" /> My Purchase Orders
         </h1>
-        <p className="text-sm text-secondary-500 mt-1">Review shipping progress and purchase history.</p>
+        <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Review shipping progress and purchase history.</p>
       </div>
 
       {loading ? (
@@ -35,7 +35,7 @@ const Orders = () => {
         </div>
       ) : orders.length === 0 ? (
         <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl transition-colors">
-          <p className="text-secondary-500 text-sm">You haven't placed any orders yet.</p>
+          <p className="text-secondary-500 dark:text-secondary-400 text-sm">You haven't placed any orders yet.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -45,16 +45,16 @@ const Orders = () => {
               <div className="space-y-1">
                 <span className="text-xxs font-bold text-secondary-450 uppercase">Order Ref</span>
                 <h4 className="font-bold text-secondary-900 dark:text-white text-sm md:text-base">#{order.order_number}</h4>
-                <p className="text-xxs text-secondary-500">Date: {new Date(order.created_at).toLocaleDateString()}</p>
+                <p className="text-xxs text-secondary-500 dark:text-secondary-400">Date: {new Date(order.created_at).toLocaleDateString()}</p>
               </div>
 
               <div>
-                <span className="block text-xxs text-secondary-500 font-bold uppercase">Total Bill</span>
+                <span className="block text-xxs text-secondary-500 dark:text-secondary-400 font-bold uppercase">Total Bill</span>
                 <span className="font-extrabold text-sm md:text-base text-secondary-900 dark:text-white">GHS {parseFloat(order.total).toFixed(2)}</span>
               </div>
 
               <div>
-                <span className="block text-xxs text-secondary-500 font-bold uppercase mb-1">Status</span>
+                <span className="block text-xxs text-secondary-500 dark:text-secondary-400 font-bold uppercase mb-1">Status</span>
                 <span className={`inline-block px-3 py-1 rounded-full text-xxs font-bold uppercase ${order.status === 'delivered' ? 'bg-emerald-100 text-emerald-800' : order.status === 'cancelled' ? 'bg-accent-100 text-accent-850' : 'bg-primary-100 text-primary-850'}`}>
                   {order.status}
                 </span>

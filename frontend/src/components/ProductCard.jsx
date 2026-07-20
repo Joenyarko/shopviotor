@@ -77,7 +77,7 @@ const ProductCard = ({ product, onWishlistToggle }) => {
         </Link>
         
         {product.brand?.name && (
-          <span className="text-xs text-secondary-500 mt-1 font-medium">{product.brand.name}</span>
+          <span className="text-xs text-secondary-500 dark:text-secondary-400 mt-1 font-medium">{product.brand.name}</span>
         )}
 
         <div className="mt-auto pt-3">
@@ -89,7 +89,7 @@ const ProductCard = ({ product, onWishlistToggle }) => {
           </div>
           
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-secondary-100 dark:border-secondary-800/80">
-            <span className="text-xs text-secondary-500 font-medium">{product.location || 'Accra, Ghana'}</span>
+            <span className="text-xs text-secondary-500 dark:text-secondary-400 font-medium">{product.location || 'Accra, Ghana'}</span>
             {product.average_rating > 0 && (
               <span className="text-xs flex items-center gap-0.5 text-amber-500 font-semibold">
                 ★ {product.average_rating.toFixed(1)}
