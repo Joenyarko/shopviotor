@@ -7,6 +7,7 @@ use App\Http\Resources\BrandResource;
 use App\Models\Brand;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -38,6 +39,8 @@ class BrandController extends Controller
         }
 
         $brand = Brand::create($validated);
+
+        Cache::forget('brands.all');
 
         return response()->json(['data' => (new BrandResource($brand))->resolve()], 201);
     }
@@ -72,6 +75,9 @@ class BrandController extends Controller
 
         $brand->update($validated);
 
+        Cache::forget('brands.all');
+        Cache::forget("brands.{$brand->slug}");
+
         return response()->json(['data' => (new BrandResource($brand))->resolve()]);
     }
 
@@ -80,6 +86,10 @@ class BrandController extends Controller
         if ($brand->getRawOriginal('logo')) {
             Storage::disk('public')->delete($brand->getRawOriginal('logo'));
         }
+        
+        Cache::forget('brands.all');
+        Cache::forget("brands.{$brand->slug}");
+        
         $brand->delete();
         return response()->json(null, 204);
     }
