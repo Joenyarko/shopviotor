@@ -215,7 +215,7 @@ const Products = () => {
       if (preorderExpectedDate) formData.append('preorder_expected_date', preorderExpectedDate);
     }
     formData.append('is_featured', isFeatured ? '1' : '0');
-    if (variations.length > 0) formData.append('variations', JSON.stringify(variations));
+    formData.append('variations', JSON.stringify(variations));
     
     const specsObj = {};
     specifications.forEach(s => {

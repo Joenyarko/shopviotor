@@ -29,7 +29,7 @@ class ProductController extends Controller
         $products = $this->productRepo->getAdminProducts(
             $request->input('per_page', 15),
             $filters,
-            ['category', 'brand']
+            ['category', 'brand', 'variations.options', 'images']
         );
 
         return response()->json([
