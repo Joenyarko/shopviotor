@@ -28,10 +28,22 @@ class ProductRepository extends BaseRepository
         $query = $this->model->active()->with(['category', 'brand', 'primaryImage']);
 
         if (!empty($filters['category_id'])) {
-            $query->where('category_id', $filters['category_id']);
+            if (!is_numeric($filters['category_id'])) {
+                $query->whereHas('category', function ($q) use ($filters) {
+                    $q->where('slug', $filters['category_id']);
+                });
+            } else {
+                $query->where('category_id', $filters['category_id']);
+            }
         }
         if (!empty($filters['brand_id'])) {
-            $query->where('brand_id', $filters['brand_id']);
+            if (!is_numeric($filters['brand_id'])) {
+                $query->whereHas('brand', function ($q) use ($filters) {
+                    $q->where('slug', $filters['brand_id']);
+                });
+            } else {
+                $query->where('brand_id', $filters['brand_id']);
+            }
         }
         if (!empty($filters['min_price'])) {
             $query->where('price', '>=', $filters['min_price']);
@@ -47,6 +59,12 @@ class ProductRepository extends BaseRepository
         }
         if (isset($filters['available_for_preorder'])) {
             $query->where('available_for_preorder', filter_var($filters['available_for_preorder'], FILTER_VALIDATE_BOOLEAN));
+        }
+        if (isset($filters['available_for_layaway'])) {
+            $query->where('available_for_layaway', filter_var($filters['available_for_layaway'], FILTER_VALIDATE_BOOLEAN));
+        }
+        if (isset($filters['available_for_hire_purchase'])) {
+            $query->where('available_for_hire_purchase', filter_var($filters['available_for_hire_purchase'], FILTER_VALIDATE_BOOLEAN));
         }
 
         $sort = $filters['sort'] ?? 'latest';

@@ -69,7 +69,7 @@ const VendorStores = () => {
   const statusBadge = (status) => {
     const map = {
       pending:   'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-400',
-      active:    'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400',
+      active:    'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400',
       suspended: 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400',
     };
     return map[status] || 'bg-secondary-100 text-secondary-600';
@@ -135,7 +135,17 @@ const VendorStores = () => {
                           {store.status}
                         </span>
                       </td>
-                      <td className="p-4 text-right">
+                      <td className="p-4 text-right flex items-center justify-end gap-2">
+                        {store.status === 'pending' && (
+                          <button
+                            onClick={() => handleApprove(store.uuid)}
+                            disabled={processing}
+                            className="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/20 rounded-lg"
+                            title="Approve Store"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                        )}
                         <button onClick={() => { setSelectedStore(store); setCommissionInput(store.commission_rate); setEditingCommission(false); }} className="p-1.5 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 rounded-lg">
                           <Eye className="w-4 h-4" />
                         </button>
@@ -158,7 +168,7 @@ const VendorStores = () => {
                   {selectedStore.logo_url ? (
                     <img src={selectedStore.logo_url} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-emerald-600 flex items-center justify-center">
+                    <div className="w-full h-full bg-primary-600 flex items-center justify-center">
                       <Store className="w-6 h-6 text-white" />
                     </div>
                   )}
@@ -203,7 +213,7 @@ const VendorStores = () => {
                         onChange={e => setCommissionInput(e.target.value)}
                         className="flex-1 p-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-sm"
                       />
-                      <button onClick={() => handleSaveCommission(selectedStore.uuid)} disabled={processing} className="px-3 py-2 bg-primary-600 text-white rounded-lg text-xs font-bold">
+                      <button onClick={() => handleSaveCommission(selectedStore.uuid)} disabled={processing} className="premium-button-primary px-3 py-2 rounded-lg text-xs font-bold">
                         Save
                       </button>
                     </div>
@@ -219,7 +229,7 @@ const VendorStores = () => {
                   <button
                     onClick={() => handleApprove(selectedStore.uuid)}
                     disabled={processing}
-                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2"
+                    className="premium-button-primary w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
                   >
                     <Check className="w-4 h-4" /> Approve Store
                   </button>
@@ -237,7 +247,7 @@ const VendorStores = () => {
                   <button
                     onClick={() => handleRestore(selectedStore.uuid)}
                     disabled={processing}
-                    className="w-full py-2.5 bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
+                    className="w-full py-2.5 bg-green-50 dark:bg-green-950/20 hover:bg-green-100 text-green-700 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
                   >
                     <RotateCcw className="w-4 h-4" /> Restore Store
                   </button>

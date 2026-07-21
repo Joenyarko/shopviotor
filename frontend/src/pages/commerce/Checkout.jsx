@@ -43,7 +43,7 @@ const Checkout = () => {
   const [provider, setProvider] = useState('mtn');
   const [addingAddress, setAddingAddress] = useState(false);
   const [newAddress, setNewAddress] = useState({
-    label: '', street: '', city: '', region: '', country: 'Ghana', is_default: false
+    label: '', full_name: user?.first_name ? `${user.first_name} ${user.last_name}` : '', phone: user?.phone || '', address_line_1: '', city: '', region: '', country: 'Ghana', is_default: false
   });
 
   const [loadingAddresses, setLoadingAddresses] = useState(false);
@@ -81,7 +81,7 @@ const Checkout = () => {
       await fetchAddresses();
       setSelectedAddressId(String(res.data?.id || res.id));
       setAddingAddress(false);
-      setNewAddress({ label: '', street: '', city: '', region: '', country: 'Ghana', is_default: false });
+      setNewAddress({ label: '', full_name: user?.first_name ? `${user.first_name} ${user.last_name}` : '', phone: user?.phone || '', address_line_1: '', city: '', region: '', country: 'Ghana', is_default: false });
     } catch (e) {
       setErrorMsg(e.response?.data?.message || 'Failed to save address.');
     } finally {
@@ -139,7 +139,9 @@ const Checkout = () => {
       clearCart();
       setOrderSuccess(res.data?.order);
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || err.message || 'Failed to place order. Please try again.');
+      const data = err.response?.data;
+      const firstError = data?.errors ? Object.values(data.errors)[0][0] : null;
+      setErrorMsg(firstError || data?.message || err.message || 'Failed to place order. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -239,7 +241,7 @@ const Checkout = () => {
                       />
                       <div>
                         <p className="font-semibold text-sm">{addr.label || 'Address'} {addr.is_default && <span className="text-xs bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded ml-1">Default</span>}</p>
-                        <p className="text-secondary-500 dark:text-secondary-400 text-sm mt-0.5">{addr.street}, {addr.city}, {addr.region}, {addr.country}</p>
+                        <p className="text-secondary-500 dark:text-secondary-400 text-sm mt-0.5">{addr.address_line_1}, {addr.city}, {addr.region}, {addr.country}</p>
                       </div>
                     </label>
                   ))}
@@ -251,7 +253,9 @@ const Checkout = () => {
                       <div className="grid grid-cols-2 gap-3">
                         {[
                           { key: 'label', placeholder: 'Label (e.g. Home)', full: true },
-                          { key: 'street', placeholder: 'Street address', full: true },
+                          { key: 'full_name', placeholder: 'Full Name', full: true },
+                          { key: 'phone', placeholder: 'Phone Number', full: true },
+                          { key: 'address_line_1', placeholder: 'Street address', full: true },
                           { key: 'city', placeholder: 'City' },
                           { key: 'region', placeholder: 'Region' },
                         ].map(f => (

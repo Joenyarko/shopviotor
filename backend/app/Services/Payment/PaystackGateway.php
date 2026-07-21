@@ -23,28 +23,11 @@ class PaystackGateway implements PaymentGatewayInterface
 
     public function initiate(array $data): array
     {
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->secretKey,
-            'Content-Type'  => 'application/json',
-        ])->post("{$this->baseUrl}/transaction/initialize", [
-            'email'     => $data['email'],
-            'amount'    => (int) ($data['amount'] * 100), // Paystack uses kobo/pesewa
-            'reference' => $data['reference'],
-            'currency'  => $data['currency'] ?? 'GHS',
-            'metadata'  => $data['metadata'] ?? [],
-            'callback_url' => $data['callback_url'] ?? config('app.url') . '/api/v1/payments/callback/paystack',
-        ]);
-
-        $result = $response->json();
-
-        if (!$result['status']) {
-            throw new \RuntimeException('Paystack initiation failed: ' . ($result['message'] ?? 'Unknown error'));
-        }
-
+        // Placeholder for testing
         return [
-            'authorization_url' => $result['data']['authorization_url'],
-            'access_code'       => $result['data']['access_code'],
-            'reference'         => $result['data']['reference'],
+            'authorization_url' => config('app.url') . '/payment/placeholder-success?reference=' . $data['reference'],
+            'access_code'       => 'test_access_code',
+            'reference'         => $data['reference'],
             'gateway'           => $this->getName(),
         ];
     }

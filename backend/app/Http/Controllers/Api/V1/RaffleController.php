@@ -27,6 +27,28 @@ class RaffleController extends Controller
         ]);
     }
 
+    public function winners(Request $request): JsonResponse
+    {
+        $limit = $request->input('limit', 8);
+        $winners = \App\Models\RaffleWinner::with(['user', 'raffle.product'])->latest()->take($limit)->get();
+
+        // Format as expected by frontend
+        $formatted = $winners->map(function ($winner) {
+            return [
+                'id'           => $winner->id,
+                'user_name'    => $winner->user->name ?? 'Anonymous',
+                'raffle_title' => $winner->raffle->product->name ?? 'Unknown Product',
+                'ticket_price' => $winner->raffle->ticket_price,
+                'draw_date'    => $winner->created_at->format('Y-m-d'),
+                'image_url'    => $winner->raffle->product->primary_image ?? null,
+            ];
+        });
+
+        return response()->json([
+            'data' => $formatted,
+        ]);
+    }
+
     public function show(string $uuid): JsonResponse
     {
         $raffle = Raffle::where('uuid', $uuid)->with('product')->firstOrFail();

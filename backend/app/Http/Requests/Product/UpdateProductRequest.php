@@ -58,6 +58,9 @@ class UpdateProductRequest extends FormRequest
             'preorder_expected_date'      => ['nullable', 'date'],
             'images'                      => ['nullable', 'array', 'max:10'],
             'images.*'                    => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
+            'existing_images'             => ['nullable', 'array'],
+            'existing_images.*'           => ['integer', 'exists:product_images,id'],
+            'variations'                  => ['nullable', 'string'],
         ];
     }
 }

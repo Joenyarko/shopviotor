@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import productService from '../../services/productService';
 import { Package, RefreshCw, Calendar, ArrowRight } from 'lucide-react';
 
+import HeroBanner from '../../components/marketing/HeroBanner';
+
 const PreOrders = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,22 +24,26 @@ const PreOrders = () => {
     fetchPreOrders();
   }, []);
 
+  const fallbackHero = (
+    <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary-500 to-primary-700 text-secondary-900 p-8 md:p-12 shadow-lg">
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+      <div className="relative z-10 max-w-2xl space-y-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-sm font-bold text-secondary-900">
+          <Package className="w-4 h-4" /> Exclusive Access
+        </div>
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Pre-Order Hub</h1>
+        <p className="text-lg md:text-xl font-medium opacity-90">
+          Reserve the hottest upcoming items before they drop. Pay a deposit now, and secure your order.
+        </p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       
       {/* Hero Banner */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary-500 to-primary-700 text-secondary-900 p-8 md:p-12 shadow-lg">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="relative z-10 max-w-2xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-sm font-bold text-secondary-900">
-            <Package className="w-4 h-4" /> Exclusive Access
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Pre-Order Hub</h1>
-          <p className="text-lg md:text-xl font-medium opacity-90">
-            Reserve the hottest upcoming items before they drop. Pay a deposit now, and secure your order.
-          </p>
-        </div>
-      </div>
+      <HeroBanner position="preorder_hero" fallbackContent={fallbackHero} />
 
       {loading ? (
         <div className="flex justify-center py-20"><RefreshCw className="w-10 h-10 text-primary-500 animate-spin" /></div>
@@ -54,7 +60,7 @@ const PreOrders = () => {
             const deposit = product.preorder_deposit_amount;
             
             return (
-              <div key={product.uuid} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all group flex flex-col">
+              <div key={product.id} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all group flex flex-col">
                 <div className="relative aspect-square overflow-hidden bg-secondary-100 dark:bg-secondary-800 p-4">
                   <img src={primaryImage} alt={product.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" />
                   <div className="absolute top-2 right-2 bg-primary-500 text-secondary-900 text-xs font-bold px-2 py-1 rounded-md shadow-md">
@@ -76,7 +82,7 @@ const PreOrders = () => {
                       <span className="text-primary-600 dark:text-primary-400">Deposit Required</span>
                       <span className="text-primary-600 dark:text-primary-400">GHS {deposit}</span>
                     </div>
-                    <Link to={`/products/${product.uuid}`} className="premium-button-primary w-full py-2.5 rounded-xl text-sm font-bold flex justify-center items-center gap-2 mt-3">
+                    <Link to={`/products/${product.id}`} className="premium-button-primary w-full py-2.5 rounded-xl text-sm font-bold flex justify-center items-center gap-2 mt-3">
                       View Details <ArrowRight className="w-4 h-4" />
                     </Link>
                   </div>

@@ -13,36 +13,13 @@ class MobileMoneyGateway implements PaymentGatewayInterface
 
     public function initiate(array $data): array
     {
-        // Paystack supports Mobile Money (MTN, Vodafone) via charge API
-        $secretKey = config('services.paystack.secret_key');
-        $baseUrl   = config('services.paystack.payment_url', 'https://api.paystack.co');
-
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $secretKey,
-            'Content-Type'  => 'application/json',
-        ])->post("{$baseUrl}/charge", [
-            'email'          => $data['email'],
-            'amount'         => (int)($data['amount'] * 100),
-            'currency'       => $data['currency'] ?? 'GHS',
-            'reference'      => $data['reference'],
-            'mobile_money'   => [
-                'phone'    => $data['phone'],
-                'provider' => $data['provider'] ?? 'mtn', // mtn, vodafone, tigo
-            ],
-        ]);
-
-        $result = $response->json();
-
-        if (!$result['status']) {
-            throw new \RuntimeException('Mobile money charge failed: ' . ($result['message'] ?? 'Unknown'));
-        }
-
+        // Placeholder for testing
         return [
             'gateway'    => $this->getName(),
             'reference'  => $data['reference'],
-            'status'     => $result['data']['status'],
-            'message'    => $result['data']['display_text'] ?? 'Awaiting OTP confirmation.',
-            'raw'        => $result['data'],
+            'status'     => 'success',
+            'message'    => 'Payment initiated successfully (Test Mode)',
+            'raw'        => ['status' => 'success'],
         ];
     }
 

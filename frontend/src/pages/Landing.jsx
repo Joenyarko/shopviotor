@@ -40,6 +40,7 @@ import ProductCard from '../components/ProductCard';
 import HeroCarousel from '../components/HeroCarousel';
 import PromoPopup from '../components/marketing/PromoPopup';
 import FlashSaleBanner from '../components/marketing/FlashSaleBanner';
+import HeroBanner from '../components/marketing/HeroBanner';
 import { CATEGORIES } from '../constants/categories';
 
 const iconMap = {
@@ -212,6 +213,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* 3.5 MIDDLE ADVERTISING BOARD */}
+      <HeroBanner position="storefront_middle" />
 
       {/* 4. FEATURED PRODUCTS (CAROUSEL / GRID) */}
       <section className="space-y-6">

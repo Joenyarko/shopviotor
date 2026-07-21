@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import productService from '../../services/productService';
 import { Package, ArrowRight, Clock, Lock, CheckCircle2, TrendingUp } from 'lucide-react';
 
+import HeroBanner from '../../components/marketing/HeroBanner';
+
 const Layaway = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,39 +30,43 @@ const Layaway = () => {
     navigate('/layaway/start', { state: { product } });
   };
 
+  const fallbackHero = (
+    <div className="relative overflow-hidden rounded-3xl bg-secondary-900 text-white p-10 md:p-16 shadow-2xl">
+      <div className="relative z-10 max-w-2xl space-y-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm w-fit">
+          <TrendingUp className="w-4 h-4 text-primary-300" />
+          <span className="text-xs font-semibold tracking-wider uppercase text-primary-200">Save Now, Receive Later</span>
+        </div>
+        <h1 className="text-4xl md:text-5xl font-black leading-tight">
+          Layaway — The Smart<br className="hidden md:block" /> Way to Own Products
+        </h1>
+        <p className="text-secondary-100 text-lg leading-relaxed max-w-xl">
+          Just like a daily susu — make small, consistent payments toward a product. Once fully paid, we deliver it straight to your door!
+        </p>
+        <div className="flex flex-wrap gap-6 pt-2">
+          {[
+            { icon: Lock, label: 'Item Reserved for You' },
+            { icon: Clock, label: 'Pay at Your Own Pace' },
+            { icon: CheckCircle2, label: 'Delivered When Paid' },
+          ].map(({ icon: Icon, label }) => (
+            <div key={label} className="flex items-center gap-2 text-sm font-semibold text-primary-200">
+              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                <Icon className="w-4 h-4" />
+              </div>
+              {label}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary-500 rounded-full blur-[120px] opacity-40" />
+      <div className="absolute -bottom-10 right-1/3 w-64 h-64 bg-accent-500 rounded-full blur-[80px] opacity-30" />
+    </div>
+  );
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-10">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-secondary-900 text-white p-10 md:p-16 shadow-2xl">
-        <div className="relative z-10 max-w-2xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm w-fit">
-            <TrendingUp className="w-4 h-4 text-primary-300" />
-            <span className="text-xs font-semibold tracking-wider uppercase text-primary-200">Save Now, Receive Later</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-black leading-tight">
-            Layaway — The Smart<br className="hidden md:block" /> Way to Own Products
-          </h1>
-          <p className="text-secondary-100 text-lg leading-relaxed max-w-xl">
-            Just like a daily susu — make small, consistent payments toward a product. Once fully paid, we deliver it straight to your door!
-          </p>
-          <div className="flex flex-wrap gap-6 pt-2">
-            {[
-              { icon: Lock, label: 'Item Reserved for You' },
-              { icon: Clock, label: 'Pay at Your Own Pace' },
-              { icon: CheckCircle2, label: 'Delivered When Paid' },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 text-sm font-semibold text-primary-200">
-                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                  <Icon className="w-4 h-4" />
-                </div>
-                {label}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary-500 rounded-full blur-[120px] opacity-40" />
-        <div className="absolute -bottom-10 right-1/3 w-64 h-64 bg-accent-500 rounded-full blur-[80px] opacity-30" />
-      </div>
+      <HeroBanner position="layaway_hero" fallbackContent={fallbackHero} />
 
       {/* How it Works */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -106,7 +112,7 @@ const Layaway = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map(product => (
               <div
-                key={product.uuid}
+                key={product.id}
                 className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
               >
                 <div className="relative h-48 overflow-hidden bg-secondary-100 dark:bg-secondary-800">

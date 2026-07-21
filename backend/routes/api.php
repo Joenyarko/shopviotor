@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\V1\AiChatController;
 use App\Http\Controllers\Api\V1\MarketingController;
 use App\Http\Controllers\Api\V1\LayawayController;
 use App\Http\Controllers\Api\V1\StoreController;
+use App\Http\Controllers\Api\V1\BannerController;
 use App\Http\Controllers\Api\V1\Vendor\VendorProductController;
 use App\Http\Controllers\Api\V1\Vendor\VendorDashboardController;
 
@@ -39,6 +40,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminHirePurchaseController;
 use App\Http\Controllers\Api\V1\Admin\AdminLayawayController;
 use App\Http\Controllers\Api\V1\Admin\AdminStoreController;
 use App\Http\Controllers\Api\V1\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\Api\V1\Admin\BannerController as AdminBannerController;
 
 Route::prefix('v1')->group(function () {
     
@@ -63,7 +65,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/stores', [StoreController::class, 'index']);
     Route::get('/stores/{slug}', [StoreController::class, 'show']);
 
+    Route::get('/banners', [BannerController::class, 'index']);
+
     Route::get('/raffles', [RaffleController::class, 'index']);
+    Route::get('/raffles/winners', [RaffleController::class, 'winners']);
     Route::get('/raffles/{uuid}', [RaffleController::class, 'show']);
 
     // Webhooks
@@ -158,6 +163,9 @@ Route::prefix('v1')->group(function () {
 
             // Categories
             Route::apiResource('categories', AdminCategoryController::class);
+
+            // Banners
+            Route::apiResource('banners', AdminBannerController::class)->except(['show']);
 
             // Brands
             Route::apiResource('brands', \App\Http\Controllers\Api\V1\Admin\BrandController::class);

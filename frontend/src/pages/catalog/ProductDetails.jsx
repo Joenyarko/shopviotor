@@ -96,15 +96,6 @@ const ProductDetails = () => {
           {/* Thumbnails — YouTube style */}
           {product.images && product.images.length > 0 && (
             <div className="flex gap-3 overflow-x-auto pb-2">
-              {/* Primary image thumbnail */}
-              {product.primary_image && (
-                <button
-                  onClick={() => setActiveImage(product.primary_image)}
-                  className={`w-20 h-20 bg-white dark:bg-secondary-900 border-2 rounded-xl overflow-hidden flex-shrink-0 transition-all duration-200 ${activeImage === product.primary_image ? 'border-primary-500 ring-2 ring-primary-500/20 scale-105' : 'border-secondary-200 dark:border-secondary-700 hover:border-primary-300'}`}
-                >
-                  <img src={product.primary_image} alt="Main" className="w-full h-full object-cover" />
-                </button>
-              )}
               {product.images.map((img) => (
                 <button
                   key={img.id}

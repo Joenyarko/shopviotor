@@ -208,6 +208,7 @@ const Products = () => {
     }
     formData.append('is_featured', isFeatured ? '1' : '0');
     if (variations.length > 0) formData.append('variations', JSON.stringify(variations));
+    existingImages.forEach((img, i) => formData.append(`existing_images[${i}]`, img.id));
     imageFiles.forEach((file, i) => formData.append(`images[${i}]`, file));
 
     try {

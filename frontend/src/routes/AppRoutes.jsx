@@ -54,6 +54,7 @@ import AdminPayments from '../pages/admin/Payments';
 import AdminTradeRequests from '../pages/admin/TradeRequests';
 import AdminSellRequests from '../pages/admin/SellRequests';
 import AdminRaffles from '../pages/admin/Raffles';
+import Banners from '../pages/admin/Banners';
 import AdminReports from '../pages/admin/Reports';
 import AdminSettings from '../pages/admin/Settings';
 import AdsManager from '../pages/admin/AdsManager';
@@ -170,6 +171,7 @@ const AppRoutes = () => {
         <Route path="/admin/pre-orders" element={<AdminPreOrders />} />
         <Route path="/admin/vendor-stores" element={<VendorStores />} />
         <Route path="/admin/raffles" element={<AdminRaffles />} />
+        <Route path="/admin/banners" element={<Banners />} />
         <Route path="/admin/ads" element={<AdsManager />} />
         <Route path="/admin/campaigns" element={<AdminCampaigns />} />
         <Route path="/admin/flash-sales" element={<AdminFlashSales />} />

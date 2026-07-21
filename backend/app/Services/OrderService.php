@@ -38,6 +38,7 @@ class OrderService
                 'user_id'         => $userId,
                 'address_id'      => $data['address_id'] ?? null,
                 'coupon_id'       => $coupon?->id,
+                'status'          => \App\Enums\OrderStatus::Pending,
                 'subtotal'        => $subtotal,
                 'discount_amount' => $discount,
                 'shipping_amount' => $shipping,
@@ -62,7 +63,7 @@ class OrderService
     private function validateAndPriceItems(array $items): array
     {
         return collect($items)->map(function ($item) {
-            $product = Product::active()->inStock()->findOrFail($item['product_id']);
+            $product = Product::active()->inStock()->where('uuid', $item['product_id'])->firstOrFail();
 
             if ($product->stock_quantity < $item['quantity']) {
                 throw ValidationException::withMessages([

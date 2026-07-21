@@ -50,6 +50,9 @@ const ProductList = () => {
           max_price: maxPrice,
           sort,
         };
+        if (searchParams.get('hire_purchase') === 'true') {
+          filters.available_for_hire_purchase = 1;
+        }
         
         let response;
         if (queryTerm) {

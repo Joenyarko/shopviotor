@@ -17,12 +17,13 @@ import {
   ChevronDown,
   LayoutDashboard,
   Ticket,
-  Package
+  Package,
+  Store
 } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { user, logout, isAuthenticated, isAdmin } = useAuth();
+  const { user, logout, isAuthenticated, isAdmin, isVendor } = useAuth();
   const { cartItemsCount } = useCart();
   const { darkMode, toggleDarkMode } = useTheme();
   
@@ -161,6 +162,15 @@ const Navbar = () => {
                         className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
                       >
                         <LayoutDashboard className="w-4 h-4" /> Admin Portal
+                      </Link>
+                    )}
+                    {isVendor() && (
+                      <Link
+                        to="/vendor"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
+                      >
+                        <Store className="w-4 h-4" /> Vendor Dashboard
                       </Link>
                     )}
                     <Link

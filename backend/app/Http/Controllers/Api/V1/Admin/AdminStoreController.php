@@ -66,8 +66,10 @@ class AdminStoreController extends Controller
             'approved_at' => now(),
         ]);
 
-        // Upgrade user role to vendor
-        $store->user->update(['role' => UserRole::Vendor->value]);
+        // Upgrade user role to vendor only if they are a regular customer
+        if ($store->user->role === UserRole::Customer->value) {
+            $store->user->update(['role' => UserRole::Vendor->value]);
+        }
 
         return response()->json(['message' => 'Store approved and vendor role granted.']);
     }

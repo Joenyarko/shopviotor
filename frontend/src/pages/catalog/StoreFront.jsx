@@ -108,8 +108,8 @@ const StoreFront = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
               {products.map(p => (
                 <Link
-                  key={p.uuid}
-                  to={`/products/${p.uuid}`}
+                  key={p.id}
+                  to={`/products/${p.id}`}
                   className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col"
                 >
                   <div className="h-44 bg-secondary-100 dark:bg-secondary-800 overflow-hidden">

@@ -64,8 +64,8 @@ const StoreApplication = () => {
   if (success) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center space-y-6">
-        <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-950/20 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+        <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-950/20 flex items-center justify-center mx-auto">
+          <CheckCircle2 className="w-10 h-10 text-green-500" />
         </div>
         <h2 className="text-3xl font-black text-secondary-900 dark:text-white">Application Submitted! 🎉</h2>
         <p className="text-secondary-500 dark:text-secondary-400 max-w-md mx-auto text-lg">
@@ -82,18 +82,18 @@ const StoreApplication = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-900 text-white p-10 md:p-12 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-500 to-primary-700 text-secondary-900 p-10 md:p-12 shadow-2xl">
         <div className="relative z-10 max-w-2xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm w-fit">
-            <Store className="w-4 h-4 text-emerald-300" />
-            <span className="text-xs font-semibold tracking-wider uppercase text-emerald-200">Become a Vendor</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-sm w-fit">
+            <Store className="w-4 h-4 text-secondary-900" />
+            <span className="text-xs font-bold tracking-wider uppercase text-secondary-900">Become a Vendor</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black">Open Your Store on Viotor</h1>
-          <p className="text-emerald-100 text-lg leading-relaxed max-w-xl">
+          <p className="text-secondary-800 font-medium text-lg leading-relaxed max-w-xl">
             Reach thousands of customers. List your products, manage orders, and grow your business — all from one powerful dashboard.
           </p>
         </div>
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-emerald-500 rounded-full blur-[120px] opacity-40" />
+        <div className="absolute -top-20 -right-20 w-96 h-96 bg-white rounded-full blur-[120px] opacity-40" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
@@ -120,7 +120,7 @@ const StoreApplication = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="e.g. John's Gadgets Hub"
-                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                 />
               </div>
 
@@ -133,7 +133,7 @@ const StoreApplication = () => {
                   value={formData.description}
                   onChange={handleChange}
                   placeholder="Tell customers what you sell and what makes your store unique..."
-                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                 />
               </div>
 
@@ -147,7 +147,7 @@ const StoreApplication = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="+233 XX XXX XXXX"
-                    className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                   />
                 </div>
                 <div>
@@ -158,7 +158,7 @@ const StoreApplication = () => {
                     value={formData.whatsapp}
                     onChange={handleChange}
                     placeholder="+233 XX XXX XXXX"
-                    className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                   />
                 </div>
               </div>
@@ -172,7 +172,7 @@ const StoreApplication = () => {
                   value={formData.location}
                   onChange={handleChange}
                   placeholder="e.g. Accra, East Legon"
-                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
                 />
               </div>
 
@@ -188,7 +188,7 @@ const StoreApplication = () => {
                       </button>
                     </div>
                   ) : (
-                    <label className="w-20 h-20 rounded-xl border-2 border-dashed border-secondary-300 dark:border-secondary-700 flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 hover:text-emerald-500 text-secondary-400 transition-colors">
+                    <label className="w-20 h-20 rounded-xl border-2 border-dashed border-secondary-300 dark:border-secondary-700 flex flex-col items-center justify-center cursor-pointer hover:border-primary-500 hover:text-primary-500 text-secondary-400 transition-colors">
                       <Upload className="w-5 h-5" />
                       <span className="text-xxs mt-1">Logo</span>
                       <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
@@ -209,7 +209,7 @@ const StoreApplication = () => {
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-secondary-300 dark:border-secondary-700 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/10 text-secondary-400 hover:text-emerald-500 transition-colors">
+                  <label className="flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-secondary-300 dark:border-secondary-700 cursor-pointer hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950/10 text-secondary-400 hover:text-primary-500 transition-colors">
                     <Upload className="w-7 h-7" />
                     <span className="text-sm font-medium mt-2">Upload Banner Image</span>
                     <span className="text-xs mt-0.5">Wide image recommended (e.g. 1400×400). Max 4MB.</span>
@@ -221,7 +221,7 @@ const StoreApplication = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 transition-colors"
+                className="premium-button-primary w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary-500/30 transition-colors"
               >
                 {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Submit Store Application'}
               </button>
@@ -231,7 +231,7 @@ const StoreApplication = () => {
 
         {/* Info Panel */}
         <div className="space-y-4">
-          <div className="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-2xl p-6 text-white space-y-4">
+          <div className="bg-gradient-to-br from-primary-600 to-primary-700 rounded-2xl p-6 text-white space-y-4">
             <h3 className="font-bold text-lg">Why Sell on Viotor?</h3>
             {[
               { emoji: '🌍', title: 'Wide Reach', desc: 'Access thousands of daily visitors across Ghana.' },
@@ -242,8 +242,8 @@ const StoreApplication = () => {
               <div key={title} className="flex gap-3">
                 <span className="text-xl">{emoji}</span>
                 <div>
-                  <p className="font-bold text-sm">{title}</p>
-                  <p className="text-emerald-100 text-xs mt-0.5">{desc}</p>
+                  <p className="font-bold text-sm text-secondary-900">{title}</p>
+                  <p className="text-secondary-800 text-xs mt-0.5">{desc}</p>
                 </div>
               </div>
             ))}
@@ -252,10 +252,10 @@ const StoreApplication = () => {
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-5 space-y-3">
             <h3 className="font-bold text-secondary-900 dark:text-white">What happens next?</h3>
             <ol className="space-y-2 text-sm text-secondary-600 dark:text-secondary-400">
-              <li className="flex gap-2"><span className="font-bold text-emerald-600">1.</span> Submit your application above.</li>
-              <li className="flex gap-2"><span className="font-bold text-emerald-600">2.</span> Our team reviews your store within 24-48 hours.</li>
-              <li className="flex gap-2"><span className="font-bold text-emerald-600">3.</span> Once approved, your vendor dashboard unlocks.</li>
-              <li className="flex gap-2"><span className="font-bold text-emerald-600">4.</span> Start listing and selling your products!</li>
+              <li className="flex gap-2"><span className="font-bold text-primary-600">1.</span> Submit your application above.</li>
+              <li className="flex gap-2"><span className="font-bold text-primary-600">2.</span> Our team reviews your store within 24-48 hours.</li>
+              <li className="flex gap-2"><span className="font-bold text-primary-600">3.</span> Once approved, your vendor dashboard unlocks.</li>
+              <li className="flex gap-2"><span className="font-bold text-primary-600">4.</span> Start listing and selling your products!</li>
             </ol>
           </div>
         </div>

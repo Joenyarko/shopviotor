@@ -32,7 +32,6 @@ const ProductCard = ({ product, onWishlistToggle }) => {
       {/* Wishlist Button */}
       <button
         onClick={handleWishlistClick}
-        disabled={loadingWishlist}
         className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 dark:bg-secondary-800/80 backdrop-blur-sm border border-secondary-200 dark:border-secondary-700 shadow-sm hover:bg-white dark:hover:bg-secondary-700 z-10 transition-colors"
         aria-label="Add to wishlist"
       >

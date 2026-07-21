@@ -30,7 +30,7 @@ class ProductResource extends JsonResource
             'available_for_trade'         => $this->available_for_trade,
             'specifications'              => $this->specifications,
             'tags'                        => $this->tags,
-            'primary_image'               => $this->primaryImage ? $this->primaryImage->url : null,
+            'primary_image'               => $this->primary_image,
             'category'                    => new CategoryResource($this->whenLoaded('category')),
             'brand'                       => new BrandResource($this->whenLoaded('brand')),
             'images'                      => ProductImageResource::collection($this->whenLoaded('images')),

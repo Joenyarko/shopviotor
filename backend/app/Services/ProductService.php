@@ -9,8 +9,6 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\Laravel\Facades\Image;
-
 class ProductService
 {
     public function __construct(private ProductRepository $productRepo) {}
@@ -55,6 +53,16 @@ class ProductService
 
             $images = $data['images'] ?? [];
             unset($data['images']);
+
+            $existingImages = $data['existing_images'] ?? [];
+            unset($data['existing_images']);
+
+            // Delete images that are not in the existing_images array
+            $imagesToDelete = $product->images()->whereNotIn('id', $existingImages)->get();
+            $imagesToDelete->each(function ($image) {
+                Storage::disk('public')->delete($image->path);
+                $image->delete();
+            });
 
             if (isset($data['available_for_layaway'])) {
                 if ($data['available_for_layaway'] && !empty($data['layaway_total_boxes'])) {
@@ -123,16 +131,12 @@ class ProductService
 
     private function storeImage(UploadedFile $file, int $productId): string
     {
-        $filename  = Str::uuid() . '.webp';
+        $filename  = Str::uuid() . '.' . $file->getClientOriginalExtension();
         $directory = "products/{$productId}";
 
-        $image = Image::read($file)
-            ->cover(800, 800)
-            ->toWebp(85);
+        $path = $file->storeAs($directory, $filename, 'public');
 
-        Storage::disk('public')->put("{$directory}/{$filename}", (string)$image);
-
-        return "{$directory}/{$filename}";
+        return $path;
     }
 
     private function generateSlug(string $name): string
