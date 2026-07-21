@@ -12,7 +12,8 @@ const AdminBrands = () => {
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [logo, setLogo] = useState('');
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState('');
 
   const loadBrands = async () => {
     setLoading(true);
@@ -30,7 +31,7 @@ const AdminBrands = () => {
 
   const handleOpenCreate = () => {
     setEditingBrand(null);
-    setName(''); setDescription(''); setLogo('');
+    setName(''); setDescription(''); setLogoFile(null); setLogoPreview('');
     setErrorMsg('');
     setModalOpen(true);
   };
@@ -39,7 +40,8 @@ const AdminBrands = () => {
     setEditingBrand(brand);
     setName(brand.name || '');
     setDescription(brand.description || '');
-    setLogo(brand.logo || '');
+    setLogoFile(null);
+    setLogoPreview(brand.logo || '');
     setErrorMsg('');
     setModalOpen(true);
   };
@@ -58,12 +60,22 @@ const AdminBrands = () => {
     e.preventDefault();
     setSubmitting(true);
     setErrorMsg('');
-    const payload = { name, description, logo };
+    
+    const formData = new FormData();
+    formData.append('name', name);
+    if (description) formData.append('description', description);
+    if (logoFile) formData.append('logo', logoFile);
+
     try {
       if (editingBrand) {
-        await apiClient.put(`/admin/brands/${editingBrand.uuid}`, payload);
+        formData.append('_method', 'PUT'); // Laravel needs this for PUT with FormData
+        await apiClient.post(`/admin/brands/${editingBrand.uuid}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       } else {
-        await apiClient.post('/admin/brands', payload);
+        await apiClient.post('/admin/brands', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
       }
       setModalOpen(false);
       loadBrands();
@@ -71,6 +83,14 @@ const AdminBrands = () => {
       setErrorMsg(err.response?.data?.message || err.message || 'Failed to save brand.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
     }
   };
 
@@ -159,10 +179,16 @@ const AdminBrands = () => {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Logo URL (optional)</label>
-                <input type="text" value={logo} onChange={(e) => setLogo(e.target.value)}
-                  className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="https://example.com/logo.png"
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Brand Logo (optional)</label>
+                
+                {logoPreview && (
+                  <div className="mb-3 w-16 h-16 rounded-xl border border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 flex items-center justify-center p-2 overflow-hidden">
+                    <img src={logoPreview} alt="Preview" className="max-w-full max-h-full object-contain" />
+                  </div>
+                )}
+                
+                <input type="file" accept="image/*" onChange={handleFileChange}
+                  className="w-full text-sm text-secondary-500 dark:text-secondary-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer border border-secondary-300 dark:border-secondary-700 rounded-lg"
                 />
               </div>
               <div>

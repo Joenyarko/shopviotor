@@ -85,22 +85,25 @@ const Landing = () => {
   const [latest, setLatest] = useState([]);
   const [categories, setCategories] = useState([]);
   const [collections, setCollections] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchVal, setSearchVal] = useState('');
 
   useEffect(() => {
     const loadHomeData = async () => {
       try {
-        const [featuredRes, latestRes, categoriesRes, collectionsRes] = await Promise.all([
+        const [featuredRes, latestRes, categoriesRes, collectionsRes, brandsRes] = await Promise.all([
           productService.getFeaturedProducts(),
           productService.getProducts({ per_page: 8 }),
           productService.getCategories(),
           apiClient.get('/marketing/collections'),
+          apiClient.get('/brands')
         ]);
         setFeatured(featuredRes.data || []);
         setLatest(latestRes.data?.data || latestRes.data || []);
         setCategories(categoriesRes.data?.data || categoriesRes.data || []);
         setCollections(collectionsRes.data?.data || []);
+        setBrands(brandsRes.data?.data || []);
       } catch (error) {
         console.error('Failed to load landing products:', error);
       } finally {
@@ -325,24 +328,24 @@ const Landing = () => {
         )}
       </section>
 
-      {/* Brand Marquee */}
-      <section className="py-8 overflow-hidden relative border-y border-secondary-200 dark:border-secondary-800 bg-white dark:bg-secondary-900">
-        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white dark:from-secondary-900 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white dark:from-secondary-900 to-transparent z-10 pointer-events-none" />
-        
-        <div className="flex w-[200%] animate-[marquee_30s_linear_infinite]">
-          {/* We duplicate the array to create a seamless infinite loop */}
-          {[...Array(2)].map((_, groupIdx) => (
-            <div key={groupIdx} className="flex w-1/2 justify-around items-center px-4">
-              {['Samsung', 'Apple', 'HP', 'Sony', 'LG', 'Dell', 'Asus', 'Lenovo'].map((brand, idx) => (
-                <div key={`${groupIdx}-${idx}`} className="flex items-center justify-center grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all cursor-pointer">
-                  <span className="text-xl md:text-2xl font-black tracking-tighter text-secondary-900 dark:text-white uppercase">{brand}</span>
+      {/* Brand Logos */}
+      {brands && brands.length > 0 && (
+        <section className="py-8 bg-white dark:bg-secondary-900">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="flex flex-wrap md:flex-nowrap items-center justify-center border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden divide-y md:divide-y-0 md:divide-x divide-secondary-200 dark:divide-secondary-800 bg-white dark:bg-secondary-900">
+              {brands.slice(0, 5).map((brand) => (
+                <div key={brand.id || brand.uuid} className="flex-1 min-w-[150px] h-24 flex items-center justify-center p-6 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all cursor-pointer">
+                  {brand.logo ? (
+                    <img src={brand.logo} alt={brand.name} className="max-w-full max-h-full object-contain" />
+                  ) : (
+                    <span className="text-xl md:text-2xl font-black tracking-tighter text-secondary-900 dark:text-white uppercase text-center">{brand.name}</span>
+                  )}
                 </div>
               ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
       {/* POPUP PROMO */}
       <PromoPopup />
