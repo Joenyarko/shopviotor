@@ -179,7 +179,7 @@ const ProductDetails = () => {
         {product.category?.name && (
           <>
             <ChevronRight className="w-4 h-4" />
-            <Link to={`/category/${product.category.slug}`} className="hover:text-primary-600 transition-colors">{product.category.name}</Link>
+            <Link to={`/products?category=${product.category.slug || product.category.id}`} className="hover:text-primary-600 transition-colors">{product.category.name}</Link>
           </>
         )}
         <ChevronRight className="w-4 h-4" />

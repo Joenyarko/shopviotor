@@ -28,12 +28,14 @@ class ProductRepository extends BaseRepository
         $query = $this->model->active()->with(['category', 'brand', 'primaryImage']);
 
         if (!empty($filters['category_id'])) {
-            if (!is_numeric($filters['category_id'])) {
-                $query->whereHas('category', function ($q) use ($filters) {
-                    $q->where('slug', $filters['category_id']);
-                });
-            } else {
-                $query->where('category_id', $filters['category_id']);
+            $categoryIdentifier = $filters['category_id'];
+            $category = \App\Models\Category::where('id', $categoryIdentifier)
+                ->orWhere('slug', $categoryIdentifier)
+                ->first();
+                
+            if ($category) {
+                $categoryIds = array_merge([$category->id], $category->getAllDescendantIds());
+                $query->whereIn('category_id', $categoryIds);
             }
         }
         if (!empty($filters['brand_id'])) {

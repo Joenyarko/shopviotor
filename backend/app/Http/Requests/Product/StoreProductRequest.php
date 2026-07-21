@@ -32,6 +32,10 @@ class StoreProductRequest extends FormRequest
         if ($this->has('variations') && is_string($this->variations)) {
             $merge['variations'] = json_decode($this->variations, true);
         }
+        
+        if ($this->has('specifications') && is_string($this->specifications)) {
+            $merge['specifications'] = json_decode($this->specifications, true);
+        }
 
         if (!empty($merge)) {
             $this->merge($merge);

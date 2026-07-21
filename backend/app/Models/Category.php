@@ -54,4 +54,15 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function getAllDescendantIds(): array
+    {
+        $ids = [];
+        $children = $this->children()->get();
+        foreach ($children as $child) {
+            $ids[] = $child->id;
+            $ids = array_merge($ids, $child->getAllDescendantIds());
+        }
+        return $ids;
+    }
 }

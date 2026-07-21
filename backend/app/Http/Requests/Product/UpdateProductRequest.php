@@ -32,6 +32,10 @@ class UpdateProductRequest extends FormRequest
         if ($this->has('variations') && is_string($this->variations)) {
             $merge['variations'] = json_decode($this->variations, true);
         }
+        
+        if ($this->has('specifications') && is_string($this->specifications)) {
+            $merge['specifications'] = json_decode($this->specifications, true);
+        }
 
         if (!empty($merge)) {
             $this->merge($merge);
@@ -73,6 +77,14 @@ class UpdateProductRequest extends FormRequest
             'variations.*.options'        => ['required', 'array', 'min:1'],
             'variations.*.options.*.value'       => ['required', 'string', 'max:100'],
             'variations.*.options.*.price_delta' => ['nullable', 'numeric'],
+
+            'location'                    => ['nullable', 'string', 'max:255'],
+            'city'                        => ['nullable', 'string', 'max:100'],
+            'region'                      => ['nullable', 'string', 'max:100'],
+            'specifications'              => ['nullable', 'array'],
+            'tags'                        => ['nullable', 'array'],
+            'meta_title'                  => ['nullable', 'string', 'max:255'],
+            'meta_description'            => ['nullable', 'string', 'max:500'],
         ];
     }
 }
