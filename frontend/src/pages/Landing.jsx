@@ -103,7 +103,12 @@ const Landing = () => {
         setLatest(latestRes.data?.data || latestRes.data || []);
         setCategories(categoriesRes.data?.data || categoriesRes.data || []);
         setCollections(collectionsRes.data?.data || []);
-        setBrands(brandsRes.data?.data || brandsRes.data || []);
+        
+        let bArray = [];
+        if (Array.isArray(brandsRes)) bArray = brandsRes;
+        else if (Array.isArray(brandsRes?.data)) bArray = brandsRes.data;
+        else if (Array.isArray(brandsRes?.data?.data)) bArray = brandsRes.data.data;
+        setBrands(bArray);
       } catch (error) {
         console.error('Failed to load landing products:', error);
       } finally {
