@@ -18,9 +18,9 @@ const ProductCard = ({ product, onWishlistToggle }) => {
 
   const conditionColor = (cond) => {
     switch (cond) {
-      case 'new': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
-      case 'refurbished': return 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300';
-      default: return 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+      case 'new': return 'bg-emerald-500 text-white';
+      case 'refurbished': return 'bg-blue-500 text-white';
+      default: return 'bg-amber-500 text-white';
     }
   };
 
@@ -50,18 +50,18 @@ const ProductCard = ({ product, onWishlistToggle }) => {
         />
         
         {/* Badges Overlay */}
-        <div className="absolute bottom-2 left-2 flex flex-wrap gap-1">
-          <span className={`text-xxs px-2 py-0.5 font-bold uppercase rounded-md tracking-wider ${conditionColor(product.condition)}`}>
-            {product.condition}
+        <div className="absolute bottom-2 left-2 flex flex-wrap gap-1 max-w-[90%]">
+          <span className={`text-[9px] px-1.5 py-1 font-bold uppercase rounded tracking-wider leading-none shadow-sm ${conditionColor(product.condition)}`}>
+            {product.condition === 'new' ? 'New' : 'Used'}
           </span>
           {product.available_for_trade && (
-            <span className="bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 text-xxs px-2 py-0.5 font-bold uppercase rounded-md tracking-wider flex items-center gap-0.5">
-              <Scale className="w-3 h-3" /> Barter
+            <span className="bg-purple-600 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Available for Barter">
+              <Scale className="w-2.5 h-2.5" /> Swap
             </span>
           )}
           {product.available_for_hire_purchase && (
-            <span className="bg-primary-100 text-primary-800 dark:bg-primary-950 dark:text-primary-300 text-xxs px-2 py-0.5 font-bold uppercase rounded-md tracking-wider flex items-center gap-0.5">
-              <Percent className="w-3 h-3" /> HP
+            <span className="bg-primary-500 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Available for Hire Purchase">
+              <Percent className="w-2.5 h-2.5" /> HP
             </span>
           )}
         </div>
