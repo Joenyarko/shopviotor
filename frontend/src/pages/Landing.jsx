@@ -215,7 +215,27 @@ const Landing = () => {
       </section>
 
       {/* 3.5 MIDDLE ADVERTISING BOARD */}
-      <HeroBanner position="storefront_middle" />
+      <HeroBanner 
+        position="storefront_middle" 
+        fallbackContent={
+          <div className="relative overflow-hidden shadow-sm h-48 md:h-72 group bg-secondary-900 rounded-3xl mt-12 mb-8">
+            <img 
+              src="https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=2070&auto=format&fit=crop" 
+              alt="Advertisement Placeholder" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent flex flex-col justify-center p-8 md:p-12">
+              <span className="text-primary-500 font-bold tracking-wider uppercase text-xs mb-2">Special Offer</span>
+              <h3 className="text-white text-2xl md:text-4xl font-black max-w-md leading-tight">
+                Your Advertising <br/> Goes Here
+              </h3>
+              <p className="text-secondary-200 mt-4 max-w-sm text-sm">
+                Upload a banner from the admin panel to replace this placeholder with your own promotions.
+              </p>
+            </div>
+          </div>
+        }
+      />
 
       {/* 4. FEATURED PRODUCTS (CAROUSEL / GRID) */}
       <section className="space-y-6">
