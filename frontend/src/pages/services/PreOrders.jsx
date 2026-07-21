@@ -59,7 +59,7 @@ const PreOrders = () => {
           <p className="text-secondary-500 dark:text-secondary-400">Check back later for exciting new products.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm mt-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 mt-8">
           {products.map(product => {
             const primaryImage = product.primary_image || (product.images && product.images[0]?.url) || 'https://via.placeholder.com/300?text=No+Image';
             const deposit = product.preorder_deposit_amount;

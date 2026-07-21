@@ -68,27 +68,29 @@ const ProductCard = ({ product, onWishlistToggle }) => {
       </Link>
 
       {/* Product Content Details */}
-      <div className="p-4 flex flex-col flex-grow">
-        <Link to={`/products/${product.id || product.uuid}`} className="hover:text-primary-600 dark:hover:text-primary-400">
-          <h3 className="font-semibold text-secondary-900 dark:text-white line-clamp-2 text-sm md:text-base leading-snug">
-            {product.name}
-          </h3>
-        </Link>
-        
-        {product.brand?.name && (
-          <span className="text-xs text-secondary-500 dark:text-secondary-400 mt-1 font-medium">{product.brand.name}</span>
-        )}
+      <div className="p-3 flex flex-col flex-grow">
+        <div className="mb-1">
+          <Link to={`/products/${product.id || product.uuid}`} className="hover:text-primary-600 dark:hover:text-primary-400">
+            <h3 className="font-semibold text-secondary-900 dark:text-white line-clamp-2 text-xs md:text-sm leading-snug">
+              {product.name}
+            </h3>
+          </Link>
+          {product.brand && (
+            <p className="text-xs text-secondary-500 mt-0.5">{product.brand.name}</p>
+          )}
+        </div>
 
-        <div className="mt-auto pt-3">
-          <div className="flex items-baseline gap-1">
-            <span className="text-lg font-bold text-secondary-900 dark:text-white">GHS {productPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-            {product.compare_price && parseFloat(product.compare_price) > productPrice && (
-              <span className="text-xs text-secondary-400 line-through">GHS {parseFloat(product.compare_price).toLocaleString('en-US')}</span>
+        <div className="mt-auto pt-2">
+          <div className="flex flex-wrap items-baseline gap-1">
+            <span className="text-sm md:text-base font-bold text-secondary-900 dark:text-white">GHS {productPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            {parseFloat(product.compare_price) > productPrice && (
+              <span className="text-xs text-secondary-400 line-through">GHS {parseFloat(product.compare_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             )}
           </div>
-          
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-secondary-100 dark:border-secondary-800/80">
-            <span className="text-xs text-secondary-500 dark:text-secondary-400 font-medium">{product.location || 'Accra, Ghana'}</span>
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center text-xs text-secondary-500">
+              <span className="truncate max-w-[100px]">{product.city || 'Accra'}, {product.region || 'Ghana'}</span>
+            </div>
             {product.average_rating > 0 && (
               <span className="text-xs flex items-center gap-0.5 text-amber-500 font-semibold">
                 ★ {product.average_rating.toFixed(1)}

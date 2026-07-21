@@ -221,7 +221,7 @@ const ProductList = () => {
 
         {/* Product Cards Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
             {[1, 2, 3, 4, 5, 6].map(idx => (
               <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 h-80" />
             ))}
@@ -232,7 +232,7 @@ const ProductList = () => {
             <p className="text-secondary-500 dark:text-secondary-400 mt-2">Try adjusting your filters or search query.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
             {products.map(product => (
               <ProductCard key={product.id || product.uuid} product={product} />
             ))}
