@@ -49,7 +49,7 @@ class ProductController extends Controller
 
     public function show(string $uuid): JsonResponse
     {
-        $product = $this->productRepo->findByUuid($uuid, ['category', 'brand', 'images']);
+        $product = $this->productRepo->findByUuid($uuid, ['category', 'brand', 'images', 'variations.options']);
 
         return response()->json([
             'data' => new ProductResource($product),

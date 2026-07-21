@@ -34,13 +34,20 @@ class ProductService
                 $data['preorder_expected_date'] = null;
             }
 
+            $variations = $data['variations'] ?? [];
+            unset($data['variations']);
+
             $product = $this->productRepo->create($data);
 
             if (!empty($images)) {
                 $this->handleImages($product, $images);
             }
 
-            return $product->load(['category', 'brand', 'images']);
+            if (!empty($variations)) {
+                $this->handleVariations($product, $variations);
+            }
+
+            return $product->load(['category', 'brand', 'images', 'variations.options']);
         });
     }
 
@@ -81,14 +88,44 @@ class ProductService
                 }
             }
 
+            $variations = $data['variations'] ?? null;
+            if (array_key_exists('variations', $data)) {
+                unset($data['variations']);
+            }
+
             $product->update($data);
 
             if (!empty($images)) {
                 $this->handleImages($product, $images);
             }
 
-            return $product->fresh(['category', 'brand', 'images']);
+            if ($variations !== null) {
+                // If variations were provided, replace existing ones
+                $product->variations()->delete();
+                $this->handleVariations($product, $variations);
+            }
+
+            return $product->fresh(['category', 'brand', 'images', 'variations.options']);
         });
+    }
+
+    private function handleVariations(Product $product, array $variations): void
+    {
+        foreach ($variations as $varData) {
+            if (empty($varData['name']) || empty($varData['options'])) continue;
+            
+            $variation = $product->variations()->create([
+                'name' => $varData['name'],
+            ]);
+
+            foreach ($varData['options'] as $optData) {
+                if (empty($optData['value'])) continue;
+                $variation->options()->create([
+                    'value' => $optData['value'],
+                    'price_delta' => $optData['price_delta'] ?? 0,
+                ]);
+            }
+        }
     }
 
     public function delete(Product $product): void

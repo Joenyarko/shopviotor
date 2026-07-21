@@ -26,7 +26,7 @@ class ProductController extends Controller
 
     public function show(string $uuid): JsonResponse
     {
-        $product = $this->productRepo->findByUuid($uuid, ['category', 'brand', 'images', 'reviews.user']);
+        $product = $this->productRepo->findByUuid($uuid, ['category', 'brand', 'images', 'reviews.user', 'store', 'variations.options']);
 
         if ($product->status->value !== 'active') {
             abort(404, 'Product not found or inactive.');

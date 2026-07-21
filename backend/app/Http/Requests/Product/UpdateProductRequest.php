@@ -29,6 +29,10 @@ class UpdateProductRequest extends FormRequest
             }
         }
 
+        if ($this->has('variations') && is_string($this->variations)) {
+            $merge['variations'] = json_decode($this->variations, true);
+        }
+
         if (!empty($merge)) {
             $this->merge($merge);
         }
@@ -37,30 +41,38 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'                        => ['sometimes', 'string', 'max:255'],
-            'description'                 => ['sometimes', 'string'],
+            'name'                        => ['sometimes', 'required', 'string', 'max:255'],
+            'description'                 => ['sometimes', 'required', 'string'],
             'short_description'           => ['nullable', 'string', 'max:500'],
-            'price'                       => ['sometimes', 'numeric', 'min:0.01'],
+            'price'                       => ['sometimes', 'required', 'numeric', 'min:0.01', 'max:9999999'],
             'compare_price'               => ['nullable', 'numeric', 'min:0'],
-            'stock_quantity'              => ['sometimes', 'integer', 'min:0'],
-            'category_id'                 => ['sometimes', 'exists:categories,id'],
-            'brand_id'                    => ['nullable', 'exists:brands,id'],
-            'condition'                   => ['sometimes', 'in:new,used,refurbished'],
-            'status'                      => ['sometimes', 'in:draft,active,inactive,sold,suspended'],
-            'is_featured'                 => ['boolean'],
-            'is_negotiable'               => ['boolean'],
-            'available_for_hire_purchase' => ['boolean'],
-            'available_for_trade'         => ['boolean'],
-            'available_for_layaway'       => ['boolean'],
-            'layaway_total_boxes'         => ['nullable', 'integer', 'min:1'],
-            'available_for_preorder'      => ['boolean'],
+            'cost_price'                  => ['nullable', 'numeric', 'min:0'],
+            'stock_quantity'              => ['sometimes', 'required', 'integer', 'min:0'],
+            'sku'                         => ['nullable', 'string', 'max:50'],
+            'barcode'                     => ['nullable', 'string', 'max:50'],
+            'condition'                   => ['sometimes', 'required', 'string', 'in:new,used_good,used_fair,refurbished'],
+            'status'                      => ['nullable', 'string', 'in:active,inactive,draft'],
+            'is_featured'                 => ['nullable', 'boolean'],
+            'is_negotiable'               => ['nullable', 'boolean'],
+            'available_for_hire_purchase' => ['nullable', 'boolean'],
+            'available_for_trade'         => ['nullable', 'boolean'],
+            'available_for_layaway'       => ['nullable', 'boolean'],
+            'available_for_preorder'      => ['nullable', 'boolean'],
             'preorder_deposit_amount'     => ['nullable', 'numeric', 'min:0'],
             'preorder_expected_date'      => ['nullable', 'date'],
-            'images'                      => ['nullable', 'array', 'max:10'],
-            'images.*'                    => ['image', 'mimes:jpeg,png,webp', 'max:5120'],
+            'layaway_total_boxes'         => ['nullable', 'integer', 'min:1'],
+            'category_id'                 => ['sometimes', 'required', 'exists:categories,id'],
+            'brand_id'                    => ['nullable', 'exists:brands,id'],
             'existing_images'             => ['nullable', 'array'],
-            'existing_images.*'           => ['integer', 'exists:product_images,id'],
-            'variations'                  => ['nullable', 'string'],
+            'existing_images.*'           => ['exists:product_images,id'],
+            'images'                      => ['nullable', 'array', 'max:5'],
+            'images.*'                    => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            
+            'variations'                  => ['nullable', 'array'],
+            'variations.*.name'           => ['required', 'string', 'max:100'],
+            'variations.*.options'        => ['required', 'array', 'min:1'],
+            'variations.*.options.*.value'       => ['required', 'string', 'max:100'],
+            'variations.*.options.*.price_delta' => ['nullable', 'numeric'],
         ];
     }
 }

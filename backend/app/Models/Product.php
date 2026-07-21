@@ -135,6 +135,16 @@ class Product extends Model
         return $this->hasMany(Wishlist::class);
     }
 
+    public function layawayPayments(): HasMany
+    {
+        return $this->hasMany(LayawayPayment::class);
+    }
+
+    public function variations(): HasMany
+    {
+        return $this->hasMany(ProductVariation::class);
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);

@@ -29,6 +29,10 @@ class StoreProductRequest extends FormRequest
             }
         }
 
+        if ($this->has('variations') && is_string($this->variations)) {
+            $merge['variations'] = json_decode($this->variations, true);
+        }
+
         if (!empty($merge)) {
             $this->merge($merge);
         }
@@ -44,20 +48,30 @@ class StoreProductRequest extends FormRequest
             'compare_price'               => ['nullable', 'numeric', 'min:0'],
             'cost_price'                  => ['nullable', 'numeric', 'min:0'],
             'stock_quantity'              => ['required', 'integer', 'min:0'],
-            'sku'                         => ['nullable', 'string', 'max:100', 'unique:products,sku'],
-            'category_id'                 => ['required', 'exists:categories,id'],
-            'brand_id'                    => ['nullable', 'exists:brands,id'],
-            'condition'                   => ['required', 'in:new,used,refurbished'],
-            'status'                      => ['required', 'in:draft,active,inactive'],
-            'is_featured'                 => ['boolean'],
-            'is_negotiable'               => ['boolean'],
-            'available_for_hire_purchase' => ['boolean'],
-            'available_for_trade'         => ['boolean'],
-            'available_for_layaway'       => ['boolean'],
-            'layaway_total_boxes'         => ['nullable', 'integer', 'min:1'],
-            'available_for_preorder'      => ['boolean'],
+            'sku'                         => ['nullable', 'string', 'max:50'],
+            'barcode'                     => ['nullable', 'string', 'max:50'],
+            'condition'                   => ['required', 'string', 'in:new,used_good,used_fair,refurbished'],
+            'status'                      => ['nullable', 'string', 'in:active,inactive,draft'],
+            'is_featured'                 => ['nullable', 'boolean'],
+            'is_negotiable'               => ['nullable', 'boolean'],
+            'available_for_hire_purchase' => ['nullable', 'boolean'],
+            'available_for_trade'         => ['nullable', 'boolean'],
+            'available_for_layaway'       => ['nullable', 'boolean'],
+            'available_for_preorder'      => ['nullable', 'boolean'],
             'preorder_deposit_amount'     => ['nullable', 'numeric', 'min:0'],
             'preorder_expected_date'      => ['nullable', 'date'],
+            'layaway_total_boxes'         => ['nullable', 'integer', 'min:1'],
+            'category_id'                 => ['required', 'exists:categories,id'],
+            'brand_id'                    => ['nullable', 'exists:brands,id'],
+            'images'                      => ['nullable', 'array', 'max:5'],
+            'images.*'                    => ['image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
+            
+            'variations'                  => ['nullable', 'array'],
+            'variations.*.name'           => ['required', 'string', 'max:100'],
+            'variations.*.options'        => ['required', 'array', 'min:1'],
+            'variations.*.options.*.value'       => ['required', 'string', 'max:100'],
+            'variations.*.options.*.price_delta' => ['nullable', 'numeric'],
+
             'location'                    => ['nullable', 'string', 'max:255'],
             'city'                        => ['nullable', 'string', 'max:100'],
             'region'                      => ['nullable', 'string', 'max:100'],
@@ -65,8 +79,6 @@ class StoreProductRequest extends FormRequest
             'tags'                        => ['nullable', 'array'],
             'meta_title'                  => ['nullable', 'string', 'max:255'],
             'meta_description'            => ['nullable', 'string', 'max:500'],
-            'images'                      => ['nullable', 'array', 'max:10'],
-            'images.*'                    => ['image', 'mimes:jpeg,png,webp', 'max:5120'], // 5MB max
         ];
     }
 }
