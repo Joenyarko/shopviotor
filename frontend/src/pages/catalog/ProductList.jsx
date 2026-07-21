@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import productService from '../../services/productService';
 import ProductCard from '../../components/ProductCard';
-import { Filter, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Filter, SlidersHorizontal, ArrowUpDown, RefreshCw } from 'lucide-react';
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -221,10 +221,8 @@ const ProductList = () => {
 
         {/* Product Cards Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
-            {[1, 2, 3, 4, 5, 6].map(idx => (
-              <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 h-80" />
-            ))}
+          <div className="flex justify-center items-center py-32 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
+            <RefreshCw className="w-10 h-10 text-primary-500 animate-spin" />
           </div>
         ) : products.length === 0 ? (
           <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl shadow-sm">

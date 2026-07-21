@@ -40,24 +40,46 @@ const Orders = () => {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <div key={order.id || order.uuid} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 transition-colors shadow-sm flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div key={order.id || order.uuid} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 transition-colors shadow-sm">
               
-              <div className="space-y-1">
-                <span className="text-xxs font-bold text-secondary-450 uppercase">Order Ref</span>
-                <h4 className="font-bold text-secondary-900 dark:text-white text-sm md:text-base">#{order.order_number}</h4>
-                <p className="text-xxs text-secondary-500 dark:text-secondary-400">Date: {new Date(order.created_at).toLocaleDateString()}</p>
+              <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4 border-b border-secondary-100 dark:border-secondary-800 pb-4">
+                <div className="space-y-1">
+                  <span className="text-xxs font-bold text-secondary-450 uppercase">Order Ref</span>
+                  <h4 className="font-bold text-secondary-900 dark:text-white text-sm md:text-base">#{order.order_number}</h4>
+                  <p className="text-xxs text-secondary-500 dark:text-secondary-400">Date: {new Date(order.created_at).toLocaleDateString()}</p>
+                </div>
+
+                <div>
+                  <span className="block text-xxs text-secondary-500 dark:text-secondary-400 font-bold uppercase">Total Bill</span>
+                  <span className="font-extrabold text-sm md:text-base text-secondary-900 dark:text-white">GHS {parseFloat(order.total).toFixed(2)}</span>
+                </div>
+
+                <div>
+                  <span className="block text-xxs text-secondary-500 dark:text-secondary-400 font-bold uppercase mb-1">Status</span>
+                  <span className={`inline-block px-3 py-1 rounded-full text-xxs font-bold uppercase ${order.status === 'delivered' ? 'bg-emerald-100 text-emerald-800' : order.status === 'cancelled' ? 'bg-accent-100 text-accent-850' : 'bg-primary-100 text-primary-850'}`}>
+                    {order.status}
+                  </span>
+                </div>
               </div>
 
-              <div>
-                <span className="block text-xxs text-secondary-500 dark:text-secondary-400 font-bold uppercase">Total Bill</span>
-                <span className="font-extrabold text-sm md:text-base text-secondary-900 dark:text-white">GHS {parseFloat(order.total).toFixed(2)}</span>
-              </div>
-
-              <div>
-                <span className="block text-xxs text-secondary-500 dark:text-secondary-400 font-bold uppercase mb-1">Status</span>
-                <span className={`inline-block px-3 py-1 rounded-full text-xxs font-bold uppercase ${order.status === 'delivered' ? 'bg-emerald-100 text-emerald-800' : order.status === 'cancelled' ? 'bg-accent-100 text-accent-850' : 'bg-primary-100 text-primary-850'}`}>
-                  {order.status}
-                </span>
+              {/* Order Items */}
+              <div className="space-y-3">
+                <h5 className="text-xs font-bold text-secondary-900 dark:text-white uppercase tracking-wider mb-2">Order Details</h5>
+                {order.items && order.items.length > 0 ? (
+                  order.items.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-4 bg-secondary-50 dark:bg-secondary-800/50 p-3 rounded-lg border border-secondary-100 dark:border-secondary-800">
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-secondary-900 dark:text-white">{item.product_name}</p>
+                        <p className="text-xs text-secondary-500 dark:text-secondary-400">Qty: {item.quantity} | GHS {parseFloat(item.price).toFixed(2)} each</p>
+                      </div>
+                      <div className="font-bold text-sm text-secondary-900 dark:text-white">
+                        GHS {(parseFloat(item.price) * item.quantity).toFixed(2)}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-secondary-500">No item details available.</p>
+                )}
               </div>
 
             </div>

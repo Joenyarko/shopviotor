@@ -31,7 +31,9 @@ import {
   FlaskConical,
   Watch,
   Camera,
-  Headphones
+  Headphones,
+  RefreshCw,
+  Package
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import productService from '../services/productService';
@@ -229,10 +231,8 @@ const Landing = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
-            {[1, 2, 3, 4].map(idx => (
-              <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 h-72" />
-            ))}
+          <div className="flex justify-center items-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
+            <RefreshCw className="w-10 h-10 text-primary-500 animate-spin" />
           </div>
         ) : featured.length === 0 ? (
           <div className="text-center py-12 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
@@ -308,10 +308,8 @@ const Landing = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map(idx => (
-              <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 h-72" />
-            ))}
+          <div className="flex justify-center items-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
+            <RefreshCw className="w-10 h-10 text-primary-500 animate-spin" />
           </div>
         ) : latest.length === 0 ? (
           <div className="bg-secondary-50 dark:bg-secondary-900/50 rounded-2xl border border-secondary-200 dark:border-secondary-800 p-12 flex flex-col items-center justify-center text-center h-48">

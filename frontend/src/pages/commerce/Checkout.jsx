@@ -75,7 +75,13 @@ const Checkout = () => {
   useEffect(() => { fetchAddresses(); }, [fetchAddresses]);
 
   const handleAddAddress = async () => {
+    if (!newAddress.address_line_1.trim() || !newAddress.city.trim() || !newAddress.region.trim() || !newAddress.phone.trim() || !newAddress.full_name.trim()) {
+      setErrorMsg('Please fill in all mandatory address fields (Name, Phone, Address, City, Region).');
+      return;
+    }
+    
     setSubmitting(true);
+    setErrorMsg('');
     try {
       const res = await addressService.createAddress(newAddress);
       await fetchAddresses();
