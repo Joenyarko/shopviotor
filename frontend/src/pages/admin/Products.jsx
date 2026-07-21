@@ -187,7 +187,7 @@ const Products = () => {
     if (comparePrice) formData.append('compare_price', comparePrice);
     formData.append('stock_quantity', stock);
     formData.append('category_id', subSubCategoryId || subCategoryId || mainCategoryId);
-    formData.append('brand_id', brandId || null);
+    formData.append('brand_id', brandId);
     formData.append('condition', condition);
     formData.append('status', status);
     formData.append('description', description);
