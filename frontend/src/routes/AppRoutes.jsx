@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,72 +9,72 @@ import AdminLayout from '../layouts/AdminLayout';
 
 // Public Pages
 import Landing from '../pages/Landing';
-import ProductList from '../pages/catalog/ProductList';
-import ProductDetails from '../pages/catalog/ProductDetails';
-import Categories from '../pages/catalog/Categories';
-import About from '../pages/static/About';
-import Contact from '../pages/static/Contact';
-import FAQ from '../pages/static/FAQ';
-import Privacy from '../pages/static/Privacy';
-import Terms from '../pages/static/Terms';
-import NotFound from '../pages/static/NotFound';
+const ProductList = React.lazy(() => import('../pages/catalog/ProductList'));
+const ProductDetails = React.lazy(() => import('../pages/catalog/ProductDetails'));
+const Categories = React.lazy(() => import('../pages/catalog/Categories'));
+const About = React.lazy(() => import('../pages/static/About'));
+const Contact = React.lazy(() => import('../pages/static/Contact'));
+const FAQ = React.lazy(() => import('../pages/static/FAQ'));
+const Privacy = React.lazy(() => import('../pages/static/Privacy'));
+const Terms = React.lazy(() => import('../pages/static/Terms'));
+const NotFound = React.lazy(() => import('../pages/static/NotFound'));
 
 // Auth Pages
-import Login from '../pages/auth/Login';
-import Register from '../pages/auth/Register';
-import ForgotPassword from '../pages/auth/ForgotPassword';
-import ResetPassword from '../pages/auth/ResetPassword';
+const Login = React.lazy(() => import('../pages/auth/Login'));
+const Register = React.lazy(() => import('../pages/auth/Register'));
+const ForgotPassword = React.lazy(() => import('../pages/auth/ForgotPassword'));
+const ResetPassword = React.lazy(() => import('../pages/auth/ResetPassword'));
 
 // Customer Protected Pages
-import Dashboard from '../pages/customer/Dashboard';
-import Wishlist from '../pages/customer/Wishlist';
-import Messages from '../pages/customer/Messages';
-import Orders from '../pages/customer/Orders';
-import MyTickets from '../pages/customer/MyTickets';
-import SellRequest from '../pages/services/SellRequest';
-import BarterRequest from '../pages/services/BarterRequest';
-import HirePurchase from '../pages/services/HirePurchase';
-import Layaway from '../pages/services/Layaway';
-import PreOrders from '../pages/services/PreOrders';
-import PreOrderDetail from '../pages/services/PreOrderDetail';
-import MyPreOrders from '../pages/customer/MyPreOrders';
-import Raffles from '../pages/services/Raffles';
-import RaffleDetail from '../pages/services/RaffleDetail';
-import RaffleWinners from '../pages/services/RaffleWinners';
-import Checkout from '../pages/commerce/Checkout';
-import PaymentCallback from '../pages/commerce/PaymentCallback';
-import Cart from '../pages/commerce/Cart';
+const Dashboard = React.lazy(() => import('../pages/customer/Dashboard'));
+const Wishlist = React.lazy(() => import('../pages/customer/Wishlist'));
+const Messages = React.lazy(() => import('../pages/customer/Messages'));
+const Orders = React.lazy(() => import('../pages/customer/Orders'));
+const MyTickets = React.lazy(() => import('../pages/customer/MyTickets'));
+const SellRequest = React.lazy(() => import('../pages/services/SellRequest'));
+const BarterRequest = React.lazy(() => import('../pages/services/BarterRequest'));
+const HirePurchase = React.lazy(() => import('../pages/services/HirePurchase'));
+const Layaway = React.lazy(() => import('../pages/services/Layaway'));
+const PreOrders = React.lazy(() => import('../pages/services/PreOrders'));
+const PreOrderDetail = React.lazy(() => import('../pages/services/PreOrderDetail'));
+const MyPreOrders = React.lazy(() => import('../pages/customer/MyPreOrders'));
+const Raffles = React.lazy(() => import('../pages/services/Raffles'));
+const RaffleDetail = React.lazy(() => import('../pages/services/RaffleDetail'));
+const RaffleWinners = React.lazy(() => import('../pages/services/RaffleWinners'));
+const Checkout = React.lazy(() => import('../pages/commerce/Checkout'));
+const PaymentCallback = React.lazy(() => import('../pages/commerce/PaymentCallback'));
+const Cart = React.lazy(() => import('../pages/commerce/Cart'));
 
 // Admin Protected Pages
-import AdminDashboard from '../pages/admin/Dashboard';
-import AdminUsers from '../pages/admin/Users';
-import AdminProducts from '../pages/admin/Products';
-import AdminOrders from '../pages/admin/Orders';
-import AdminPayments from '../pages/admin/Payments';
-import AdminTradeRequests from '../pages/admin/TradeRequests';
-import AdminSellRequests from '../pages/admin/SellRequests';
-import AdminRaffles from '../pages/admin/Raffles';
-import Banners from '../pages/admin/Banners';
-import AdminReports from '../pages/admin/Reports';
-import AdminSettings from '../pages/admin/Settings';
-import AdsManager from '../pages/admin/AdsManager';
-import AdminCategories from '../pages/admin/Categories';
-import AdminBrands from '../pages/admin/Brands';
-import AdminCampaigns from '../pages/admin/Campaigns';
-import AdminFlashSales from '../pages/admin/FlashSales';
-import AdminCollections from '../pages/admin/Collections';
-import AdminHirePurchase from '../pages/admin/HirePurchase';
-import AdminLayaway from '../pages/admin/AdminLayaway';
-import AdminPreOrders from '../pages/admin/AdminPreOrders';
-import VendorStores from '../pages/admin/VendorStores';
+const AdminDashboard = React.lazy(() => import('../pages/admin/Dashboard'));
+const AdminUsers = React.lazy(() => import('../pages/admin/Users'));
+const AdminProducts = React.lazy(() => import('../pages/admin/Products'));
+const AdminOrders = React.lazy(() => import('../pages/admin/Orders'));
+const AdminPayments = React.lazy(() => import('../pages/admin/Payments'));
+const AdminTradeRequests = React.lazy(() => import('../pages/admin/TradeRequests'));
+const AdminSellRequests = React.lazy(() => import('../pages/admin/SellRequests'));
+const AdminRaffles = React.lazy(() => import('../pages/admin/Raffles'));
+const Banners = React.lazy(() => import('../pages/admin/Banners'));
+const AdminReports = React.lazy(() => import('../pages/admin/Reports'));
+const AdminSettings = React.lazy(() => import('../pages/admin/Settings'));
+const AdsManager = React.lazy(() => import('../pages/admin/AdsManager'));
+const AdminCategories = React.lazy(() => import('../pages/admin/Categories'));
+const AdminBrands = React.lazy(() => import('../pages/admin/Brands'));
+const AdminCampaigns = React.lazy(() => import('../pages/admin/Campaigns'));
+const AdminFlashSales = React.lazy(() => import('../pages/admin/FlashSales'));
+const AdminCollections = React.lazy(() => import('../pages/admin/Collections'));
+const AdminHirePurchase = React.lazy(() => import('../pages/admin/HirePurchase'));
+const AdminLayaway = React.lazy(() => import('../pages/admin/AdminLayaway'));
+const AdminPreOrders = React.lazy(() => import('../pages/admin/AdminPreOrders'));
+const VendorStores = React.lazy(() => import('../pages/admin/VendorStores'));
 import VendorLayout from '../layouts/VendorLayout';
-import VendorDashboard from '../pages/vendor/VendorDashboard';
-import VendorProducts from '../pages/vendor/VendorProducts';
-import StoreApplication from '../pages/vendor/StoreApplication';
-import StoreList from '../pages/catalog/StoreList';
-import StoreFront from '../pages/catalog/StoreFront';
-import LayawayDetail from '../pages/services/LayawayDetail';
-import MyLayaways from '../pages/customer/MyLayaways';
+const VendorDashboard = React.lazy(() => import('../pages/vendor/VendorDashboard'));
+const VendorProducts = React.lazy(() => import('../pages/vendor/VendorProducts'));
+const StoreApplication = React.lazy(() => import('../pages/vendor/StoreApplication'));
+const StoreList = React.lazy(() => import('../pages/catalog/StoreList'));
+const StoreFront = React.lazy(() => import('../pages/catalog/StoreFront'));
+const LayawayDetail = React.lazy(() => import('../pages/services/LayawayDetail'));
+const MyLayaways = React.lazy(() => import('../pages/customer/MyLayaways'));
 
 // Helper Component: Protect user routes
 const ProtectedRoute = ({ children }) => {
@@ -92,7 +92,8 @@ const AdminRoute = ({ children }) => {
 
 const AppRoutes = () => {
   return (
-    <Routes>
+    <React.Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+      <Routes>
       
       {/* ─── PUBLIC STOREFRONT FLOW ────────────────────────────────────────── */}
       <Route element={<MainLayout />}>
@@ -184,6 +185,7 @@ const AppRoutes = () => {
       <Route path="*" element={<NotFound />} />
 
     </Routes>
+      </React.Suspense>
   );
 };
 

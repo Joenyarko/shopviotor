@@ -41,6 +41,7 @@ const ProductCard = ({ product, onWishlistToggle }) => {
       {/* Image Gallery Container */}
       <Link to={`/products/${product.id || product.uuid}`} className="block relative aspect-square overflow-hidden bg-secondary-100 dark:bg-secondary-850">
         <img
+          loading="lazy"
           src={product.primary_image || '/placeholder-product.png'}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"

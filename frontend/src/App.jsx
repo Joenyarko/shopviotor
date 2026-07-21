@@ -4,6 +4,7 @@ import PwaPrompt from './components/PwaPrompt';
 import ScrollToTop from './components/ScrollToTop';
 import WhatsAppCTA from './components/WhatsAppCTA';
 import ChatWidget from './components/ChatWidget';
+import CookieConsent from './components/CookieConsent';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       {/* Floating Action Widgets — always visible */}
       <WhatsAppCTA />
       <ChatWidget />
+      <CookieConsent />
     </div>
   );
 }
