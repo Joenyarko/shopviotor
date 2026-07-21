@@ -103,7 +103,7 @@ const Landing = () => {
         setLatest(latestRes.data?.data || latestRes.data || []);
         setCategories(categoriesRes.data?.data || categoriesRes.data || []);
         setCollections(collectionsRes.data?.data || []);
-        setBrands(brandsRes.data?.data || []);
+        setBrands(brandsRes.data?.data || brandsRes.data || []);
       } catch (error) {
         console.error('Failed to load landing products:', error);
       } finally {
@@ -329,9 +329,9 @@ const Landing = () => {
       </section>
 
       {/* Brand Logos */}
-      {brands && brands.length > 0 && (
-        <section className="py-8 bg-white dark:bg-secondary-900">
-          <div className="max-w-4xl mx-auto px-4">
+      <section className="py-8 bg-white dark:bg-secondary-900">
+        <div className="max-w-4xl mx-auto px-4">
+          {brands && brands.length > 0 ? (
             <div className="flex flex-wrap md:flex-nowrap items-center justify-center border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden divide-y md:divide-y-0 md:divide-x divide-secondary-200 dark:divide-secondary-800 bg-white dark:bg-secondary-900">
               {brands.slice(0, 5).map((brand) => (
                 <div key={brand.id || brand.uuid} className="flex-1 min-w-[150px] h-24 flex items-center justify-center p-6 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all cursor-pointer">
@@ -343,9 +343,13 @@ const Landing = () => {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <div className="text-center text-red-500 font-bold p-4 border border-red-500 rounded">
+              Brand Logos Section: No brands found in state!
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* POPUP PROMO */}
       <PromoPopup />
