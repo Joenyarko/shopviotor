@@ -25,14 +25,19 @@ const PreOrders = () => {
   }, []);
 
   const fallbackHero = (
-    <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary-500 to-primary-700 text-secondary-900 p-8 md:p-12 shadow-lg">
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-      <div className="relative z-10 max-w-2xl space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-sm font-bold text-secondary-900">
-          <Package className="w-4 h-4" /> Exclusive Access
-        </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Pre-Order Hub</h1>
-        <p className="text-lg md:text-xl font-medium opacity-90">
+    <div className="-mx-4 md:-mx-8 -mt-6 mb-8 relative bg-gradient-to-br from-secondary-950 via-[#0a1628] to-secondary-900 px-6 py-16 md:py-24 overflow-hidden">
+      {/* decorative orbs */}
+      <div className="absolute top-10 left-10 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-10 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative max-w-4xl mx-auto text-center space-y-6">
+        <span className="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 text-primary-400 text-xs font-bold uppercase px-4 py-1.5 rounded-full tracking-wider">
+          <Package className="w-3.5 h-3.5" /> Exclusive Access
+        </span>
+        <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+          Pre-Order <span className="text-primary-400">Hub</span>
+        </h1>
+        <p className="text-secondary-400 text-base md:text-lg max-w-xl mx-auto">
           Reserve the hottest upcoming items before they drop. Pay a deposit now, and secure your order.
         </p>
       </div>

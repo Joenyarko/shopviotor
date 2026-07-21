@@ -31,25 +31,29 @@ const Layaway = () => {
   };
 
   const fallbackHero = (
-    <div className="relative overflow-hidden rounded-3xl bg-secondary-900 text-white p-10 md:p-16 shadow-2xl">
-      <div className="relative z-10 max-w-2xl space-y-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm w-fit">
-          <TrendingUp className="w-4 h-4 text-primary-300" />
-          <span className="text-xs font-semibold tracking-wider uppercase text-primary-200">Save Now, Receive Later</span>
-        </div>
-        <h1 className="text-4xl md:text-5xl font-black leading-tight">
-          Layaway — The Smart<br className="hidden md:block" /> Way to Own Products
+    <div className="-mx-4 md:-mx-8 -mt-6 mb-8 relative bg-gradient-to-br from-secondary-950 via-[#0a1628] to-secondary-900 px-6 py-16 md:py-24 overflow-hidden">
+      {/* decorative orbs */}
+      <div className="absolute top-10 left-10 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-10 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative max-w-4xl mx-auto text-center space-y-6">
+        <span className="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 text-primary-400 text-xs font-bold uppercase px-4 py-1.5 rounded-full tracking-wider">
+          <TrendingUp className="w-3.5 h-3.5" /> Save Now, Receive Later
+        </span>
+        <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+          Layaway — The <span className="text-primary-400">Smart</span><br /> Way to Own Products
         </h1>
-        <p className="text-secondary-100 text-lg leading-relaxed max-w-xl">
+        <p className="text-secondary-400 text-base md:text-lg max-w-xl mx-auto">
           Just like a daily susu — make small, consistent payments toward a product. Once fully paid, we deliver it straight to your door!
         </p>
-        <div className="flex flex-wrap gap-6 pt-2">
+        
+        <div className="flex flex-wrap justify-center gap-6 pt-6">
           {[
             { icon: Lock, label: 'Item Reserved for You' },
             { icon: Clock, label: 'Pay at Your Own Pace' },
             { icon: CheckCircle2, label: 'Delivered When Paid' },
           ].map(({ icon: Icon, label }) => (
-            <div key={label} className="flex items-center gap-2 text-sm font-semibold text-primary-200">
+            <div key={label} className="flex items-center gap-2 text-sm font-semibold text-primary-400">
               <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
                 <Icon className="w-4 h-4" />
               </div>
@@ -58,8 +62,6 @@ const Layaway = () => {
           ))}
         </div>
       </div>
-      <div className="absolute -top-20 -right-20 w-96 h-96 bg-primary-500 rounded-full blur-[120px] opacity-40" />
-      <div className="absolute -bottom-10 right-1/3 w-64 h-64 bg-accent-500 rounded-full blur-[80px] opacity-30" />
     </div>
   );
 

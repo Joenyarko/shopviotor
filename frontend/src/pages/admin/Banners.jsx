@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Image as ImageIcon, Link as LinkIcon, Check, X } from 'lucide-react';
-import bannerService from '../../../services/bannerService';
+import bannerService from '../../services/bannerService';
 
 const POSITIONS = [
   { id: 'layaway_hero', label: 'Layaway Hero' },

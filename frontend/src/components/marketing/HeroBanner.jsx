@@ -32,7 +32,7 @@ const HeroBanner = ({ position, fallbackContent }) => {
 
   if (banner && banner.image_url) {
     return (
-      <div className="relative rounded-3xl overflow-hidden shadow-lg h-64 md:h-96 group">
+      <div className="-mx-4 md:-mx-8 -mt-6 mb-8 relative overflow-hidden shadow-lg h-64 md:h-[400px] group bg-secondary-900">
         <img 
           src={banner.image_url} 
           alt={banner.title || 'Advertisement'} 
@@ -40,9 +40,9 @@ const HeroBanner = ({ position, fallbackContent }) => {
         />
         {/* Optional Overlay for Text if provided */}
         {(banner.title || banner.subtitle) && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-8 md:p-12">
-            <div className="relative z-10 max-w-2xl space-y-2">
-              {banner.title && <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white">{banner.title}</h1>}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-center items-center text-center p-8 md:p-12">
+            <div className="relative z-10 max-w-4xl space-y-4 mt-auto">
+              {banner.title && <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white">{banner.title}</h1>}
               {banner.subtitle && <p className="text-lg md:text-xl font-medium text-white/90">{banner.subtitle}</p>}
             </div>
           </div>
