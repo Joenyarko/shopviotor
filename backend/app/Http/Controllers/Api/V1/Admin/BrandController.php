@@ -15,13 +15,13 @@ class BrandController extends Controller
     public function index(): JsonResponse
     {
         $brands = Brand::orderBy('name')->get();
-        return response()->json(BrandResource::collection($brands));
+        return response()->json(['data' => BrandResource::collection($brands)->resolve()]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:brands,name',
             'description' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
             'is_active' => 'boolean',
@@ -39,18 +39,18 @@ class BrandController extends Controller
 
         $brand = Brand::create($validated);
 
-        return response()->json(['data' => new BrandResource($brand)], 201);
+        return response()->json(['data' => (new BrandResource($brand))->resolve()], 201);
     }
 
     public function show(Brand $brand): JsonResponse
     {
-        return response()->json(['data' => new BrandResource($brand)]);
+        return response()->json(['data' => (new BrandResource($brand))->resolve()]);
     }
 
     public function update(Request $request, Brand $brand): JsonResponse
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:brands,name,' . $brand->id,
             'description' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
             'is_active' => 'boolean',
@@ -72,7 +72,7 @@ class BrandController extends Controller
 
         $brand->update($validated);
 
-        return response()->json(['data' => new BrandResource($brand)]);
+        return response()->json(['data' => (new BrandResource($brand))->resolve()]);
     }
 
     public function destroy(Brand $brand): JsonResponse
