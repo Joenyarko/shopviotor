@@ -49,6 +49,7 @@ const Products = () => {
 
   // Variation states  [ { name, options: [{value, price_delta}] } ]
   const [variations, setVariations] = useState([]);
+  const [specifications, setSpecifications] = useState([]);
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -73,8 +74,8 @@ const Products = () => {
     setDescription(''); setIsNegotiable(false); setAvailableForTrade(false);
     setAvailableForHp(false); setAvailableForLayaway(false); setLayawayTotalBoxes(''); 
     setAvailableForPreorder(false); setPreorderDepositAmount(''); setPreorderExpectedDate('');
-    setIsFeatured(false); setImageFiles([]); setImagePreviews([]);
-    setExistingImages([]); setActiveImageIdx(0); setVariations([]);
+    setIsFeatured(false); setExistingImages([]);
+    setImageFiles([]); setImagePreviews([]); setActiveImageIdx(0); setVariations([]); setSpecifications([]);
     setErrorMsg(''); setActiveTab('basic');
   };
 
@@ -121,6 +122,8 @@ const Products = () => {
     setExistingImages(product.images || []);
     setImageFiles([]); setImagePreviews([]); setActiveImageIdx(0);
     setVariations(product.variations || []);
+    const specsObj = product.specifications || {};
+    setSpecifications(Object.keys(specsObj).map(k => ({ key: k, value: specsObj[k] })));
     setErrorMsg(''); setActiveTab('basic');
     setModalOpen(true);
   };
@@ -175,6 +178,11 @@ const Products = () => {
   const removeOption = (vIdx, oIdx) => setVariations(prev => prev.map((v, i) => i === vIdx ? { ...v, options: v.options.filter((_, oi) => oi !== oIdx) } : v));
   const updateOption = (vIdx, oIdx, field, val) => setVariations(prev => prev.map((v, i) => i === vIdx ? { ...v, options: v.options.map((o, oi) => oi === oIdx ? { ...o, [field]: val } : o) } : v));
 
+  // --- SPECIFICATION HANDLING ---
+  const addSpecification = () => setSpecifications(prev => [...prev, { key: '', value: '' }]);
+  const removeSpecification = (idx) => setSpecifications(prev => prev.filter((_, i) => i !== idx));
+  const updateSpecification = (idx, field, val) => setSpecifications(prev => prev.map((s, i) => i === idx ? { ...s, [field]: val } : s));
+
   // --- SUBMIT ---
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -208,6 +216,13 @@ const Products = () => {
     }
     formData.append('is_featured', isFeatured ? '1' : '0');
     if (variations.length > 0) formData.append('variations', JSON.stringify(variations));
+    
+    const specsObj = {};
+    specifications.forEach(s => {
+      if (s.key.trim() && s.value.trim()) specsObj[s.key.trim()] = s.value.trim();
+    });
+    formData.append('specifications', JSON.stringify(specsObj));
+
     existingImages.forEach((img, i) => formData.append(`existing_images[${i}]`, img.id));
     imageFiles.forEach((file, i) => formData.append(`images[${i}]`, file));
 
@@ -309,7 +324,7 @@ const Products = () => {
 
             {/* Tab bar */}
             <div className="flex border-b border-secondary-200 dark:border-secondary-800 px-5">
-              {['basic', 'images', 'variations'].map(tab => (
+              {['basic', 'specifications', 'images', 'variations'].map(tab => (
                 <button key={tab} onClick={() => setActiveTab(tab)}
                   className={`py-3 px-4 text-sm font-semibold capitalize border-b-2 transition-colors -mb-px ${activeTab === tab ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-700 dark:hover:text-secondary-300'}`}>
                   {tab === 'images' ? `Images (${allImages.length}/${MAX_IMAGES})` : tab}
@@ -465,6 +480,36 @@ const Products = () => {
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* ─── TAB: SPECIFICATIONS ─── */}
+              {activeTab === 'specifications' && (
+                <div className="p-5 space-y-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <div>
+                      <h4 className="font-bold text-secondary-900 dark:text-white">Product Specifications</h4>
+                      <p className="text-xs text-secondary-500">Add key-value pairs for technical specs (e.g. Memory: 16GB).</p>
+                    </div>
+                  </div>
+                  {specifications.map((spec, sIdx) => (
+                    <div key={sIdx} className="flex items-start gap-2 bg-secondary-50 dark:bg-secondary-800 p-3 rounded-xl border border-secondary-200 dark:border-secondary-700">
+                      <div className="flex-1 grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-xs font-semibold text-secondary-500 mb-1">Key</label>
+                          <input type="text" placeholder="e.g. Color" value={spec.key} onChange={e => updateSpecification(sIdx, 'key', e.target.value)} className="w-full bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-700 rounded-lg px-3 py-2 text-sm text-secondary-900 dark:text-white" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold text-secondary-500 mb-1">Value</label>
+                          <input type="text" placeholder="e.g. Red" value={spec.value} onChange={e => updateSpecification(sIdx, 'value', e.target.value)} className="w-full bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-700 rounded-lg px-3 py-2 text-sm text-secondary-900 dark:text-white" />
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => removeSpecification(sIdx)} className="mt-5 p-2 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-900/20 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  ))}
+                  <button type="button" onClick={addSpecification} className="w-full border-2 border-dashed border-secondary-300 dark:border-secondary-700 hover:border-primary-500 rounded-xl py-3 flex items-center justify-center gap-2 text-secondary-500 dark:text-secondary-400 hover:text-primary-500 transition-colors text-sm font-semibold">
+                    <Plus className="w-4 h-4" /> Add Specification
+                  </button>
                 </div>
               )}
 
