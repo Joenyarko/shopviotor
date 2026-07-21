@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import hpService from '../../services/hpService';
-import { Percent, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Percent, AlertCircle, RefreshCw, CheckCircle2, ArrowRight } from 'lucide-react';
+import HeroBanner from '../../components/marketing/HeroBanner';
 
 const HirePurchase = () => {
   const { state } = useLocation();
@@ -80,27 +81,36 @@ const HirePurchase = () => {
   }, [targetProduct]);
 
   if (!targetProduct) {
+    const fallbackHero = (
+      <div className="-mx-4 md:-mx-8 -mt-6 mb-8 relative bg-gradient-to-br from-secondary-950 via-[#2d1b0a] to-secondary-900 px-6 py-16 md:py-24 overflow-hidden">
+        {/* decorative orbs */}
+        <div className="absolute top-10 left-10 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-10 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative max-w-4xl mx-auto text-center space-y-6">
+          <span className="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 text-primary-400 text-xs font-bold uppercase px-4 py-1.5 rounded-full tracking-wider">
+            <Percent className="w-3.5 h-3.5" /> Flexible Financing
+          </span>
+          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+            Hire <span className="text-primary-400">Purchase</span>
+          </h1>
+          <p className="text-secondary-400 text-base md:text-lg max-w-xl mx-auto">
+            Get the items you need today. Pay a small deposit and spread the balance over flexible monthly installments.
+          </p>
+          <div className="pt-4 flex justify-center">
+            <Link to="/products?hire_purchase=true" className="premium-button-primary px-8 py-3.5 text-sm rounded-xl inline-flex items-center gap-2 shadow-lg shadow-primary-500/20 hover:shadow-primary-500/40">
+              Browse All Products <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         
         {/* Hero Banner */}
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600 to-indigo-900 text-white p-8 md:p-12 shadow-lg">
-          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-          <div className="relative z-10 max-w-2xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-sm font-bold text-white">
-              <Percent className="w-4 h-4" /> Flexible Financing
-            </div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Hire Purchase</h1>
-            <p className="text-lg md:text-xl font-medium opacity-90">
-              Get the items you need today. Pay a small deposit and spread the balance over flexible monthly installments.
-            </p>
-            <div className="pt-2">
-              <Link to="/products?hire_purchase=true" className="inline-flex items-center gap-2 bg-white text-blue-900 hover:bg-gray-100 font-bold px-6 py-3 rounded-xl transition-colors text-sm">
-                Browse All Products <RefreshCw className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
+        <HeroBanner position="hirepurchase_hero" fallbackContent={fallbackHero} />
 
         {loadingProducts ? (
           <div className="flex justify-center py-20"><RefreshCw className="w-10 h-10 text-primary-500 animate-spin" /></div>
