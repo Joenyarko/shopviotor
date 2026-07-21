@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import hpService from '../../services/hpService';
+import productService from '../../services/productService';
 import { Percent, AlertCircle, RefreshCw, CheckCircle2, ArrowRight } from 'lucide-react';
 import HeroBanner from '../../components/marketing/HeroBanner';
 
@@ -68,7 +69,7 @@ const HirePurchase = () => {
       const fetchHpProducts = async () => {
         setLoadingProducts(true);
         try {
-          const res = await hpService.getProducts ? hpService.getProducts() : (await import('../../services/productService')).default.getProducts({ available_for_hire_purchase: true });
+          const res = await productService.getProducts({ available_for_hire_purchase: true });
           setHpProducts(res.data?.data || res.data || []);
         } catch (e) {
           console.error(e);
