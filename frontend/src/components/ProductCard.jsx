@@ -27,7 +27,7 @@ const ProductCard = ({ product, onWishlistToggle }) => {
   const productPrice = parseFloat(product.price || 0);
 
   return (
-    <div className="group bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 relative flex flex-col h-full">
+    <div className="group bg-white dark:bg-secondary-900 hover:shadow-lg transition-all duration-300 relative flex flex-col h-full z-0 hover:z-10">
       
       {/* Wishlist Button */}
       <button

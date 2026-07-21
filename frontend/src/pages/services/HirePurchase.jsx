@@ -114,27 +114,27 @@ const HirePurchase = () => {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm mt-8">
             {hpProducts.map(product => {
               const primaryImage = product.primary_image || (product.images && product.images[0]?.url) || 'https://via.placeholder.com/300?text=No+Image';
               
               return (
-                <div key={product.id} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all group flex flex-col">
-                  <div className="relative aspect-square overflow-hidden bg-secondary-100 dark:bg-secondary-800 p-4">
-                    <img src={primaryImage} alt={product.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500" />
-                    <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
-                      Hire Purchase
+                <div key={product.id} className="bg-white dark:bg-secondary-900 hover:shadow-lg transition-all group flex flex-col relative z-0 hover:z-10">
+                  <div className="relative aspect-square overflow-hidden bg-secondary-100 dark:bg-secondary-850 p-4">
+                    <img src={primaryImage} alt={product.name} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply dark:mix-blend-normal" />
+                    <div className="absolute top-2 right-2 bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase tracking-wider">
+                      HP
                     </div>
                   </div>
-                  <div className="p-4 flex flex-col flex-grow">
-                    <h3 className="font-bold text-secondary-900 dark:text-white line-clamp-2 mb-3">{product.name}</h3>
-                    <div className="mt-auto space-y-1">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-secondary-500 dark:text-secondary-400">Cash Price</span>
-                        <span className="font-medium text-secondary-900 dark:text-white">GHS {product.price}</span>
+                  <div className="p-4 flex flex-col flex-grow border-t border-secondary-100 dark:border-secondary-800/80">
+                    <h3 className="font-semibold text-secondary-900 dark:text-white line-clamp-2 text-sm md:text-base leading-snug">{product.name}</h3>
+                    <div className="mt-auto pt-3">
+                      <div className="flex justify-between items-end">
+                        <span className="text-[10px] uppercase font-bold text-secondary-500 dark:text-secondary-400">Cash Price</span>
+                        <span className="font-bold text-lg text-secondary-900 dark:text-white leading-none">GHS {parseFloat(product.price).toLocaleString('en-US')}</span>
                       </div>
-                      <Link to={`/products/${product.id}`} className="premium-button-primary w-full py-2.5 rounded-xl text-sm font-bold flex justify-center items-center gap-2 mt-3">
-                        Configure Plan <RefreshCw className="w-4 h-4" />
+                      <Link to={`/products/${product.id}`} className="premium-button-primary w-full py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1.5 mt-3 shadow-sm">
+                        Configure Plan <RefreshCw className="w-3.5 h-3.5" />
                       </Link>
                     </div>
                   </div>

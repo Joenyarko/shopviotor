@@ -220,7 +220,7 @@ const Categories = () => {
                   <p className="text-xs mt-1">Try searching or check another category.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 p-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border-t border-secondary-200 dark:border-secondary-800">
                   {products.map((product) => (
                     <ProductCard key={product.id || product.uuid} product={product} />
                   ))}

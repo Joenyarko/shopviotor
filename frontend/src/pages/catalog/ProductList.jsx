@@ -221,17 +221,18 @@ const ProductList = () => {
 
         {/* Product Cards Grid */}
         {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
             {[1, 2, 3, 4, 5, 6].map(idx => (
-              <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl h-80" />
+              <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 h-80" />
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
-            <p className="text-secondary-500 dark:text-secondary-400 text-base">No products match your criteria. Try adjusting filters.</p>
+          <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl shadow-sm">
+            <h3 className="text-lg font-bold text-secondary-900 dark:text-white">No products found</h3>
+            <p className="text-secondary-500 dark:text-secondary-400 mt-2">Try adjusting your filters or search query.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
             {products.map(product => (
               <ProductCard key={product.id || product.uuid} product={product} />
             ))}

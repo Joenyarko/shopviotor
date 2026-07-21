@@ -105,23 +105,23 @@ const StoreFront = () => {
               <p className="font-semibold">No products listed yet.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
               {products.map(p => (
                 <Link
                   key={p.id}
                   to={`/products/${p.id}`}
-                  className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                  className="bg-white dark:bg-secondary-900 hover:shadow-lg transition-all duration-300 flex flex-col relative z-0 hover:z-10"
                 >
-                  <div className="h-44 bg-secondary-100 dark:bg-secondary-800 overflow-hidden">
+                  <div className="h-44 md:h-52 bg-secondary-100 dark:bg-secondary-850 overflow-hidden">
                     <img
                       src={p.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format'}
                       alt={p.name}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="p-4 flex-1 flex flex-col">
-                    <h3 className="font-bold text-sm text-secondary-900 dark:text-white line-clamp-2 flex-1">{p.name}</h3>
-                    <p className="text-primary-600 dark:text-primary-400 font-black mt-2">GHS {parseFloat(p.price).toLocaleString()}</p>
+                  <div className="p-4 flex-1 flex flex-col border-t border-secondary-100 dark:border-secondary-800/80">
+                    <h3 className="font-semibold text-secondary-900 dark:text-white line-clamp-2 text-sm md:text-base leading-snug flex-1">{p.name}</h3>
+                    <p className="text-secondary-900 dark:text-white font-bold mt-2 text-lg">GHS {parseFloat(p.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
                   </div>
                 </Link>
               ))}

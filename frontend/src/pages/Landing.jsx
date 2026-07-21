@@ -230,9 +230,9 @@ const Landing = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
             {[1, 2, 3, 4].map(idx => (
-              <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl h-72" />
+              <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 h-72" />
             ))}
           </div>
         ) : featured.length === 0 ? (
@@ -240,7 +240,7 @@ const Landing = () => {
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No featured products currently listed.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
             {featured.slice(0, 4).map(product => (
               <ProductCard key={product.id || product.uuid} product={product} />
             ))}
@@ -265,7 +265,7 @@ const Landing = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
             {collection.products.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -286,17 +286,18 @@ const Landing = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
             {[1, 2, 3, 4, 5, 6, 7, 8].map(idx => (
-              <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl h-72" />
+              <div key={idx} className="animate-pulse bg-white dark:bg-secondary-900 h-72" />
             ))}
           </div>
         ) : latest.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
-            <p className="text-secondary-500 dark:text-secondary-400 text-sm">No listings found.</p>
+          <div className="bg-secondary-50 dark:bg-secondary-900/50 rounded-2xl border border-secondary-200 dark:border-secondary-800 p-12 flex flex-col items-center justify-center text-center h-48">
+            <Package className="w-10 h-10 text-secondary-300 dark:text-secondary-600 mb-3" />
+            <p className="text-secondary-500 dark:text-secondary-400 text-sm">No new products currently listed.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm">
             {latest.slice(0, 8).map(product => (
               <ProductCard key={product.id || product.uuid} product={product} />
             ))}
