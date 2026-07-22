@@ -14,260 +14,260 @@ class LayawayController extends Controller
 {
     public function dashboard(): JsonResponse
     {
-        \ = LayawayPayment::sum('amount');
-        \ = LayawayCard::distinct('user_id')->count('user_id');
-        \ = LayawayCard::where('status', 'active')->count();
-        \ = LayawayCard::where('status', 'completed')->count();
+        $totalRevenue = LayawayPayment::sum('amount');
+        $totalCustomers = LayawayCard::distinct('user_id')->count('user_id');
+        $activePlans = LayawayCard::where('status', 'active')->count();
+        $completedPlans = LayawayCard::where('status', 'completed')->count();
         
         // Defaulters: Let's consider defaulting as active plans with no payment in last 30 days
-        \ = LayawayCard::where('status', 'active')
-            ->whereDoesntHave('payments', function(\) {
-                \->where('created_at', '>=', now()->subDays(30));
+        $defaultingPlans = LayawayCard::where('status', 'active')
+            ->whereDoesntHave('payments', function($q) {
+                $q->where('created_at', '>=', now()->subDays(30));
             })->count();
 
         return response()->json([
             'data' => [
-                'total_revenue' => (float) \,
-                'total_customers' => \,
-                'active_plans' => \,
-                'completed_plans' => \,
-                'defaulting_plans' => \
+                'total_revenue' => (float) $totalRevenue,
+                'total_customers' => $totalCustomers,
+                'active_plans' => $activePlans,
+                'completed_plans' => $completedPlans,
+                'defaulting_plans' => $defaultingPlans
             ]
         ]);
     }
 
-    public function index(Request \): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        \ = LayawayCard::with(['user:id,name,phone,city,address', 'product:id,name,price']);
+        $query = LayawayCard::with(['user:id,name,phone,city,address', 'product:id,name,price']);
 
-        if (\->search) {
-            \ = \->search;
-            \->whereHas('user', function(\) use (\) {
-                \->where('name', 'like', "%{\}%")
-                  ->orWhere('phone', 'like', "%{\}%")
-                  ->orWhere('city', 'like', "%{\}%");
+        if ($request->search) {
+            $search = $request->search;
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('city', 'like', "%{$search}%");
             });
         }
 
-        if (\->status && \->status !== 'all') {
-            \->where('status', \->status);
+        if ($request->status && $request->status !== 'all') {
+            $query->where('status', $request->status);
         }
 
-        \ = \->input('per_page', 10);
-        \ = \->orderBy('created_at', 'desc')->paginate(\);
+        $perPage = $request->input('per_page', 10);
+        $cards = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        \ = collect(\->items())->map(function (\) {
-            \ = \->payments()->sum('amount');
-            \ = \->payments()->sum('boxes_covered');
+        $formatted = collect($cards->items())->map(function ($card) {
+            $totalPaid = $card->payments()->sum('amount');
+            $boxesChecked = $card->payments()->sum('boxes_covered');
 
             return [
-                'uuid' => \->uuid,
-                'customer_name' => \->user->name,
-                'customer_phone' => \->user->phone,
-                'customer_city' => \->user->city,
-                'product_name' => \->product->name,
-                'total_boxes' => \->total_boxes,
-                'boxes_checked' => (int) \,
-                'amount_paid' => (float) \,
-                'amount_remaining' => (float) ((\->total_boxes * \->box_price) - \),
-                'status' => \->status,
-                'created_at' => \->created_at->toISOString(),
+                'uuid' => $card->uuid,
+                'customer_name' => $card->user->name,
+                'customer_phone' => $card->user->phone,
+                'customer_city' => $card->user->city,
+                'product_name' => $card->product->name,
+                'total_boxes' => $card->total_boxes,
+                'boxes_checked' => (int) $boxesChecked,
+                'amount_paid' => (float) $totalPaid,
+                'amount_remaining' => (float) (($card->total_boxes * $card->box_price) - $totalPaid),
+                'status' => $card->status,
+                'created_at' => $card->created_at->toISOString(),
             ];
         });
 
         return response()->json([
-            'data' => \,
+            'data' => $formatted,
             'meta' => [
-                'current_page' => \->currentPage(),
-                'last_page' => \->lastPage(),
-                'total' => \->total(),
+                'current_page' => $cards->currentPage(),
+                'last_page' => $cards->lastPage(),
+                'total' => $cards->total(),
             ]
         ]);
     }
 
-    public function sales(Request \): JsonResponse
+    public function sales(Request $request): JsonResponse
     {
-        \ = LayawayPayment::with(['card.user:id,name', 'card.product:id,name']);
+        $query = LayawayPayment::with(['card.user:id,name', 'card.product:id,name']);
         
-        \ = \->input('per_page', 20);
-        \ = \->orderBy('created_at', 'desc')->paginate(\);
+        $perPage = $request->input('per_page', 20);
+        $payments = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        \ = collect(\->items())->map(function(\) {
+        $formatted = collect($payments->items())->map(function($payment) {
             return [
-                'uuid' => \->uuid,
-                'amount' => (float) \->amount,
-                'boxes_covered' => \->boxes_covered,
-                'payment_method' => \->payment_method,
-                'reference' => \->reference,
-                'customer_name' => \->card->user->name ?? 'Unknown',
-                'product_name' => \->card->product->name ?? 'Unknown',
-                'created_at' => \->created_at->toISOString(),
+                'uuid' => $payment->uuid,
+                'amount' => (float) $payment->amount,
+                'boxes_covered' => $payment->boxes_covered,
+                'payment_method' => $payment->payment_method,
+                'reference' => $payment->reference,
+                'customer_name' => $payment->card->user->name ?? 'Unknown',
+                'product_name' => $payment->card->product->name ?? 'Unknown',
+                'created_at' => $payment->created_at->toISOString(),
             ];
         });
 
         return response()->json([
-            'data' => \,
+            'data' => $formatted,
             'meta' => [
-                'current_page' => \->currentPage(),
-                'last_page' => \->lastPage(),
-                'total' => \->total(),
+                'current_page' => $payments->currentPage(),
+                'last_page' => $payments->lastPage(),
+                'total' => $payments->total(),
             ]
         ]);
     }
 
-    public function inventory(Request \): JsonResponse
+    public function inventory(Request $request): JsonResponse
     {
         // Simple search for products to toggle layaway
-        \ = Product::select('id', 'uuid', 'name', 'price', 'stock_quantity', 'available_for_layaway', 'is_layaway');
+        $query = Product::select('id', 'uuid', 'name', 'price', 'stock_quantity', 'available_for_layaway', 'is_layaway');
         
-        if (\->search) {
-            \->where('name', 'like', "%{\->search}%");
+        if ($request->search) {
+            $query->where('name', 'like', "%{$request->search}%");
         }
 
-        if (\->status === 'layaway') {
-            \->where(function(\) {
-                \->where('is_layaway', true)->orWhere('available_for_layaway', true);
+        if ($request->status === 'layaway') {
+            $query->where(function($q) {
+                $q->where('is_layaway', true)->orWhere('available_for_layaway', true);
             });
         }
 
-        \ = \->orderBy('created_at', 'desc')->paginate(20);
+        $products = $query->orderBy('created_at', 'desc')->paginate(20);
 
-        \ = collect(\->items())->map(function(\) {
+        $formatted = collect($products->items())->map(function($product) {
             return [
-                'uuid' => \->uuid,
-                'name' => \->name,
-                'price' => (float) \->price,
-                'stock' => \->stock_quantity,
-                'is_layaway' => (bool) (\->is_layaway || \->available_for_layaway)
+                'uuid' => $product->uuid,
+                'name' => $product->name,
+                'price' => (float) $product->price,
+                'stock' => $product->stock_quantity,
+                'is_layaway' => (bool) ($product->is_layaway || $product->available_for_layaway)
             ];
         });
 
         return response()->json([
-            'data' => \,
+            'data' => $formatted,
             'meta' => [
-                'current_page' => \->currentPage(),
-                'last_page' => \->lastPage(),
-                'total' => \->total(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'total' => $products->total(),
             ]
         ]);
     }
 
-    public function toggleInventory(Request \, string \): JsonResponse
+    public function toggleInventory(Request $request, string $uuid): JsonResponse
     {
-        \ = Product::where('uuid', \)->firstOrFail();
+        $product = Product::where('uuid', $uuid)->firstOrFail();
         
-        \ = \->is_layaway || \->available_for_layaway;
-        \ = !\;
+        $currentStatus = $product->is_layaway || $product->available_for_layaway;
+        $newStatus = !$currentStatus;
 
-        \->update([
-            'is_layaway' => \,
-            'available_for_layaway' => \
+        $product->update([
+            'is_layaway' => $newStatus,
+            'available_for_layaway' => $newStatus
         ]);
 
         return response()->json([
             'message' => 'Product layaway status updated',
-            'is_layaway' => \
+            'is_layaway' => $newStatus
         ]);
     }
 
-    public function show(string \): JsonResponse
+    public function show(string $uuid): JsonResponse
     {
-        \ = LayawayCard::where('uuid', \)
-            ->with(['user:id,name,phone,city,address', 'product:id,uuid,name', 'product.images', 'payments' => function(\) {
-                \->orderBy('created_at', 'asc');
+        $card = LayawayCard::where('uuid', $uuid)
+            ->with(['user:id,name,phone,city,address', 'product:id,uuid,name', 'product.images', 'payments' => function($q) {
+                $q->orderBy('created_at', 'asc');
             }])
             ->firstOrFail();
 
-        \ = \->payments->sum('amount');
-        \ = \->payments->sum('boxes_covered');
-        \ = \->total_boxes * \->box_price;
+        $totalPaid = $card->payments->sum('amount');
+        $boxesChecked = $card->payments->sum('boxes_covered');
+        $totalAmount = $card->total_boxes * $card->box_price;
 
         return response()->json([
             'data' => [
-                'uuid' => \->uuid,
-                'product_name' => \->product->name,
-                'customer_name' => \->user->name,
-                'customer_phone' => \->user->phone ?? 'N/A',
-                'customer_city' => \->user->city ?? 'N/A',
-                'total_boxes' => \->total_boxes,
-                'boxes_checked' => (int) \,
-                'boxes_remaining' => \->total_boxes - \,
-                'box_price' => (float) \->box_price,
-                'total_amount' => (float) \,
-                'amount_paid' => (float) \,
-                'amount_remaining' => (float) \ - \,
-                'completion_percentage' => round((\ / \->total_boxes) * 100, 2),
-                'status' => \->status,
-                'payments' => \->payments->map(function (\) {
+                'uuid' => $card->uuid,
+                'product_name' => $card->product->name,
+                'customer_name' => $card->user->name,
+                'customer_phone' => $card->user->phone ?? 'N/A',
+                'customer_city' => $card->user->city ?? 'N/A',
+                'total_boxes' => $card->total_boxes,
+                'boxes_checked' => (int) $boxesChecked,
+                'boxes_remaining' => $card->total_boxes - $boxesChecked,
+                'box_price' => (float) $card->box_price,
+                'total_amount' => (float) $totalAmount,
+                'amount_paid' => (float) $totalPaid,
+                'amount_remaining' => (float) $totalAmount - $totalPaid,
+                'completion_percentage' => round(($boxesChecked / $card->total_boxes) * 100, 2),
+                'status' => $card->status,
+                'payments' => $card->payments->map(function ($payment) {
                     return [
-                        'uuid' => \->uuid,
-                        'amount' => (float) \->amount,
-                        'boxes_covered' => \->boxes_covered,
-                        'payment_method' => \->payment_method,
-                        'reference' => \->reference,
-                        'notes' => \->notes,
-                        'color_code' => \->color_code,
-                        'created_at' => \->created_at->toISOString(),
+                        'uuid' => $payment->uuid,
+                        'amount' => (float) $payment->amount,
+                        'boxes_covered' => $payment->boxes_covered,
+                        'payment_method' => $payment->payment_method,
+                        'reference' => $payment->reference,
+                        'notes' => $payment->notes,
+                        'color_code' => $payment->color_code,
+                        'created_at' => $payment->created_at->toISOString(),
                     ];
                 })
             ]
         ]);
     }
 
-    public function storePayment(Request \, string \): JsonResponse
+    public function storePayment(Request $request, string $uuid): JsonResponse
     {
-        \->validate([
+        $request->validate([
             'amount_paid' => 'nullable|numeric|min:0',
             'number_of_boxes' => 'nullable|integer|min:0',
             'payment_method' => 'required|string',
             'notes' => 'nullable|string',
         ]);
 
-        \ = LayawayCard::where('uuid', \)->firstOrFail();
+        $card = LayawayCard::where('uuid', $uuid)->firstOrFail();
 
-        if (\->status === 'completed') {
+        if ($card->status === 'completed') {
             return response()->json(['message' => 'This layaway is already completed.'], 400);
         }
 
-        \ = (float) \->box_price;
+        $boxPrice = (float) $card->box_price;
         
         // Admin can enter EITHER amount OR boxes
-        \ = (float) \->amount_paid;
-        \ = (int) \->number_of_boxes;
+        $amount = (float) $request->amount_paid;
+        $boxes = (int) $request->number_of_boxes;
 
-        if (\ > 0) {
-            \ = (int) round(\ / \);
-        } else if (\ > 0) {
-            \ = \ * \;
+        if ($amount > 0) {
+            $boxes = (int) round($amount / $boxPrice);
+        } else if ($boxes > 0) {
+            $amount = $boxes * $boxPrice;
         } else {
             return response()->json(['message' => 'Please enter an amount or number of boxes.'], 400);
         }
 
-        \ = \->payments()->sum('boxes_covered');
-        \ = \->total_boxes - \;
+        $currentBoxes = $card->payments()->sum('boxes_covered');
+        $remainingBoxes = $card->total_boxes - $currentBoxes;
 
-        if (\ > \) {
+        if ($boxes > $remainingBoxes) {
             return response()->json([
-                'message' => "Payment exceeds remaining boxes. Only {\} boxes left."
+                'message' => "Payment exceeds remaining boxes. Only {$remainingBoxes} boxes left."
             ], 422);
         }
 
-        \ = \->payments()->count();
-        \ = (\ % 2 === 0) ? '#eab308' : '#000000'; // Yellow and Black
+        $paymentCount = $card->payments()->count();
+        $colorCode = ($paymentCount % 2 === 0) ? '#eab308' : '#000000'; // Yellow and Black
 
-        DB::transaction(function () use (\, \, \, \, \, \) {
-            \->payments()->create([
+        DB::transaction(function () use ($card, $amount, $boxes, $request, $colorCode, $currentBoxes) {
+            $card->payments()->create([
                 'uuid' => \Illuminate\Support\Str::uuid()->toString(),
-                'amount' => \,
-                'boxes_covered' => \,
-                'payment_method' => \->payment_method,
+                'amount' => $amount,
+                'boxes_covered' => $boxes,
+                'payment_method' => $request->payment_method,
                 'reference' => 'ADMIN-' . strtoupper(uniqid()),
-                'notes' => \->notes,
-                'color_code' => \,
+                'notes' => $request->notes,
+                'color_code' => $colorCode,
             ]);
 
-            if (\ + \ >= \->total_boxes) {
-                \->update(['status' => 'completed']);
+            if ($currentBoxes + $boxes >= $card->total_boxes) {
+                $card->update(['status' => 'completed']);
             }
         });
 
@@ -276,18 +276,18 @@ class LayawayController extends Controller
         ]);
     }
 
-    public function reversePayment(string \, string \): JsonResponse
+    public function reversePayment(string $uuid, string $paymentUuid): JsonResponse
     {
-        \ = LayawayCard::where('uuid', \)->firstOrFail();
-        \ = LayawayPayment::where('uuid', \)->where('layaway_card_id', \->id)->firstOrFail();
+        $card = LayawayCard::where('uuid', $uuid)->firstOrFail();
+        $payment = LayawayPayment::where('uuid', $paymentUuid)->where('layaway_card_id', $card->id)->firstOrFail();
 
-        DB::transaction(function () use (\, \) {
-            \->delete();
+        DB::transaction(function () use ($card, $payment) {
+            $payment->delete();
 
             // Re-evaluate card status
-            \ = \->payments()->sum('boxes_covered');
-            if (\ < \->total_boxes && \->status === 'completed') {
-                \->update(['status' => 'active']);
+            $currentBoxes = $card->payments()->sum('boxes_covered');
+            if ($currentBoxes < $card->total_boxes && $card->status === 'completed') {
+                $card->update(['status' => 'active']);
             }
         });
 
