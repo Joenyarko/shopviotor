@@ -59,7 +59,7 @@ const AdminLayaway = () => {
     setLoadingDashboard(true);
     try {
       const res = await layawayService.adminGetDashboard();
-      setDashboard(res.data?.data || res.data);
+      setDashboard(res.data || res);
     } catch (e) { console.error(e); }
     finally { setLoadingDashboard(false); }
   };
@@ -68,8 +68,8 @@ const AdminLayaway = () => {
     setLoadingCustomers(true);
     try {
       const res = await layawayService.adminGetLayaways({ page: customerPage, search: customerSearch, per_page: 9 });
-      setCustomers(res.data?.data || []);
-      setCustomersMeta(res.data?.meta || null);
+      setCustomers(res.data || []);
+      setCustomersMeta(res.meta || null);
     } catch (e) { console.error(e); }
     finally { setLoadingCustomers(false); }
   };
@@ -78,8 +78,8 @@ const AdminLayaway = () => {
     setLoadingSales(true);
     try {
       const res = await layawayService.adminGetSales({ page: salesPage, per_page: 15 });
-      setSales(res.data?.data || []);
-      setSalesMeta(res.data?.meta || null);
+      setSales(res.data || []);
+      setSalesMeta(res.meta || null);
     } catch (e) { console.error(e); }
     finally { setLoadingSales(false); }
   };
@@ -88,8 +88,8 @@ const AdminLayaway = () => {
     setLoadingInventory(true);
     try {
       const res = await layawayService.adminGetInventory({ page: inventoryPage, search: inventorySearch, per_page: 15 });
-      setInventory(res.data?.data || []);
-      setInventoryMeta(res.data?.meta || null);
+      setInventory(res.data || []);
+      setInventoryMeta(res.meta || null);
     } catch (e) { console.error(e); }
     finally { setLoadingInventory(false); }
   };
@@ -98,7 +98,7 @@ const AdminLayaway = () => {
     setLoadingTerms(true);
     try {
       const res = await layawayService.adminGetTerms();
-      setTermsText(res.data?.data?.layaway_terms || '');
+      setTermsText(res.data?.layaway_terms || '');
     } catch (e) { console.error(e); } 
     finally { setLoadingTerms(false); }
   };
@@ -141,7 +141,7 @@ const AdminLayaway = () => {
     setLoadingDetails(true);
     try {
       const res = await layawayService.adminGetLayaway(uuid);
-      setSelectedCardDetails(res.data?.data || res.data);
+      setSelectedCardDetails(res.data || res);
     } catch (e) {
       console.error(e);
       toast.error('Failed to load card details');
