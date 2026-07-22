@@ -13,16 +13,12 @@ const LayawayDetail = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [createdLayaway, setCreatedLayaway] = useState(null);
 
-  const [terms, setTerms] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [apiClient, setApiClient] = useState(null);
 
   React.useEffect(() => {
     import('../../api/client').then(module => {
       setApiClient(() => module.default);
-      module.default.get('/layaways/settings/terms')
-        .then(res => setTerms(res.data?.data?.layaway_terms || ''))
-        .catch(console.error);
     });
   }, []);
 
@@ -155,32 +151,41 @@ const LayawayDetail = () => {
                 </div>
               </div>
 
-              {/* Terms and Conditions */}
-              {terms && (
-                <div className="space-y-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
-                  <h3 className="font-bold text-secondary-900 dark:text-white">Terms & Conditions</h3>
-                  <div className="p-4 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-xl text-sm text-secondary-600 dark:text-secondary-400 max-h-48 overflow-y-auto whitespace-pre-wrap">
-                    {terms}
-                  </div>
-                  <label className="flex items-start gap-3 cursor-pointer group">
-                    <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${acceptedTerms ? 'bg-primary-500 border-primary-500 text-secondary-900' : 'bg-white dark:bg-secondary-900 border-secondary-300 dark:border-secondary-700'}`}>
-                      {acceptedTerms && <CheckCircle2 className="w-3.5 h-3.5" />}
-                    </div>
-                    <input type="checkbox" className="hidden" checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} />
-                    <span className="text-sm font-semibold text-secondary-700 dark:text-secondary-300 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors">
-                      I have read and accept the Layaway / Susu Terms and Conditions
-                    </span>
-                  </label>
+              <div className="space-y-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
+                <h3 className="font-bold text-secondary-900 dark:text-white">Terms & Conditions</h3>
+                <div className="p-4 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-xl text-sm text-secondary-600 dark:text-secondary-400 max-h-48 overflow-y-auto whitespace-pre-wrap">
+                  1. All layaway plans are subject to the total amount and box counts specified by the admin.
+                  2. Payments are non-refundable unless explicitly agreed upon.
+                  3. The item will be reserved for you exclusively until the layaway is fully paid.
+                  4. You may make payments at any time. Once all boxes are checked, the item will be shipped to you.
+                  5. Failure to complete payments within an exceptionally long period may result in plan cancellation based on management discretion.
                 </div>
-              )}
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${acceptedTerms ? 'bg-primary-500 border-primary-500 text-secondary-900' : 'bg-white dark:bg-secondary-900 border-secondary-300 dark:border-secondary-700'}`}>
+                    {acceptedTerms && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  </div>
+                  <input type="checkbox" className="hidden" checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} />
+                  <span className="text-sm font-semibold text-secondary-700 dark:text-secondary-300 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors">
+                    I have read and accept the Layaway / Susu Terms and Conditions
+                  </span>
+                </label>
+              </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary-500/30 transition-colors"
-              >
-                {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Register / Purchase Layaway'}
-              </button>
+              <div className="flex gap-3">
+                <Link
+                  to="/layaway"
+                  className="flex-1 py-3.5 bg-white border border-secondary-300 hover:bg-secondary-50 text-secondary-700 rounded-xl font-bold flex items-center justify-center transition-colors text-center"
+                >
+                  Cancel / Reject
+                </Link>
+                <button
+                  type="submit"
+                  disabled={loading || !acceptedTerms}
+                  className={`flex-1 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors ${acceptedTerms ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-500/30' : 'bg-secondary-400 text-white cursor-not-allowed'}`}
+                >
+                  {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Confirm & Start'}
+                </button>
+              </div>
             </form>
           )}
         </div>

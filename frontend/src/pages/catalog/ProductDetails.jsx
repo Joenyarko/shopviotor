@@ -91,13 +91,33 @@ const DeliveryInfoCard = () => (
                   <span className="font-extrabold text-blue-600 dark:text-blue-400">GH₵ {(currentPrice / product.layaway_boxes).toFixed(2)}</span>
                 </div>
               </div>
+
+              <div className="space-y-3 pt-2 border-t border-secondary-100 dark:border-secondary-800">
+                <h3 className="font-bold text-secondary-900 dark:text-white text-sm">Terms & Conditions</h3>
+                <div className="p-3 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-lg text-xs text-secondary-600 dark:text-secondary-400 max-h-32 overflow-y-auto whitespace-pre-wrap">
+                  1. All layaway plans are subject to the total amount and box counts specified by the admin.
+                  2. Payments are non-refundable unless explicitly agreed upon.
+                  3. The item will be reserved for you exclusively until the layaway is fully paid.
+                  4. You may make payments at any time. Once all boxes are checked, the item will be shipped to you.
+                  5. Failure to complete payments within an exceptionally long period may result in plan cancellation based on management discretion.
+                </div>
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${acceptedTerms ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white dark:bg-secondary-900 border-secondary-300 dark:border-secondary-700'}`}>
+                    {acceptedTerms && <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                  </div>
+                  <input type="checkbox" className="hidden" checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} />
+                  <span className="text-xs font-semibold text-secondary-700 dark:text-secondary-300 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors">
+                    I have read and accept the Layaway / Susu Terms and Conditions
+                  </span>
+                </label>
+              </div>
             </div>
 
             <div className="p-6 bg-secondary-50 dark:bg-secondary-800/50 border-t border-secondary-100 dark:border-secondary-800 flex gap-3">
               <button onClick={() => setLayawayModalOpen(false)} className="flex-1 py-3 px-4 rounded-xl font-bold text-secondary-700 bg-white border border-secondary-300 hover:bg-secondary-50 transition-colors">
-                Cancel
+                Cancel / Reject
               </button>
-              <button onClick={handleLayawayRegistration} className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-colors">
+              <button onClick={handleLayawayRegistration} disabled={!acceptedTerms} className={`flex-1 py-3 px-4 rounded-xl font-bold text-white transition-colors ${acceptedTerms ? 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30' : 'bg-secondary-400 cursor-not-allowed'}`}>
                 Confirm & Start
               </button>
             </div>
@@ -179,6 +199,7 @@ const ProductDetails = () => {
   const [activeImage, setActiveImage] = useState(null);
   const [selectedVariations, setSelectedVariations] = useState({});
   const [layawayModalOpen, setLayawayModalOpen] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -228,6 +249,7 @@ const ProductDetails = () => {
       navigate('/login');
       return;
     }
+    setAcceptedTerms(false);
     setLayawayModalOpen(true);
   };
 
