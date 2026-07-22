@@ -30,11 +30,33 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
   if (card.payments && card.payments.length > 0) {
     card.payments.forEach(payment => {
       for (let i = 0; i < payment.boxes_covered; i++) {
-        boxColors[currentBoxIndex] = payment.color_code || '#ef4444'; // fallback red
+        boxColors[currentBoxIndex] = payment.color_code || '#eab308'; // fallback yellow
         currentBoxIndex++;
       }
     });
   }
+
+  const handleAmountChange = (e) => {
+    const amt = e.target.value;
+    setPayAmount(amt);
+    if (amt && boxPrice > 0) {
+      const calcBoxes = Math.floor(parseFloat(amt) / boxPrice);
+      setPayBoxes(calcBoxes > 0 ? calcBoxes.toString() : '');
+    } else {
+      setPayBoxes('');
+    }
+  };
+
+  const handleBoxesChange = (e) => {
+    const bxs = e.target.value;
+    setPayBoxes(bxs);
+    if (bxs && boxPrice > 0) {
+      const calcAmt = parseInt(bxs, 10) * boxPrice;
+      setPayAmount(calcAmt > 0 ? calcAmt.toFixed(2) : '');
+    } else {
+      setPayAmount('');
+    }
+  };
 
   const handleRecordPayment = async (e) => {
     e.preventDefault();
@@ -85,11 +107,11 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 border border-red-600 text-red-500 hover:bg-red-600 hover:text-white px-4 py-2 rounded transition-colors"
+            className="flex items-center gap-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-[#111111] px-4 py-2 rounded transition-colors"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Management
           </button>
-          <h1 className="text-2xl md:text-3xl font-bold text-red-500 flex items-center gap-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-yellow-500 flex items-center gap-2">
             <Package className="w-8 h-8" /> Box Payment Tracking
           </h1>
         </div>
@@ -103,7 +125,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
           <div>
             <h2 className="text-3xl font-bold text-white mb-4">{card.customer_name}</h2>
             <div className="space-y-2 text-gray-400">
-              <p className="flex items-center gap-2 text-red-400">
+              <p className="flex items-center gap-2 text-yellow-400">
                 <span className="text-sm">📞</span> {card.customer_phone}
               </p>
               <p className="flex items-center gap-2 text-pink-400">
@@ -148,7 +170,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
 
            {/* Amount Remaining */}
            <div className="bg-[#1a1a1a] rounded-xl p-4 flex flex-col justify-center items-center border border-gray-800 shadow-lg relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+             <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500"></div>
              <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider">Remaining</p>
              <p className="text-2xl font-bold text-white">GHS{card.amount_remaining?.toFixed(2)}</p>
            </div>
@@ -162,7 +184,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
          </div>
          <div className="w-full bg-gray-800 rounded-full h-4 overflow-hidden">
             <div 
-              className="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-400 h-4 rounded-full shadow-[0_0_10px_rgba(234,179,8,0.5)] transition-all duration-1000" 
+              className="bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400 h-4 rounded-full shadow-[0_0_10px_rgba(234,179,8,0.5)] transition-all duration-1000" 
               style={{ width: `${completionPercentage}%` }}
             ></div>
          </div>
@@ -186,30 +208,24 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                   step="0.01"
                   min="0"
                   value={payAmount}
-                  onChange={(e) => setPayAmount(e.target.value)}
-                  disabled={payBoxes !== ''}
-                  className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-red-500 disabled:opacity-50"
+                  onChange={handleAmountChange}
+                  className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"
                   placeholder="e.g., 20.00"
                 />
               </div>
 
-              {isAdmin && (
-                <>
-                  <div className="text-center text-sm font-bold text-gray-500">OR</div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1">Number of Boxes</label>
-                    <input 
-                      type="number" 
-                      min="1"
-                      value={payBoxes}
-                      onChange={(e) => setPayBoxes(e.target.value)}
-                      disabled={payAmount !== ''}
-                      className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-red-500 disabled:opacity-50"
-                      placeholder="e.g., 2"
-                    />
-                  </div>
-                </>
-              )}
+              <div className="text-center text-sm font-bold text-gray-500">OR</div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Number of Boxes</label>
+                <input 
+                  type="number" 
+                  min="1"
+                  value={payBoxes}
+                  onChange={handleBoxesChange}
+                  className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"
+                  placeholder="e.g., 2"
+                />
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Payment Method</label>
@@ -217,37 +233,38 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                   <select 
                     value={payMethod} 
                     onChange={(e) => setPayMethod(e.target.value)}
-                    className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-red-500"
+                    className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"
                   >
                     <option value="Cash">Cash</option>
                     <option value="Momo">Momo</option>
                     <option value="Bank Transfer">Bank Transfer</option>
                   </select>
                 ) : (
-                  <input 
-                    type="text"
-                    readOnly
-                    value="Paystack (Online)"
-                    className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none disabled:opacity-50"
-                  />
+                  <select 
+                    value={payMethod} 
+                    onChange={(e) => setPayMethod(e.target.value)}
+                    className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"
+                  >
+                    <option value="Paystack">Paystack (Online)</option>
+                  </select>
                 )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Notes (Optional)</label>
                 <textarea 
+                  rows="3"
                   value={payNotes}
                   onChange={(e) => setPayNotes(e.target.value)}
-                  className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-red-500"
+                  className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"
                   placeholder="Add any notes"
-                  rows="2"
                 ></textarea>
               </div>
 
               <button 
-                type="submit" 
-                disabled={isSubmitting || (payAmount === '' && payBoxes === '')}
-                className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                type="submit"
+                disabled={isSubmitting || (!payAmount && !payBoxes)}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-[#111111] font-bold py-3 px-6 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Recording...' : 'Record Payment'}
               </button>
@@ -262,7 +279,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
             
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-gray-400">
-                <thead className="text-xs uppercase text-red-500 border-b border-gray-800 pb-2 block mb-2">
+                <thead className="text-xs uppercase text-yellow-500 border-b border-gray-800 pb-2 block mb-2">
                   <tr className="grid grid-cols-12 gap-2">
                     <th className="col-span-3 font-medium">Date</th>
                     <th className="col-span-3 font-medium">Boxes</th>
