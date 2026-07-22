@@ -26,7 +26,7 @@ const AdminLayaway = () => {
     setLoading(true);
     try {
       const res = await layawayService.adminGetLayaways();
-      setLayaways(res.data?.data || []);
+      setLayaways(res.data || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -65,7 +65,7 @@ const AdminLayaway = () => {
     setLoadingDetails(true);
     try {
       const res = await apiClient.get(`/admin/layaways/${uuid}`);
-      setSelectedCardDetails(res.data.data);
+      setSelectedCardDetails(res.data || res);
     } catch (e) {
       console.error(e);
       toast.error('Failed to load card details');

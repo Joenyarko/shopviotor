@@ -17,7 +17,7 @@ const MyLayaways = () => {
     setLoading(true);
     try {
       const res = await apiClient.get('/layaways');
-      setLayaways(res.data?.data || []);
+      setLayaways(res.data || []);
     } catch (e) {
       console.error(e);
       toast.error('Failed to load layaways');
@@ -35,7 +35,7 @@ const MyLayaways = () => {
     setLoadingDetails(true);
     try {
       const res = await apiClient.get(`/layaways/${uuid}`);
-      setSelectedCardDetails(res.data.data);
+      setSelectedCardDetails(res.data || res);
     } catch (e) {
       console.error(e);
       toast.error('Failed to load card details');
