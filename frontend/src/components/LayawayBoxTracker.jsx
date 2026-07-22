@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import apiClient from '../services/api';
+import React, { useState, useEffect } from 'react';
+import apiClient from '../api/client';
+import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import {
   Package, CheckCircle, ArrowLeft, HelpCircle
