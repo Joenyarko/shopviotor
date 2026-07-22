@@ -3,217 +3,175 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\Layaway;
-use App\Models\LayawayPayment;
+use App\Models\LayawayCard;
 use App\Models\Product;
-use App\Enums\LayawayStatus;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class LayawayController extends Controller
 {
-    /**
-     * List all layaway plans for the authenticated user.
-     */
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
-        $layaways = Layaway::where('user_id', auth()->id())
-            ->with(['product.images'])
-            ->latest()
-            ->get()
-            ->map(fn($l) => $this->formatLayaway($l));
+        $cards = LayawayCard::where('user_id', auth()->id())
+            ->with(['product:id,uuid,name,price,slug', 'product.images' => function($query) {
+                $query->where('is_primary', true)->orWhere('sort_order', 0);
+            }])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return response()->json(['data' => $layaways]);
+        $formatted = $cards->map(function ($card) {
+            $totalPaid = $card->payments()->sum('amount');
+            $boxesChecked = $card->payments()->sum('boxes_covered');
+            
+            return [
+                'uuid' => $card->uuid,
+                'product_name' => $card->product->name,
+                'product_image' => $card->product->images->first()?->path,
+                'total_boxes' => $card->total_boxes,
+                'box_price' => (float) $card->box_price,
+                'status' => $card->status,
+                'boxes_checked' => (int) $boxesChecked,
+                'amount_paid' => (float) $totalPaid,
+                'amount_remaining' => (float) ($card->total_boxes * $card->box_price) - $totalPaid,
+                'created_at' => $card->created_at->toISOString(),
+            ];
+        });
+
+        return response()->json(['data' => $formatted]);
     }
 
-    /**
-     * Start a new layaway plan for a product.
-     */
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'product_id'              => 'required|string',
-            'initial_payment'         => 'required|numeric|min:0',
-            'target_completion_date'  => 'nullable|date|after:today',
-            'notes'                   => 'nullable|string|max:500',
-            'customer_phone'          => 'required|string|max:20',
-            'customer_address'        => 'required|string|max:1000',
-            'accepted_terms'          => 'required|accepted',
+            'product_uuid' => 'required|exists:products,uuid',
         ]);
 
-        // Resolve product UUID to ID
-        $product = Product::where('uuid', $request->product_id)
-            ->where('available_for_layaway', true)
-            ->where('status', 'active')
+        $product = Product::where('uuid', $request->product_uuid)
+            ->where('is_layaway', true)
             ->firstOrFail();
 
-        // Check if user already has an active layaway for this product
-        $existing = Layaway::where('user_id', auth()->id())
-            ->where('product_id', $product->id)
-            ->whereIn('status', [LayawayStatus::Active->value])
-            ->exists();
-
-        if ($existing) {
-            return response()->json(['message' => 'You already have an active layaway plan for this product.'], 422);
+        if (!$product->layaway_boxes || $product->layaway_boxes <= 0) {
+            return response()->json(['message' => 'This product is missing layaway box configuration.'], 400);
         }
 
-        $productPrice = (float) $product->price;
-        $initialPayment = (float) $request->initial_payment;
-
-        if ($initialPayment > $productPrice) {
-            return response()->json(['message' => 'Initial payment cannot exceed the product price.'], 422);
-        }
-
-        $balanceRemaining = $productPrice - $initialPayment;
-
-        $layaway = DB::transaction(function () use ($product, $productPrice, $initialPayment, $balanceRemaining, $request) {
-            $layaway = Layaway::create([
-                'user_id'                => auth()->id(),
-                'product_id'             => $product->id,
-                'status'                 => LayawayStatus::Active->value,
-                'product_price'          => $productPrice,
-                'total_paid'             => $initialPayment,
-                'balance_remaining'      => $balanceRemaining,
-                'payment_count'          => $initialPayment > 0 ? 1 : 0,
-                'target_completion_date' => $request->target_completion_date,
-                'notes'                  => $request->notes,
-                'customer_phone'         => $request->customer_phone,
-                'customer_address'       => $request->customer_address,
-            ]);
-
-            // Record the initial payment if there is one
-            if ($initialPayment > 0) {
-                $layaway->payments()->create([
-                    'amount'             => $initialPayment,
-                    'payment_reference'  => 'INITIAL-' . strtoupper(uniqid()),
-                    'method'             => 'manual',
-                    'paid_at'            => now(),
-                    'notes'              => 'Initial payment / first contribution',
-                ]);
-            }
-
-            return $layaway;
-        });
+        $card = LayawayCard::create([
+            'uuid' => Str::uuid()->toString(),
+            'user_id' => auth()->id(),
+            'product_id' => $product->id,
+            'total_boxes' => $product->layaway_boxes,
+            'box_price' => $product->price,
+            'status' => 'active',
+        ]);
 
         return response()->json([
-            'message' => 'Layaway plan created successfully.',
-            'data'    => $this->formatLayaway($layaway->load('product.images', 'payments')),
+            'message' => 'Layaway card registered successfully.',
+            'data' => ['uuid' => $card->uuid]
         ], 201);
     }
 
-    /**
-     * Get a specific layaway plan with payment history.
-     */
     public function show(string $uuid): JsonResponse
     {
-        $layaway = Layaway::where('uuid', $uuid)
+        $card = LayawayCard::where('uuid', $uuid)
             ->where('user_id', auth()->id())
-            ->with(['product.images', 'payments'])
+            ->with(['product:id,uuid,name', 'product.images', 'payments' => function($q) {
+                $q->orderBy('created_at', 'asc');
+            }])
             ->firstOrFail();
 
-        return response()->json(['data' => $this->formatLayaway($layaway, true)]);
+        $totalPaid = $card->payments->sum('amount');
+        $boxesChecked = $card->payments->sum('boxes_covered');
+        $totalAmount = $card->total_boxes * $card->box_price;
+
+        return response()->json([
+            'data' => [
+                'uuid' => $card->uuid,
+                'product_name' => $card->product->name,
+                'customer_name' => auth()->user()->name,
+                'customer_phone' => auth()->user()->phone ?? 'N/A',
+                'customer_city' => auth()->user()->city ?? 'N/A',
+                'total_boxes' => $card->total_boxes,
+                'boxes_checked' => (int) $boxesChecked,
+                'boxes_remaining' => $card->total_boxes - $boxesChecked,
+                'box_price' => (float) $card->box_price,
+                'total_amount' => (float) $totalAmount,
+                'amount_paid' => (float) $totalPaid,
+                'amount_remaining' => (float) $totalAmount - $totalPaid,
+                'completion_percentage' => round(($boxesChecked / $card->total_boxes) * 100, 2),
+                'status' => $card->status,
+                'payments' => $card->payments->map(function ($payment) {
+                    return [
+                        'uuid' => $payment->uuid,
+                        'amount' => (float) $payment->amount,
+                        'boxes_covered' => $payment->boxes_covered,
+                        'payment_method' => $payment->payment_method,
+                        'reference' => $payment->reference,
+                        'notes' => $payment->notes,
+                        'color_code' => $payment->color_code,
+                        'created_at' => $payment->created_at->toISOString(),
+                    ];
+                })
+            ]
+        ]);
     }
 
-    /**
-     * Make a payment contribution to a layaway plan.
-     */
     public function pay(Request $request, string $uuid): JsonResponse
     {
         $request->validate([
-            'amount'    => 'required|numeric|min:1',
-            'notes'     => 'nullable|string|max:255',
+            'amount' => 'required|numeric|min:1',
+            'reference' => 'required|string', // From Paystack
         ]);
 
-        $layaway = Layaway::where('uuid', $uuid)
+        $card = LayawayCard::where('uuid', $uuid)
             ->where('user_id', auth()->id())
-            ->where('status', LayawayStatus::Active->value)
+            ->where('status', 'active')
             ->firstOrFail();
 
         $amount = (float) $request->amount;
+        $boxPrice = (float) $card->box_price;
 
-        if ($amount > (float) $layaway->balance_remaining) {
-            $amount = (float) $layaway->balance_remaining; // Cap at remaining balance
+        // Allowing small floating point variations
+        if (fmod($amount, $boxPrice) > 0.01 && fmod($amount, $boxPrice) < ($boxPrice - 0.01)) {
+            return response()->json([
+                'message' => "Amount must be a multiple of the box price (GHS {$boxPrice})."
+            ], 422);
         }
 
-        DB::transaction(function () use ($layaway, $amount, $request) {
-            $newTotalPaid = (float) $layaway->total_paid + $amount;
-            $newBalance   = max(0, (float) $layaway->product_price - $newTotalPaid);
-            $isCompleted  = $newBalance <= 0;
+        $boxesCovered = (int) round($amount / $boxPrice);
 
-            $layaway->payments()->create([
-                'amount'            => $amount,
-                'payment_reference' => 'LAY-' . strtoupper(uniqid()),
-                'method'            => 'manual',
-                'paid_at'           => now(),
-                'notes'             => $request->notes,
+        // Check if exceeding remaining boxes
+        $currentBoxes = $card->payments()->sum('boxes_covered');
+        $remainingBoxes = $card->total_boxes - $currentBoxes;
+
+        if ($boxesCovered > $remainingBoxes) {
+            return response()->json([
+                'message' => "Payment exceeds remaining boxes. Only {$remainingBoxes} boxes left."
+            ], 422);
+        }
+
+        // Generate alternating color (Yellow/Black)
+        $paymentCount = $card->payments()->count();
+        $colorCode = ($paymentCount % 2 === 0) ? '#eab308' : '#000000'; // Yellow (tailwind yellow-500) and Black
+
+        DB::transaction(function () use ($card, $amount, $boxesCovered, $request, $colorCode, $currentBoxes, $remainingBoxes) {
+            $card->payments()->create([
+                'uuid' => Str::uuid()->toString(),
+                'amount' => $amount,
+                'boxes_covered' => $boxesCovered,
+                'payment_method' => 'Paystack',
+                'reference' => $request->reference,
+                'notes' => 'Online payment',
+                'color_code' => $colorCode,
             ]);
 
-            $layaway->update([
-                'total_paid'       => $newTotalPaid,
-                'balance_remaining' => $newBalance,
-                'payment_count'    => $layaway->payment_count + 1,
-                'status'           => $isCompleted ? LayawayStatus::Completed->value : LayawayStatus::Active->value,
-                'completed_at'     => $isCompleted ? now() : null,
-            ]);
+            if ($currentBoxes + $boxesCovered >= $card->total_boxes) {
+                $card->update(['status' => 'completed']);
+            }
         });
 
-        $layaway->refresh()->load('product.images', 'payments');
-
         return response()->json([
-            'message' => 'Payment recorded successfully.',
-            'data'    => $this->formatLayaway($layaway, true),
-        ]);
-    }
-
-    /**
-     * Format a layaway model for API response.
-     */
-    private function formatLayaway(Layaway $layaway, bool $withPayments = false): array
-    {
-        $data = [
-            'uuid'                    => $layaway->uuid,
-            'status'                  => $layaway->status instanceof \BackedEnum ? $layaway->status->value : $layaway->status,
-            'product_price'           => (float) $layaway->product_price,
-            'total_paid'              => (float) $layaway->total_paid,
-            'balance_remaining'       => (float) $layaway->balance_remaining,
-            'payment_count'           => $layaway->payment_count,
-            'progress_percentage'     => $layaway->progress_percentage,
-            'target_completion_date'  => $layaway->target_completion_date?->toDateString(),
-            'completed_at'            => $layaway->completed_at?->toISOString(),
-            'notes'                   => $layaway->notes,
-            'customer_phone'          => $layaway->customer_phone,
-            'customer_address'        => $layaway->customer_address,
-            'created_at'              => $layaway->created_at->toISOString(),
-            'product'                 => $layaway->product ? [
-                'uuid'          => $layaway->product->uuid,
-                'name'          => $layaway->product->name,
-                'price'         => (float) $layaway->product->price,
-                'primary_image' => $layaway->product->primary_image,
-            ] : null,
-        ];
-
-        if ($withPayments && $layaway->relationLoaded('payments')) {
-            $data['payments'] = $layaway->payments->map(fn($p) => [
-                'id'                => $p->id,
-                'amount'            => (float) $p->amount,
-                'payment_reference' => $p->payment_reference,
-                'method'            => $p->method,
-                'notes'             => $p->notes,
-                'paid_at'           => $p->paid_at?->toISOString() ?? $p->created_at->toISOString(),
-            ])->values();
-        }
-
-        return $data;
-    }
-
-    public function terms(): JsonResponse
-    {
-        return response()->json([
-            'status' => 'success',
-            'data' => [
-                'layaway_terms' => \App\Models\Setting::getValue('layaway_terms', '')
-            ]
+            'message' => 'Payment recorded successfully.'
         ]);
     }
 }

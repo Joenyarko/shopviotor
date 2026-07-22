@@ -23,9 +23,8 @@ class Product extends Model
         'is_featured',
         'is_negotiable',
         'available_for_hire_purchase',
-        'available_for_layaway',
-        'layaway_total_boxes',
-        'layaway_box_price',
+        'is_layaway',
+        'layaway_boxes',
         'available_for_trade',
         'available_for_preorder',
         'preorder_deposit_amount',
@@ -47,7 +46,7 @@ class Product extends Model
             'is_negotiable'               => 'boolean',
             'available_for_hire_purchase' => 'boolean',
             'available_for_trade'         => 'boolean',
-            'available_for_layaway'       => 'boolean',
+            'is_layaway'                  => 'boolean',
             'specifications'              => 'array',
             'tags'                        => 'array',
             'status'                      => ProductStatus::class,
@@ -135,9 +134,9 @@ class Product extends Model
         return $this->hasMany(Wishlist::class);
     }
 
-    public function layawayPayments(): HasMany
+    public function layawayCards(): HasMany
     {
-        return $this->hasMany(LayawayPayment::class);
+        return $this->hasMany(LayawayCard::class);
     }
 
     public function variations(): HasMany

@@ -37,7 +37,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminCampaignController;
 use App\Http\Controllers\Api\V1\Admin\AdminFlashSaleController;
 use App\Http\Controllers\Api\V1\Admin\AdminCollectionController;
 use App\Http\Controllers\Api\V1\Admin\AdminHirePurchaseController;
-use App\Http\Controllers\Api\V1\Admin\AdminLayawayController;
+use App\Http\Controllers\Api\V1\Admin\LayawayController as AdminLayawayController;
 use App\Http\Controllers\Api\V1\Admin\AdminStoreController;
 use App\Http\Controllers\Api\V1\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Api\V1\Admin\BannerController as AdminBannerController;
@@ -201,8 +201,7 @@ Route::prefix('v1')->group(function () {
             // Layaway (Admin)
             Route::get('/layaways', [AdminLayawayController::class, 'index']);
             Route::get('/layaways/{uuid}', [AdminLayawayController::class, 'show']);
-            Route::post('/layaways/{uuid}/release', [AdminLayawayController::class, 'release']);
-            Route::post('/layaways/{uuid}/cancel', [AdminLayawayController::class, 'cancel']);
+            Route::post('/layaways/{uuid}/payments', [AdminLayawayController::class, 'storePayment']);
 
             // Pre-Orders (Admin)
             Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\Admin\PreOrderController::class, 'index']);

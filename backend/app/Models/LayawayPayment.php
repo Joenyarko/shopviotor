@@ -8,19 +8,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LayawayPayment extends Model
 {
     protected $fillable = [
-        'layaway_id', 'amount', 'payment_reference', 'method', 'paid_at', 'notes',
+        'uuid', 'layaway_card_id', 'amount', 'boxes_covered', 'payment_method', 'reference', 'notes', 'color_code'
     ];
 
     protected function casts(): array
     {
         return [
             'amount'  => 'decimal:2',
-            'paid_at' => 'datetime',
         ];
     }
 
-    public function layaway(): BelongsTo
+    public function layawayCard(): BelongsTo
     {
-        return $this->belongsTo(Layaway::class);
+        return $this->belongsTo(LayawayCard::class);
     }
 }

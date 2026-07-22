@@ -3,6 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import productService from '../../services/productService';
 import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
+import apiClient from '../../api/client';
+import { toast } from 'react-toastify';
 import { 
   ShoppingCart, 
   Scale, 
@@ -17,7 +19,8 @@ import {
   RotateCcw,
   ShieldCheck,
   Store as StoreIcon,
-  ThumbsUp
+  ThumbsUp,
+  Clock
 } from 'lucide-react';
 
 const DeliveryInfoCard = () => (
@@ -122,7 +125,7 @@ const ProductDetails = () => {
   const { uuid } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -156,7 +159,23 @@ const ProductDetails = () => {
 
   const handleAddToCart = () => {
     addToCart(product, 1);
-    alert(`${product.name} added to cart!`);
+    toast.success(`${product.name} added to cart!`);
+  };
+
+  const handleLayawayRegistration = async () => {
+    if (!user) {
+      toast.error('Please login to start a layaway plan.');
+      navigate('/login');
+      return;
+    }
+    try {
+      await apiClient.post('/layaways', { product_uuid: product.uuid });
+      toast.success('Layaway plan registered successfully!');
+      navigate('/my-layaways');
+    } catch (e) {
+      console.error(e);
+      toast.error(e.response?.data?.message || 'Failed to register for layaway.');
+    }
   };
 
   // Calculate current price based on variations if applicable
@@ -335,6 +354,11 @@ const ProductDetails = () => {
                     {product.available_for_preorder && (
                       <button onClick={() => navigate(`/pre-orders/${product.uuid}`)} className="w-full border-2 border-orange-100 dark:border-orange-900/30 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-700 dark:text-orange-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
                         <Package className="w-4 h-4" /> Pre-Order
+                      </button>
+                    )}
+                    {product.is_layaway && product.layaway_boxes > 0 && (
+                      <button onClick={handleLayawayRegistration} className="w-full border-2 border-blue-100 dark:border-blue-900/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                        <Clock className="w-4 h-4" /> Layaway / Susu
                       </button>
                     )}
                     <button onClick={() => navigate('/messages', { state: { initialSubject: `Inquiry: ${product.name}` } })} className="w-full border-2 border-secondary-200 dark:border-secondary-800 hover:bg-secondary-50 dark:hover:bg-secondary-800 text-secondary-700 dark:text-secondary-300 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">

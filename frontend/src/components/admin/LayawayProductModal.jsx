@@ -61,8 +61,8 @@ const LayawayProductModal = ({ isOpen, onClose, onSuccess }) => {
     formData.append('condition', 'new');
     formData.append('status', 'active');
     formData.append('description', description);
-    formData.append('available_for_layaway', '1');
-    formData.append('layaway_total_boxes', layawayTotalBoxes);
+    formData.append('is_layaway', '1');
+    formData.append('layaway_boxes', layawayTotalBoxes);
     
     if (imageFile) formData.append('images[0]', imageFile);
 
