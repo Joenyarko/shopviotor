@@ -49,10 +49,15 @@ class LayawayController extends Controller
         ]);
 
         $product = Product::where('uuid', $request->product_uuid)
-            ->where('is_layaway', true)
+            ->where(function ($query) {
+                $query->where('is_layaway', true)
+                      ->orWhere('available_for_layaway', true);
+            })
             ->firstOrFail();
 
-        if (!$product->layaway_boxes || $product->layaway_boxes <= 0) {
+        $boxes = $product->layaway_boxes ?? $product->layaway_total_boxes;
+
+        if (!$boxes || $boxes <= 0) {
             return response()->json(['message' => 'This product is missing layaway box configuration.'], 400);
         }
 
@@ -60,8 +65,8 @@ class LayawayController extends Controller
             'uuid' => Str::uuid()->toString(),
             'user_id' => auth()->id(),
             'product_id' => $product->id,
-            'total_boxes' => $product->layaway_boxes,
-            'box_price' => $product->price,
+            'total_boxes' => $boxes,
+            'box_price' => $product->layaway_box_price ?? ($product->price / $boxes),
             'status' => 'active',
         ]);
 
