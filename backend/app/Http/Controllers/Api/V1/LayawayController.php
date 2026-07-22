@@ -174,4 +174,13 @@ class LayawayController extends Controller
             'message' => 'Payment recorded successfully.'
         ]);
     }
+
+    public function terms(): JsonResponse
+    {
+        return response()->json([
+            'data' => [
+                'layaway_terms' => "1. All layaway plans are subject to the total amount and box counts specified by the admin.\n2. Payments are non-refundable unless explicitly agreed upon.\n3. The item will be reserved for you exclusively until the layaway is fully paid.\n4. You may make payments at any time. Once all boxes are checked, the item will be shipped to you.\n5. Failure to complete payments within an exceptionally long period may result in plan cancellation based on management discretion."
+            ]
+        ]);
+    }
 }

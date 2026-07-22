@@ -8,11 +8,6 @@ const LayawayDetail = () => {
   const navigate = useNavigate();
   const product = state?.product;
 
-  const [initialPayment, setInitialPayment] = useState(0);
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [customerAddress, setCustomerAddress] = useState('');
-  const [targetDate, setTargetDate] = useState('');
-  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -20,11 +15,15 @@ const LayawayDetail = () => {
 
   const [terms, setTerms] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [apiClient, setApiClient] = useState(null);
 
   React.useEffect(() => {
-    layawayService.getTerms()
-      .then(res => setTerms(res.data?.data?.layaway_terms || ''))
-      .catch(console.error);
+    import('../../api/client').then(module => {
+      setApiClient(() => module.default);
+      module.default.get('/layaways/settings/terms')
+        .then(res => setTerms(res.data?.data?.layaway_terms || ''))
+        .catch(console.error);
+    });
   }, []);
 
   if (!product) {
@@ -41,8 +40,8 @@ const LayawayDetail = () => {
   }
 
   const productPrice = parseFloat(product.price);
-  const balanceAfterInitial = Math.max(0, productPrice - initialPayment);
-  const progressPercent = productPrice > 0 ? Math.min(100, Math.round((initialPayment / productPrice) * 100)) : 0;
+  const boxes = product.layaway_boxes || product.layaway_total_boxes || 1;
+  const boxPrice = productPrice / boxes;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,21 +49,12 @@ const LayawayDetail = () => {
       setErrorMsg('You must accept the terms and conditions.');
       return;
     }
-    if (initialPayment < 0) {
-      setErrorMsg('Payment amount cannot be negative.');
-      return;
-    }
+    if (!apiClient) return;
     setLoading(true);
     setErrorMsg('');
     try {
-      const res = await layawayService.createLayaway({
-        product_id: product.uuid,
-        initial_payment: initialPayment,
-        target_completion_date: targetDate || undefined,
-        notes: notes || undefined,
-        customer_phone: customerPhone,
-        customer_address: customerAddress,
-        accepted_terms: acceptedTerms,
+      const res = await apiClient.post('/layaways', {
+        product_uuid: product.uuid,
       });
       setCreatedLayaway(res.data?.data);
       setSuccess(true);
@@ -112,8 +102,8 @@ const LayawayDetail = () => {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-secondary-500 text-sm font-bold">Total Boxes Required</p>
-                <p className="font-black text-secondary-900 dark:text-white text-2xl">{product.layaway_total_boxes}</p>
+                <p className="text-secondary-500 text-sm font-bold">Total Boxes</p>
+                <p className="font-black text-secondary-900 dark:text-white text-2xl">{boxes}</p>
               </div>
             </div>
           )}
@@ -128,12 +118,8 @@ const LayawayDetail = () => {
               {createdLayaway && (
                 <div className="bg-primary-50 dark:bg-primary-950/20 rounded-xl p-4 text-left space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-secondary-500">Balance Remaining</span>
-                    <span className="font-bold text-primary-600">GHS {createdLayaway.balance_remaining?.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-secondary-500">Payments Made</span>
-                    <span className="font-bold text-secondary-900 dark:text-white">{createdLayaway.payment_count}</span>
+                    <span className="text-secondary-500">Boxes Left</span>
+                    <span className="font-bold text-primary-600">{boxes} Boxes</span>
                   </div>
                 </div>
               )}
@@ -153,93 +139,20 @@ const LayawayDetail = () => {
                 </div>
               )}
 
-              {/* Initial payment */}
-              <div>
-                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">
-                  First Contribution Amount (GHS)
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  max={productPrice}
-                  step={0.01}
-                  value={initialPayment}
-                  onChange={e => setInitialPayment(Math.min(productPrice, Math.max(0, parseFloat(e.target.value) || 0)))}
-                  placeholder="e.g. 50"
-                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
-                />
-                <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1.5">
-                  You can start with GHS 0 (just reserve) or any amount. Every bit counts!
-                </p>
-              </div>
-
-              {/* Progress preview */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-semibold text-secondary-600 dark:text-secondary-400">
-                  <span>Progress after first payment</span>
-                  <span className="text-primary-600">{progressPercent}%</span>
+              {/* Plan Details Preview */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-800 pb-2">
+                  <span className="text-secondary-500 dark:text-secondary-400 text-sm">Target Amount</span>
+                  <span className="font-bold text-secondary-900 dark:text-white">GH₵ {productPrice.toFixed(2)}</span>
                 </div>
-                <div className="h-3 bg-secondary-100 dark:bg-secondary-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full transition-all duration-500"
-                    style={{ width: `${progressPercent}%` }}
-                  />
+                <div className="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-800 pb-2">
+                  <span className="text-secondary-500 dark:text-secondary-400 text-sm">Total Boxes (Duration)</span>
+                  <span className="font-bold text-secondary-900 dark:text-white">{boxes} Boxes</span>
                 </div>
-                <div className="flex justify-between text-xs text-secondary-500 dark:text-secondary-400">
-                  <span>GHS {initialPayment.toLocaleString()} paid</span>
-                  <span>GHS {balanceAfterInitial.toLocaleString()} remaining</span>
+                <div className="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-800 pb-2">
+                  <span className="text-secondary-500 dark:text-secondary-400 text-sm">Payment Per Box</span>
+                  <span className="font-extrabold text-blue-600 dark:text-blue-400">GH₵ {boxPrice.toFixed(2)}</span>
                 </div>
-              </div>
-
-              {/* Target date */}
-              <div>
-                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" /> Target Completion Date (optional)
-                </label>
-                <input
-                  type="date"
-                  value={targetDate}
-                  onChange={e => setTargetDate(e.target.value)}
-                  min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
-                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Phone Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={customerPhone}
-                    onChange={e => setCustomerPhone(e.target.value)}
-                    placeholder="e.g. 0541234567"
-                    className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Delivery Address *</label>
-                  <textarea
-                    rows={1}
-                    required
-                    value={customerAddress}
-                    onChange={e => setCustomerAddress(e.target.value)}
-                    placeholder="Your full delivery address"
-                    className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
-                  />
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Notes (optional)</label>
-                <textarea
-                  rows={2}
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                  placeholder="Any special instructions or notes for your plan..."
-                  className="w-full p-3 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500"
-                />
               </div>
 
               {/* Terms and Conditions */}

@@ -57,6 +57,53 @@ const DeliveryInfoCard = () => (
           <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Guaranteed authentic and original products.</p>
         </div>
       </div>
+
+      {/* Layaway Registration Modal */}
+      {layawayModalOpen && product && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="bg-white dark:bg-secondary-900 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-secondary-200 dark:border-secondary-800">
+            <div className="p-6 border-b border-secondary-100 dark:border-secondary-800 flex justify-between items-center">
+              <h3 className="text-xl font-extrabold text-secondary-900 dark:text-white flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-500" />
+                Layaway Plan Details
+              </h3>
+              <button onClick={() => setLayawayModalOpen(false)} className="text-secondary-400 hover:text-secondary-600 transition-colors">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 p-4 rounded-xl text-sm font-medium border border-blue-100 dark:border-blue-900/30">
+                You are about to start a savings plan for <strong>{product.name}</strong>. Please review the terms set by the admin below.
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-800 pb-2">
+                  <span className="text-secondary-500 dark:text-secondary-400 text-sm">Target Amount</span>
+                  <span className="font-bold text-secondary-900 dark:text-white">GH₵ {currentPrice.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-800 pb-2">
+                  <span className="text-secondary-500 dark:text-secondary-400 text-sm">Total Boxes (Duration)</span>
+                  <span className="font-bold text-secondary-900 dark:text-white">{product.layaway_boxes} Boxes</span>
+                </div>
+                <div className="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-800 pb-2">
+                  <span className="text-secondary-500 dark:text-secondary-400 text-sm">Payment Per Box</span>
+                  <span className="font-extrabold text-blue-600 dark:text-blue-400">GH₵ {(currentPrice / product.layaway_boxes).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 bg-secondary-50 dark:bg-secondary-800/50 border-t border-secondary-100 dark:border-secondary-800 flex gap-3">
+              <button onClick={() => setLayawayModalOpen(false)} className="flex-1 py-3 px-4 rounded-xl font-bold text-secondary-700 bg-white border border-secondary-300 hover:bg-secondary-50 transition-colors">
+                Cancel
+              </button>
+              <button onClick={handleLayawayRegistration} className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30 transition-colors">
+                Confirm & Start
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   </div>
 );
@@ -131,6 +178,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(null);
   const [selectedVariations, setSelectedVariations] = useState({});
+  const [layawayModalOpen, setLayawayModalOpen] = useState(false);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -163,19 +211,24 @@ const ProductDetails = () => {
   };
 
   const handleLayawayRegistration = async () => {
-    if (!user) {
-      toast.error('Please login to start a layaway plan.');
-      navigate('/login');
-      return;
-    }
     try {
       await apiClient.post('/layaways', { product_uuid: product.uuid });
       toast.success('Layaway plan registered successfully!');
+      setLayawayModalOpen(false);
       navigate('/my-layaways');
     } catch (e) {
       console.error(e);
       toast.error(e.response?.data?.message || 'Failed to register for layaway.');
     }
+  };
+
+  const handleOpenLayawayModal = () => {
+    if (!user) {
+      toast.error('Please login to start a layaway plan.');
+      navigate('/login');
+      return;
+    }
+    setLayawayModalOpen(true);
   };
 
   // Calculate current price based on variations if applicable
@@ -357,7 +410,7 @@ const ProductDetails = () => {
                       </button>
                     )}
                     {product.is_layaway && product.layaway_boxes > 0 && (
-                      <button onClick={handleLayawayRegistration} className="w-full border-2 border-blue-100 dark:border-blue-900/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                      <button onClick={handleOpenLayawayModal} className="w-full border-2 border-blue-100 dark:border-blue-900/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
                         <Clock className="w-4 h-4" /> Layaway / Susu
                       </button>
                     )}
