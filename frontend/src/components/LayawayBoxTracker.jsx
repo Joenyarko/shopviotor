@@ -58,6 +58,20 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
     }
   };
 
+  const handleReversePayment = async (paymentUuid) => {
+    if (!window.confirm("Are you sure you want to reverse this payment? This action cannot be undone.")) return;
+    try {
+      await layawayService.adminReversePayment(card.uuid, paymentUuid);
+      toast.success('Payment reversed successfully');
+      if (onPaymentSuccess) {
+        onPaymentSuccess();
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to reverse payment');
+    }
+  };
+
   const handleRecordPayment = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -282,9 +296,10 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                 <thead className="text-xs uppercase text-yellow-500 border-b border-gray-800 pb-2 block mb-2">
                   <tr className="grid grid-cols-12 gap-2">
                     <th className="col-span-3 font-medium">Date</th>
-                    <th className="col-span-3 font-medium">Boxes</th>
+                    <th className="col-span-2 font-medium">Boxes</th>
                     <th className="col-span-3 font-medium">Amount</th>
-                    <th className="col-span-3 font-medium">Method</th>
+                    <th className="col-span-2 font-medium">Method</th>
+                    {isAdmin && <th className="col-span-2 font-medium text-right">Action</th>}
                   </tr>
                 </thead>
                 <tbody className="block max-h-64 overflow-y-auto space-y-2">
@@ -292,11 +307,21 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                     card.payments.map((payment) => (
                       <tr key={payment.uuid} className="grid grid-cols-12 gap-2 items-center bg-[#222222] p-2 rounded">
                         <td className="col-span-3 text-xs">{new Date(payment.created_at).toLocaleDateString()}</td>
-                        <td className="col-span-3">
+                        <td className="col-span-2">
                           <span className="bg-gray-800 px-2 py-1 rounded text-white font-bold">{payment.boxes_covered}</span>
                         </td>
                         <td className="col-span-3 text-white font-bold">GHS {payment.amount}</td>
-                        <td className="col-span-3">{payment.payment_method}</td>
+                        <td className="col-span-2">{payment.payment_method}</td>
+                        {isAdmin && (
+                          <td className="col-span-2 text-right">
+                            <button 
+                              onClick={() => handleReversePayment(payment.uuid)}
+                              className="text-xs text-red-500 hover:text-red-400 font-bold border border-red-500/30 hover:bg-red-500/10 px-2 py-1 rounded"
+                            >
+                              Reverse
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))
                   ) : (
