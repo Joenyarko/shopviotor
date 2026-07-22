@@ -233,7 +233,7 @@ const ProductDetails = () => {
 
   const handleLayawayRegistration = async () => {
     try {
-      await apiClient.post('/layaways', { product_uuid: product.uuid });
+      await apiClient.post('/layaways', { product_uuid: product.uuid || product.id });
       toast.success('Layaway plan registered successfully!');
       setLayawayModalOpen(false);
       navigate('/my-layaways');

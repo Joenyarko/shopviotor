@@ -50,7 +50,7 @@ const LayawayDetail = () => {
     setErrorMsg('');
     try {
       const res = await apiClient.post('/layaways', {
-        product_uuid: product.uuid,
+        product_uuid: product.uuid || product.id,
       });
       setCreatedLayaway(res.data?.data);
       setSuccess(true);
