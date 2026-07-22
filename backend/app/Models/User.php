@@ -162,6 +162,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Layaway::class);
     }
 
+    public function layawayCards(): HasMany
+    {
+        return $this->hasMany(LayawayCard::class);
+    }
+
     public function store(): HasOne
     {
         return $this->hasOne(Store::class);
