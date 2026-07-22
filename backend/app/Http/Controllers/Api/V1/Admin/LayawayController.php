@@ -19,7 +19,6 @@ class LayawayController extends Controller
         $activePlans = LayawayCard::where('status', 'active')->count();
         $completedPlans = LayawayCard::where('status', 'completed')->count();
         
-        // Defaulters: Let's consider defaulting as active plans with no payment in last 30 days
         $defaultingPlans = LayawayCard::where('status', 'active')
             ->whereDoesntHave('payments', function($q) {
                 $q->where('created_at', '>=', now()->subDays(30));
@@ -38,14 +37,14 @@ class LayawayController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = LayawayCard::with(['user:id,name,phone,city,address', 'product:id,name,price']);
+        $query = LayawayCard::with(['user:id,first_name,last_name,phone', 'product:id,name,price']);
 
         if ($request->search) {
             $search = $request->search;
             $query->whereHas('user', function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('city', 'like', "%{$search}%");
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
@@ -62,10 +61,10 @@ class LayawayController extends Controller
 
             return [
                 'uuid' => $card->uuid,
-                'customer_name' => $card->user->name,
-                'customer_phone' => $card->user->phone,
-                'customer_city' => $card->user->city,
-                'product_name' => $card->product->name,
+                'customer_name' => $card->user->full_name ?? 'N/A',
+                'customer_phone' => $card->user->phone ?? 'N/A',
+                'customer_city' => 'N/A', // no city field on user
+                'product_name' => $card->product->name ?? 'N/A',
                 'total_boxes' => $card->total_boxes,
                 'boxes_checked' => (int) $boxesChecked,
                 'amount_paid' => (float) $totalPaid,
@@ -87,7 +86,7 @@ class LayawayController extends Controller
 
     public function sales(Request $request): JsonResponse
     {
-        $query = LayawayPayment::with(['card.user:id,name', 'card.product:id,name']);
+        $query = LayawayPayment::with(['layawayCard.user:id,first_name,last_name', 'layawayCard.product:id,name']);
         
         $perPage = $request->input('per_page', 20);
         $payments = $query->orderBy('created_at', 'desc')->paginate($perPage);
@@ -99,8 +98,8 @@ class LayawayController extends Controller
                 'boxes_covered' => $payment->boxes_covered,
                 'payment_method' => $payment->payment_method,
                 'reference' => $payment->reference,
-                'customer_name' => $payment->card->user->name ?? 'Unknown',
-                'product_name' => $payment->card->product->name ?? 'Unknown',
+                'customer_name' => $payment->layawayCard->user->full_name ?? 'Unknown',
+                'product_name' => $payment->layawayCard->product->name ?? 'Unknown',
                 'created_at' => $payment->created_at->toISOString(),
             ];
         });
@@ -117,7 +116,6 @@ class LayawayController extends Controller
 
     public function inventory(Request $request): JsonResponse
     {
-        // Simple search for products to toggle layaway
         $query = Product::select('id', 'uuid', 'name', 'price', 'stock_quantity', 'available_for_layaway', 'is_layaway');
         
         if ($request->search) {
@@ -173,7 +171,7 @@ class LayawayController extends Controller
     public function show(string $uuid): JsonResponse
     {
         $card = LayawayCard::where('uuid', $uuid)
-            ->with(['user:id,name,phone,city,address', 'product:id,uuid,name', 'product.images', 'payments' => function($q) {
+            ->with(['user:id,first_name,last_name,phone', 'product:id,uuid,name', 'product.images', 'payments' => function($q) {
                 $q->orderBy('created_at', 'asc');
             }])
             ->firstOrFail();
@@ -186,9 +184,9 @@ class LayawayController extends Controller
             'data' => [
                 'uuid' => $card->uuid,
                 'product_name' => $card->product->name,
-                'customer_name' => $card->user->name,
+                'customer_name' => $card->user->full_name ?? 'N/A',
                 'customer_phone' => $card->user->phone ?? 'N/A',
-                'customer_city' => $card->user->city ?? 'N/A',
+                'customer_city' => 'N/A',
                 'total_boxes' => $card->total_boxes,
                 'boxes_checked' => (int) $boxesChecked,
                 'boxes_remaining' => $card->total_boxes - $boxesChecked,
@@ -231,7 +229,6 @@ class LayawayController extends Controller
 
         $boxPrice = (float) $card->box_price;
         
-        // Admin can enter EITHER amount OR boxes
         $amount = (float) $request->amount_paid;
         $boxes = (int) $request->number_of_boxes;
 
@@ -284,7 +281,6 @@ class LayawayController extends Controller
         DB::transaction(function () use ($card, $payment) {
             $payment->delete();
 
-            // Re-evaluate card status
             $currentBoxes = $card->payments()->sum('boxes_covered');
             if ($currentBoxes < $card->total_boxes && $card->status === 'completed') {
                 $card->update(['status' => 'active']);
