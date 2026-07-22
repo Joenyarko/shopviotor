@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use App\Models\LayawayCard;
 use App\Models\LayawayPayment;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class LayawayController extends Controller
@@ -37,49 +38,53 @@ class LayawayController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = LayawayCard::with(['user:id,first_name,last_name,phone', 'product:id,name,price']);
+        $query = User::whereHas('layawayCards')
+            ->with(['layawayCards.product:id,name', 'layawayCards.payments:id,layaway_card_id,amount,boxes_covered']);
 
         if ($request->search) {
             $search = $request->search;
-            $query->whereHas('user', function($q) use ($search) {
+            $query->where(function($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
-        if ($request->status && $request->status !== 'all') {
-            $query->where('status', $request->status);
-        }
-
         $perPage = $request->input('per_page', 10);
-        $cards = $query->orderBy('created_at', 'desc')->paginate($perPage);
+        $users = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        $formatted = collect($cards->items())->map(function ($card) {
-            $totalPaid = $card->payments()->sum('amount');
-            $boxesChecked = $card->payments()->sum('boxes_covered');
+        $formatted = collect($users->items())->map(function ($user) {
+            $cards = $user->layawayCards->map(function($card) {
+                $totalPaid = $card->payments->sum('amount');
+                $boxesChecked = $card->payments->sum('boxes_covered');
+                return [
+                    'uuid' => $card->uuid,
+                    'product_name' => $card->product->name ?? 'N/A',
+                    'total_boxes' => $card->total_boxes,
+                    'boxes_checked' => (int) $boxesChecked,
+                    'amount_paid' => (float) $totalPaid,
+                    'amount_remaining' => (float) (($card->total_boxes * $card->box_price) - $totalPaid),
+                    'status' => $card->status,
+                    'created_at' => $card->created_at->toISOString(),
+                ];
+            });
 
             return [
-                'uuid' => $card->uuid,
-                'customer_name' => $card->user->full_name ?? 'N/A',
-                'customer_phone' => $card->user->phone ?? 'N/A',
-                'customer_city' => 'N/A', // no city field on user
-                'product_name' => $card->product->name ?? 'N/A',
-                'total_boxes' => $card->total_boxes,
-                'boxes_checked' => (int) $boxesChecked,
-                'amount_paid' => (float) $totalPaid,
-                'amount_remaining' => (float) (($card->total_boxes * $card->box_price) - $totalPaid),
-                'status' => $card->status,
-                'created_at' => $card->created_at->toISOString(),
+                'id' => $user->id,
+                'customer_name' => $user->full_name ?? 'N/A',
+                'customer_phone' => $user->phone ?? 'N/A',
+                'customer_city' => 'N/A',
+                'total_layaways' => $cards->count(),
+                'layaways' => $cards
             ];
         });
 
         return response()->json([
             'data' => $formatted,
             'meta' => [
-                'current_page' => $cards->currentPage(),
-                'last_page' => $cards->lastPage(),
-                'total' => $cards->total(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'total' => $users->total(),
             ]
         ]);
     }

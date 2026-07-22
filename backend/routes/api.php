@@ -231,3 +231,6 @@ Route::prefix('v1')->group(function () {
     });
     });
 });
+
+Route::get('/test-layaways', [App\Http\Controllers\Api\V1\Admin\LayawayController::class, 'index']);
+

@@ -36,6 +36,9 @@ const AdminLayaway = () => {
   const [savingTerms, setSavingTerms] = useState(false);
   const [loadingTerms, setLoadingTerms] = useState(false);
 
+  const [customerModalOpen, setCustomerModalOpen] = useState(false);
+  const [selectedCustomerPlans, setSelectedCustomerPlans] = useState([]);
+
   // Detail View
   const [selectedCardId, setSelectedCardId] = useState(null);
   const [selectedCardDetails, setSelectedCardDetails] = useState(null);
@@ -173,6 +176,16 @@ const AdminLayaway = () => {
   }
 
   // Sidebar Menu Items
+  const handleSelectCustomer = (customer) => {
+    if (!customer.layaways || customer.layaways.length === 0) return;
+    if (customer.layaways.length === 1) {
+      handleSelectLayaway(customer.layaways[0].uuid);
+    } else {
+      setSelectedCustomerPlans(customer.layaways);
+      setCustomerModalOpen(true);
+    }
+  };
+
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: 'customers', label: 'Customers', icon: <Users className="w-5 h-5" /> },
@@ -279,14 +292,18 @@ const AdminLayaway = () => {
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {customers.map(c => {
-                    const progress = c.total_boxes > 0 ? ((c.boxes_checked / c.total_boxes) * 100).toFixed(2) : 0;
+                    const latestLayaway = c.layaways && c.layaways.length > 0 ? c.layaways[0] : null;
+                    const progress = latestLayaway && latestLayaway.total_boxes > 0 
+                        ? ((latestLayaway.boxes_checked / latestLayaway.total_boxes) * 100).toFixed(2) 
+                        : 0;
+                        
                     return (
-                      <div key={c.uuid} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                      <div key={c.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
                         <div className="p-5 flex-1">
                           <div className="flex justify-between items-start mb-4">
                             <h3 className="text-xl font-bold text-gray-900 truncate">{c.customer_name}</h3>
                             <span className="px-2 py-1 bg-gray-100 text-gray-600 border border-gray-200 text-xs font-bold rounded capitalize">
-                              {c.status}
+                              {c.total_layaways} Plan(s)
                             </span>
                           </div>
                           
@@ -298,33 +315,40 @@ const AdminLayaway = () => {
                               <span className="text-pink-500">📍</span> {c.customer_city || 'N/A'}
                             </p>
                             <p className="flex items-center gap-2">
-                              <Package className="w-4 h-4 text-blue-500" /> {c.product_name}
+                              <Package className="w-4 h-4 text-blue-500" /> {c.total_layaways === 1 ? latestLayaway?.product_name : 'Multiple Products'}
                             </p>
                           </div>
 
-                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                            <div className="flex justify-between text-xs font-medium text-gray-600 mb-2">
-                              <span>Progress: {c.boxes_checked}/{c.total_boxes} boxes</span>
-                              <span>{progress}%</span>
+                          {c.total_layaways === 1 && latestLayaway && (
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                              <div className="flex justify-between text-xs font-medium text-gray-600 mb-2">
+                                <span>Progress: {latestLayaway.boxes_checked}/{latestLayaway.total_boxes} boxes</span>
+                                <span>{progress}%</span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden mb-4">
+                                <div 
+                                  className="bg-gradient-to-r from-yellow-500 to-yellow-400 h-3 rounded-full" 
+                                  style={{ width: `${progress}%` }}
+                                ></div>
+                              </div>
+                              <div className="flex justify-between text-xs font-bold">
+                                <span className="text-yellow-600">Paid: GHS{latestLayaway.amount_paid.toFixed(2)}</span>
+                                <span className="text-gray-500">Bal: GHS{latestLayaway.amount_remaining.toFixed(2)}</span>
+                              </div>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden mb-4">
-                              <div 
-                                className="bg-gradient-to-r from-yellow-500 to-yellow-400 h-3 rounded-full" 
-                                style={{ width: `${progress}%` }}
-                              ></div>
+                          )}
+                          {c.total_layaways > 1 && (
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex justify-center items-center h-28">
+                               <p className="text-gray-500 text-sm font-medium">Click to select plan</p>
                             </div>
-                            <div className="flex justify-between text-xs font-bold">
-                              <span className="text-yellow-600">Paid: GHS{c.amount_paid.toFixed(2)}</span>
-                              <span className="text-gray-500">Bal: GHS{c.amount_remaining.toFixed(2)}</span>
-                            </div>
-                          </div>
+                          )}
                         </div>
                         <div className="p-4 bg-gray-50 border-t border-gray-200">
                           <button 
-                            onClick={() => handleSelectLayaway(c.uuid)}
+                            onClick={() => handleSelectCustomer(c)}
                             className="w-full py-2 bg-white hover:bg-yellow-500 hover:text-white text-gray-800 font-bold rounded-lg transition-colors border border-gray-300 hover:border-yellow-500 shadow-sm"
                           >
-                            View / Edit
+                            {c.total_layaways > 1 ? `View ${c.total_layaways} Plans` : 'View / Edit Plan'}
                           </button>
                         </div>
                       </div>
@@ -539,6 +563,47 @@ const AdminLayaway = () => {
         )}
 
       </div>
+
+      {/* MULTIPLE PLANS MODAL */}
+      {customerModalOpen && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-xl w-full p-6 relative">
+            <button 
+              onClick={() => setCustomerModalOpen(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-900"
+            >
+              &times;
+            </button>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Select a Layaway Plan</h2>
+            <div className="space-y-4">
+              {selectedCustomerPlans.map(plan => {
+                 const progress = plan.total_boxes > 0 ? ((plan.boxes_checked / plan.total_boxes) * 100).toFixed(2) : 0;
+                 return (
+                  <div key={plan.uuid} className="border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-yellow-500 transition-colors bg-gray-50">
+                    <div>
+                      <h4 className="font-bold text-gray-900">{plan.product_name}</h4>
+                      <p className="text-sm text-gray-500 capitalize">Status: {plan.status}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-xs font-bold text-yellow-600 bg-yellow-100 px-2 py-1 rounded">Paid: GHS{plan.amount_paid.toFixed(2)}</span>
+                        <span className="text-xs font-bold text-gray-600 bg-gray-200 px-2 py-1 rounded">Bal: GHS{plan.amount_remaining.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setCustomerModalOpen(false);
+                        handleSelectLayaway(plan.uuid);
+                      }}
+                      className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg transition-colors whitespace-nowrap w-full sm:w-auto"
+                    >
+                      View Tracker
+                    </button>
+                  </div>
+                 );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
