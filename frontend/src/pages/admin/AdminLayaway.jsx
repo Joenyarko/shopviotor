@@ -199,7 +199,11 @@ const AdminLayaway = () => {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors \}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === item.id 
+                    ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' 
+                    : 'text-gray-400 hover:text-gray-200 hover:bg-gray-800'
+                }`}
               >
                 {item.icon} {item.label}
               </button>
@@ -214,7 +218,9 @@ const AdminLayaway = () => {
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={lex-shrink-0 flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors \}
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
+                activeTab === item.id ? 'text-yellow-500 border-b-2 border-yellow-500' : 'text-gray-400'
+              }`}
             >
               {item.icon} {item.label}
             </button>
@@ -321,7 +327,7 @@ const AdminLayaway = () => {
                             <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden mb-4">
                               <div 
                                 className="bg-gradient-to-r from-yellow-600 to-yellow-400 h-3 rounded-full" 
-                                style={{ width: \% }}
+                                style={{ width: `${progress}%` }}
                               ></div>
                             </div>
                             <div className="flex justify-between text-xs font-bold">
