@@ -93,8 +93,8 @@ class SellRequestController extends Controller
             abort(403);
         }
 
-        if ($sellRequest->status->value !== 'pending') {
-            abort(400, 'Only pending requests can be deleted.');
+        if (!in_array($sellRequest->status->value, ['pending', 'rejected', 'cancelled'])) {
+            abort(400, 'Only pending or rejected requests can be deleted.');
         }
 
         $this->sellRequestService->delete($sellRequest);
@@ -104,7 +104,7 @@ class SellRequestController extends Controller
         ]);
     }
 
-    public function messages(Request $request, string $uuid): JsonResponse
+    public function acceptOffer(Request $request, string $uuid): JsonResponse
     {
         $sellRequest = SellRequest::where('uuid', $uuid)->firstOrFail();
 
@@ -112,71 +112,25 @@ class SellRequestController extends Controller
             abort(403);
         }
 
-        $conversation = Conversation::where('related_type', SellRequest::class)
-            ->where('related_id', $sellRequest->id)
-            ->with('messages.sender')
-            ->first();
-
-        if (!$conversation) {
-            return response()->json(['data' => [], 'chat_status' => 'open']);
-        }
+        $sellRequest->update(['status' => 'accepted']);
 
         return response()->json([
-            'chat_status' => $conversation->status,
-            'data' => $conversation->messages->map(fn($m) => [
-                'id'         => $m->id,
-                'body'       => $m->body,
-                'created_at' => $m->created_at,
-                'is_admin'   => $m->sender->isAdmin(),
-                'sender'     => $m->sender->full_name,
-            ]),
+            'message' => 'Offer accepted successfully.',
         ]);
     }
 
-    public function sendMessage(Request $request, string $uuid): JsonResponse
+    public function rejectOffer(Request $request, string $uuid): JsonResponse
     {
-        $data = $request->validate(['body' => 'required|string']);
         $sellRequest = SellRequest::where('uuid', $uuid)->firstOrFail();
 
         if ($request->user()->id !== $sellRequest->user_id) {
             abort(403);
         }
 
-        $conversation = Conversation::firstOrCreate(
-            [
-                'related_type' => SellRequest::class,
-                'related_id'   => $sellRequest->id,
-            ],
-            [
-                'uuid'        => (string) \Illuminate\Support\Str::uuid(),
-                'customer_id' => $sellRequest->user_id,
-                'subject'     => "Sell Request: {$sellRequest->item_name}",
-            ]
-        );
-
-        if ($conversation->status === 'closed') {
-            abort(400, 'This chat has been closed by an admin.');
-        }
-
-        $message = $conversation->messages()->create([
-            'sender_id' => $request->user()->id,
-            'body'      => $data['body'],
-        ]);
-
-        $conversation->update([
-            'last_message_at' => now(),
-            'unread_admin'    => \Illuminate\Support\Facades\DB::raw('unread_admin + 1'),
-        ]);
+        $sellRequest->update(['status' => 'rejected']);
 
         return response()->json([
-            'message' => 'Message sent.',
-            'data'    => [
-                'id'         => $message->id,
-                'body'       => $message->body,
-                'created_at' => $message->created_at,
-                'is_admin'   => false,
-                'sender'     => $request->user()->full_name,
-            ],
+            'message' => 'Offer rejected successfully.',
         ]);
     }
 }

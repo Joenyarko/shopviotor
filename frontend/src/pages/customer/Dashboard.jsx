@@ -1,16 +1,19 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import orderService from '../../services/orderService';
 import tradeService from '../../services/tradeService';
-import sellRequestService from '../../services/sellRequestService';
+import authService from '../../services/authService';
 import { ShoppingBag, Scale, Truck, User, Key, CheckCircle, RefreshCw } from 'lucide-react';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [orders, setOrders] = useState([]);
   const [trades, setTrades] = useState([]);
   const [sells, setSells] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [studentIdInput, setStudentIdInput] = useState('');
+  const [submittingStudentId, setSubmittingStudentId] = useState(false);
 
   useEffect(() => {
     const fetchPortalData = async () => {
@@ -32,6 +35,32 @@ const Dashboard = () => {
     };
     fetchPortalData();
   }, []);
+
+  const handleStudentIdSubmit = async (e) => {
+    e.preventDefault();
+    if (!studentIdInput.trim()) return;
+    setSubmittingStudentId(true);
+    try {
+      const res = await authService.submitStudentVerification({ student_id: studentIdInput });
+      updateUser(res.data.user);
+      Swal.fire({
+        icon: 'success',
+        title: 'Submitted!',
+        text: res.data.message || 'Your Student ID has been submitted and is pending approval.',
+        confirmButtonColor: '#0ea5e9'
+      });
+      setStudentIdInput('');
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Submission Failed',
+        text: err.response?.data?.message || err.message || 'An error occurred.',
+        confirmButtonColor: '#0ea5e9'
+      });
+    } finally {
+      setSubmittingStudentId(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -87,24 +116,70 @@ const Dashboard = () => {
             <User className="w-5 h-5 text-primary-500" /> Account Profile
           </h2>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="block text-xs text-secondary-450">Full Name</span>
-                <span className="font-semibold text-secondary-900 dark:text-white">{user?.name}</span>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="block text-xs text-secondary-450">Full Name</span>
+                  <span className="font-semibold text-secondary-900 dark:text-white">{user?.first_name} {user?.last_name}</span>
+                </div>
+                <div>
+                  <span className="block text-xs text-secondary-450">Email Address</span>
+                  <span className="font-semibold text-secondary-900 dark:text-white">{user?.email}</span>
+                </div>
+                <div>
+                  <span className="block text-xs text-secondary-450">Phone Helpline</span>
+                  <span className="font-semibold text-secondary-900 dark:text-white">{user?.phone || 'Not provided'}</span>
+                </div>
+                <div>
+                  <span className="block text-xs text-secondary-450">User Role</span>
+                  <span className="font-semibold text-secondary-900 dark:text-white capitalize">{user?.role}</span>
+                </div>
+
+                {/* Student Verification Details */}
+                <div className="col-span-2 pt-4 border-t border-secondary-100 dark:border-secondary-800">
+                  <span className="block text-xs font-bold text-secondary-500 uppercase tracking-wider mb-2">Student Verification Status</span>
+                  {user?.student_verification_status === 'approved' ? (
+                    <div className="flex items-center gap-2 text-green-600 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                      <CheckCircle className="w-5 h-5" />
+                      <div>
+                        <p className="font-bold text-sm">Verified Student</p>
+                        <p className="text-xs">ID: {user?.student_id}</p>
+                      </div>
+                    </div>
+                  ) : user?.student_verification_status === 'pending' ? (
+                    <div className="flex items-center gap-2 text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      <div>
+                        <p className="font-bold text-sm">Verification Pending</p>
+                        <p className="text-xs">Your ID ({user?.student_id}) is currently being reviewed.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800/30">
+                      <p className="text-sm text-blue-800 dark:text-blue-300 mb-3">You must verify your student ID to use Layaway, Hire Purchase, and Raffles.</p>
+                      <form onSubmit={handleStudentIdSubmit} className="flex gap-2">
+                        <input 
+                          type="text" 
+                          value={studentIdInput}
+                          onChange={(e) => setStudentIdInput(e.target.value)}
+                          placeholder="Enter Student ID" 
+                          className="flex-1 px-3 py-2 bg-white dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                          required
+                        />
+                        <button 
+                          type="submit" 
+                          disabled={submittingStudentId}
+                          className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
+                        >
+                          {submittingStudentId ? 'Submitting...' : 'Verify'}
+                        </button>
+                      </form>
+                      {user?.student_verification_status === 'rejected' && (
+                        <p className="text-xs text-red-500 mt-2">Your previous submission was rejected. Please try again.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
-                <span className="block text-xs text-secondary-450">Email Address</span>
-                <span className="font-semibold text-secondary-900 dark:text-white">{user?.email}</span>
-              </div>
-              <div>
-                <span className="block text-xs text-secondary-450">Phone Helpline</span>
-                <span className="font-semibold text-secondary-900 dark:text-white">{user?.phone || 'Not provided'}</span>
-              </div>
-              <div>
-                <span className="block text-xs text-secondary-450">User Role</span>
-                <span className="font-semibold text-secondary-900 dark:text-white capitalize">{user?.role}</span>
-              </div>
-            </div>
           </div>
         </section>
 

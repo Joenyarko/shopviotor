@@ -22,9 +22,20 @@ class ProductService
             $images = $data['images'] ?? [];
             unset($data['images']);
 
-            if (empty($data['is_layaway']) || empty($data['layaway_boxes'])) {
-                $data['is_layaway'] = false;
+            $isLayawayOnly = !empty($data['is_layaway']);
+            $isAvailableForLayaway = $isLayawayOnly || !empty($data['available_for_layaway']);
+            $data['is_layaway'] = $isLayawayOnly;
+            $data['available_for_layaway'] = $isAvailableForLayaway;
+            $boxes = $data['layaway_total_boxes'] ?? $data['layaway_boxes'] ?? null;
+            if (!$isAvailableForLayaway || empty($boxes)) {
                 $data['layaway_boxes'] = null;
+                $data['layaway_total_boxes'] = null;
+                $data['layaway_box_price'] = null;
+            } else {
+                $data['layaway_boxes'] = (int) $boxes;
+                $data['layaway_total_boxes'] = (int) $boxes;
+                $price = $data['price'] ?? 0;
+                $data['layaway_box_price'] = $boxes > 0 ? round((float)$price / (int)$boxes, 2) : null;
             }
 
             if (empty($data['available_for_preorder'])) {
@@ -69,9 +80,27 @@ class ProductService
                 $image->delete();
             });
 
-            if (isset($data['is_layaway'])) {
-                if (!$data['is_layaway'] || empty($data['layaway_boxes'])) {
+            if (isset($data['is_layaway']) || isset($data['available_for_layaway']) || isset($data['layaway_total_boxes']) || isset($data['layaway_boxes'])) {
+                if (isset($data['is_layaway'])) {
+                    $data['is_layaway'] = !empty($data['is_layaway']);
+                }
+                if (isset($data['available_for_layaway'])) {
+                    $data['available_for_layaway'] = !empty($data['available_for_layaway']);
+                }
+                if (!empty($data['is_layaway'])) {
+                    $data['available_for_layaway'] = true;
+                }
+                $isLayawayEligible = !empty($data['is_layaway']) || !empty($data['available_for_layaway']) || ($product->is_layaway && !isset($data['is_layaway'])) || ($product->available_for_layaway && !isset($data['available_for_layaway']));
+                $boxes = $data['layaway_total_boxes'] ?? $data['layaway_boxes'] ?? $product->layaway_total_boxes ?? $product->layaway_boxes ?? null;
+                if (!$isLayawayEligible || empty($boxes)) {
                     $data['layaway_boxes'] = null;
+                    $data['layaway_total_boxes'] = null;
+                    $data['layaway_box_price'] = null;
+                } else {
+                    $data['layaway_boxes'] = (int) $boxes;
+                    $data['layaway_total_boxes'] = (int) $boxes;
+                    $price = $data['price'] ?? $product->price ?? 0;
+                    $data['layaway_box_price'] = $boxes > 0 ? round((float)$price / (int)$boxes, 2) : null;
                 }
             }
 

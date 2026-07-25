@@ -19,16 +19,18 @@ class AdminCollectionController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'header_color' => 'nullable|string|in:yellow,black',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
             'sort_order' => 'integer',
             'products' => 'nullable|array',
-            'products.*.id' => 'required|exists:products,id',
+            'products.*.id' => 'required|exists:products,uuid',
             'products.*.sort_order' => 'integer',
         ]);
 
         $collection = Collection::create([
             'title' => $validated['title'],
+            'header_color' => $validated['header_color'] ?? 'yellow',
             'description' => $validated['description'] ?? null,
             'is_active' => $validated['is_active'] ?? false,
             'sort_order' => $validated['sort_order'] ?? 0,
@@ -36,10 +38,13 @@ class AdminCollectionController extends Controller
 
         if (!empty($validated['products'])) {
             $syncData = [];
-            foreach ($validated['products'] as $product) {
-                $syncData[$product['id']] = [
-                    'sort_order' => $product['sort_order'] ?? 0,
-                ];
+            foreach ($validated['products'] as $productData) {
+                $productModel = \App\Models\Product::where('uuid', $productData['id'])->first();
+                if ($productModel) {
+                    $syncData[$productModel->id] = [
+                        'sort_order' => $productData['sort_order'] ?? 0,
+                    ];
+                }
             }
             $collection->products()->sync($syncData);
         }
@@ -56,16 +61,18 @@ class AdminCollectionController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'header_color' => 'nullable|string|in:yellow,black',
             'description' => 'nullable|string',
             'is_active' => 'boolean',
             'sort_order' => 'integer',
             'products' => 'nullable|array',
-            'products.*.id' => 'required|exists:products,id',
+            'products.*.id' => 'required|exists:products,uuid',
             'products.*.sort_order' => 'integer',
         ]);
 
         $collection->update([
             'title' => $validated['title'],
+            'header_color' => $validated['header_color'] ?? 'yellow',
             'description' => $validated['description'] ?? null,
             'is_active' => $validated['is_active'] ?? false,
             'sort_order' => $validated['sort_order'] ?? 0,
@@ -73,10 +80,13 @@ class AdminCollectionController extends Controller
 
         if (isset($validated['products'])) {
             $syncData = [];
-            foreach ($validated['products'] as $product) {
-                $syncData[$product['id']] = [
-                    'sort_order' => $product['sort_order'] ?? 0,
-                ];
+            foreach ($validated['products'] as $productData) {
+                $productModel = \App\Models\Product::where('uuid', $productData['id'])->first();
+                if ($productModel) {
+                    $syncData[$productModel->id] = [
+                        'sort_order' => $productData['sort_order'] ?? 0,
+                    ];
+                }
             }
             $collection->products()->sync($syncData);
         }

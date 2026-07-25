@@ -44,6 +44,14 @@ class LayawayController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $user = $request->user();
+        if (!$user || $user->student_verification_status !== 'approved') {
+            return response()->json([
+                'message' => 'You must have an approved student ID to request a layaway.',
+                'errors' => ['student_id' => ['You must have an approved student ID to request a layaway.']]
+            ], 422);
+        }
+
         $request->validate([
             'product_uuid' => 'required|exists:products,uuid',
         ]);

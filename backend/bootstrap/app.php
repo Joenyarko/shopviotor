@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e, \Illuminate\Http\Request $request) {
+            \Illuminate\Support\Facades\Log::error('Validation error:', $e->errors());
             if ($request->is('api/*')) {
                 return response()->json([
                     'message' => 'The given data was invalid.',

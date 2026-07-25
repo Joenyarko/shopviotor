@@ -1,6 +1,8 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import productService from '../../services/productService';
 import { Plus, Edit2, Trash2, RefreshCw, X, AlertCircle, Tag } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const ICON_OPTIONS = [
   '🛒','📱','💻','👗','🏠','🚗','🐾','📚','⚽','🎮',
@@ -12,6 +14,10 @@ const AdminCategories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(categories.length / itemsPerPage);
+  const paginatedCategories = categories.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   const [editingCat, setEditingCat] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -58,12 +64,13 @@ const AdminCategories = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this category? Products in this category may be affected.')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Delete this category? Products in this category may be affected.', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await productService.adminDeleteCategory(id);
       loadCategories();
     } catch (e) {
-      alert(e.message || 'Failed to delete.');
+      Swal.fire({ text: String(e.message || 'Failed to delete.') });
     }
   };
 
@@ -120,7 +127,7 @@ const AdminCategories = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                {categories.map((cat) => (
+                {paginatedCategories.map((cat) => (
                   <tr key={cat.id || cat.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                     <td className="p-4 text-2xl">{cat.icon || '🛒'}</td>
                     <td className="p-4 font-semibold text-secondary-900 dark:text-white">{cat.name}</td>
@@ -137,6 +144,7 @@ const AdminCategories = () => {
               </tbody>
             </table>
           )}
+          <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}
 

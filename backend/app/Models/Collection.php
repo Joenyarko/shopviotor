@@ -9,6 +9,7 @@ class Collection extends Model
 {
     protected $fillable = [
         'title',
+        'header_color',
         'description',
         'is_active',
         'sort_order',

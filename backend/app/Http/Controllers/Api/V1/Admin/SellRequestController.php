@@ -8,6 +8,7 @@ use App\Models\SellRequest;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Services\SellRequestService;
+use App\Notifications\NewMessageNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -141,6 +142,15 @@ class SellRequestController extends Controller
             'sender_id' => $request->user()->id,
             'body'      => $data['body'],
         ]);
+
+        // Notify the customer
+        if ($sellRequest->user) {
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+            $sellRequest->user->notify(new NewMessageNotification(
+                "Sell Request: {$sellRequest->item_name}",
+                "{$frontendUrl}/profile" // Or the exact dashboard route
+            ));
+        }
 
         $conversation->update([
             'last_message_at' => now(),

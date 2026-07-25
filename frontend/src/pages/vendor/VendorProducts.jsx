@@ -1,7 +1,9 @@
+import Swal from 'sweetalert2';
 import React, { useState, useEffect, useRef } from 'react';
 import vendorService from '../../services/vendorService';
 import productService from '../../services/productService';
 import { Package, Plus, Trash2, RefreshCw, X, Upload, Image as ImageIcon, Edit } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const VendorProducts = () => {
   const [products, setProducts] = useState([]);
@@ -10,6 +12,10 @@ const VendorProducts = () => {
   const [processing, setProcessing] = useState(false);
   const [categories, setCategories] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const paginatedProducts = products.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   // Form state
   const [name, setName] = useState('');
@@ -85,18 +91,19 @@ const VendorProducts = () => {
       resetForm();
       loadProducts();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to save product.');
+      Swal.fire({ text: String(err.response?.data?.message || 'Failed to save product.') });
     } finally {
       setProcessing(false);
     }
   };
 
   const handleDelete = async (uuid) => {
-    if (!window.confirm('Delete this product?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Delete this product?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await vendorService.deleteProduct(uuid);
       loadProducts();
-    } catch (e) { alert('Failed to delete.'); }
+    } catch (e) { Swal.fire({ text: String('Failed to delete.') }); }
   };
 
   return (
@@ -122,8 +129,9 @@ const VendorProducts = () => {
           <button onClick={openAddModal} className="text-primary-600 font-bold hover:underline">Add your first product</button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {products.map(p => (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {paginatedProducts.map(p => (
             <div key={p.uuid} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
               <div className="h-44 bg-secondary-100 dark:bg-secondary-800 relative">
                 {p.primary_image ? (
@@ -147,6 +155,8 @@ const VendorProducts = () => {
               </div>
             </div>
           ))}
+          </div>
+          <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}
 

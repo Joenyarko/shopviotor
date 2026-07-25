@@ -1,5 +1,7 @@
+import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/client';
+import layawayService from '../services/layawayService';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'react-toastify';
 import {
@@ -59,7 +61,8 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
   };
 
   const handleReversePayment = async (paymentUuid) => {
-    if (!window.confirm("Are you sure you want to reverse this payment? This action cannot be undone.")) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: "Are you sure you want to reverse this payment? This action cannot be undone.", icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await layawayService.adminReversePayment(card.uuid, paymentUuid);
       toast.success('Payment reversed successfully');

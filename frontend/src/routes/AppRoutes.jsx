@@ -57,7 +57,7 @@ const AdminRaffles = React.lazy(() => import('../pages/admin/Raffles'));
 const Banners = React.lazy(() => import('../pages/admin/Banners'));
 const AdminReports = React.lazy(() => import('../pages/admin/Reports'));
 const AdminSettings = React.lazy(() => import('../pages/admin/Settings'));
-const AdsManager = React.lazy(() => import('../pages/admin/AdsManager'));
+// const AdsManager = React.lazy(() => import('../pages/admin/AdsManager'));
 const AdminCategories = React.lazy(() => import('../pages/admin/Categories'));
 const AdminBrands = React.lazy(() => import('../pages/admin/Brands'));
 const AdminCampaigns = React.lazy(() => import('../pages/admin/Campaigns'));
@@ -173,7 +173,7 @@ const AppRoutes = () => {
         <Route path="/admin/vendor-stores" element={<VendorStores />} />
         <Route path="/admin/raffles" element={<AdminRaffles />} />
         <Route path="/admin/banners" element={<Banners />} />
-        <Route path="/admin/ads" element={<AdsManager />} />
+        {/* <Route path="/admin/ads" element={<AdsManager />} /> */}
         <Route path="/admin/campaigns" element={<AdminCampaigns />} />
         <Route path="/admin/flash-sales" element={<AdminFlashSales />} />
         <Route path="/admin/collections" element={<AdminCollections />} />

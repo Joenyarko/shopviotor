@@ -97,8 +97,13 @@ export const AuthProvider = ({ children }) => {
     return user && (user.role === 'vendor' || user.role === 'admin' || user.role === 'super_admin');
   };
 
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('viotor_user', JSON.stringify(userData));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAdmin, isVendor, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAdmin, isVendor, updateUser, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );

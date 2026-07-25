@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import React, { useState } from 'react';
 import { BarChart2, Download, RefreshCw } from 'lucide-react';
 
@@ -10,10 +11,10 @@ const Reports = () => {
     e.preventDefault();
     setGenerating(true);
     try {
-      alert('Report generation scheduled. It will download shortly.');
+      Swal.fire({ text: String('Report generation scheduled. It will download shortly.') });
     } catch (e) {
       console.error(e);
-      alert('Failed to generate report.');
+      Swal.fire({ text: String('Failed to generate report.') });
     } finally {
       setGenerating(false);
     }

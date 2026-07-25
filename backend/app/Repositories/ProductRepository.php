@@ -19,6 +19,29 @@ class ProductRepository extends BaseRepository
         if (isset($filters['available_for_trade'])) {
             $query->where('available_for_trade', $filters['available_for_trade']);
         }
+        if (isset($filters['is_preorder'])) {
+            $query->where('available_for_preorder', $filters['is_preorder']);
+        }
+        if (isset($filters['available_for_preorder'])) {
+            $query->where('available_for_preorder', filter_var($filters['available_for_preorder'], FILTER_VALIDATE_BOOLEAN));
+        }
+        if (isset($filters['available_for_layaway'])) {
+            $val = filter_var($filters['available_for_layaway'], FILTER_VALIDATE_BOOLEAN);
+            if ($val) {
+                $query->where(function ($q) {
+                    $q->where('available_for_layaway', true)->orWhere('is_layaway', true);
+                });
+            } else {
+                $query->where(function ($q) {
+                    $q->where('available_for_layaway', false)->where('is_layaway', false);
+                });
+            }
+        } else {
+            $query->where('is_layaway', false);
+        }
+        if (isset($filters['available_for_hire_purchase'])) {
+            $query->where('available_for_hire_purchase', filter_var($filters['available_for_hire_purchase'], FILTER_VALIDATE_BOOLEAN));
+        }
 
         return $query->latest()->paginate($perPage);
     }
@@ -63,7 +86,18 @@ class ProductRepository extends BaseRepository
             $query->where('available_for_preorder', filter_var($filters['available_for_preorder'], FILTER_VALIDATE_BOOLEAN));
         }
         if (isset($filters['available_for_layaway'])) {
-            $query->where('available_for_layaway', filter_var($filters['available_for_layaway'], FILTER_VALIDATE_BOOLEAN));
+            $val = filter_var($filters['available_for_layaway'], FILTER_VALIDATE_BOOLEAN);
+            if ($val) {
+                $query->where(function ($q) {
+                    $q->where('available_for_layaway', true)->orWhere('is_layaway', true);
+                });
+            } else {
+                $query->where(function ($q) {
+                    $q->where('available_for_layaway', false)->where('is_layaway', false);
+                });
+            }
+        } else {
+            $query->where('is_layaway', false);
         }
         if (isset($filters['available_for_hire_purchase'])) {
             $query->where('available_for_hire_purchase', filter_var($filters['available_for_hire_purchase'], FILTER_VALIDATE_BOOLEAN));
@@ -81,17 +115,32 @@ class ProductRepository extends BaseRepository
         return $query->paginate($perPage);
     }
 
-    public function search(string $term, int $perPage = 15)
+    public function search(string $term, int $perPage = 15, array $filters = [])
     {
-        return $this->model->active()
+        $query = $this->model->active()
+            ->where('is_layaway', false)
             ->search($term)
-            ->with(['category', 'brand', 'primaryImage'])
-            ->paginate($perPage);
+            ->with(['category', 'brand', 'primaryImage']);
+            
+        if (!empty($filters['category_id'])) {
+            $categoryIdentifier = $filters['category_id'];
+            $category = \App\Models\Category::where('id', $categoryIdentifier)
+                ->orWhere('slug', $categoryIdentifier)
+                ->first();
+                
+            if ($category) {
+                $categoryIds = array_merge([$category->id], $category->getAllDescendantIds());
+                $query->whereIn('category_id', $categoryIds);
+            }
+        }
+            
+        return $query->paginate($perPage);
     }
 
     public function getFeatured(int $limit = 12)
     {
         return $this->model->featured()
+            ->where('is_layaway', false)
             ->with(['category', 'brand', 'primaryImage'])
             ->limit($limit)
             ->get();

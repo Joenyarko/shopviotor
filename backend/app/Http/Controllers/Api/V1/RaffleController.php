@@ -58,31 +58,58 @@ class RaffleController extends Controller
         ]);
     }
 
-    public function purchaseTicket(PurchaseTicketRequest $request, string $uuid): JsonResponse
+    public function myTickets(Request $request): JsonResponse
     {
-        $raffle = Raffle::where('uuid', $uuid)->active()->firstOrFail();
-        $user   = $request->user();
-        $data   = $request->validated();
-
-        // 1. Initiate Payment
-        $paymentData = $this->paymentService->initiate([
-            'payable_type' => Raffle::class,
-            'payable_id'   => $raffle->id,
-            'user_id'      => $user->id,
-            'email'        => $user->email,
-            'amount'       => $raffle->ticket_price,
-            'method'       => $data['payment_method'],
-            'phone'        => $data['payment_phone'] ?? null,
-            'provider'     => $data['payment_provider'] ?? null,
-        ]);
-
-        // Note: The actual ticket generation ($this->raffleService->purchaseTicket) 
-        // should ideally happen when the payment is verified via webhook/listener.
-        // For synchronous flows or manual transfers, it might be handled differently.
+        $tickets = \App\Models\RaffleTicket::where('user_id', $request->user()->id)
+            ->with(['raffle', 'raffle.product'])
+            ->latest()
+            ->paginate($request->input('per_page', 15));
 
         return response()->json([
-            'message' => 'Payment initiated. Ticket will be generated upon successful payment.',
-            'payment' => $paymentData,
+            'data' => $tickets->items(),
+            'meta' => [
+                'current_page' => $tickets->currentPage(),
+                'last_page'    => $tickets->lastPage(),
+                'total'        => $tickets->total(),
+            ]
+        ]);
+    }
+
+    public function purchaseTicket(PurchaseTicketRequest $request, string $uuid): JsonResponse
+    {
+        $user = $request->user();
+        
+        $raffle = Raffle::where('uuid', $uuid)->active()->firstOrFail();
+        $data   = $request->validated();
+        $quantity = $data['quantity'] ?? 1;
+
+        // Check Max Per User
+        if ($raffle->max_per_user) {
+            $userTotalTickets = \App\Models\RaffleTicket::where('raffle_id', $raffle->id)
+                ->where('user_id', $user->id)
+                ->count();
+            
+            if (($userTotalTickets + $quantity) > $raffle->max_per_user) {
+                return response()->json([
+                    'message' => 'You cannot purchase this many tickets. The maximum allowed per user is ' . $raffle->max_per_user . '. You currently have ' . $userTotalTickets . ' ticket(s).',
+                ], 422);
+            }
+        }
+
+        // 1. For testing purposes, we skip the actual payment gateway redirection
+        // and immediately generate the requested tickets.
+        $tickets = [];
+        
+        for ($i = 0; $i < $quantity; $i++) {
+            $tickets[] = $this->raffleService->purchaseTicket($user->id, $raffle, 'test_ref_' . uniqid());
+        }
+
+        return response()->json([
+            'message' => 'Payment successful (Testing mode). Tickets generated!',
+            'payment' => [
+                'authorization_url' => null, // Skip redirect
+            ],
+            'tickets' => $tickets
         ]);
     }
 }

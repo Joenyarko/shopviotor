@@ -33,9 +33,9 @@ class HirePurchaseController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'product_id'      => ['required', 'exists:products,id'],
+            'product_id'      => ['required', 'string'],
             'deposit_amount'  => ['required', 'numeric', 'min:0'],
-            'duration_months' => ['required', 'integer', 'min:1', 'max:24'],
+            'duration_months' => ['required', 'integer', 'min:1', 'max:120'],
             'notes'           => ['nullable', 'string', 'max:500'],
         ]);
 

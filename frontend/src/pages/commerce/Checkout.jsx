@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../contexts/CartContext';
@@ -14,7 +15,7 @@ const STEPS = ['Address', 'Review', 'Payment'];
 // ─── Paystack popup initialiser ────────────────────────────────────────────────
 const openPaystack = ({ email, amountGHS, reference, onSuccess, onClose }) => {
   if (!window.PaystackPop) {
-    alert('Paystack could not be loaded. Please check your internet connection and try again.');
+    Swal.fire({ text: String('Paystack could not be loaded. Please check your internet connection and try again.') });
     return;
   }
   const handler = window.PaystackPop.setup({

@@ -1,9 +1,11 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useRef, useState } from 'react';
 import productService from '../../services/productService';
 import {
   Plus, Edit2, Trash2, RefreshCw, X, AlertCircle,
   Upload, Image as ImageIcon, PlusCircle, MinusCircle, ChevronLeft, ChevronRight
 } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const MAX_IMAGES = 5;
 
@@ -12,6 +14,10 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const paginatedProducts = products.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -33,6 +39,9 @@ const Products = () => {
   const [isNegotiable, setIsNegotiable] = useState(false);
   const [availableForTrade, setAvailableForTrade] = useState(false);
   const [availableForHp, setAvailableForHp] = useState(false);
+  const [hpInterestRate, setHpInterestRate] = useState('');
+  const [hpMinDeposit, setHpMinDeposit] = useState('');
+  const [hpMaxDuration, setHpMaxDuration] = useState('');
   const [availableForLayaway, setAvailableForLayaway] = useState(false);
   const [layawayTotalBoxes, setLayawayTotalBoxes] = useState('');
   const [availableForPreorder, setAvailableForPreorder] = useState(false);
@@ -72,7 +81,7 @@ const Products = () => {
     setName(''); setPrice(''); setComparePrice(''); setStock('');
     setMainCategoryId(''); setSubCategoryId(''); setSubSubCategoryId(''); setBrandId(''); setCondition('new'); setStatus('active');
     setDescription(''); setIsNegotiable(false); setAvailableForTrade(false);
-    setAvailableForHp(false); setAvailableForLayaway(false); setLayawayTotalBoxes(''); 
+    setAvailableForHp(false); setHpInterestRate(''); setHpMinDeposit(''); setHpMaxDuration(''); setAvailableForLayaway(false); setLayawayTotalBoxes(''); 
     setAvailableForPreorder(false); setPreorderDepositAmount(''); setPreorderExpectedDate('');
     setIsFeatured(false); setExistingImages([]);
     setImageFiles([]); setImagePreviews([]); setActiveImageIdx(0); setVariations([]); setSpecifications([]);
@@ -113,6 +122,9 @@ const Products = () => {
     setIsNegotiable(!!product.is_negotiable);
     setAvailableForTrade(!!product.available_for_trade);
     setAvailableForHp(!!product.available_for_hire_purchase);
+    setHpInterestRate(product.hp_interest_rate || '');
+    setHpMinDeposit(product.hp_min_deposit_percent || '');
+    setHpMaxDuration(product.hp_max_duration_months || '');
     setAvailableForLayaway(!!product.available_for_layaway);
     setLayawayTotalBoxes(product.layaway_total_boxes || '');
     setAvailableForPreorder(!!product.available_for_preorder);
@@ -129,11 +141,12 @@ const Products = () => {
   };
 
   const handleDelete = async (uuid) => {
-    if (!window.confirm('Delete this product permanently?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Delete this product permanently?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await productService.adminDeleteProduct(uuid);
       setProducts(prev => prev.filter(p => p.id !== uuid && p.uuid !== uuid));
-    } catch (e) { alert(e.message || 'Failed to delete.'); }
+    } catch (e) { Swal.fire({ text: String(e.message || 'Failed to delete.') }); }
   };
 
   // --- IMAGE HANDLING ---
@@ -141,7 +154,7 @@ const Products = () => {
     const files = Array.from(e.target.files);
     const totalCount = existingImages.length + imagePreviews.length + files.length;
     if (totalCount > MAX_IMAGES) {
-      alert(`Maximum ${MAX_IMAGES} images allowed.`);
+      Swal.fire({ text: String(`Maximum ${MAX_IMAGES} images allowed.`) });
       return;
     }
     const newPreviews = files.map(file => ({
@@ -203,6 +216,11 @@ const Products = () => {
     formData.append('is_negotiable', isNegotiable ? '1' : '0');
     formData.append('available_for_trade', availableForTrade ? '1' : '0');
     formData.append('available_for_hire_purchase', availableForHp ? '1' : '0');
+    if (availableForHp) {
+      if (hpInterestRate) formData.append('hp_interest_rate', hpInterestRate);
+      if (hpMinDeposit) formData.append('hp_min_deposit_percent', hpMinDeposit);
+      if (hpMaxDuration) formData.append('hp_max_duration_months', hpMaxDuration);
+    }
     formData.append('available_for_layaway', availableForLayaway ? '1' : '0');
     
     if (availableForLayaway && layawayTotalBoxes) {
@@ -276,7 +294,7 @@ const Products = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                {products.map((p) => (
+                {paginatedProducts.map((p) => (
                   <tr key={p.id || p.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
@@ -306,6 +324,7 @@ const Products = () => {
                 ))}
               </tbody>
             </table>
+            <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
           </div>
         </div>
       )}
@@ -444,6 +463,27 @@ const Products = () => {
                       </label>
                     ))}
                   </div>
+
+                  {availableForHp && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 mt-2 bg-blue-50 dark:bg-blue-900/10 rounded-xl border border-blue-200 dark:border-blue-800">
+                      <div className="col-span-1 md:col-span-3">
+                        <p className="text-sm font-bold text-secondary-900 dark:text-white">Hire Purchase Configuration</p>
+                        <p className="text-xs text-secondary-500">Configure custom HP metrics for this specific product.</p>
+                      </div>
+                      <div>
+                        <label className={labelClass}>Interest Rate (%)</label>
+                        <input type="number" step="0.01" min="0" value={hpInterestRate} onChange={e => setHpInterestRate(e.target.value)} className={inputClass} placeholder="e.g. 5" />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Min. Deposit (%)</label>
+                        <input type="number" step="0.01" min="0" value={hpMinDeposit} onChange={e => setHpMinDeposit(e.target.value)} className={inputClass} placeholder="e.g. 20" />
+                      </div>
+                      <div>
+                        <label className={labelClass}>Max Duration (Months)</label>
+                        <input type="number" min="1" max="120" value={hpMaxDuration} onChange={e => setHpMaxDuration(e.target.value)} className={inputClass} placeholder="e.g. 12" />
+                      </div>
+                    </div>
+                  )}
 
                   {availableForLayaway && (
                     <div className="grid grid-cols-2 gap-4 p-4 mt-2 bg-secondary-50 dark:bg-secondary-800 rounded-xl border border-secondary-200 dark:border-secondary-700">

@@ -1,6 +1,8 @@
+import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import vendorService from '../../services/vendorService';
 import { Store, RefreshCw, Eye, Check, Ban, RotateCcw, Edit2 } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const VendorStores = () => {
   const [stores, setStores] = useState([]);
@@ -10,6 +12,10 @@ const VendorStores = () => {
   const [processing, setProcessing] = useState(false);
   const [commissionInput, setCommissionInput] = useState('');
   const [editingCommission, setEditingCommission] = useState(false);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(stores.length / itemsPerPage);
+  const paginatedStores = stores.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   const loadStores = async () => {
     setLoading(true);
@@ -24,24 +30,26 @@ const VendorStores = () => {
   useEffect(() => { loadStores(); }, [activeTab]);
 
   const handleApprove = async (uuid) => {
-    if (!window.confirm('Approve this store and grant vendor role to the owner?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Approve this store and grant vendor role to the owner?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     setProcessing(true);
     try {
       await vendorService.adminApproveStore(uuid);
       setSelectedStore(null);
       loadStores();
-    } catch (e) { alert(e.message || 'Failed.'); }
+    } catch (e) { Swal.fire({ text: String(e.message || 'Failed.') }); }
     finally { setProcessing(false); }
   };
 
   const handleSuspend = async (uuid) => {
-    if (!window.confirm('Suspend this store?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Suspend this store?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     setProcessing(true);
     try {
       await vendorService.adminSuspendStore(uuid);
       setSelectedStore(null);
       loadStores();
-    } catch (e) { alert(e.message || 'Failed.'); }
+    } catch (e) { Swal.fire({ text: String(e.message || 'Failed.') }); }
     finally { setProcessing(false); }
   };
 
@@ -51,7 +59,7 @@ const VendorStores = () => {
       await vendorService.adminRestoreStore(uuid);
       setSelectedStore(null);
       loadStores();
-    } catch (e) { alert(e.message || 'Failed.'); }
+    } catch (e) { Swal.fire({ text: String(e.message || 'Failed.') }); }
     finally { setProcessing(false); }
   };
 
@@ -62,7 +70,7 @@ const VendorStores = () => {
       await vendorService.adminUpdateCommission(uuid, parseFloat(commissionInput));
       setEditingCommission(false);
       loadStores();
-    } catch (e) { alert(e.message || 'Failed.'); }
+    } catch (e) { Swal.fire({ text: String(e.message || 'Failed.') }); }
     finally { setProcessing(false); }
   };
 
@@ -119,7 +127,7 @@ const VendorStores = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                  {stores.map(store => (
+                  {paginatedStores.map(store => (
                     <tr key={store.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                       <td className="p-4">
                         <p className="font-bold text-secondary-900 dark:text-white">{store.name}</p>
@@ -154,6 +162,7 @@ const VendorStores = () => {
                   ))}
                 </tbody>
               </table>
+              <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
             </div>
           )}
         </div>

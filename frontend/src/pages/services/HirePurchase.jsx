@@ -16,22 +16,28 @@ const HirePurchase = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Interest Rates Mock (e.g. 5% interest for 6 months, 10% for 12, etc.)
-  const interestRate = duration <= 6 ? 5 : duration <= 12 ? 10 : 15;
+  // Fetch dynamic HP configurations from the product object
+  const hpInterestRate = targetProduct?.hp_interest_rate ? parseFloat(targetProduct.hp_interest_rate) : 0;
+  const hpMinDepositPercent = targetProduct?.hp_min_deposit_percent ? parseFloat(targetProduct.hp_min_deposit_percent) : 20;
+  const hpMaxDuration = targetProduct?.hp_max_duration_months ? parseInt(targetProduct.hp_max_duration_months) : 12;
+
   const productPrice = targetProduct ? parseFloat(targetProduct.price) : 0;
-  const interestAmount = productPrice * (interestRate / 100);
+  const interestAmount = productPrice * (hpInterestRate / 100);
   const totalFinanced = productPrice + interestAmount;
   
-  // Calculate minimum deposit (e.g. 20% of price)
-  const minDeposit = productPrice * 0.2;
+  // Calculate minimum deposit
+  const minDeposit = productPrice * (hpMinDepositPercent / 100);
   const balanceRemaining = Math.max(0, totalFinanced - deposit);
   const monthlyInstallment = duration > 0 ? balanceRemaining / duration : 0;
 
   useEffect(() => {
     if (targetProduct) {
       setDeposit(Math.round(minDeposit));
+      if (duration > hpMaxDuration) {
+        setDuration(hpMaxDuration);
+      }
     }
-  }, [targetProduct]);
+  }, [targetProduct, minDeposit, hpMaxDuration, duration]);
 
   const handleSubmitAgreement = async (e) => {
     e.preventDefault();
@@ -48,7 +54,7 @@ const HirePurchase = () => {
         product_id: targetProduct.id || targetProduct.uuid,
         deposit_amount: deposit,
         duration_months: duration,
-        interest_rate: interestRate,
+        interest_rate: hpInterestRate,
       };
 
       await hpService.createAgreement(payload);
@@ -235,7 +241,7 @@ const HirePurchase = () => {
                   Installment Period (Months)
                 </label>
                 <div className="grid grid-cols-4 gap-3 mt-2.5">
-                  {[3, 6, 12, 18].map((m) => (
+                  {[3, 6, 12, 18, 24].filter(m => m <= hpMaxDuration).map((m) => (
                     <button
                       key={m}
                       type="button"

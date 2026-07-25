@@ -1,7 +1,9 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState, useRef } from 'react';
 import tradeService from '../../services/tradeService';
 import productService from '../../services/productService';
-import { Scale, X, RefreshCw, Eye, Plus, Image as ImageIcon, Upload, Trash2 } from 'lucide-react';
+import { Scale, X, RefreshCw, Eye, Plus, Image as ImageIcon, Upload, Trash2, Edit } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const TradeRequests = () => {
   const [activeTab, setActiveTab] = useState('requests'); // 'requests' | 'products'
@@ -17,7 +19,15 @@ const TradeRequests = () => {
   // Products State
   const [tradeProducts, setTradeProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [page, setPage] = useState(1);
+  const [prodPage, setProdPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(trades.length / itemsPerPage);
+  const paginatedTrades = trades.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  const totalProdPages = Math.ceil(tradeProducts.length / itemsPerPage);
+  const paginatedTradeProducts = tradeProducts.slice((prodPage - 1) * itemsPerPage, prodPage * itemsPerPage);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null);
   
   // Product Form State
   const [categories, setCategories] = useState([]);
@@ -85,11 +95,11 @@ const TradeRequests = () => {
         item_values: valuations,
         product_value: productValue,
       });
-      alert('Valuation submitted successfully.');
+      Swal.fire({ text: String('Valuation submitted successfully.') });
       setSelectedTrade(null);
       loadTrades();
     } catch (err) {
-      alert(err.message || 'Failed to submit trade valuation.');
+      Swal.fire({ text: String(err.message || 'Failed to submit trade valuation.') });
     } finally {
       setProcessing(false);
     }
@@ -102,7 +112,7 @@ const TradeRequests = () => {
       await tradeService.adminRejectTrade(uuid, reason);
       loadTrades();
     } catch (e) {
-      alert(e.message || 'Failed to reject trade.');
+      Swal.fire({ text: String(e.message || 'Failed to reject trade.') });
     }
   };
 
@@ -117,9 +127,21 @@ const TradeRequests = () => {
   const resetForm = () => {
     setName(''); setPrice(''); setCategoryId(''); setDescription('');
     setImageFile(null); setImagePreview(null);
+    setEditingProductId(null);
   };
 
-  const handleCreateProduct = async (e) => {
+  const handleEditProduct = (p) => {
+    setEditingProductId(p.id || p.uuid);
+    setName(p.name || '');
+    setPrice(p.price || '');
+    setCategoryId(p.category_id || (p.category ? (p.category.id || p.category.uuid) : '') || '');
+    setDescription(p.description || '');
+    setImagePreview(p.primary_image || null);
+    setImageFile(null);
+    setShowAddProductModal(true);
+  };
+
+  const handleSaveProduct = async (e) => {
     e.preventDefault();
     setProcessing(true);
     
@@ -135,23 +157,30 @@ const TradeRequests = () => {
     if (imageFile) formData.append('images[0]', imageFile);
 
     try {
-      await productService.adminCreateProduct(formData);
+      if (editingProductId) {
+        await productService.adminUpdateProduct(editingProductId, formData);
+        Swal.fire({ text: 'Trade product updated successfully.' });
+      } else {
+        await productService.adminCreateProduct(formData);
+        Swal.fire({ text: 'Trade product created successfully.' });
+      }
       setShowAddProductModal(false);
       resetForm();
       loadTradeProducts();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to create product.');
+      Swal.fire({ text: String(err.response?.data?.message || 'Failed to save product.') });
     } finally {
       setProcessing(false);
     }
   };
 
   const handleDeleteProduct = async (uuid) => {
-    if (!window.confirm('Delete this trade product?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Delete this trade product?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await productService.adminDeleteProduct(uuid);
       loadTradeProducts();
-    } catch (e) { alert(e.message || 'Failed to delete.'); }
+    } catch (e) { Swal.fire({ text: String(e.message || 'Failed to delete.') }); }
   };
 
   return (
@@ -208,7 +237,7 @@ const TradeRequests = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                    {trades.map((t) => (
+                    {paginatedTrades.map((t) => (
                       <tr key={t.id || t.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                         <td className="p-4 font-semibold text-secondary-900 dark:text-white">{t.user?.name || 'Customer'}</td>
                         <td className="p-4 text-secondary-700 dark:text-secondary-300">{t.product?.name}</td>
@@ -226,6 +255,7 @@ const TradeRequests = () => {
                     ))}
                   </tbody>
                 </table>
+                <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
               </div>
             )}
           </div>
@@ -293,8 +323,9 @@ const TradeRequests = () => {
               <button onClick={() => setShowAddProductModal(true)} className="mt-4 text-primary-600 font-bold hover:underline">Post the first one</button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {tradeProducts.map(p => (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {paginatedTradeProducts.map(p => (
                 <div key={p.id || p.uuid} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
                   <div className="h-48 bg-secondary-100 dark:bg-secondary-800 relative">
                     {p.primary_image ? (
@@ -307,14 +338,19 @@ const TradeRequests = () => {
                   <div className="p-4 flex-1 flex flex-col">
                     <h3 className="font-bold text-secondary-900 dark:text-white line-clamp-1">{p.name}</h3>
                     <p className="text-primary-600 dark:text-primary-400 font-bold mt-1">GHS {parseFloat(p.price || 0).toLocaleString()}</p>
-                    <div className="mt-auto pt-4 flex justify-end">
-                      <button onClick={() => handleDeleteProduct(p.id || p.uuid)} className="p-2 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/30 rounded-lg">
+                    <div className="mt-auto pt-4 flex justify-end gap-1">
+                      <button onClick={() => handleEditProduct(p)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg" title="Edit Trade Product">
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDeleteProduct(p.id || p.uuid)} className="p-2 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/30 rounded-lg" title="Delete Trade Product">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 </div>
-              ))}
+                ))}
+              </div>
+              <DotPagination currentPage={prodPage} totalPages={totalProdPages} onPageChange={setProdPage} />
             </div>
           )}
         </div>
@@ -326,10 +362,10 @@ const TradeRequests = () => {
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl w-full max-w-lg shadow-2xl relative">
             <button onClick={() => { setShowAddProductModal(false); resetForm(); }} className="absolute top-4 right-4 p-1 rounded-md hover:bg-secondary-100 dark:hover:bg-secondary-800 text-secondary-500"><X className="w-5 h-5" /></button>
             <div className="p-6">
-              <h3 className="font-bold text-xl text-secondary-900 dark:text-white mb-1">Post Tradeable Product</h3>
-              <p className="text-xs text-secondary-500 mb-6">Create a product listing that customers can propose a barter swap for.</p>
+              <h3 className="font-bold text-xl text-secondary-900 dark:text-white mb-1">{editingProductId ? 'Edit Tradeable Product' : 'Post Tradeable Product'}</h3>
+              <p className="text-xs text-secondary-500 mb-6">{editingProductId ? 'Update product details and estimated value.' : 'Create a product listing that customers can propose a barter swap for.'}</p>
               
-              <form onSubmit={handleCreateProduct} className="space-y-4">
+              <form onSubmit={handleSaveProduct} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Product Name</label>
                   <input type="text" required value={name} onChange={e => setName(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500" placeholder="e.g. Samsung Galaxy S23" />
@@ -374,7 +410,7 @@ const TradeRequests = () => {
                 </div>
 
                 <button type="submit" disabled={processing} className="w-full premium-button-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 mt-4">
-                  {processing ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Publish Tradeable Product'}
+                  {processing ? <RefreshCw className="w-5 h-5 animate-spin" /> : (editingProductId ? 'Save Changes' : 'Publish Tradeable Product')}
                 </button>
               </form>
             </div>

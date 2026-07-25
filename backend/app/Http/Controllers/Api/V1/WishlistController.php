@@ -28,9 +28,10 @@ class WishlistController extends Controller
         ]);
     }
 
-    public function toggle(Request $request, int $productId): JsonResponse
+    public function toggle(Request $request, string $productId): JsonResponse
     {
-        $result = $this->wishlistService->toggle($request->user()->id, $productId);
+        $product = \App\Models\Product::where('id', $productId)->orWhere('uuid', $productId)->firstOrFail();
+        $result = $this->wishlistService->toggle($request->user()->id, $product->id);
 
         return response()->json([
             'message'    => "Product {$result['action']} from wishlist.",

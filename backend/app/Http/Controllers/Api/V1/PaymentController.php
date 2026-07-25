@@ -76,4 +76,27 @@ class PaymentController extends Controller
 
         return response()->json(['status' => 'success']);
     }
+
+    public function adminIndex(Request $request): JsonResponse
+    {
+        $payments = \App\Models\Payment::latest()->paginate($request->input('per_page', 20));
+
+        return response()->json([
+            'data' => PaymentResource::collection($payments)->response()->getData(true),
+        ]);
+    }
+
+    public function adminConfirm(Request $request, string $uuid): JsonResponse
+    {
+        $payment = \App\Models\Payment::where('uuid', $uuid)->firstOrFail();
+        $payment->update([
+            'status' => \App\Enums\PaymentStatus::Completed,
+            'paid_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Payment marked as completed.',
+            'data' => new PaymentResource($payment),
+        ]);
+    }
 }

@@ -1,6 +1,8 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import orderService from '../../services/orderService';
 import { RefreshCw, Edit } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -9,6 +11,10 @@ const Orders = () => {
   const [status, setStatus] = useState('');
   const [note, setNote] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(orders.length / itemsPerPage);
+  const paginatedOrders = orders.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   const loadOrders = async () => {
     setLoading(true);
@@ -39,12 +45,12 @@ const Orders = () => {
     setUpdating(true);
     try {
       await orderService.adminUpdateStatus(selectedOrder.id || selectedOrder.uuid, status, note);
-      alert('Order status updated successfully.');
+      Swal.fire({ text: String('Order status updated successfully.') });
       setSelectedOrder(null);
       loadOrders();
     } catch (err) {
       console.error(err);
-      alert(err.message || 'Failed to update order status.');
+      Swal.fire({ text: String(err.message || 'Failed to update order status.') });
     } finally {
       setUpdating(false);
     }
@@ -80,7 +86,7 @@ const Orders = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                  {orders.map((o) => (
+                  {paginatedOrders.map((o) => (
                     <tr key={o.id || o.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                       <td className="p-4 font-semibold text-secondary-900 dark:text-white">#{o.order_number}</td>
                       <td className="p-4 text-secondary-700 dark:text-secondary-300">{o.user?.name || 'Customer'}</td>
@@ -93,6 +99,7 @@ const Orders = () => {
                   ))}
                 </tbody>
               </table>
+              <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
             </div>
           )}
         </div>

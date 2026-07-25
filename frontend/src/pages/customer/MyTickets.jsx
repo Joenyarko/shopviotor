@@ -24,11 +24,44 @@ const MyTickets = () => {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await raffleService.getMyTickets();
-        const data = res.data?.data || res.data || [];
-        setTickets(data.length > 0 ? data : MOCK_TICKETS);
-      } catch {
-        setTickets(MOCK_TICKETS);
+        const res = await raffleService.getMyTickets({ _t: Date.now() });
+        window.__debug_raw_res = res;
+        console.log("MyTickets fetch res:", res);
+        let rawData = res.data?.data || res.data || res || [];
+        console.log("MyTickets rawData:", rawData);
+        
+        // Group tickets by raffle
+        const grouped = rawData.reduce((acc, ticket) => {
+          const rId = ticket.raffle_id || ticket.raffle?.id;
+          if (!acc[rId]) {
+            acc[rId] = {
+              ...ticket,
+              quantity: 1,
+              amount_paid: parseFloat(ticket.amount_paid || 0),
+            };
+          } else {
+            acc[rId].quantity += 1;
+            acc[rId].amount_paid += parseFloat(ticket.amount_paid || 0);
+            if (ticket.is_winner) acc[rId].is_winner = true;
+          }
+          return acc;
+        }, {});
+
+        // Compute status for real data
+        const processedData = Object.values(grouped).map(t => {
+          let status = 'active';
+          const rStatus = t.raffle?.status;
+          if (rStatus === 'completed' || rStatus === 'closed') {
+            status = t.is_winner ? 'won' : 'lost';
+          }
+          return { ...t, status };
+        });
+
+        setTickets(processedData);
+      } catch (e) {
+        console.error(e);
+        window.__debug_error = e.message || e.toString();
+        setTickets([]);
       } finally {
         setLoading(false);
       }
@@ -98,6 +131,12 @@ const MyTickets = () => {
         <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
           <Ticket className="w-12 h-12 mx-auto mb-3 text-secondary-300 opacity-60" />
           <p className="font-semibold text-secondary-600 dark:text-secondary-400">No {filter !== 'all' ? filter : ''} tickets found.</p>
+          {window.__debug_error && (
+            <p className="text-red-500 mt-4 text-xs font-mono">{window.__debug_error}</p>
+          )}
+          {window.__debug_raw_res && (
+             <p className="text-blue-500 mt-2 text-xs font-mono">{JSON.stringify(window.__debug_raw_res).substring(0, 200)}</p>
+          )}
           <Link to="/raffles" className="inline-flex items-center gap-2 mt-4 bg-primary-500 text-secondary-900 font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-primary-600 transition-colors">
             Buy Your First Ticket
           </Link>
@@ -107,7 +146,7 @@ const MyTickets = () => {
           {filtered.map(ticket => {
             const cfg = statusConfig[ticket.status] || statusConfig.active;
             const StatusIcon = cfg.icon;
-            const drawDate = ticket.raffle?.draw_date ? new Date(ticket.raffle.draw_date) : null;
+            const drawDate = ticket.raffle?.drawn_at ? new Date(ticket.raffle.drawn_at) : null;
 
             return (
               <div key={ticket.id} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">

@@ -55,4 +55,22 @@ class AuthController extends Controller
             'user' => new UserResource($request->user()->load('addresses')),
         ]);
     }
+
+    public function submitStudentVerification(Request $request): JsonResponse
+    {
+        $request->validate([
+            'student_id' => 'required|string|max:255|unique:users,student_id,' . $request->user()->id,
+        ]);
+
+        $user = $request->user();
+        $user->update([
+            'student_id' => $request->student_id,
+            'student_verification_status' => 'pending',
+        ]);
+
+        return response()->json([
+            'message' => 'Student ID submitted successfully and is pending approval.',
+            'user' => new UserResource($user),
+        ]);
+    }
 }

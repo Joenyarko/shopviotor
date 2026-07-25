@@ -7,12 +7,12 @@ const formatCurrency = (amount) => {
   return `GHS ${parseFloat(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-const CountdownUnit = ({ value, label }) => (
+const CountdownUnit = ({ value, label, isBlack }) => (
   <div className="flex flex-col items-center">
-    <div className="bg-white dark:bg-secondary-800 text-red-600 dark:text-red-400 font-black text-lg sm:text-xl w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg shadow-sm">
+    <div className={`font-black text-sm sm:text-base w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg shadow-sm ${isBlack ? 'bg-white text-secondary-900' : 'bg-white text-primary-600'}`}>
       {value.toString().padStart(2, '0')}
     </div>
-    <span className="text-[10px] sm:text-xs text-white/80 mt-1 uppercase tracking-wider font-semibold">{label}</span>
+    <span className={`text-[9px] mt-0.5 uppercase tracking-wider font-semibold ${isBlack ? 'text-secondary-300' : 'text-primary-900/80'}`}>{label}</span>
   </div>
 );
 
@@ -24,7 +24,7 @@ const FlashSaleBanner = () => {
     const fetchFlashSales = async () => {
       try {
         const response = await apiClient.get('/marketing/flash-sales/active');
-        const sales = response.data?.data || [];
+        const sales = response?.data?.data || response?.data || (Array.isArray(response) ? response : []);
         if (sales.length > 0) {
           setFlashSale(sales[0]); // Take the first active flash sale
         }
@@ -58,46 +58,47 @@ const FlashSaleBanner = () => {
 
   if (!flashSale || !flashSale.products || flashSale.products.length === 0) return null;
 
+  const isBlack = true; // User requested flash sale title background to be black
+  const headerBgClass = 'bg-secondary-900';
+  const textColorClass = 'text-white';
+  const subTextColorClass = 'text-secondary-300';
+
   return (
-    <section className="mb-12">
+    <section className="mb-12 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800">
       {/* Header Bar */}
-      <div className="bg-gradient-to-r from-red-600 to-red-500 rounded-t-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg relative overflow-hidden">
-        {/* Background decorations */}
-        <div className="absolute -top-12 -right-12 text-red-700/20 rotate-12">
-           <Zap className="w-32 h-32" />
-        </div>
-
+      <div className={`${headerBgClass} py-1 px-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative`}>
         <div className="flex items-center gap-3 relative z-10">
-          <div className="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
-            <Zap className="w-6 h-6 text-white animate-pulse" />
-          </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white italic">{flashSale.title}</h2>
-            <p className="text-red-100 text-sm font-medium">Limited quantities available at these prices</p>
+            <h2 className={`text-sm sm:text-base font-bold ${textColorClass}`}>{flashSale.title}</h2>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 relative z-10">
-          <div className="flex items-center gap-1.5 text-red-100 font-semibold text-sm mr-2 hidden lg:flex">
-             <Clock className="w-4 h-4" /> Ends in:
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="flex items-center gap-2">
+            <div className={`flex items-center gap-1.5 ${textColorClass} font-semibold text-xs hidden lg:flex mr-1`}>
+               <Clock className="w-3.5 h-3.5" /> Ends in:
+            </div>
+            <CountdownUnit value={timeLeft.hours} label="Hrs" isBlack={isBlack} />
+            <span className={`${textColorClass} font-black text-base mb-2.5`}>:</span>
+            <CountdownUnit value={timeLeft.minutes} label="Min" isBlack={isBlack} />
+            <span className={`${textColorClass} font-black text-base mb-2.5`}>:</span>
+            <CountdownUnit value={timeLeft.seconds} label="Sec" isBlack={isBlack} />
           </div>
-          <CountdownUnit value={timeLeft.hours} label="Hrs" />
-          <span className="text-white font-black text-xl mb-4">:</span>
-          <CountdownUnit value={timeLeft.minutes} label="Min" />
-          <span className="text-white font-black text-xl mb-4">:</span>
-          <CountdownUnit value={timeLeft.seconds} label="Sec" />
+          <Link to="/products?flash_sale=true" className={`text-sm font-semibold hover:underline flex items-center gap-1 ${textColorClass}`}>
+            See All &gt;
+          </Link>
         </div>
       </div>
 
       {/* Products Grid */}
-      <div className="bg-white dark:bg-secondary-900 border border-t-0 border-secondary-200 dark:border-secondary-800 rounded-b-2xl p-4 sm:p-6 shadow-sm">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="bg-white dark:bg-secondary-900 p-0">
+        <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar md:grid md:grid-cols-4 lg:grid-cols-6 divide-x md:divide-y-0 divide-secondary-200 dark:divide-secondary-800 border-t border-secondary-200 dark:border-secondary-800">
           {flashSale.products.map(product => {
             const discountPercentage = Math.round(((product.price - product.flash_price) / product.price) * 100);
             const soldPercentage = Math.round((product.stock_sold / product.stock_allocated) * 100);
             
             return (
-              <Link key={product.id} to={`/products/${product.slug}`} className="group block relative border border-secondary-200 dark:border-secondary-800 rounded-xl p-3 sm:p-4 hover:shadow-xl hover:border-red-500/50 transition-all duration-300 bg-white dark:bg-secondary-900 overflow-hidden">
+              <Link key={product.id} to={`/products/${product.slug}`} className="group block relative p-4 hover:shadow-xl transition-all duration-300 bg-white dark:bg-secondary-900 overflow-hidden min-w-[150px] w-[45%] flex-none snap-start md:w-auto md:min-w-0">
                 {/* Discount Badge */}
                 <div className="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm">
                   -{discountPercentage}%

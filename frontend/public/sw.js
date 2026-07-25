@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vte-cache-v1';
+const CACHE_NAME = 'shop-viotor-cache-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -34,7 +34,16 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .catch(() => {
-        return caches.match(event.request);
+        return caches.match(event.request).then((response) => {
+          if (response) {
+            return response;
+          }
+          // If the request is not in the cache, we MUST return a valid Response
+          return new Response(
+            JSON.stringify({ message: "Network error occurred. The server might be down." }),
+            { status: 503, headers: { 'Content-Type': 'application/json' } }
+          );
+        });
       })
   );
 });

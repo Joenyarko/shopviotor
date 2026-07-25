@@ -1,11 +1,17 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../api/client';
 import { Plus, Edit2, Trash2, RefreshCw, X, AlertCircle, Layers, Image as ImageIcon } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const AdminBrands = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(brands.length / itemsPerPage);
+  const paginatedBrands = brands.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   const [editingBrand, setEditingBrand] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -47,12 +53,13 @@ const AdminBrands = () => {
   };
 
   const handleDelete = async (uuid) => {
-    if (!window.confirm('Delete this brand? Products associated with this brand may be affected.')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Delete this brand? Products associated with this brand may be affected.', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await apiClient.delete(`/admin/brands/${uuid}`);
       loadBrands();
     } catch (e) {
-      alert(e.response?.data?.message || e.message || 'Failed to delete.');
+      Swal.fire({ text: String(e.response?.data?.message || e.message || 'Failed to delete.') });
     }
   };
 
@@ -126,7 +133,7 @@ const AdminBrands = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                {brands.map((brand) => (
+                {paginatedBrands.map((brand) => (
                   <tr key={brand.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                     <td className="p-4">
                       {brand.logo ? (
@@ -152,6 +159,7 @@ const AdminBrands = () => {
               </tbody>
             </table>
           )}
+          <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}
 

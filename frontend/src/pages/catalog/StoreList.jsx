@@ -2,11 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import vendorService from '../../services/vendorService';
 import { Store, MapPin, Package, RefreshCw, Search, ArrowRight } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const StoreList = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 9;
+  const filtered = stores.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
+    s.location?.toLowerCase().includes(search.toLowerCase())
+  );
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedStores = filtered.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   useEffect(() => {
     vendorService.getStores()
@@ -14,11 +23,6 @@ const StoreList = () => {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
-
-  const filtered = stores.filter(s =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    s.location?.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
@@ -75,7 +79,7 @@ const StoreList = () => {
         <div>
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mb-4">{filtered.length} store{filtered.length !== 1 ? 's' : ''} found</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map(store => (
+            {paginatedStores.map(store => (
               <Link
                 key={store.uuid}
                 to={`/shops/${store.slug}`}
@@ -122,6 +126,7 @@ const StoreList = () => {
               </Link>
             ))}
           </div>
+          <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}
     </div>

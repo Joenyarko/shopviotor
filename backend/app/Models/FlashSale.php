@@ -9,6 +9,7 @@ class FlashSale extends Model
 {
     protected $fillable = [
         'title',
+        'header_color',
         'start_time',
         'end_time',
         'is_active',

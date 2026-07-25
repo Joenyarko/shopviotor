@@ -89,45 +89,185 @@ class LayawayController extends Controller
         ]);
     }
 
+    public function store(Request $request): JsonResponse
+    {
+        $request->validate([
+            'product_uuid' => 'required|exists:products,uuid',
+            'user_id' => 'nullable|exists:users,id',
+            'first_name' => 'required_without:user_id|string|nullable',
+            'last_name' => 'required_without:user_id|string|nullable',
+            'phone' => 'required_without:user_id|string|nullable',
+            'email' => 'nullable|email',
+            'initial_payment' => 'nullable|numeric|min:0',
+            'payment_method' => 'nullable|string',
+            'notes' => 'nullable|string',
+        ]);
+
+        $product = Product::where('uuid', $request->product_uuid)->firstOrFail();
+
+        $userId = $request->user_id;
+        if (!$userId) {
+            $user = null;
+            if ($request->email) {
+                $user = User::where('email', $request->email)->first();
+            }
+            if (!$user && $request->phone) {
+                $user = User::where('phone', $request->phone)->first();
+            }
+            if (!$user) {
+                $email = $request->email ?: 'guest.' . time() . '.' . rand(100, 999) . '@shopviotor.com';
+                $user = User::create([
+                    'uuid' => \Illuminate\Support\Str::uuid()->toString(),
+                    'first_name' => $request->first_name ?: 'Customer',
+                    'last_name' => $request->last_name ?: 'Layaway',
+                    'phone' => $request->phone,
+                    'email' => $email,
+                    'password' => bcrypt(\Illuminate\Support\Str::random(12)),
+                    'role' => 'customer',
+                ]);
+            }
+            $userId = $user->id;
+        }
+
+        $boxes = $product->layaway_boxes ?? $product->layaway_total_boxes;
+        if (!$boxes || $boxes <= 0) {
+            $boxes = 10;
+        }
+
+        $boxPrice = $product->layaway_box_price ?? ($product->price / $boxes);
+
+        $card = DB::transaction(function () use ($userId, $product, $boxes, $boxPrice, $request) {
+            $card = LayawayCard::create([
+                'uuid' => \Illuminate\Support\Str::uuid()->toString(),
+                'user_id' => $userId,
+                'product_id' => $product->id,
+                'total_boxes' => $boxes,
+                'box_price' => $boxPrice,
+                'status' => 'active',
+            ]);
+
+            if ($request->initial_payment > 0) {
+                $amount = (float) $request->initial_payment;
+                $boxesCovered = (int) round($amount / $boxPrice);
+                if ($boxesCovered <= 0) $boxesCovered = 1;
+
+                $card->payments()->create([
+                    'uuid' => \Illuminate\Support\Str::uuid()->toString(),
+                    'amount' => $amount,
+                    'boxes_covered' => $boxesCovered,
+                    'payment_method' => $request->payment_method ?: 'cash',
+                    'reference' => 'ADMIN-INIT-' . strtoupper(uniqid()),
+                    'notes' => $request->notes ?: 'Initial deposit / Cash payment',
+                    'color_code' => '#eab308',
+                ]);
+
+                if ($boxesCovered >= $card->total_boxes) {
+                    $card->update(['status' => 'completed']);
+                }
+            }
+
+            return $card;
+        });
+
+        return response()->json([
+            'message' => 'Customer layaway plan created successfully.',
+            'data' => ['uuid' => $card->uuid]
+        ], 201);
+    }
+
     public function sales(Request $request): JsonResponse
     {
-        $query = LayawayPayment::with(['layawayCard.user:id,first_name,last_name', 'layawayCard.product:id,name']);
+        $perPage = $request->input('per_page', 15);
         
-        $perPage = $request->input('per_page', 20);
-        $payments = $query->orderBy('created_at', 'desc')->paginate($perPage);
-
-        $formatted = collect($payments->items())->map(function($payment) {
-            return [
-                'uuid' => $payment->uuid,
-                'amount' => (float) $payment->amount,
-                'boxes_covered' => $payment->boxes_covered,
-                'payment_method' => $payment->payment_method,
-                'reference' => $payment->reference,
-                'customer_name' => $payment->layawayCard->user->full_name ?? 'Unknown',
-                'product_name' => $payment->layawayCard->product->name ?? 'Unknown',
-                'created_at' => $payment->created_at->toISOString(),
-            ];
+        $userQuery = User::whereHas('layawayCards.payments', function($q) use ($request) {
+            if ($request->start_date) {
+                $q->whereDate('created_at', '>=', $request->start_date);
+            }
+            if ($request->end_date) {
+                $q->whereDate('created_at', '<=', $request->end_date);
+            }
         });
+
+        if ($request->search) {
+            $search = $request->search;
+            $userQuery->where(function($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere(DB::raw("CONCAT(first_name, ' ', last_name)"), 'like', "%{$search}%")
+                  ->orWhereHas('layawayCards.product', function($pq) use ($search) {
+                      $pq->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $users = $userQuery->with([
+            'layawayCards.product:id,name',
+            'layawayCards.payments' => function($q) use ($request) {
+                if ($request->start_date) {
+                    $q->whereDate('created_at', '>=', $request->start_date);
+                }
+                if ($request->end_date) {
+                    $q->whereDate('created_at', '<=', $request->end_date);
+                }
+                $q->orderBy('created_at', 'desc');
+            }
+        ])->paginate($perPage);
+
+        $formatted = collect($users->items())->map(function($user) {
+            $allPayments = collect();
+            foreach ($user->layawayCards as $card) {
+                foreach ($card->payments as $payment) {
+                    $allPayments->push([
+                        'uuid' => $payment->uuid,
+                        'amount' => (float) $payment->amount,
+                        'boxes_covered' => $payment->boxes_covered,
+                        'payment_method' => $payment->payment_method,
+                        'reference' => $payment->reference,
+                        'product_name' => $card->product->name ?? 'Unknown Product',
+                        'created_at' => $payment->created_at->toISOString(),
+                    ]);
+                }
+            }
+
+            $allPayments = $allPayments->sortByDesc('created_at')->values();
+            $uniqueProducts = $allPayments->pluck('product_name')->unique()->values()->implode(', ');
+
+            return [
+                'customer_uuid' => $user->uuid,
+                'customer_name' => $user->full_name ?? trim($user->first_name . ' ' . $user->last_name),
+                'customer_email' => $user->email,
+                'customer_phone' => $user->phone_number ?? '—',
+                'products_list' => $uniqueProducts ?: '—',
+                'total_amount' => (float) $allPayments->sum('amount'),
+                'total_boxes' => (int) $allPayments->sum('boxes_covered'),
+                'payments_count' => (int) $allPayments->count(),
+                'latest_payment_date' => $allPayments->first()['created_at'] ?? null,
+                'payments' => $allPayments,
+            ];
+        })->filter(function($item) {
+            return $item['payments_count'] > 0;
+        })->values();
 
         return response()->json([
             'data' => $formatted,
             'meta' => [
-                'current_page' => $payments->currentPage(),
-                'last_page' => $payments->lastPage(),
-                'total' => $payments->total(),
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'total' => $users->total(),
             ]
         ]);
     }
 
     public function inventory(Request $request): JsonResponse
     {
-        $query = Product::select('id', 'uuid', 'name', 'price', 'stock_quantity', 'available_for_layaway', 'is_layaway');
+        $query = Product::with(['category:id,uuid,name', 'images']);
         
         if ($request->search) {
             $query->where('name', 'like', "%{$request->search}%");
         }
 
-        if ($request->status === 'layaway') {
+        if ($request->status !== 'all') {
             $query->where(function($q) {
                 $q->where('is_layaway', true)->orWhere('available_for_layaway', true);
             });
@@ -137,11 +277,17 @@ class LayawayController extends Controller
 
         $formatted = collect($products->items())->map(function($product) {
             return [
+                'id' => $product->id,
                 'uuid' => $product->uuid,
                 'name' => $product->name,
                 'price' => (float) $product->price,
                 'stock' => $product->stock_quantity,
-                'is_layaway' => (bool) ($product->is_layaway || $product->available_for_layaway)
+                'is_layaway' => (bool) ($product->is_layaway || $product->available_for_layaway),
+                'description' => $product->description,
+                'category_id' => $product->category_id,
+                'category' => $product->category ? ['id' => $product->category->id, 'uuid' => $product->category->uuid, 'name' => $product->category->name] : null,
+                'layaway_boxes' => $product->layaway_boxes ?? $product->layaway_total_boxes ?? 10,
+                'primary_image' => $product->images->where('is_primary', true)->first()->image_url ?? ($product->images->first()->image_url ?? null),
             ];
         });
 

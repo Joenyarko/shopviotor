@@ -47,4 +47,30 @@ class UserController extends Controller
             'is_active' => $user->is_active,
         ]);
     }
+
+    public function pendingStudentVerifications(Request $request): JsonResponse
+    {
+        $users = \App\Models\User::where('student_verification_status', 'pending')
+            ->latest()
+            ->paginate($request->input('per_page', 15));
+
+        return response()->json([
+            'data' => UserResource::collection($users)->response()->getData(true),
+        ]);
+    }
+
+    public function approveStudentVerification(string $uuid, Request $request): JsonResponse
+    {
+        $request->validate([
+            'status' => ['required', 'in:approved,rejected'],
+        ]);
+
+        $user = $this->userRepo->findByUuid($uuid);
+        $user->update(['student_verification_status' => $request->status]);
+
+        return response()->json([
+            'message' => 'Student verification status updated successfully.',
+            'data' => new UserResource($user),
+        ]);
+    }
 }

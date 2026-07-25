@@ -1,9 +1,10 @@
+import Swal from 'sweetalert2';
 import React, { useState } from 'react';
 useTheme
 import { Settings as SettingsIcon, Save, RefreshCw } from 'lucide-react';
 
 const Settings = () => {
-  const [siteName, setSiteName] = useState('VTE Marketplace');
+  const [siteName, setSiteName] = useState('Shop Viotor');
   const [momoTax, setMomoTax] = useState('1.0');
   const [saving, setSaving] = useState(false);
 
@@ -11,10 +12,10 @@ const Settings = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      alert('Global settings saved successfully.');
+      Swal.fire({ text: String('Global settings saved successfully.') });
     } catch (e) {
       console.error(e);
-      alert('Failed to save settings.');
+      Swal.fire({ text: String('Failed to save settings.') });
     } finally {
       setSaving(false);
     }

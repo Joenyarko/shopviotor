@@ -1,15 +1,22 @@
+import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../api/client';
 import productService from '../../services/productService';
 import { Plus, Edit2, Trash2, RefreshCw, X, Search, CheckCircle } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const FlashSales = () => {
   const [flashSales, setFlashSales] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(flashSales.length / itemsPerPage);
+  const paginatedFlashSales = flashSales.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   
   const [title, setTitle] = useState('');
+  const [headerColor, setHeaderColor] = useState('yellow');
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [isActive, setIsActive] = useState(true);
@@ -19,6 +26,8 @@ const FlashSales = () => {
 
   // Product Search State
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [categories, setCategories] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
 
@@ -26,25 +35,33 @@ const FlashSales = () => {
     setLoading(true);
     try {
       const res = await apiClient.get('/admin/marketing/flash-sales');
-      setFlashSales(res.data?.data || []);
+      setFlashSales(res.data?.data || res.data || []);
     } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchFlashSales(); }, []);
+  const loadCategories = async () => {
+    try {
+      const catRes = await productService.getCategories();
+      setCategories(catRes.data?.data?.data || catRes.data?.data || catRes.data || []);
+    } catch (e) { console.error('Failed to load categories', e); }
+  };
+
+  useEffect(() => { fetchFlashSales(); loadCategories(); }, []);
 
   const handleSearchProduct = async () => {
-    if (!searchTerm.trim()) return;
+    if (!searchTerm.trim() && !selectedCategory) return;
     setSearching(true);
     try {
-      const res = await productService.getProducts({ q: searchTerm, per_page: 10 });
+      const res = await productService.searchProducts(searchTerm || '', { category_id: selectedCategory, per_page: 20 });
       setSearchResults(res.data?.data || res.data || []);
     } catch (e) { console.error(e); } finally { setSearching(false); }
   };
 
   const handleAddProduct = (product) => {
-    if (!selectedProducts.find(p => p.id === product.id)) {
+    const pId = product.uuid || product.id;
+    if (!selectedProducts.find(p => p.id === pId)) {
       setSelectedProducts(prev => [...prev, {
-        id: product.id,
+        id: pId,
         name: product.name,
         original_price: product.price,
         flash_price: product.price,
@@ -65,11 +82,12 @@ const FlashSales = () => {
     if (fs) {
       setEditing(fs);
       setTitle(fs.title);
+      setHeaderColor(fs.header_color || 'yellow');
       setStartTime(new Date(fs.start_time).toISOString().slice(0, 16));
       setEndTime(new Date(fs.end_time).toISOString().slice(0, 16));
       setIsActive(fs.is_active);
       setSelectedProducts(fs.products.map(p => ({
-        id: p.id,
+        id: p.uuid || p.id,
         name: p.name,
         original_price: p.price,
         flash_price: p.pivot.flash_price,
@@ -77,7 +95,7 @@ const FlashSales = () => {
       })));
     } else {
       setEditing(null);
-      setTitle(''); setStartTime(''); setEndTime(''); setIsActive(true); setSelectedProducts([]);
+      setTitle(''); setHeaderColor('yellow'); setStartTime(''); setEndTime(''); setIsActive(true); setSelectedProducts([]);
     }
     setSearchTerm(''); setSearchResults([]);
     setModalOpen(true);
@@ -88,7 +106,11 @@ const FlashSales = () => {
     setSubmitting(true);
     
     const payload = {
-      title, start_time: startTime, end_time: endTime, is_active: isActive,
+      title,
+      header_color: headerColor,
+      start_time: new Date(startTime).toISOString(),
+      end_time: new Date(endTime).toISOString(),
+      is_active: isActive,
       products: selectedProducts.map(p => ({
         id: p.id, flash_price: parseFloat(p.flash_price), stock_allocated: parseInt(p.stock_allocated)
       }))
@@ -103,18 +125,19 @@ const FlashSales = () => {
       setModalOpen(false);
       fetchFlashSales();
     } catch (err) {
-      alert(err.response?.data?.message || err.message);
+      Swal.fire({ text: String(err.response?.data?.message || err.message) });
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (uuid) => {
-    if (!window.confirm('Delete this flash sale?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Delete this flash sale?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await apiClient.delete(`/admin/marketing/flash-sales/${uuid}`);
       fetchFlashSales();
-    } catch (err) { alert('Failed to delete'); }
+    } catch (err) { Swal.fire({ text: String('Failed to delete') }); }
   };
 
   return (
@@ -144,7 +167,7 @@ const FlashSales = () => {
               </tr>
             </thead>
             <tbody>
-              {flashSales.map(fs => (
+              {paginatedFlashSales.map(fs => (
                 <tr key={fs.uuid} className="border-b border-secondary-100 last:border-0 hover:bg-secondary-50">
                   <td className="p-4 font-bold">{fs.title}</td>
                   <td className="p-4 text-xs text-secondary-500 dark:text-secondary-400">
@@ -166,6 +189,7 @@ const FlashSales = () => {
               ))}
             </tbody>
           </table>
+          <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}
 
@@ -184,6 +208,13 @@ const FlashSales = () => {
                 <div>
                   <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Title *</label>
                   <input required type="text" value={title} onChange={e=>setTitle(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Header Color *</label>
+                  <select value={headerColor} onChange={e=>setHeaderColor(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50">
+                    <option value="yellow">Yellow</option>
+                    <option value="black">Black</option>
+                  </select>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Start Time *</label>
@@ -205,11 +236,19 @@ const FlashSales = () => {
                 
                 {/* Search */}
                 <div className="flex gap-2">
+                  <select 
+                    value={selectedCategory} 
+                    onChange={e => setSelectedCategory(e.target.value)}
+                    className="w-1/3 p-2 border border-secondary-300 rounded-lg text-sm"
+                  >
+                    <option value="">All Categories</option>
+                    {categories.map(c => <option key={c.id || c.uuid} value={c.id}>{c.name}</option>)}
+                  </select>
                   <input 
                     type="text" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} 
                     onKeyDown={e => e.key === 'Enter' && handleSearchProduct()}
-                    placeholder="Search by product name..." 
-                    className="flex-grow p-2 border border-secondary-300 rounded-lg text-sm" 
+                    placeholder="Search by name..." 
+                    className="flex-grow w-2/3 p-2 border border-secondary-300 rounded-lg text-sm" 
                   />
                   <button type="button" onClick={handleSearchProduct} className="bg-secondary-100 p-2 rounded-lg text-secondary-700 dark:text-secondary-200 hover:bg-secondary-200">
                     {searching ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}

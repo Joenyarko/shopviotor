@@ -23,8 +23,14 @@ class Product extends Model
         'is_featured',
         'is_negotiable',
         'available_for_hire_purchase',
+        'hp_interest_rate',
+        'hp_min_deposit_percent',
+        'hp_max_duration_months',
         'is_layaway',
+        'available_for_layaway',
         'layaway_boxes',
+        'layaway_total_boxes',
+        'layaway_box_price',
         'available_for_trade',
         'available_for_preorder',
         'preorder_deposit_amount',
@@ -47,6 +53,7 @@ class Product extends Model
             'available_for_hire_purchase' => 'boolean',
             'available_for_trade'         => 'boolean',
             'is_layaway'                  => 'boolean',
+            'available_for_layaway'       => 'boolean',
             'specifications'              => 'array',
             'tags'                        => 'array',
             'status'                      => ProductStatus::class,
@@ -72,6 +79,9 @@ class Product extends Model
 
     public function scopeSearch($query, string $term)
     {
+        if (empty(trim($term))) {
+            return $query;
+        }
         return $query->whereFullText(['name', 'description'], $term)
             ->orWhere('name', 'like', "%{$term}%");
     }

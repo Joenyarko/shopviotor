@@ -35,84 +35,65 @@ function RaffleCard({ raffle }) {
   const progress = raffle.max_tickets
     ? Math.min(((raffle.tickets_sold || 0) / raffle.max_tickets) * 100, 100)
     : 0;
-  const countdown = useCountdown(raffle.draw_date);
   const isFull = progress >= 100;
 
   return (
     <Link
       to={`/raffles/${raffle.uuid || raffle.id}`}
-      className="group flex flex-col bg-[#0f172a] border border-white/10 rounded-2xl overflow-hidden shadow-lg hover:shadow-primary-500/20 hover:-translate-y-1 transition-all duration-300"
+      className="group flex flex-col bg-white border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
     >
-      {/* Image */}
-      <div className="relative aspect-video overflow-hidden bg-secondary-800">
+      {/* Image Container (White Background) */}
+      <div className="relative h-48 sm:h-56 bg-white flex items-center justify-center p-6">
         <img
           src={raffle.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=60'}
           alt={raffle.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=60'; }}
         />
-        {/* Category badge */}
-        {raffle.category && (
-          <span className="absolute top-3 left-3 bg-secondary-800/80 backdrop-blur-sm text-white text-xxs font-bold uppercase px-2.5 py-1 rounded-full flex items-center gap-1 border border-white/10">
-            <Sparkles className="w-3 h-3 text-primary-400" /> {raffle.category}
-          </span>
-        )}
-        {isFull && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="bg-primary-500 text-white font-bold px-4 py-2 rounded-full text-sm">Draw Pending</span>
-          </div>
-        )}
+        {/* Share Icon Placeholder */}
+        <div className="absolute top-3 right-3 bg-slate-100 rounded-full p-2 text-secondary-500 dark:text-secondary-400 hover:text-slate-600 transition-colors">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+        </div>
       </div>
 
-      {/* Body */}
-      <div className="flex-1 flex flex-col p-5 space-y-3">
-        <h3 className="font-bold text-white text-sm leading-snug line-clamp-2 group-hover:text-primary-300 transition-colors">{raffle.title}</h3>
+      {/* Body (Dark Navy Background) */}
+      <div className="flex-1 flex flex-col bg-white dark:bg-secondary-900 p-5">
+        {/* Category Badge */}
+        {raffle.category && (
+          <div className="inline-flex items-center gap-1.5 bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md w-fit mb-3">
+            <span className="w-2.5 h-2.5 bg-primary-500 rounded-sm"></span> {raffle.category}
+          </div>
+        )}
+        
+        <h3 className="font-extrabold text-secondary-900 dark:text-white text-sm leading-snug line-clamp-2 group-hover:text-primary-600 dark:text-primary-400 transition-colors mb-2">{raffle.title}</h3>
+        
         {raffle.description && (
-          <p className="text-secondary-400 text-xs line-clamp-2 leading-relaxed">{raffle.description}</p>
+          <p className="text-secondary-500 dark:text-secondary-400 text-xs line-clamp-2 leading-relaxed mb-4">{raffle.description}</p>
         )}
 
-        {/* Progress */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-xxs text-secondary-400 font-medium">
-            <span className="flex items-center gap-1"><Ticket className="w-3 h-3" /> {raffle.tickets_sold || 0} Tickets Sold</span>
-            <span>{raffle.max_tickets ? `${raffle.max_tickets} Total` : 'Unlimited'}</span>
+        <div className="mt-auto space-y-2">
+          <div className="flex justify-between text-[11px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider mb-2">
+            <span>Tickets Sold</span>
+            <span>{raffle.tickets_sold || 0}/{raffle.max_tickets || '∞'}</span>
           </div>
-          <div className="w-full bg-secondary-800 h-2 rounded-full overflow-hidden">
+          <div className="w-full bg-secondary-100 dark:bg-secondary-800 h-1.5 overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-700 ${isFull ? 'bg-accent-500' : 'bg-primary-500'}`}
+              className={`h-full transition-all duration-700 ${isFull ? 'bg-primary-500' : 'bg-gradient-to-r from-primary-600 to-primary-400'}`}
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="text-xxs text-secondary-500 dark:text-secondary-400 text-right">{progress.toFixed(1)}% filled</p>
+          {raffle.ends_at && (
+            <div className="mt-2 text-[10px] font-bold text-secondary-400 uppercase">
+              Ends: {new Date(raffle.ends_at).toLocaleDateString()}
+            </div>
+          )}
         </div>
-
-        {/* Countdown */}
-        {raffle.draw_date && !isFull && (
-          <div className="grid grid-cols-4 gap-1.5 pt-1">
-            {[
-              { val: countdown.d, label: 'Days' },
-              { val: countdown.h, label: 'Hrs' },
-              { val: countdown.m, label: 'Min' },
-              { val: countdown.s, label: 'Sec' },
-            ].map(({ val, label }) => (
-              <div key={label} className="text-center bg-secondary-800 rounded-lg p-1.5">
-                <div className="text-white font-bold text-sm tabular-nums">{String(val).padStart(2, '0')}</div>
-                <div className="text-secondary-500 dark:text-secondary-400 text-xxs">{label}</div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Footer */}
-      <div className="px-5 pb-5 flex items-center justify-between">
-        <div>
-          <p className="text-xxs text-secondary-500 dark:text-secondary-400 font-semibold uppercase">Ticket Price</p>
-          <p className="text-primary-400 font-extrabold text-lg">GHS {parseFloat(raffle.ticket_price || 0).toFixed(2)}</p>
-        </div>
-        <div className="flex items-center gap-1.5 bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold text-xs px-4 py-2.5 rounded-xl transition-colors">
-          Buy Tickets <ArrowRight className="w-3.5 h-3.5" />
-        </div>
+      <div className="bg-secondary-50 dark:bg-secondary-950 px-5 py-3 border-t border-secondary-200 dark:border-secondary-800">
+        <p className="text-[10px] text-secondary-400 dark:text-secondary-500 font-bold uppercase tracking-widest mb-0.5">Ticket Price</p>
+        <p className="text-amber-400 font-extrabold text-lg">GHS {parseFloat(raffle.ticket_price || 0).toFixed(2)}</p>
       </div>
     </Link>
   );
@@ -136,14 +117,14 @@ function WinnerCard({ winner, index }) {
     <div className="relative rounded-2xl overflow-hidden flex-shrink-0 w-56">
       <div className={`bg-gradient-to-br ${grad} aspect-[3/4] flex flex-col items-center justify-center`}>
         <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center mb-3">
-          <Trophy className="w-8 h-8 text-white/80" />
+          <Trophy className="w-8 h-8 text-secondary-900 dark:text-white/80" />
         </div>
         <span className="absolute top-3 left-3 bg-primary-500 text-secondary-900 text-xxs font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
           🏆 Winner
         </span>
       </div>
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4">
-        <p className="text-white font-bold text-sm truncate">{winner.user_name || winner.user?.name || 'Lucky Winner'}</p>
+        <p className="text-secondary-900 dark:text-white font-bold text-sm truncate">{winner.user_name || winner.user?.name || 'Lucky Winner'}</p>
         <p className="text-secondary-300 text-xs line-clamp-1">Won {winner.raffle_title || winner.raffle?.title || 'a prize'}</p>
         <div className="flex items-center justify-between mt-1">
           <span className="text-primary-400 font-bold text-sm">GHS {parseFloat(winner.ticket_price || winner.amount_paid || 0).toFixed(2)}</span>
@@ -210,7 +191,7 @@ const Raffles = () => {
           <span className="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 text-primary-400 text-xs font-bold uppercase px-4 py-1.5 rounded-full tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Live Raffles — Play & Win
           </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-secondary-900 dark:text-white leading-tight">
             Win <span className="text-primary-400">Premium</span> Prizes<br />
             for Just a Few Cedis!
           </h1>
@@ -222,7 +203,7 @@ const Raffles = () => {
             <Link to="#active-raffles" className="bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold px-8 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm shadow-lg shadow-primary-500/30">
               <Ticket className="w-5 h-5" /> Browse Active Raffles
             </Link>
-            <Link to="/raffles/winners" className="border border-white/20 text-white hover:bg-white/10 font-semibold px-6 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm">
+            <Link to="/raffles/winners" className="border border-white/20 text-secondary-900 dark:text-white hover:bg-white/10 font-semibold px-6 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm">
               <Trophy className="w-5 h-5" /> View All Winners
             </Link>
           </div>
@@ -237,7 +218,7 @@ const Raffles = () => {
               <div key={label} className="text-center">
                 <div className="flex items-center justify-center gap-1.5 text-primary-400 mb-1">
                   <Icon className="w-4 h-4" />
-                  <span className="text-2xl font-extrabold text-white">{val}</span>
+                  <span className="text-2xl font-extrabold text-secondary-900 dark:text-white">{val}</span>
                 </div>
                 <p className="text-secondary-500 dark:text-secondary-400 text-xs">{label}</p>
               </div>
@@ -250,7 +231,7 @@ const Raffles = () => {
       <div className="bg-white dark:bg-secondary-950 px-6 py-14">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-secondary-900 dark:text-white">How It Works</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-secondary-900 dark:text-secondary-900 dark:text-white">How It Works</h2>
             <p className="text-secondary-500 dark:text-secondary-400 mt-2 text-sm">Simple, transparent, and secure. Three steps to your dream prize.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -261,10 +242,10 @@ const Raffles = () => {
             ].map(({ num, icon: Icon, color, title, desc }) => (
               <div key={num} className="relative bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
                 <div className={`${color} w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-md`}>
-                  <Icon className="w-7 h-7 text-white" />
+                  <Icon className="w-7 h-7 text-secondary-900 dark:text-white" />
                 </div>
                 <span className="absolute top-3 right-4 text-5xl font-extrabold text-secondary-100 dark:text-secondary-800 dark:text-secondary-100 select-none">{num}</span>
-                <h3 className="font-bold text-secondary-900 dark:text-white">{title}</h3>
+                <h3 className="font-bold text-secondary-900 dark:text-secondary-900 dark:text-white">{title}</h3>
                 <p className="text-secondary-500 dark:text-secondary-400 text-xs mt-2 leading-relaxed">{desc}</p>
               </div>
             ))}
@@ -277,7 +258,7 @@ const Raffles = () => {
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-2xl md:text-3xl font-extrabold text-white">Active Raffles</h2>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-secondary-900 dark:text-white">Active Raffles</h2>
               <p className="text-secondary-400 text-sm mt-1">Exclusive raffles — bigger prizes, better chances!</p>
             </div>
           </div>
@@ -308,7 +289,7 @@ const Raffles = () => {
         <div className="bg-secondary-900 px-6 py-14">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-white">Recent Winners</h2>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-secondary-900 dark:text-white">Recent Winners</h2>
               <p className="text-secondary-400 text-sm mt-2 max-w-lg mx-auto">
                 Real people, real prizes, real joy. See who's been lucky recently and get inspired to play your next winning ticket.
               </p>
@@ -322,7 +303,7 @@ const Raffles = () => {
             </div>
 
             <div className="text-center mt-8">
-              <Link to="/raffles/winners" className="inline-flex items-center gap-2 border border-white/20 text-white hover:bg-white/10 font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
+              <Link to="/raffles/winners" className="inline-flex items-center gap-2 border border-white/20 text-secondary-900 dark:text-white hover:bg-white/10 font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
                 View All Winners <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -335,7 +316,7 @@ const Raffles = () => {
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-extrabold text-secondary-900 mb-3">Ready to Win Your Next Prize?</h2>
           <p className="text-secondary-800 dark:text-secondary-100 text-sm mb-6">Join thousands of winners. Every ticket is your chance to change your story.</p>
-          <Link to="#active-raffles" className="inline-flex items-center gap-2 bg-secondary-900 text-white hover:bg-secondary-800 font-bold px-8 py-3.5 rounded-2xl transition-colors text-sm">
+          <Link to="#active-raffles" className="inline-flex items-center gap-2 bg-secondary-900 text-secondary-900 dark:text-white hover:bg-secondary-800 font-bold px-8 py-3.5 rounded-2xl transition-colors text-sm">
             <Ticket className="w-5 h-5" /> Buy Tickets Now
           </Link>
         </div>

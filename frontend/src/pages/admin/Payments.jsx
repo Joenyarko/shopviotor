@@ -1,10 +1,16 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import adminService from '../../api/client';
 import { RefreshCw, CheckCircle } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(payments.length / itemsPerPage);
+  const paginatedPayments = payments.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -28,12 +34,13 @@ const Payments = () => {
   }, []);
 
   const handleConfirmManual = async (uuid) => {
-    if (!window.confirm('Confirm manual receipt of bank transfer?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Confirm manual receipt of bank transfer?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await adminService.post(`/admin/payments/${uuid}/confirm`);
       fetchPayments();
     } catch (e) {
-      alert(e.message || 'Verification failed.');
+      Swal.fire({ text: String(e.message || 'Verification failed.') });
     }
   };
 
@@ -64,7 +71,7 @@ const Payments = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-              {payments.map((p) => (
+              {paginatedPayments.map((p) => (
                 <tr key={p.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                   <td className="p-4 font-semibold text-secondary-900 dark:text-white">{p.reference}</td>
                   <td className="p-4 text-secondary-700 dark:text-secondary-300 capitalize">{p.method}</td>
@@ -90,6 +97,7 @@ const Payments = () => {
               ))}
             </tbody>
           </table>
+          <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}
     </div>

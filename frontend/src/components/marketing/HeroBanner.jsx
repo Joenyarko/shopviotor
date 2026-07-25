@@ -1,28 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import bannerService from '../../services/bannerService';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const HeroBanner = ({ position, fallbackContent }) => {
-  const [banner, setBanner] = useState(null);
+  const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    const fetchBanner = async () => {
+    const fetchBanners = async () => {
       try {
         setLoading(true);
         const res = await bannerService.getBanners({ position });
-        if (res.data?.data?.length > 0) {
-          // Select the first active banner for this position
-          setBanner(res.data.data[0]);
-        }
+        const data = res.data || res || [];
+        setBanners(data);
       } catch (error) {
-        console.error('Failed to load banner for position:', position, error);
+        console.error('Failed to load banners for position:', position, error);
       } finally {
         setLoading(false);
       }
     };
-    fetchBanner();
+    fetchBanners();
   }, [position]);
+
+  useEffect(() => {
+    if (banners.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % banners.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [banners.length]);
 
   if (loading) {
     return (
@@ -30,26 +39,53 @@ const HeroBanner = ({ position, fallbackContent }) => {
     );
   }
 
-  if (banner && banner.image_url) {
+  if (banners.length > 0) {
+    const banner = banners[currentIndex];
     return (
       <div className="-mx-4 md:-mx-8 -mt-6 mb-8 relative overflow-hidden shadow-lg h-64 md:h-[400px] group bg-secondary-900">
-        <img 
-          src={banner.image_url} 
-          alt={banner.title || 'Advertisement'} 
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-        {/* Optional Overlay for Text if provided */}
-        {(banner.title || banner.subtitle) && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-center items-center text-center p-8 md:p-12">
-            <div className="relative z-10 max-w-4xl space-y-4 mt-auto">
-              {banner.title && <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white">{banner.title}</h1>}
-              {banner.subtitle && <p className="text-lg md:text-xl font-medium text-white/90">{banner.subtitle}</p>}
-            </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={banner.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0"
+          >
+            <img 
+              src={banner.image_url} 
+              alt={banner.title || 'Advertisement'} 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            {/* Optional Overlay for Text if provided */}
+            {(banner.title || banner.subtitle) && (
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-center items-center text-center p-8 md:p-12">
+                <div className="relative z-10 max-w-4xl space-y-4 mt-auto">
+                  {banner.title && <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-white">{banner.title}</h1>}
+                  {banner.subtitle && <p className="text-lg md:text-xl font-medium text-white/90">{banner.subtitle}</p>}
+                </div>
+              </div>
+            )}
+            {/* Clickable Overlay */}
+            {banner.link && (
+              <a href={banner.link} target={banner.link.startsWith('http') ? '_blank' : '_self'} rel="noreferrer" className="absolute inset-0 z-20 z-[25]"></a>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Carousel Indicators */}
+        {banners.length > 1 && (
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-30">
+            {banners.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  currentIndex === idx ? 'bg-primary-500 w-8' : 'bg-white/50 hover:bg-white'
+                }`}
+              />
+            ))}
           </div>
-        )}
-        {/* Clickable Overlay */}
-        {banner.link && (
-          <a href={banner.link} target={banner.link.startsWith('http') ? '_blank' : '_self'} rel="noreferrer" className="absolute inset-0 z-20"></a>
         )}
       </div>
     );

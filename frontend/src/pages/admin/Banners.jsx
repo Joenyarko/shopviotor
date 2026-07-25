@@ -1,10 +1,16 @@
+import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Image as ImageIcon, Link as LinkIcon, Check, X } from 'lucide-react';
 import bannerService from '../../services/bannerService';
+import DotPagination from '../../components/DotPagination';
 
 const POSITIONS = [
   { id: 'layaway_hero', label: 'Layaway Hero' },
   { id: 'preorder_hero', label: 'Pre-Order Hero' },
+  { id: 'hire_purchase_hero', label: 'Hire Purchase Hero' },
+  { id: 'raffle_hero', label: 'Raffles Hero' },
+  { id: 'trade_hero', label: 'Trade & Sell Hero' },
+  { id: 'storefront_top_ad', label: 'Storefront Top (Ad Board)' },
   { id: 'storefront_middle', label: 'Storefront Middle (Ad Board)' }
 ];
 
@@ -13,6 +19,10 @@ const Banners = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(banners.length / itemsPerPage);
+  const paginatedBanners = banners.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   
   // Form State
   const [formData, setFormData] = useState({
@@ -33,7 +43,7 @@ const Banners = () => {
     try {
       setLoading(true);
       const res = await bannerService.adminGetBanners();
-      setBanners(res.data?.data || []);
+      setBanners(res.data || res || []);
     } catch (error) {
       console.error('Failed to load banners:', error);
     } finally {
@@ -71,9 +81,9 @@ const Banners = () => {
       setIsSubmitting(true);
       
       const payload = new FormData();
-      if (formData.title) payload.append('title', formData.title);
-      if (formData.subtitle) payload.append('subtitle', formData.subtitle);
-      if (formData.link) payload.append('link', formData.link);
+      if (formData.title) { payload.append('title', formData.title); } else { payload.append('title', ''); }
+      if (formData.subtitle) { payload.append('subtitle', formData.subtitle); } else { payload.append('subtitle', ''); }
+      if (formData.link) { payload.append('link', formData.link); } else { payload.append('link', ''); }
       payload.append('position', formData.position);
       payload.append('is_active', formData.is_active ? '1' : '0');
       
@@ -85,7 +95,7 @@ const Banners = () => {
         await bannerService.adminUpdateBanner(editingBanner.id, payload);
       } else {
         if (!imageFile) {
-          alert('Image is required for new banners.');
+          Swal.fire({ text: String('Image is required for new banners.') });
           return;
         }
         await bannerService.adminCreateBanner(payload);
@@ -95,14 +105,15 @@ const Banners = () => {
       fetchBanners();
     } catch (error) {
       console.error('Submit failed:', error);
-      alert('Failed to save banner. Check console for details.');
+      Swal.fire({ text: String('Failed to save banner. Check console for details.') });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this banner?')) {
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Are you sure you want to delete this banner?', icon: 'warning', showCancelButton: true });
+    if (__confirmResult.isConfirmed) {
       try {
         await bannerService.adminDeleteBanner(id);
         fetchBanners();
@@ -143,8 +154,9 @@ const Banners = () => {
           <p className="text-secondary-500 font-medium">No banners uploaded yet.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {banners.map(banner => (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedBanners.map(banner => (
             <div key={banner.id} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
               <div className="relative aspect-[21/9] bg-secondary-100 dark:bg-secondary-800 border-b border-secondary-200 dark:border-secondary-800">
                 <img src={banner.image_url} alt="Banner" className="w-full h-full object-cover" />
@@ -185,6 +197,8 @@ const Banners = () => {
               </div>
             </div>
           ))}
+          </div>
+          <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}
 

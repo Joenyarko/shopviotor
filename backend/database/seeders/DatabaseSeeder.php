@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             [
                 'uuid'        => Str::uuid()->toString(),
                 'first_name'  => 'Admin',
-                'last_name'   => 'VTE',
+                'last_name'   => 'Viotor',
                 'password'    => 'password', // hashed casting
                 'role'        => UserRole::Admin,
                 'is_active'   => true,
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             [
                 'uuid'        => Str::uuid()->toString(),
                 'first_name'  => 'Customer',
-                'last_name'   => 'VTE',
+                'last_name'   => 'Viotor',
                 'password'    => 'password', // hashed casting
                 'role'        => UserRole::Customer,
                 'is_active'   => true,

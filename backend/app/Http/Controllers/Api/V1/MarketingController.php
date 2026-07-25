@@ -37,7 +37,7 @@ class MarketingController extends Controller
     {
         $now = now();
         $flashSales = FlashSale::with(['products' => function ($query) {
-                $query->where('status', 'active')->with('images'); // Eager load primary image
+                $query->where('status', 'active')->where('is_layaway', false)->with('images'); // Eager load primary image
             }])
             ->where('is_active', true)
             ->where('start_time', '<=', $now)

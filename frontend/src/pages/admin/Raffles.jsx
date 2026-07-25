@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
+import React, { useEffect, useState, useRef } from 'react';
 import raffleService from '../../services/raffleService';
+import productService from '../../services/productService';
 import {
   Plus, Edit2, Trash2, RefreshCw, X, Play, Trophy,
   Ticket, Users, Eye, AlertCircle, Image as ImageIcon,
-  Calendar, ChevronDown, CheckCircle
+  Calendar, ChevronDown, CheckCircle, Upload
 } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const STATUS_OPTIONS = ['active', 'draft', 'closed', 'completed'];
 
@@ -21,26 +24,41 @@ const AdminRaffles = () => {
   const [holders, setHolders] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [page, setPage] = useState(1);
+  const [winPage, setWinPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(raffles.length / itemsPerPage);
+  const paginatedRaffles = raffles.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  const totalWinPages = Math.ceil(winners.length / itemsPerPage);
+  const paginatedWinners = winners.slice((winPage - 1) * itemsPerPage, winPage * itemsPerPage);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const fileInputRef = useRef(null);
 
   // Form states
+  const [productId, setProductId] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [category, setCategory] = useState('');
   const [ticketPrice, setTicketPrice] = useState('');
   const [maxTickets, setMaxTickets] = useState('');
   const [drawDate, setDrawDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [status, setStatus] = useState('active');
   const [prizeValue, setPrizeValue] = useState('');
   const [maxPerUser, setMaxPerUser] = useState('');
   const [isSponsored, setIsSponsored] = useState(false);
   const [allowMultiple, setAllowMultiple] = useState(true);
 
+  const [imageUrl, setImageUrl] = useState('');
+
   const loadRaffles = async () => {
     setLoading(true);
     try {
       const res = await raffleService.adminGetRaffles();
-      setRaffles(res.data?.data || res.data || MOCK_RAFFLES);
+      setRaffles(res.data?.data?.data || res.data?.data || res.data || MOCK_RAFFLES);
     } catch { setRaffles(MOCK_RAFFLES); } finally { setLoading(false); }
   };
 
@@ -48,16 +66,44 @@ const AdminRaffles = () => {
     setLoadingWinners(true);
     try {
       const res = await raffleService.adminGetWinners();
-      setWinners(res.data?.data || res.data || MOCK_WINNERS);
+      setWinners(res.data?.data?.data || res.data?.data || res.data || MOCK_WINNERS);
     } catch { setWinners(MOCK_WINNERS); } finally { setLoadingWinners(false); }
   };
 
-  useEffect(() => { loadRaffles(); }, []);
+  const loadProducts = async () => {
+    try {
+      const res = await productService.adminGetProducts();
+      setProducts(res.data?.data?.data || res.data?.data || res.data || []);
+      const catRes = await productService.getCategories();
+      setCategories(catRes.data?.data?.data || catRes.data?.data || catRes.data || []);
+    } catch (e) {
+      console.error('Failed to load products or categories', e);
+    }
+  };
+
+  useEffect(() => { loadRaffles(); loadProducts(); }, []);
   useEffect(() => { if (tab === 'winners') loadWinners(); }, [tab]);
 
+  const handleProductChange = (e) => {
+    const selectedId = e.target.value;
+    setProductId(selectedId);
+    if (selectedId) {
+      const product = products.find(p => p.id === parseInt(selectedId) || p.id === selectedId);
+      if (product) {
+        setPrizeValue(product.price || product.base_price || '');
+        const pImage = (product.images && product.images[0]?.url) || product.image_url || product.image;
+        if (pImage) {
+          setImageUrl(pImage);
+          setImagePreview(pImage);
+        }
+      }
+    }
+  };
+
   const resetForm = () => {
-    setTitle(''); setDescription(''); setImageUrl(''); setCategory('');
-    setTicketPrice(''); setMaxTickets(''); setDrawDate(''); setStatus('active');
+    setProductId(''); setTitle(''); setDescription(''); setCategory('');
+    setImageFile(null); setImagePreview(null); setImageUrl('');
+    setTicketPrice(''); setMaxTickets(''); setDrawDate(''); setEndDate(''); setStatus('active');
     setPrizeValue(''); setMaxPerUser(''); setIsSponsored(false); setAllowMultiple(true);
     setErrorMsg('');
   };
@@ -70,13 +116,17 @@ const AdminRaffles = () => {
 
   const handleOpenEdit = (r) => {
     setEditingRaffle(r);
+    setProductId(r.product_id || '');
     setTitle(r.title || '');
     setDescription(r.description || '');
+    setImagePreview(r.image || null);
     setImageUrl(r.image || '');
+    setImageFile(null);
     setCategory(r.category || '');
     setTicketPrice(r.ticket_price || '');
     setMaxTickets(r.max_tickets || '');
-    setDrawDate(r.draw_date ? r.draw_date.slice(0, 16) : '');
+    setDrawDate(r.drawn_at ? r.drawn_at.slice(0, 16) : '');
+    setEndDate(r.ends_at ? r.ends_at.slice(0, 16) : '');
     setStatus(r.status || 'active');
     setPrizeValue(r.prize_value || '');
     setMaxPerUser(r.max_per_user || '');
@@ -87,22 +137,41 @@ const AdminRaffles = () => {
   };
 
   const handleDelete = async (uuid) => {
-    if (!window.confirm('Delete this raffle? This will also remove all associated tickets.')) return;
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "Delete this raffle? This will also remove all associated tickets.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#3b82f6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+    if (!result.isConfirmed) return;
     try {
       await raffleService.adminDeleteRaffle(uuid);
       setRaffles(prev => prev.filter(r => r.uuid !== uuid));
-    } catch (e) { alert(e.message || 'Failed to delete.'); }
+      Swal.fire('Deleted!', 'Raffle has been deleted.', 'success');
+    } catch (e) { Swal.fire('Error', e.response?.data?.message || e.message || 'Failed to delete.', 'error'); }
   };
 
   const handleDraw = async (uuid) => {
-    if (!window.confirm('Execute draw now? A winner will be selected randomly from ticket holders.')) return;
+    const result = await Swal.fire({
+      title: 'Execute Draw?',
+      text: "A winner will be selected randomly from ticket holders.",
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#3b82f6',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Draw Winner'
+    });
+    if (!result.isConfirmed) return;
     setDrawing(uuid);
     try {
-      await raffleService.adminDrawWinner(uuid);
-      alert('🏆 Winner drawn successfully!');
+      const res = await raffleService.adminDrawWinner(uuid);
+      Swal.fire('Winner Drawn!', res.data?.message || 'A winner has been successfully drawn.', 'success');
       loadRaffles();
       if (tab === 'winners') loadWinners();
-    } catch (e) { alert(e.message || 'Draw failed.'); } finally { setDrawing(null); }
+    } catch (e) { Swal.fire('Draw Failed', e.response?.data?.message || e.message || 'Draw failed.', 'error'); } finally { setDrawing(null); }
   };
 
   const handleViewHolders = async (raffle) => {
@@ -114,22 +183,46 @@ const AdminRaffles = () => {
     } catch { setHolders([]); }
   };
 
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      setImageUrl(''); // Reset imageUrl since we have a new file
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setErrorMsg('');
-    const payload = {
-      title, description, image: imageUrl, category,
-      ticket_price: ticketPrice, max_tickets: maxTickets,
-      draw_date: drawDate, status, prize_value: prizeValue,
-      max_per_user: maxPerUser || null,
-      is_sponsored: isSponsored, allow_multiple: allowMultiple,
-    };
+    const payload = new FormData();
+    if (productId) payload.append('product_id', productId);
+    payload.append('title', title);
+    if (description) payload.append('description', description);
+    if (category) payload.append('category', category);
+    payload.append('ticket_price', ticketPrice);
+    if (maxTickets) payload.append('max_tickets', maxTickets);
+    if (drawDate) payload.append('drawn_at', drawDate);
+    if (endDate) payload.append('ends_at', endDate);
+    payload.append('status', status);
+    if (prizeValue) payload.append('prize_value', prizeValue);
+    if (maxPerUser) payload.append('max_per_user', maxPerUser);
+    payload.append('is_sponsored', isSponsored ? '1' : '0');
+    payload.append('allow_multiple', allowMultiple ? '1' : '0');
+    if (imageFile) {
+      payload.append('image', imageFile);
+    } else if (imageUrl) {
+      payload.append('image', imageUrl);
+    }
+
     try {
       if (editingRaffle) {
         await raffleService.adminUpdateRaffle(editingRaffle.uuid, payload);
+        Swal.fire({ icon: 'success', title: 'Updated!', text: 'Raffle has been updated successfully.', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
       } else {
         await raffleService.adminCreateRaffle(payload);
+        Swal.fire({ icon: 'success', title: 'Created!', text: 'Raffle has been created successfully.', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
       }
       setModalOpen(false);
       resetForm();
@@ -198,7 +291,7 @@ const AdminRaffles = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                  {raffles.map((r) => {
+                  {paginatedRaffles.map((r) => {
                     const progress = r.max_tickets ? Math.min(((r.tickets_sold || 0) / r.max_tickets) * 100, 100) : 0;
                     return (
                       <tr key={r.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
@@ -221,8 +314,8 @@ const AdminRaffles = () => {
                         </td>
                         <td className="p-4 font-bold text-secondary-900 dark:text-white hidden sm:table-cell">GHS {parseFloat(r.ticket_price || 0).toFixed(2)}</td>
                         <td className="p-4 text-secondary-600 dark:text-secondary-300 hidden md:table-cell">{r.tickets_sold || 0} / {r.max_tickets || '∞'}</td>
-                        <td className="p-4 text-secondary-600 dark:text-secondary-300 hidden lg:table-cell">
-                          {r.draw_date ? new Date(r.draw_date).toLocaleDateString() : '—'}
+                        <td className="p-4 text-secondary-500 dark:text-secondary-400 hidden lg:table-cell">
+                          {r.drawn_at ? new Date(r.drawn_at).toLocaleDateString() : 'N/A'}
                         </td>
                         <td className="p-4">
                           <span className={`text-xxs px-2.5 py-0.5 rounded-full font-bold uppercase ${getStatusColor(r.status)}`}>{r.status}</span>
@@ -255,6 +348,7 @@ const AdminRaffles = () => {
                   })}
                 </tbody>
               </table>
+              <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
             </div>
           </div>
         )
@@ -277,7 +371,7 @@ const AdminRaffles = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                {winners.map((w, i) => (
+                {paginatedWinners.map((w, i) => (
                   <tr key={w.id || i} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                     <td className="p-4">
                       <div className="flex items-center gap-2">
@@ -299,6 +393,7 @@ const AdminRaffles = () => {
                 ))}
               </tbody>
             </table>
+            <DotPagination currentPage={winPage} totalPages={totalWinPages} onPageChange={setWinPage} />
           </div>
         )
       )}
@@ -318,24 +413,55 @@ const AdminRaffles = () => {
                 </div>
               )}
 
-              <div>
-                <label className={labelClass}>Raffle Title *</label>
-                <input type="text" required value={title} onChange={e => setTitle(e.target.value)} className={inputClass} placeholder="e.g. iPhone 17 Pro Max Raffle" />
-              </div>
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wide">Link Product (Optional)</label>
+                    </div>
+                    <select 
+                      value={productId} 
+                      onChange={handleProductChange} 
+                      className={inputClass}
+                    >
+                      <option value="">-- No Product Linked --</option>
+                      {products.map(p => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                <div>
+                  <label className={labelClass}>Raffle Title *</label>
+                  <input type="text" required value={title} onChange={e => setTitle(e.target.value)} className={inputClass} placeholder="e.g. iPhone 17 Pro Max Raffle" />
+                </div>
               <div>
                 <label className={labelClass}>Description</label>
                 <textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} className={inputClass} placeholder="Tell participants about the prize..." />
               </div>
               <div>
-                <label className={labelClass}>Prize Image URL</label>
-                <input type="url" value={imageUrl} onChange={e => setImageUrl(e.target.value)} className={inputClass} placeholder="https://..." />
-                {imageUrl && <img src={imageUrl} alt="Preview" className="mt-2 h-24 object-cover rounded-lg" onError={(e) => e.target.style.display = 'none'} />}
+                <label className={labelClass}>Prize Image</label>
+                <div className="flex items-center gap-4">
+                  {imagePreview ? (
+                    <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-secondary-200">
+                      <img src={imagePreview} alt="preview" className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => { setImageFile(null); setImagePreview(null); }} className="absolute top-1 right-1 bg-accent-500 text-white rounded-full p-1 shadow hover:bg-accent-600"><X className="w-3 h-3" /></button>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="w-24 h-24 rounded-lg border-2 border-dashed border-secondary-300 dark:border-secondary-700 flex flex-col items-center justify-center text-secondary-400 hover:border-primary-500 hover:text-primary-500 transition-colors">
+                      <Upload className="w-6 h-6 mb-1" />
+                      <span className="text-xs font-medium">Upload</span>
+                    </button>
+                  )}
+                  <p className="text-xs text-secondary-500 max-w-[200px]">Upload a clear photo of the prize.</p>
+                </div>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Category</label>
-                  <input type="text" value={category} onChange={e => setCategory(e.target.value)} className={inputClass} placeholder="e.g. Smartphones" />
+                  <select value={category} onChange={e => setCategory(e.target.value)} className={inputClass}>
+                    <option value="">Select Category</option>
+                    {categories.map(c => <option key={c.id || c.uuid} value={c.name}>{c.name}</option>)}
+                  </select>
                 </div>
                 <div>
                   <label className={labelClass}>Prize Value (GHS)</label>
@@ -359,6 +485,13 @@ const AdminRaffles = () => {
                   <label className={labelClass}>Draw Date & Time *</label>
                   <input type="datetime-local" required value={drawDate} onChange={e => setDrawDate(e.target.value)} className={inputClass} />
                 </div>
+                <div>
+                  <label className={labelClass}>End Date & Time</label>
+                  <input type="datetime-local" value={endDate} onChange={e => setEndDate(e.target.value)} className={inputClass} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Status</label>
                   <select value={status} onChange={e => setStatus(e.target.value)} className={inputClass}>

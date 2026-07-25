@@ -14,9 +14,9 @@ class PurchaseTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'payment_method'   => ['required', 'in:paystack,mobile_money,bank_transfer'],
-            'payment_phone'    => ['required_if:payment_method,mobile_money', 'string'],
-            'payment_provider' => ['required_if:payment_method,mobile_money', 'in:mtn,vodafone,tigo'],
+            'payment_method'   => ['nullable', 'string'],
+            'phone'            => ['nullable', 'string'],
+            'quantity'         => ['nullable', 'integer', 'min:1'],
         ];
     }
 }

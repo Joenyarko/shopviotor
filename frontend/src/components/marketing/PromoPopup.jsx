@@ -11,7 +11,7 @@ const PromoPopup = () => {
     const fetchCampaigns = async () => {
       try {
         const response = await apiClient.get('/marketing/campaigns/active');
-        const activeCampaigns = response.data?.data || [];
+        const activeCampaigns = response?.data?.data || response?.data || (Array.isArray(response) ? response : []);
         
         if (activeCampaigns.length > 0) {
           // Get the first active popup campaign
@@ -47,7 +47,7 @@ const PromoPopup = () => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-secondary-900/60 backdrop-blur-sm">
       <div 
-        className="relative w-full max-w-lg bg-white dark:bg-secondary-900 rounded-3xl shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300"
+        className="relative w-full max-w-sm sm:max-w-[400px] bg-white dark:bg-secondary-900 rounded-3xl shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in duration-300"
       >
         {/* Close Button */}
         <button 
@@ -59,7 +59,7 @@ const PromoPopup = () => {
         </button>
 
         {campaign.target_url ? (
-          <Link to={campaign.target_url} onClick={handleClose} className="block relative aspect-[4/3] sm:aspect-video w-full group overflow-hidden">
+          <Link to={campaign.target_url} onClick={handleClose} className="block relative aspect-video w-full group overflow-hidden">
             <img 
               src={campaign.image_path} 
               alt={campaign.title}
@@ -70,7 +70,7 @@ const PromoPopup = () => {
             </div>
           </Link>
         ) : (
-          <div className="relative aspect-[4/3] sm:aspect-video w-full">
+          <div className="relative aspect-video w-full">
             <img 
               src={campaign.image_path} 
               alt={campaign.title}
@@ -79,17 +79,17 @@ const PromoPopup = () => {
           </div>
         )}
         
-        <div className="p-6 text-center">
-          <h3 className="text-xl sm:text-2xl font-bold text-secondary-900 dark:text-white mb-2">
+        <div className="p-5 text-center">
+          <h3 className="text-lg sm:text-xl font-bold text-secondary-900 dark:text-white mb-2">
             {campaign.title}
           </h3>
-          <p className="text-secondary-500 dark:text-secondary-400 text-sm mb-6">
+          <p className="text-secondary-500 dark:text-secondary-400 text-xs sm:text-sm mb-4">
             Don't miss out on our exclusive deals. Limited time only!
           </p>
           
           <button 
             onClick={handleClose}
-            className="text-secondary-400 hover:text-secondary-600 dark:hover:text-secondary-200 text-sm font-medium transition-colors"
+            className="text-secondary-400 hover:text-secondary-600 dark:hover:text-secondary-200 text-xs sm:text-sm font-medium transition-colors"
           >
             No thanks, maybe later
           </button>

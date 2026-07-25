@@ -1,6 +1,6 @@
 {
-  "name": "Viotor Trading Enterprise",
-  "short_name": "VTE",
+  "name": "Shop Viotor Marketplace",
+  "short_name": "Shop Viotor",
   "description": "Ghana's premier smart marketplace for buying, selling, barter, and hire purchase.",
   "start_url": "/",
   "display": "standalone",

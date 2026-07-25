@@ -20,6 +20,7 @@ class Raffle extends Model
         'prize_description', 'prize_value', 'ticket_price',
         'max_tickets', 'tickets_sold', 'status', 'image',
         'starts_at', 'ends_at', 'drawn_at', 'created_by', 'terms_conditions',
+        'category', 'max_per_user', 'allow_multiple', 'is_sponsored',
     ];
 
     protected function casts(): array
@@ -31,6 +32,8 @@ class Raffle extends Model
             'ends_at'       => 'datetime',
             'drawn_at'      => 'datetime',
             'status'        => RaffleStatus::class,
+            'allow_multiple' => 'boolean',
+            'is_sponsored' => 'boolean',
         ];
     }
 
@@ -39,7 +42,10 @@ class Raffle extends Model
     public function scopeActive($query)
     {
         return $query->where('status', RaffleStatus::Active->value)
-            ->where('ends_at', '>', now());
+            ->where(function ($q) {
+                $q->whereNull('ends_at')
+                  ->orWhere('ends_at', '>', now());
+            });
     }
 
     // ─── Relationships ────────────────────────────────────────────────────────
@@ -68,7 +74,15 @@ class Raffle extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image ? asset('storage/' . $this->image) : null;
+        if (!$this->image) {
+            return null;
+        }
+
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
+
+        return asset('storage/' . $this->image);
     }
 
     public function hasAvailableTickets(): bool

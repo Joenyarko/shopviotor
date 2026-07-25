@@ -1,12 +1,18 @@
+import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../api/client';
 import { Plus, Edit2, Trash2, RefreshCw, X, Image as ImageIcon } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const Campaigns = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(campaigns.length / itemsPerPage);
+  const paginatedCampaigns = campaigns.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   
   const [title, setTitle] = useState('');
   const [targetUrl, setTargetUrl] = useState('');
@@ -21,7 +27,7 @@ const Campaigns = () => {
     setLoading(true);
     try {
       const res = await apiClient.get('/admin/marketing/campaigns');
-      setCampaigns(res.data?.data || []);
+      setCampaigns(res?.data?.data || res?.data || (Array.isArray(res) ? res : []));
     } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
@@ -58,10 +64,11 @@ const Campaigns = () => {
     if (imageFile) fd.append('image', imageFile);
 
     try {
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
       if (editing) {
-        await apiClient.post(`/admin/marketing/campaigns/${editing.uuid}`, fd);
+        await apiClient.post(`/admin/marketing/campaigns/${editing.uuid}`, fd, config);
       } else {
-        await apiClient.post('/admin/marketing/campaigns', fd);
+        await apiClient.post('/admin/marketing/campaigns', fd, config);
       }
       setModalOpen(false);
       fetchCampaigns();
@@ -69,9 +76,9 @@ const Campaigns = () => {
       if (err.response?.status === 422) {
         const errors = err.response.data.errors;
         const messages = Object.values(errors).flat().join('\n');
-        alert('Validation Error:\n' + messages);
+        Swal.fire({ text: String('Validation Error:\n' + messages) });
       } else {
-        alert(err.response?.data?.message || err.message);
+        Swal.fire({ text: String(err.response?.data?.message || err.message) });
       }
     } finally {
       setSubmitting(false);
@@ -79,11 +86,12 @@ const Campaigns = () => {
   };
 
   const handleDelete = async (uuid) => {
-    if (!window.confirm('Delete this popup campaign?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Delete this popup campaign?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await apiClient.delete(`/admin/marketing/campaigns/${uuid}`);
       fetchCampaigns();
-    } catch (err) { alert('Failed to delete'); }
+    } catch (err) { Swal.fire({ text: String('Failed to delete') }); }
   };
 
   return (
@@ -101,8 +109,9 @@ const Campaigns = () => {
       {loading ? (
         <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {campaigns.map(c => (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedCampaigns.map(c => (
             <div key={c.uuid} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               <div className="aspect-video relative bg-secondary-100 dark:bg-secondary-800">
                 {c.image_path ? (
@@ -129,6 +138,8 @@ const Campaigns = () => {
               </div>
             </div>
           ))}
+          </div>
+          <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       )}
 
@@ -149,8 +160,8 @@ const Campaigns = () => {
                 <input type="file" required={!editing} accept="image/*" onChange={e=>setImageFile(e.target.files[0])} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Target URL (Optional)</label>
-                <input type="text" value={targetUrl} onChange={e=>setTargetUrl(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800" placeholder="/products?category=1" />
+                <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Target URL (Optional - Where users go when clicked)</label>
+                <input type="text" value={targetUrl} onChange={e=>setTargetUrl(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800" placeholder="e.g. /products?category=1" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>

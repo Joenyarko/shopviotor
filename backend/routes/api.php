@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\V1\Vendor\VendorProductController;
 use App\Http\Controllers\Api\V1\Vendor\VendorDashboardController;
 
 // Admin Controllers
+use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\V1\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\V1\Admin\UserController as AdminUserController;
@@ -69,7 +70,7 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/raffles', [RaffleController::class, 'index']);
     Route::get('/raffles/winners', [RaffleController::class, 'winners']);
-    Route::get('/raffles/{uuid}', [RaffleController::class, 'show']);
+    Route::get('/raffles/{uuid}', [RaffleController::class, 'show'])->whereUuid('uuid');
 
     // Webhooks
     Route::post('/payments/webhook/{gateway}', [PaymentController::class, 'webhook']);
@@ -89,6 +90,7 @@ Route::prefix('v1')->group(function () {
         // Auth / User Profile
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::post('/auth/submit-student-verification', [AuthController::class, 'submitStudentVerification']);
 
         // Address Book
         Route::apiResource('addresses', AddressController::class)->except(['show']);
@@ -112,8 +114,8 @@ Route::prefix('v1')->group(function () {
         // Marketplace Services
         Route::apiResource('sell-requests', SellRequestController::class)->parameters(['sell-requests' => 'uuid']);
         Route::post('/sell-requests/{uuid}', [SellRequestController::class, 'update']); // for FormData update
-        Route::get('/sell-requests/{uuid}/messages', [SellRequestController::class, 'messages']);
-        Route::post('/sell-requests/{uuid}/messages', [SellRequestController::class, 'sendMessage']);
+        Route::post('/sell-requests/{uuid}/accept-offer', [SellRequestController::class, 'acceptOffer']);
+        Route::post('/sell-requests/{uuid}/reject-offer', [SellRequestController::class, 'rejectOffer']);
         
         Route::apiResource('trade-requests', TradeRequestController::class)->only(['index', 'store', 'show']);
         Route::post('/trade-requests/{uuid}/accept', [TradeRequestController::class, 'acceptValuation']);
@@ -137,6 +139,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\PreOrderController::class, 'index']);
         Route::post('/pre-orders', [\App\Http\Controllers\Api\V1\PreOrderController::class, 'store']);
 
+        // Raffles
+        Route::get('/raffles/my-tickets', [RaffleController::class, 'myTickets']);
+
         // Store Application (any authenticated user can apply)
         Route::post('/stores/apply', [StoreController::class, 'apply']);
         Route::get('/stores/my-store', [StoreController::class, 'myStore']);
@@ -155,9 +160,12 @@ Route::prefix('v1')->group(function () {
         
         Route::prefix('admin')->middleware('role:admin,super_admin')->group(function () {
             // Dashboard Stats
+            Route::get('/dashboard/comprehensive-stats', [AdminDashboardController::class, 'comprehensiveStats']);
             Route::get('/orders/stats', [AdminOrderController::class, 'stats']);
 
             // Users
+            Route::get('/users/student-verifications/pending', [AdminUserController::class, 'pendingStudentVerifications']);
+            Route::post('/users/{uuid}/approve-student-verification', [AdminUserController::class, 'approveStudentVerification']);
             Route::apiResource('users', AdminUserController::class)->only(['index', 'show']);
             Route::post('/users/{uuid}/toggle-status', [AdminUserController::class, 'toggleStatus']);
 
@@ -178,14 +186,17 @@ Route::prefix('v1')->group(function () {
             Route::get('/orders/{uuid}', [AdminOrderController::class, 'show']);
             Route::put('/orders/{uuid}/status', [AdminOrderController::class, 'updateStatus']);
 
+            // Raffles (Admin)
+            Route::get('/raffles/winners', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'winners']);
+            Route::get('/raffles/{uuid}/tickets', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'tickets']);
+            Route::post('/raffles/{uuid}/draw', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'draw']);
+            Route::apiResource('raffles', \App\Http\Controllers\Api\V1\Admin\RaffleController::class)->except(['show']);
+
             // Sell Requests
             Route::get('/sell-requests', [AdminSellRequestController::class, 'index']);
             Route::get('/sell-requests/{uuid}', [AdminSellRequestController::class, 'show']);
             Route::post('/sell-requests/{uuid}/approve', [AdminSellRequestController::class, 'approve']);
             Route::post('/sell-requests/{uuid}/reject', [AdminSellRequestController::class, 'reject']);
-            Route::get('/sell-requests/{uuid}/messages', [AdminSellRequestController::class, 'messages']);
-            Route::post('/sell-requests/{uuid}/messages', [AdminSellRequestController::class, 'sendMessage']);
-            Route::post('/sell-requests/{uuid}/toggle-chat', [AdminSellRequestController::class, 'toggleChatStatus']);
 
             // Trade Requests
             Route::get('/trade-requests', [AdminTradeRequestController::class, 'index']);
@@ -204,6 +215,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/layaways/inventory/products', [AdminLayawayController::class, 'inventory']);
             Route::post('/layaways/inventory/products/{uuid}/toggle', [AdminLayawayController::class, 'toggleInventory']);
             Route::get('/layaways', [AdminLayawayController::class, 'index']);
+            Route::post('/layaways', [AdminLayawayController::class, 'store']);
             Route::get('/layaways/{uuid}', [AdminLayawayController::class, 'show']);
             Route::post('/layaways/{uuid}/payments', [AdminLayawayController::class, 'storePayment']);
             Route::post('/layaways/{uuid}/payments/{payment}/reverse', [AdminLayawayController::class, 'reversePayment']);
@@ -218,6 +230,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/stores/{uuid}/suspend', [AdminStoreController::class, 'suspend']);
             Route::post('/stores/{uuid}/restore', [AdminStoreController::class, 'restore']);
             Route::post('/stores/{uuid}/commission', [AdminStoreController::class, 'updateCommission']);
+
+            // Payments (Admin)
+            Route::get('/payments', [\App\Http\Controllers\Api\V1\PaymentController::class, 'adminIndex']);
+            Route::post('/payments/{uuid}/confirm', [\App\Http\Controllers\Api\V1\PaymentController::class, 'adminConfirm']);
 
             // Admin Marketing
         Route::apiResource('marketing/campaigns', AdminCampaignController::class)->parameters(['campaigns' => 'uuid']);

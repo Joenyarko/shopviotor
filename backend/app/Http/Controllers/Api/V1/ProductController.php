@@ -43,11 +43,16 @@ class ProductController extends Controller
     {
         $term = $request->input('q');
 
-        if (!$term) {
+        // Allow searching by category even if term is empty
+        if (!$term && !$request->has('category_id')) {
             return response()->json(['data' => []]);
         }
 
-        $products = $this->productRepo->search($term, $request->input('per_page', 15));
+        $products = $this->productRepo->search(
+            $term ?? '', 
+            $request->input('per_page', 15),
+            $request->only(['category_id'])
+        );
 
         return response()->json([
             'data' => ProductResource::collection($products)->response()->getData(true),

@@ -13,8 +13,15 @@ class HirePurchaseService
 {
     public function create(int $userId, array $data): HirePurchase
     {
+        $user = \App\Models\User::find($userId);
+        if (!$user || $user->student_verification_status !== 'approved') {
+            throw ValidationException::withMessages([
+                'student_id' => ['You must have an approved student ID to request a hire purchase.'],
+            ]);
+        }
+
         return DB::transaction(function () use ($userId, $data) {
-            $product = Product::findOrFail($data['product_id']);
+            $product = Product::where('id', $data['product_id'])->orWhere('uuid', $data['product_id'])->firstOrFail();
 
             if (!$product->available_for_hire_purchase) {
                 throw ValidationException::withMessages([
@@ -24,7 +31,23 @@ class HirePurchaseService
 
             $deposit          = $data['deposit_amount'];
             $durationMonths   = $data['duration_months'];
-            $interestRate     = $data['interest_rate'] ?? 0;
+            $interestRate     = $product->hp_interest_rate ?? 0;
+            $maxDuration      = $product->hp_max_duration_months ?? 12;
+            $minDepositPct    = $product->hp_min_deposit_percent ?? 20;
+
+            if ($durationMonths > $maxDuration) {
+                throw ValidationException::withMessages([
+                    'duration_months' => ["Maximum allowed duration for this product is {$maxDuration} months."],
+                ]);
+            }
+
+            $minDeposit = $product->price * ($minDepositPct / 100);
+            if ($deposit < $minDeposit) {
+                throw ValidationException::withMessages([
+                    'deposit_amount' => ["Minimum deposit required is " . number_format($minDeposit, 2) . " ({$minDepositPct}%)."],
+                ]);
+            }
+
             $totalInterest    = $product->price * ($interestRate / 100);
             $totalAmount      = $product->price + $totalInterest;
             $balanceAfterDeposit = $totalAmount - $deposit;

@@ -25,6 +25,18 @@ class ProductController extends Controller
         if ($request->has('available_for_trade')) {
             $filters['available_for_trade'] = filter_var($request->query('available_for_trade'), FILTER_VALIDATE_BOOLEAN);
         }
+        if ($request->has('is_preorder')) {
+            $filters['is_preorder'] = filter_var($request->query('is_preorder'), FILTER_VALIDATE_BOOLEAN);
+        }
+        if ($request->has('available_for_preorder')) {
+            $filters['available_for_preorder'] = filter_var($request->query('available_for_preorder'), FILTER_VALIDATE_BOOLEAN);
+        }
+        if ($request->has('available_for_layaway')) {
+            $filters['available_for_layaway'] = filter_var($request->query('available_for_layaway'), FILTER_VALIDATE_BOOLEAN);
+        }
+        if ($request->has('available_for_hire_purchase')) {
+            $filters['available_for_hire_purchase'] = filter_var($request->query('available_for_hire_purchase'), FILTER_VALIDATE_BOOLEAN);
+        }
 
         $products = $this->productRepo->getAdminProducts(
             $request->input('per_page', 15),

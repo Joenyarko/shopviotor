@@ -87,7 +87,7 @@ const PreOrders = () => {
                       <span className="text-[10px] uppercase font-bold text-orange-600 dark:text-orange-400">Deposit Req.</span>
                       <span className="font-bold text-lg text-orange-600 dark:text-orange-400 leading-none">GHS {parseFloat(deposit).toLocaleString('en-US')}</span>
                     </div>
-                    <Link to={`/pre-orders/${product.uuid}`} className="premium-button-primary w-full py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1.5 mt-3 shadow-sm">
+                    <Link to={`/pre-orders/${product.id}`} className="premium-button-primary w-full py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1.5 mt-3 shadow-sm">
                       Reserve Now <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>

@@ -45,6 +45,9 @@ class BannerController extends Controller
             $data['image'] = $request->file('image')->store('banners', 'public');
         }
 
+        $data['title'] = $data['title'] ?? '';
+        $data['subtitle'] = $data['subtitle'] ?? '';
+        $data['link'] = $data['link'] ?? '';
         $data['is_active'] = $request->input('is_active', true);
         $data['sort_order'] = Banner::max('sort_order') + 1;
 
@@ -75,6 +78,10 @@ class BannerController extends Controller
             }
             $data['image'] = $request->file('image')->store('banners', 'public');
         }
+
+        $data['title'] = $data['title'] ?? '';
+        $data['subtitle'] = $data['subtitle'] ?? '';
+        $data['link'] = $data['link'] ?? '';
 
         if ($request->has('is_active')) {
             $data['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);

@@ -1,6 +1,8 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState, useRef } from 'react';
 import sellRequestService from '../../services/sellRequestService';
-import { Truck, X, RefreshCw, Eye, Send, Phone } from 'lucide-react';
+import { Truck, X, RefreshCw, Eye, Send, Phone, MessageCircle } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const SellRequests = () => {
   const [sells, setSells] = useState([]);
@@ -10,13 +12,10 @@ const SellRequests = () => {
   const [offeredPrice, setOfferedPrice] = useState('');
   const [processing, setProcessing] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
-
-  // Chat State
-  const [messages, setMessages] = useState([]);
-  const [chatStatus, setChatStatus] = useState('open');
-  const [msgBody, setMsgBody] = useState('');
-  const [sendingMsg, setSendingMsg] = useState(false);
-  const chatEndRef = useRef(null);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(sells.length / itemsPerPage);
+  const paginatedSells = sells.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   const loadSells = async () => {
     setLoading(true);
@@ -38,17 +37,6 @@ const SellRequests = () => {
     setSelectedSell(sell);
     setOfferedPrice(sell.asking_price || '');
     setShowDetailModal(true);
-    
-    // Load messages
-    setMessages([]);
-    setChatStatus('open');
-    try {
-      const res = await sellRequestService.adminGetMessages(sell.id || sell.uuid);
-      setMessages(res.data?.data || []);
-      setChatStatus(res.data?.chat_status || 'open');
-    } catch (e) {
-      console.error(e);
-    }
   };
 
   const handleApproveSubmit = async (e) => {
@@ -58,7 +46,7 @@ const SellRequests = () => {
     setProcessing(true);
     try {
       await sellRequestService.adminApproveSell(selectedSell.id || selectedSell.uuid, offeredPrice);
-      alert('Sell request approved with buyout offer.');
+      Swal.fire({ text: String('Sell request approved with buyout offer.') });
       
       const updatedSells = sells.map(s => 
         (s.id || s.uuid) === (selectedSell.id || selectedSell.uuid) 
@@ -70,7 +58,7 @@ const SellRequests = () => {
       
     } catch (err) {
       console.error(err);
-      alert(err.message || 'Failed to approve request.');
+      Swal.fire({ text: String(err.message || 'Failed to approve request.') });
     } finally {
       setProcessing(false);
     }
@@ -91,38 +79,11 @@ const SellRequests = () => {
       setSells(updatedSells);
       setSelectedSell(prev => ({ ...prev, status: 'rejected' }));
     } catch (e) {
-      alert(e.message || 'Failed to reject request.');
+      Swal.fire({ text: String(e.message || 'Failed to reject request.') });
     }
   };
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!msgBody.trim() || !selectedSell) return;
-    setSendingMsg(true);
-    try {
-      const res = await sellRequestService.adminSendMessage(selectedSell.id || selectedSell.uuid, msgBody);
-      setMessages(prev => [...prev, res.data?.data || res.data]);
-      setMsgBody('');
-    } catch (e) {
-      alert('Failed to send message.');
-    } finally {
-      setSendingMsg(false);
-    }
-  };
 
-  const handleToggleChat = async () => {
-    if (!selectedSell) return;
-    try {
-      const res = await sellRequestService.adminToggleChat(selectedSell.id || selectedSell.uuid);
-      setChatStatus(res.data?.status || 'open');
-    } catch (e) {
-      alert(e.response?.data?.message || 'Failed to toggle chat status.');
-    }
-  };
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
 
   return (
     <div className="space-y-6">
@@ -130,7 +91,7 @@ const SellRequests = () => {
         <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
           <Truck className="w-6 h-6 text-primary-500" /> Corporate Buyout Requests
         </h2>
-        <p className="text-sm text-secondary-500 mt-1">Review items submitted by customers for VTE direct acquisition.</p>
+        <p className="text-sm text-secondary-500 mt-1">Review items submitted by customers for Shop Viotor direct acquisition.</p>
       </div>
 
       <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
@@ -150,7 +111,7 @@ const SellRequests = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-              {sells.map((s) => (
+              {paginatedSells.map((s) => (
                 <tr key={s.id || s.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                   <td className="p-4 font-semibold text-secondary-900 dark:text-white">{s.user?.name || 'Customer'}</td>
                   <td className="p-4 text-secondary-700 dark:text-secondary-300">{s.item_name}</td>
@@ -168,14 +129,15 @@ const SellRequests = () => {
             </tbody>
           </table>
         )}
+        <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
 
       {showDetailModal && selectedSell && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-secondary-900 rounded-2xl w-full max-w-6xl max-h-[90vh] flex flex-col lg:flex-row overflow-hidden shadow-2xl">
+          <div className="bg-white dark:bg-secondary-900 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
             
-            {/* Left side: Request Details & Action */}
-            <div className="w-full lg:w-1/2 flex flex-col border-r border-secondary-200 dark:border-secondary-800 bg-white dark:bg-secondary-900">
+            {/* Request Details & Action */}
+            <div className="w-full flex flex-col bg-white dark:bg-secondary-900">
               <div className="p-4 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center bg-secondary-50 dark:bg-secondary-850/50">
                 <h3 className="font-bold text-lg text-secondary-900 dark:text-white">Review Request</h3>
                 <button onClick={() => setShowDetailModal(false)} className="p-1 text-secondary-400 hover:text-secondary-600"><X className="w-5 h-5" /></button>
@@ -188,8 +150,18 @@ const SellRequests = () => {
                     <h4 className="text-xl font-bold text-secondary-900 dark:text-white">{selectedSell.item_name}</h4>
                     <div className="text-sm text-secondary-500 mt-1">Submitted by: <span className="font-semibold text-secondary-900 dark:text-white">{selectedSell.user?.name || 'Customer'}</span></div>
                     {selectedSell.contact_number && (
-                      <div className="flex items-center gap-1.5 text-sm text-secondary-500 mt-1">
-                        <Phone className="w-3.5 h-3.5" /> {selectedSell.contact_number}
+                      <div className="flex items-center gap-3 mt-1">
+                        <div className="flex items-center gap-1.5 text-sm text-secondary-500">
+                          <Phone className="w-3.5 h-3.5" /> {selectedSell.contact_number}
+                        </div>
+                        <a 
+                          href={`https://wa.me/${selectedSell.contact_number.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi ${selectedSell.user?.name || 'there'}, I'm contacting you regarding your Sell Request for the ${selectedSell.item_name} on Shop Viotor.`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1.5 text-xs font-bold text-green-600 bg-green-50 hover:bg-green-100 px-2.5 py-1 rounded-full transition-colors"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" /> Chat on WhatsApp
+                        </a>
                       </div>
                     )}
                   </div>
@@ -253,58 +225,6 @@ const SellRequests = () => {
                 )}
               </div>
             </div>
-
-            {/* Right side: Chat Thread */}
-            <div className="w-full lg:w-1/2 flex flex-col h-[60vh] lg:h-auto bg-secondary-50 dark:bg-secondary-850">
-              <div className="p-4 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center bg-white dark:bg-secondary-900">
-                <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${chatStatus === 'open' ? 'bg-primary-500 animate-pulse' : 'bg-secondary-300'}`}></span>
-                  <h3 className="font-bold text-secondary-900 dark:text-white">Customer Communication</h3>
-                </div>
-                <button 
-                  onClick={handleToggleChat} 
-                  className={`text-xs px-3 py-1.5 rounded-lg font-bold border transition-colors ${chatStatus === 'open' ? 'border-accent-200 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/30' : 'border-primary-200 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/30'}`}
-                >
-                  {chatStatus === 'open' ? 'Close Chat' : 'Reopen Chat'}
-                </button>
-              </div>
-              
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.length === 0 ? (
-                  <div className="text-center text-secondary-400 text-sm mt-10">
-                    No messages yet. Send a message to the customer regarding their request.
-                  </div>
-                ) : (
-                  messages.map(msg => (
-                    <div key={msg.id} className={`flex flex-col ${!msg.is_admin ? 'items-start' : 'items-end'}`}>
-                      <div className="text-xxs text-secondary-400 mb-1 px-1">{!msg.is_admin ? msg.sender : 'You (Admin)'}</div>
-                      <div className={`px-4 py-2 rounded-2xl max-w-[85%] text-sm ${!msg.is_admin ? 'bg-white dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-tl-sm shadow-sm' : 'bg-primary-500 text-white rounded-tr-sm shadow-sm'}`}>
-                        {msg.body}
-                      </div>
-                      <div className="text-[10px] text-secondary-400 mt-1 px-1">{new Date(msg.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</div>
-                    </div>
-                  ))
-                )}
-                <div ref={chatEndRef} />
-              </div>
-              
-              <form onSubmit={handleSendMessage} className="p-3 border-t border-secondary-200 dark:border-secondary-800 bg-white dark:bg-secondary-900">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={msgBody}
-                    onChange={(e) => setMsgBody(e.target.value)}
-                    placeholder={chatStatus === 'closed' ? "Chat is closed. Reopen to send." : "Message the customer..."}
-                    disabled={chatStatus === 'closed'}
-                    className="flex-1 p-2.5 bg-secondary-100 dark:bg-secondary-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none dark:text-white disabled:opacity-50"
-                  />
-                  <button type="submit" disabled={sendingMsg || !msgBody.trim() || chatStatus === 'closed'} className="p-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl disabled:opacity-50 transition-colors shadow-sm">
-                    <Send className="w-5 h-5" />
-                  </button>
-                </div>
-              </form>
-            </div>
-            
           </div>
         </div>
       )}

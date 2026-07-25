@@ -1,14 +1,13 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import raffleService from '../../services/raffleService';
 import { useAuth } from '../../contexts/AuthContext';
 import {
-  Ticket, ArrowLeft, Users, Clock, RefreshCw, Trophy,
-  ChevronLeft, ChevronRight, Shield, Zap, CheckCircle,
-  AlertCircle, Sparkles, Phone, Tag
+  Ticket, ArrowLeft, Users, RefreshCw, Trophy,
+  CheckCircle, AlertCircle, Phone, Tag, CreditCard, Gift, Percent, Shield
 } from 'lucide-react';
 
-// Countdown hook
 function useCountdown(targetDate) {
   const calc = () => {
     const diff = new Date(targetDate) - Date.now();
@@ -41,78 +40,78 @@ const RaffleDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [customQty, setCustomQty] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('momo');
+  const [buyerName, setBuyerName] = useState('');
   const [phone, setPhone] = useState('');
   const [promoCode, setPromoCode] = useState('');
-  const [useWallet, setUseWallet] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [purchaseError, setPurchaseError] = useState('');
 
   useEffect(() => {
-    const load = async () => {
+    const loadData = async () => {
       try {
         const res = await raffleService.getRaffle(uuid);
         setRaffle(res.data?.data || res.data);
-      } catch (e) {
-        console.error(e);
-        // Fallback mock
-        setRaffle({
-          uuid, title: 'iPhone 17 Pro Max Raffle',
-          description: 'Win the incredible iPhone 17 Pro Max. TechFortune Ghana Giveaway! 🎉 Are you ready to elevate your smartphone game? TechFortune Ghana presents an exciting chance to win the powerful iPhone 17 Pro Max, valued at GHS 25,000. 🔥',
-          image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=60',
-          ticket_price: 5, tickets_sold: 153, max_tickets: 1000,
-          draw_date: new Date(Date.now() + 4 * 86400000).toISOString(),
-          category: 'Smartphones', prize_value: 25000,
-        });
+      } catch (err) {
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    load();
+    loadData();
   }, [uuid]);
 
-  const countdown = useCountdown(raffle?.draw_date);
-  const progress = raffle?.max_tickets
-    ? Math.min(((raffle.tickets_sold || 0) / raffle.max_tickets) * 100, 100)
-    : 0;
-
-  const effectiveQty = customQty ? parseInt(customQty) || 1 : quantity;
-  const ticketPrice = parseFloat(raffle?.ticket_price || 0);
-  const totalAmount = effectiveQty * ticketPrice;
+  useEffect(() => {
+    if (user) {
+      setBuyerName(user.name || '');
+      setPhone(user.phone || '');
+    }
+  }, [user]);
 
   const handleQuickQty = (q) => {
     setQuantity(q);
     setCustomQty('');
   };
 
+  const effectiveQty = customQty ? parseInt(customQty) || 1 : quantity;
+  const ticketPrice = raffle?.ticket_price ? parseFloat(raffle.ticket_price) : 0;
+  const totalPrice = effectiveQty * ticketPrice;
+
   const handleBuy = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      navigate('/login', { state: { from: `/raffles/${uuid}` } });
-      return;
-    }
-    if (paymentMethod === 'momo' && !phone.trim()) {
-      setPurchaseError('Please enter your mobile money phone number.');
+      Swal.fire({ icon: 'info', text: 'Please sign in to buy tickets.', confirmButtonColor: '#3b82f6' });
+      navigate('/login');
       return;
     }
     setPurchasing(true);
     setPurchaseError('');
+
     try {
-      const res = await raffleService.buyTickets(uuid, {
+      const payload = {
+        raffle_id: raffle.id,
         quantity: effectiveQty,
         payment_method: paymentMethod,
-        phone: phone.trim() || undefined,
-        promo_code: promoCode.trim() || undefined,
-        use_wallet: useWallet,
-      });
-      const data = res.data || res;
-      if (data?.payment?.authorization_url) {
-        window.location.href = data.payment.authorization_url;
+        phone,
+      };
+      
+      const res = await raffleService.buyTickets(uuid, payload);
+      if (res.data?.authorization_url || res.authorization_url) {
+        window.location.href = res.data?.authorization_url || res.authorization_url;
       } else {
         setPurchaseSuccess(true);
+        // refresh stats
+        const updated = await raffleService.getRaffle(uuid);
+        setRaffle(updated.data?.data || updated.data);
       }
     } catch (err) {
-      setPurchaseError(err.response?.data?.message || err.message || 'Failed to purchase tickets.');
+      const errorMsg = err.message || err.response?.data?.message || 'Failed to initialize payment.';
+      setPurchaseError(errorMsg);
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: errorMsg,
+      });
     } finally {
       setPurchasing(false);
     }
@@ -128,251 +127,258 @@ const RaffleDetail = () => {
 
   if (!raffle) {
     return (
-      <div className="text-center py-24">
-        <p className="text-secondary-500 dark:text-secondary-400">Raffle not found.</p>
-        <Link to="/raffles" className="text-primary-600 font-semibold hover:underline mt-4 inline-block">← Back to Raffles</Link>
+      <div className="text-center py-24 bg-secondary-50 dark:bg-secondary-950 min-h-screen">
+        <p className="text-secondary-400">Raffle not found.</p>
+        <Link to="/raffles" className="text-primary-500 font-semibold hover:underline mt-4 inline-block">← Back to Raffles</Link>
       </div>
     );
   }
 
+  const progress = raffle.max_tickets ? Math.min(((raffle.tickets_sold || 0) / raffle.max_tickets) * 100, 100) : 0;
   const isFull = progress >= 100;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-16">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-secondary-500 dark:text-secondary-400">
-        <Link to="/raffles" className="flex items-center gap-1 hover:text-primary-600 font-medium">
-          <ArrowLeft className="w-4 h-4" /> All Raffles
-        </Link>
-        <span>/</span>
-        <span className="text-secondary-900 dark:text-white truncate max-w-xs">{raffle.title}</span>
-      </div>
+    <div className="bg-secondary-50 dark:bg-secondary-950 min-h-screen text-secondary-800 dark:text-secondary-200">
+      <div className="max-w-[1200px] mx-auto px-4 py-8 space-y-6">
+        
+        {/* Breadcrumb / Top Bar */}
+        <div className="flex items-center text-xs font-semibold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest">
+          <Link to="/raffles" className="flex items-center gap-1 hover:text-secondary-900 dark:text-white transition-colors">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Raffles
+          </Link>
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* ── LEFT COLUMN ── */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Prize Image */}
-          <div className="rounded-2xl overflow-hidden aspect-video bg-secondary-100 dark:bg-secondary-900 shadow-lg">
-            <img
-              src={raffle.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=60'}
-              alt={raffle.title}
-              className="w-full h-full object-cover"
-              onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=60'; }}
-            />
-          </div>
-
-          {/* Info card */}
-          <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 space-y-5">
-            {raffle.category && (
-              <span className="inline-flex items-center gap-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 text-xs font-bold px-3 py-1 rounded-full border border-primary-200/50 dark:border-primary-700/30">
-                <Sparkles className="w-3.5 h-3.5" /> {raffle.category}
-              </span>
-            )}
-            <h1 className="text-2xl md:text-3xl font-extrabold text-secondary-900 dark:text-white leading-tight">{raffle.title}</h1>
-            {raffle.prize_value && (
-              <div className="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 rounded-xl px-4 py-2">
-                <Trophy className="w-5 h-5 text-amber-500" />
-                <div>
-                  <p className="text-xxs text-amber-600 font-semibold uppercase">Prize Value</p>
-                  <p className="text-amber-700 dark:text-amber-400 font-extrabold text-lg">GHS {parseFloat(raffle.prize_value).toLocaleString()}</p>
-                </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+          
+          {/* ── LEFT COLUMN ── */}
+          <div className="lg:col-span-8 space-y-6">
+            
+            {/* Image Box */}
+            <div className="bg-white p-4 flex items-center justify-center relative h-64 md:h-80 shadow-xl overflow-hidden">
+              <div className="absolute top-4 left-4 z-10 bg-amber-400 text-amber-950 text-xs font-extrabold px-3 py-1.5 flex items-center gap-1">
+                <Trophy className="w-3.5 h-3.5" /> Sponsored
               </div>
-            )}
-
-            {/* Stats grid */}
-            <div className="grid grid-cols-3 gap-4">
-              {[
-                { icon: Ticket, label: 'Tickets Sold', val: raffle.tickets_sold || 0 },
-                { icon: Users, label: 'Total Tickets', val: raffle.max_tickets || '∞' },
-                { icon: Clock, label: 'Draw Date', val: raffle.draw_date ? new Date(raffle.draw_date).toLocaleDateString() : 'TBD' },
-              ].map(({ icon: Icon, label, val }) => (
-                <div key={label} className="text-center bg-secondary-50 dark:bg-secondary-800/50 rounded-xl p-3">
-                  <Icon className="w-5 h-5 text-primary-500 mx-auto mb-1" />
-                  <p className="text-sm font-bold text-secondary-900 dark:text-white">{val}</p>
-                  <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">{label}</p>
-                </div>
-              ))}
+              <img
+                src={raffle.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=60'}
+                alt={raffle.title}
+                className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-500"
+                onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=60'; }}
+              />
             </div>
 
-            {/* Progress */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs font-semibold text-secondary-600 dark:text-secondary-400">
-                <span>{raffle.tickets_sold || 0} tickets sold</span>
-                <span>{progress.toFixed(1)}% filled</span>
+            {/* Title & Badge */}
+            <div>
+              <h1 className="text-xl md:text-2xl font-extrabold text-secondary-900 dark:text-white leading-snug">{raffle.title}</h1>
+              {raffle.category && (
+                <div className="inline-flex items-center gap-1 mt-2 bg-primary-500/10 text-primary-600 dark:text-primary-400 border border-primary-500/20 text-xs font-bold px-2.5 py-1 rounded-md">
+                  {raffle.category}
+                </div>
+              )}
+            </div>
+
+            {/* Grand Prize Box */}
+            <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl p-4 flex items-center gap-4">
+              <div className="bg-primary-500/20 text-primary-500 p-3 rounded-lg border border-primary-500/30">
+                <Gift className="w-6 h-6" />
               </div>
-              <div className="w-full bg-secondary-100 dark:bg-secondary-800 h-3 rounded-full overflow-hidden">
+              <div>
+                <p className="text-[10px] uppercase font-bold text-secondary-400 dark:text-secondary-500 tracking-wider">Grand Prize</p>
+                <p className="text-sm font-semibold text-secondary-800 dark:text-secondary-200 leading-tight">
+                  {raffle.title}
+                </p>
+                {raffle.prize_value && (
+                  <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Worth GHS {parseFloat(raffle.prize_value).toLocaleString()}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Description */}
+            <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl p-6">
+              <h2 className="text-lg font-bold text-secondary-900 dark:text-white mb-3">About This Raffle</h2>
+              <p className="text-sm text-secondary-500 dark:text-secondary-400 leading-relaxed whitespace-pre-line">
+                {raffle.description || "Enter now for a chance to win this amazing prize! Grab your tickets before they run out."}
+              </p>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-3 md:gap-4">
+              <div className="bg-white rounded-xl p-4 text-center text-slate-900 shadow-md">
+                <Ticket className="w-6 h-6 text-indigo-500 mx-auto mb-2" />
+                <p className="text-2xl font-extrabold">{raffle.tickets_sold || 0}</p>
+                <p className="text-xs font-bold text-secondary-400 dark:text-secondary-500 uppercase tracking-wide">Tickets Sold</p>
+              </div>
+              <div className="bg-white rounded-xl p-4 text-center text-slate-900 shadow-md">
+                <Trophy className="w-6 h-6 text-amber-500 mx-auto mb-2" />
+                <p className="text-2xl font-extrabold">1</p>
+                <p className="text-xs font-bold text-secondary-400 dark:text-secondary-500 uppercase tracking-wide">Winner</p>
+              </div>
+              <div className="bg-white rounded-xl p-4 text-center text-slate-900 shadow-md">
+                <Percent className="w-6 h-6 text-primary-500 mx-auto mb-2" />
+                <p className="text-2xl font-extrabold">{progress.toFixed(0)}%</p>
+                <p className="text-xs font-bold text-secondary-400 dark:text-secondary-500 uppercase tracking-wide">Sold</p>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 p-4 space-y-3">
+              <div className="flex justify-between text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
+                <span>Tickets Remaining</span>
+                <span>{raffle.max_tickets ? raffle.max_tickets - (raffle.tickets_sold || 0) : 'Unlimited'}</span>
+              </div>
+              <div className="w-full bg-secondary-100 dark:bg-secondary-800 h-3.5 overflow-hidden p-0.5">
                 <div
-                  className={`h-full rounded-full transition-all duration-700 ${isFull ? 'bg-accent-500' : 'bg-gradient-to-r from-primary-400 to-primary-600'}`}
+                  className="h-full bg-gradient-to-r from-primary-500 to-primary-400 shadow-[0_0_10px_rgba(255,184,0,0.5)] transition-all duration-1000"
                   style={{ width: `${progress}%` }}
                 />
               </div>
+              
+              {/* Dates */}
+              <div className="flex justify-between items-center text-xs text-secondary-500 dark:text-secondary-400 mt-2">
+                {raffle.drawn_at && <span><strong>Draw:</strong> {new Date(raffle.drawn_at).toLocaleDateString()}</span>}
+                {raffle.ends_at && <span><strong>Ends:</strong> {new Date(raffle.ends_at).toLocaleDateString()}</span>}
+              </div>
             </div>
 
-            {/* Countdown */}
-            {raffle.draw_date && !countdown.expired && (
-              <div>
-                <p className="text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-2 flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> Draw Countdown</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { val: countdown.d, label: 'Days' },
-                    { val: countdown.h, label: 'Hours' },
-                    { val: countdown.m, label: 'Minutes' },
-                    { val: countdown.s, label: 'Seconds' },
-                  ].map(({ val, label }) => (
-                    <div key={label} className="bg-secondary-900 dark:bg-secondary-800 rounded-xl p-3 text-center">
-                      <div className="text-2xl font-extrabold text-primary-400 tabular-nums">{String(val).padStart(2, '0')}</div>
-                      <div className="text-secondary-500 dark:text-secondary-400 text-xxs mt-0.5">{label}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
 
-            {/* Description */}
-            {raffle.description && (
-              <div className="border-t border-secondary-100 dark:border-secondary-800 pt-4">
-                <p className="text-sm text-secondary-600 dark:text-secondary-300 leading-relaxed whitespace-pre-line">{raffle.description}</p>
-              </div>
-            )}
+
           </div>
 
-          {/* Trust badges */}
-          <div className="grid grid-cols-3 gap-3">
-            {[
-              { icon: Shield, label: 'Secure & Verified', color: 'text-emerald-500' },
-              { icon: Zap, label: 'Instant Confirmation', color: 'text-primary-500' },
-              { icon: Trophy, label: 'Fair Random Draw', color: 'text-amber-500' },
-            ].map(({ icon: Icon, label, color }) => (
-              <div key={label} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl p-3 text-center">
-                <Icon className={`w-6 h-6 ${color} mx-auto mb-1.5`} />
-                <p className="text-xs font-semibold text-secondary-700 dark:text-secondary-300">{label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── RIGHT COLUMN: Purchase Card ── */}
-        <div className="lg:col-span-2">
-          <div className="sticky top-24">
-            {purchaseSuccess ? (
-              <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl p-8 text-center space-y-4">
-                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto">
-                  <CheckCircle className="w-10 h-10 text-emerald-500" />
-                </div>
-                <h3 className="text-xl font-extrabold text-secondary-900 dark:text-white">Tickets Purchased! 🎉</h3>
-                <p className="text-secondary-600 dark:text-secondary-400 text-sm">Your {effectiveQty} ticket{effectiveQty > 1 ? 's are' : ' is'} secured. Good luck!</p>
-                <Link to="/my-tickets" className="block bg-emerald-500 text-white font-bold py-3 rounded-xl hover:bg-emerald-600 transition-colors text-sm">
-                  View My Tickets
-                </Link>
-                <button onClick={() => { setPurchaseSuccess(false); setQuantity(1); setCustomQty(''); }}
-                  className="block w-full text-secondary-500 dark:text-secondary-400 text-sm hover:text-primary-600 transition-colors">
-                  Buy More Tickets
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleBuy} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
-                {/* Card header */}
-                <div className="bg-secondary-950 p-5">
-                  <p className="text-secondary-400 text-xs uppercase font-bold tracking-wider">Ticket Price</p>
-                  <p className="text-primary-400 font-extrabold text-3xl mt-1">GHS {ticketPrice.toFixed(2)}</p>
-                  <p className="text-secondary-400 text-xs mt-0.5">per ticket</p>
-                </div>
-
-                <div className="p-5 space-y-5">
-                  {purchaseError && (
-                    <div className="p-3 bg-accent-50 dark:bg-accent-950/20 border border-accent-200/50 text-accent-600 dark:text-accent-400 rounded-xl flex items-start gap-2 text-xs">
-                      <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" /><span>{purchaseError}</span>
-                    </div>
-                  )}
-
-                  {/* Quantity */}
-                  <div>
-                    <label className="block text-xs font-bold text-secondary-600 dark:text-secondary-400 uppercase tracking-wider mb-2">Number of Tickets</label>
-                    <div className="grid grid-cols-4 gap-2 mb-2">
-                      {QUICK_QUANTITIES.map(q => (
-                        <button
-                          key={q} type="button" onClick={() => handleQuickQty(q)}
-                          className={`py-2.5 rounded-xl text-sm font-bold border-2 transition-all ${!customQty && quantity === q ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : 'border-secondary-200 dark:border-secondary-700 text-secondary-700 dark:text-secondary-300 hover:border-primary-400'}`}
-                        >{q}</button>
-                      ))}
-                    </div>
-                    <input
-                      type="number" min="1" max="100" placeholder="Or enter custom amount"
-                      value={customQty} onChange={(e) => setCustomQty(e.target.value)}
-                      className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-secondary-50 dark:bg-secondary-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
+          {/* ── RIGHT COLUMN ── */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-6">
+              {purchaseSuccess ? (
+                <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-8 text-center space-y-4">
+                  <div className="w-16 h-16 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto text-primary-500 border border-primary-500/30">
+                    <CheckCircle className="w-8 h-8" />
                   </div>
-
-                  {/* Phone */}
-                  <div>
-                    <label className="block text-xs font-bold text-secondary-600 dark:text-secondary-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5" /> Phone Number
-                    </label>
-                    <input
-                      type="tel" placeholder="0XX XXX XXXX" value={phone} onChange={(e) => setPhone(e.target.value)}
-                      className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-secondary-50 dark:bg-secondary-800 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-
-                  {/* Payment method */}
-                  <div>
-                    <label className="block text-xs font-bold text-secondary-600 dark:text-secondary-400 uppercase tracking-wider mb-2">Payment Method</label>
-                    <div className="space-y-2">
-                      {PAYMENT_METHODS.map(m => (
-                        <button
-                          key={m.id} type="button" onClick={() => setPaymentMethod(m.id)}
-                          className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${paymentMethod === m.id ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' : 'border-secondary-200 dark:border-secondary-700 hover:border-primary-300'}`}
-                        >
-                          <span className="text-2xl">{m.icon}</span>
-                          <div>
-                            <p className="text-sm font-bold text-secondary-900 dark:text-white">{m.label}</p>
-                            <p className="text-xxs text-secondary-500 dark:text-secondary-400">{m.desc}</p>
-                          </div>
-                          {paymentMethod === m.id && <CheckCircle className="w-5 h-5 text-primary-500 ml-auto flex-shrink-0" />}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Promo code */}
-                  <div>
-                    <label className="block text-xs font-bold text-secondary-600 dark:text-secondary-400 uppercase tracking-wider mb-2 flex items-center gap-1">
-                      <Tag className="w-3.5 h-3.5" /> Promo Code (optional)
-                    </label>
-                    <input
-                      type="text" placeholder="Enter promo code" value={promoCode} onChange={(e) => setPromoCode(e.target.value)}
-                      className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-secondary-50 dark:bg-secondary-800 text-sm uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    />
-                  </div>
-
-                  {/* Price total */}
-                  <div className="border-t border-secondary-100 dark:border-secondary-800 pt-4 space-y-2">
-                    <div className="flex justify-between text-sm text-secondary-600 dark:text-secondary-400">
-                      <span>{effectiveQty} ticket{effectiveQty > 1 ? 's' : ''} × GHS {ticketPrice.toFixed(2)}</span>
-                      <span>GHS {totalAmount.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between font-extrabold text-secondary-900 dark:text-white">
-                      <span>Total</span>
-                      <span className="text-primary-500">GHS {totalAmount.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  {/* Submit */}
-                  <button
-                    type="submit" disabled={purchasing || isFull}
-                    className="w-full premium-button-primary py-4 rounded-2xl font-extrabold text-base flex items-center justify-center gap-2 shadow-lg shadow-primary-500/30 disabled:opacity-60"
-                  >
-                    {purchasing ? <RefreshCw className="w-5 h-5 animate-spin" /> : isFull ? 'Raffle Full — Draw Pending' : <><Ticket className="w-5 h-5" /> Buy {effectiveQty} Ticket{effectiveQty > 1 ? 's' : ''} — GHS {totalAmount.toFixed(2)}</>}
+                  <h3 className="text-xl font-extrabold text-secondary-900 dark:text-white">Tickets Purchased! 🎉</h3>
+                  <p className="text-secondary-500 dark:text-secondary-400 text-sm">Your {effectiveQty} ticket{effectiveQty > 1 ? 's are' : ' is'} secured. Good luck!</p>
+                  <Link to="/my-tickets" className="block w-full bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-bold py-3.5 rounded-xl transition-colors text-sm">
+                    View My Tickets
+                  </Link>
+                  <button onClick={() => { setPurchaseSuccess(false); setQuantity(1); setCustomQty(''); }}
+                    className="block w-full text-secondary-400 dark:text-secondary-500 text-sm hover:text-secondary-900 dark:text-white transition-colors">
+                    Buy More Tickets
                   </button>
-
-                  {!isAuthenticated && (
-                    <p className="text-center text-xs text-secondary-500 dark:text-secondary-400">
-                      <Link to="/login" className="text-primary-600 font-semibold hover:underline">Sign in</Link> to purchase tickets
-                    </p>
-                  )}
                 </div>
-              </form>
-            )}
+              ) : (
+                <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-2xl">
+                  {/* Card Header */}
+                  <div className="bg-gradient-to-r from-primary-600 to-primary-400 p-5 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-secondary-900 dark:text-white font-extrabold text-lg tracking-wide">
+                      <Ticket className="w-5 h-5" /> Buy Tickets
+                    </div>
+                    {/* Simulated Payment Logos in Header */}
+                    <div className="flex gap-1">
+                       <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px] font-bold text-secondary-900 dark:text-white border border-white/30 backdrop-blur-sm">GHS</span>
+                       <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px] font-bold text-secondary-900 dark:text-white border border-white/30 backdrop-blur-sm">MOMO</span>
+                       <span className="bg-white/20 px-1.5 py-0.5 rounded text-[9px] font-bold text-secondary-900 dark:text-white border border-white/30 backdrop-blur-sm">VISA</span>
+                    </div>
+                  </div>
+
+                  {/* Form */}
+                  <form onSubmit={handleBuy} className="p-5 space-y-4">
+                    {purchaseError && (
+                      <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg flex items-start gap-2 text-xs">
+                        <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" /><span>{purchaseError}</span>
+                      </div>
+                    )}
+
+                    {/* Quantity Row */}
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest">Quick Select</label>
+                      </div>
+                      <div className="grid grid-cols-4 gap-2 mb-3">
+                        {QUICK_QUANTITIES.map(q => (
+                          <button
+                            key={q} type="button" onClick={() => handleQuickQty(q)}
+                            className={`py-2 rounded-lg text-sm font-bold border transition-colors ${!customQty && quantity === q ? 'bg-secondary-100 dark:bg-secondary-800 border-primary-500 text-primary-600 dark:text-primary-400' : 'bg-transparent border-secondary-300 dark:border-secondary-700 text-secondary-700 dark:text-secondary-300 hover:border-slate-500'}`}
+                          >{q}</button>
+                        ))}
+                      </div>
+                      <label className="block text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest mb-1.5">Ticket Quantity</label>
+                      <input
+                        type="number" min="1" max="500" placeholder="Custom quantity"
+                        value={customQty} onChange={(e) => setCustomQty(e.target.value)}
+                        className="w-full p-2.5 bg-secondary-50 dark:bg-secondary-950 border border-secondary-300 dark:border-secondary-700 rounded-lg text-sm text-secondary-900 dark:text-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none"
+                      />
+                    </div>
+
+                    {/* Promo Code */}
+                    <div>
+                      <label className="block text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest mb-1.5">Promo Code (Optional)</label>
+                      <input
+                        type="text" placeholder="Enter code" value={promoCode} onChange={(e) => setPromoCode(e.target.value)}
+                        className="w-full p-2.5 bg-secondary-50 dark:bg-secondary-950 border border-secondary-300 dark:border-secondary-700 rounded-lg text-sm text-secondary-900 dark:text-white focus:border-primary-500 outline-none"
+                      />
+                    </div>
+
+                    {/* Name */}
+                    <div>
+                      <label className="block text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest mb-1.5">Your Name</label>
+                      <input
+                        type="text" required placeholder="John Doe" value={buyerName} onChange={(e) => setBuyerName(e.target.value)}
+                        className="w-full p-2.5 bg-secondary-50 dark:bg-secondary-950 border border-secondary-300 dark:border-secondary-700 rounded-lg text-sm text-secondary-900 dark:text-white focus:border-primary-500 outline-none"
+                      />
+                    </div>
+
+                    {/* Phone */}
+                    <div>
+                      <label className="block text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest mb-1.5">Phone Number</label>
+                      <input
+                        type="tel" required placeholder="055XXXXXXX" value={phone} onChange={(e) => setPhone(e.target.value)}
+                        className="w-full p-2.5 bg-secondary-50 dark:bg-secondary-950 border border-secondary-300 dark:border-secondary-700 rounded-lg text-sm text-secondary-900 dark:text-white focus:border-primary-500 outline-none"
+                      />
+                    </div>
+
+                    {/* Summary */}
+                    <div className="border-t border-secondary-200 dark:border-secondary-800 pt-3 space-y-2">
+                      <div className="flex justify-between text-xs font-semibold text-secondary-500 dark:text-secondary-400">
+                        <span>Base Price</span>
+                        <span>GHS {totalPrice.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between font-extrabold text-secondary-900 dark:text-white text-lg pt-1">
+                        <span>Total</span>
+                        <span className="text-primary-600 dark:text-primary-400">GHS {totalPrice.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    {/* Payment Method Selector */}
+                    <div>
+                       <label className="block text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest mb-2 mt-2">Choose Payment Method</label>
+                       <div className="grid grid-cols-2 gap-2">
+                         <div 
+                           onClick={() => setPaymentMethod('momo')} 
+                           className={`cursor-pointer border rounded-lg p-2.5 flex items-center justify-between transition-colors ${paymentMethod === 'momo' ? 'border-primary-500 bg-primary-500/10 text-primary-600 dark:text-primary-400' : 'border-secondary-300 dark:border-secondary-700 text-secondary-500 dark:text-secondary-400 hover:border-slate-500'}`}
+                         >
+                           <span className="text-xs font-bold uppercase tracking-wider">Mobile Money</span>
+                           {paymentMethod === 'momo' && <CheckCircle className="w-4 h-4" />}
+                         </div>
+                         <div 
+                           onClick={() => setPaymentMethod('paystack')} 
+                           className={`cursor-pointer border rounded-lg p-2.5 flex items-center justify-between transition-colors ${paymentMethod === 'paystack' ? 'border-primary-500 bg-primary-500/10 text-primary-600 dark:text-primary-400' : 'border-secondary-300 dark:border-secondary-700 text-secondary-500 dark:text-secondary-400 hover:border-slate-500'}`}
+                         >
+                           <span className="text-xs font-bold uppercase tracking-wider">Card / Paystack</span>
+                           {paymentMethod === 'paystack' && <CheckCircle className="w-4 h-4" />}
+                         </div>
+                       </div>
+                    </div>
+
+                    {/* Pay Button */}
+                    <button
+                      type="submit" disabled={purchasing || isFull}
+                      className="w-full bg-gradient-to-r from-primary-500 to-primary-400 hover:from-primary-400 hover:to-primary-300 text-secondary-950 font-extrabold text-sm py-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,184,0,0.3)] disabled:opacity-60 disabled:shadow-none transition-all mt-2"
+                    >
+                      {purchasing ? <RefreshCw className="w-5 h-5 animate-spin" /> : isFull ? 'Raffle Full' : <>Pay via {paymentMethod === 'momo' ? 'Mobile Money' : 'Paystack'}</>}
+                    </button>
+                    <p className="text-center text-[10px] text-secondary-400 dark:text-secondary-500 font-semibold flex items-center justify-center gap-1 mt-3">
+                       <Shield className="w-3 h-3" /> Secure and Encrypted Checkout
+                    </p>
+                  </form>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

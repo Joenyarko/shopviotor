@@ -31,7 +31,7 @@ const VendorLayout = () => {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-secondary-900 border-r border-secondary-200 dark:border-secondary-800 flex flex-col transform lg:translate-x-0 lg:static transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-secondary-900 border-r border-secondary-200 dark:border-secondary-800 flex flex-col transform lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:flex-shrink-0 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-16 flex items-center justify-between px-5 border-b border-secondary-200 dark:border-secondary-800">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">

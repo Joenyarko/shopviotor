@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import chatService from '../../services/chatService';
@@ -70,7 +71,7 @@ const Messages = () => {
       setAttachments([]);
     } catch (e) {
       console.error(e);
-      alert('Failed to send message.');
+      Swal.fire({ text: String('Failed to send message.') });
     } finally {
       setSending(false);
     }

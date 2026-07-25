@@ -39,7 +39,6 @@ import { motion } from 'framer-motion';
 import productService from '../services/productService';
 import apiClient from '../api/client';
 import ProductCard from '../components/ProductCard';
-import HeroCarousel from '../components/HeroCarousel';
 import PromoPopup from '../components/marketing/PromoPopup';
 import FlashSaleBanner from '../components/marketing/FlashSaleBanner';
 import HeroBanner from '../components/marketing/HeroBanner';
@@ -102,7 +101,7 @@ const Landing = () => {
         setFeatured(featuredRes.data || []);
         setLatest(latestRes.data?.data || latestRes.data || []);
         setCategories(categoriesRes.data?.data || categoriesRes.data || []);
-        setCollections(collectionsRes.data?.data || []);
+        setCollections(collectionsRes.data?.data || collectionsRes.data || []);
         
         let bArray = [];
         if (Array.isArray(brandsRes)) bArray = brandsRes;
@@ -127,10 +126,15 @@ const Landing = () => {
 
   return (
     <div className="space-y-16 pb-16">
-      
-      {/* 1. HERO CAROUSEL */}
+
+      {/* 1. STOREFRONT TOP AD (Formerly Hero Carousel) */}
       <section className="relative w-full">
-        <HeroCarousel />
+        <HeroBanner 
+          position="storefront_top_ad" 
+          fallbackContent={
+            <div className="w-full h-48 md:h-80 bg-secondary-100 dark:bg-secondary-800 rounded-xl animate-pulse"></div>
+          } 
+        />
         
         {/* Search bar beneath Hero */}
         <div className="mt-6 md:mt-8 max-w-3xl mx-auto px-4">
@@ -247,38 +251,15 @@ const Landing = () => {
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No featured products currently listed.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
+          <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar md:grid md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
             {featured.slice(0, 4).map(product => (
-              <ProductCard key={product.id || product.uuid} product={product} />
+              <div key={product.id || product.uuid} className="min-w-[150px] w-[45%] flex-none snap-start md:w-auto md:min-w-0">
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         )}
       </section>
-
-      {/* 5. CURATED COLLECTIONS */}
-      {collections.map(collection => (
-        <section key={collection.uuid} className="space-y-6">
-          <div className="flex justify-between items-end">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">
-                {collection.title}
-              </h2>
-              {collection.description && (
-                <p className="text-sm text-secondary-500 dark:text-secondary-400">{collection.description}</p>
-              )}
-            </div>
-            <Link to="/products" className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
-              See All <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
-            {collection.products.map(product => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-      ))}
 
       {/* 3.5 MIDDLE ADVERTISING BOARD */}
       <HeroBanner 
@@ -325,21 +306,58 @@ const Landing = () => {
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No new products currently listed.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
+          <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar md:grid md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
             {latest.slice(0, 8).map(product => (
-              <ProductCard key={product.id || product.uuid} product={product} />
+              <div key={product.id || product.uuid} className="min-w-[150px] w-[45%] flex-none snap-start md:w-auto md:min-w-0">
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         )}
       </section>
 
+      {/* 5. CURATED COLLECTIONS */}
+      {collections.map(collection => {
+        const isBlack = collection.header_color === 'black';
+        const headerBgClass = isBlack ? 'bg-secondary-900' : 'bg-primary-500';
+        const textColorClass = isBlack ? 'text-white' : 'text-secondary-900';
+        const subTextColorClass = isBlack ? 'text-secondary-300' : 'text-primary-900/80';
+        
+        return (
+        <section key={collection.uuid} className="space-y-0 mb-6 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800">
+          <div className={`${headerBgClass} py-1 px-4 flex justify-between items-center relative`}>
+            <div>
+              <h2 className={`text-sm sm:text-base font-bold ${textColorClass}`}>
+                {collection.title}
+              </h2>
+              {collection.description && (
+                <p className={`text-sm ${subTextColorClass}`}>{collection.description}</p>
+              )}
+            </div>
+            <Link to="/products" className={`text-sm font-semibold hover:underline flex items-center gap-1 ${textColorClass}`}>
+              See All &gt;
+            </Link>
+          </div>
+
+          <div className="bg-white dark:bg-secondary-900 p-0">
+            <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar md:grid md:grid-cols-4 lg:grid-cols-6 divide-x md:divide-y-0 divide-secondary-200 dark:divide-secondary-800 border-t border-secondary-200 dark:border-secondary-800">
+              {collection.products.map(product => (
+                <div key={product.id} className="min-w-[150px] w-[45%] flex-none snap-start md:w-auto md:min-w-0 p-0 hover:shadow-xl transition-all duration-300 z-10 relative bg-white dark:bg-secondary-900">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )})}
+
       {/* Brand Logos */}
       {brands && brands.length > 0 && (
-        <section className="py-8 bg-white dark:bg-secondary-900">
-          <div className="max-w-4xl mx-auto px-4">
-            <div className="flex flex-wrap md:flex-nowrap items-center justify-center border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden divide-y md:divide-y-0 md:divide-x divide-secondary-200 dark:divide-secondary-800 bg-white dark:bg-secondary-900">
-              {brands.slice(0, 5).map((brand) => (
-                <div key={brand.id || brand.uuid} className="flex-1 min-w-[150px] h-24 flex items-center justify-center p-6 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all cursor-pointer">
+        <section className="py-4">
+          <div className="flex overflow-hidden border border-secondary-200 dark:border-secondary-800 rounded-xl bg-white dark:bg-secondary-900 shadow-sm relative group">
+            <div className="flex w-max animate-marquee">
+              {[...brands, ...brands, ...brands, ...brands].map((brand, idx) => (
+                <div key={`${brand.id || brand.uuid}-${idx}`} className="w-40 sm:w-48 h-24 flex-shrink-0 flex items-center justify-center p-6 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all cursor-pointer">
                   {brand.logo ? (
                     <img src={brand.logo} alt={brand.name} className="max-w-full max-h-full object-contain" />
                   ) : (

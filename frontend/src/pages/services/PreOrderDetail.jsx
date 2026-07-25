@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import productService from '../../services/productService';
@@ -38,13 +39,13 @@ const PreOrderDetail = () => {
     setProcessing(true);
     try {
       await preorderService.storePreOrder({
-        product_id: product.uuid,
+        product_id: product.id,
         customer_details: { name, phone, address }
       });
-      alert('Pre-order reserved successfully! You will be redirected to your dashboard.');
+      Swal.fire({ text: String('Pre-order reserved successfully! You will be redirected to your dashboard.') });
       navigate('/my-pre-orders');
     } catch (e) {
-      alert(e.response?.data?.message || 'Failed to process pre-order.');
+      Swal.fire({ text: String(e.response?.data?.message || 'Failed to process pre-order.') });
     } finally {
       setProcessing(false);
     }

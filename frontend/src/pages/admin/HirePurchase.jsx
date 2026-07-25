@@ -1,7 +1,9 @@
+import Swal from 'sweetalert2';
 import React, { useEffect, useState, useRef } from 'react';
 import hpService from '../../services/hpService';
 import productService from '../../services/productService';
-import { Briefcase, X, RefreshCw, Eye, Plus, Image as ImageIcon, Upload, Trash2, CheckCircle } from 'lucide-react';
+import { Briefcase, X, RefreshCw, Eye, Plus, Image as ImageIcon, Upload, Trash2, CheckCircle, Edit } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const AdminHirePurchase = () => {
   const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'products'
@@ -15,7 +17,15 @@ const AdminHirePurchase = () => {
   // Products State
   const [hpProducts, setHpProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [page, setPage] = useState(1);
+  const [prodPage, setProdPage] = useState(1);
+  const itemsPerPage = 8;
+  const totalPages = Math.ceil(applications.length / itemsPerPage);
+  const paginatedApps = applications.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  const totalProdPages = Math.ceil(hpProducts.length / itemsPerPage);
+  const paginatedHpProducts = hpProducts.slice((prodPage - 1) * itemsPerPage, prodPage * itemsPerPage);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null);
   
   // Product Form State
   const [categories, setCategories] = useState([]);
@@ -23,6 +33,9 @@ const AdminHirePurchase = () => {
   const [price, setPrice] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [description, setDescription] = useState('');
+  const [hpInterestRate, setHpInterestRate] = useState('');
+  const [hpMinDepositPercent, setHpMinDepositPercent] = useState('');
+  const [hpMaxDurationMonths, setHpMaxDurationMonths] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
@@ -58,15 +71,16 @@ const AdminHirePurchase = () => {
   }, []);
 
   const handleUpdateStatus = async (uuid, status) => {
-    if (!window.confirm(`Are you sure you want to mark this application as ${status}?`)) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: `Are you sure you want to mark this application as ${status}?`, icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     setProcessing(true);
     try {
       await hpService.adminUpdateStatus(uuid, status);
-      alert('Status updated successfully.');
+      Swal.fire({ text: String('Status updated successfully.') });
       setSelectedApp(null);
       loadApplications();
     } catch (err) {
-      alert(err.message || 'Failed to update status.');
+      Swal.fire({ text: String(err.message || 'Failed to update status.') });
     } finally {
       setProcessing(false);
     }
@@ -82,10 +96,26 @@ const AdminHirePurchase = () => {
 
   const resetForm = () => {
     setName(''); setPrice(''); setCategoryId(''); setDescription('');
+    setHpInterestRate(''); setHpMinDepositPercent(''); setHpMaxDurationMonths('');
     setImageFile(null); setImagePreview(null);
+    setEditingProductId(null);
   };
 
-  const handleCreateProduct = async (e) => {
+  const handleEditProduct = (p) => {
+    setEditingProductId(p.id || p.uuid);
+    setName(p.name || '');
+    setPrice(p.price || '');
+    setCategoryId(p.category_id || (p.category ? (p.category.id || p.category.uuid) : '') || '');
+    setDescription(p.description || '');
+    setHpInterestRate(p.hp_interest_rate || '');
+    setHpMinDepositPercent(p.hp_min_deposit_percent || '');
+    setHpMaxDurationMonths(p.hp_max_duration_months || '');
+    setImagePreview(p.primary_image || null);
+    setImageFile(null);
+    setShowAddProductModal(true);
+  };
+
+  const handleSaveProduct = async (e) => {
     e.preventDefault();
     setProcessing(true);
     
@@ -98,26 +128,36 @@ const AdminHirePurchase = () => {
     formData.append('status', 'active');
     formData.append('description', description);
     formData.append('available_for_hire_purchase', '1');
+    if (hpInterestRate) formData.append('hp_interest_rate', hpInterestRate);
+    if (hpMinDepositPercent) formData.append('hp_min_deposit_percent', hpMinDepositPercent);
+    if (hpMaxDurationMonths) formData.append('hp_max_duration_months', hpMaxDurationMonths);
     if (imageFile) formData.append('images[0]', imageFile);
 
     try {
-      await productService.adminCreateProduct(formData);
+      if (editingProductId) {
+        await productService.adminUpdateProduct(editingProductId, formData);
+        Swal.fire({ text: 'HP product updated successfully.' });
+      } else {
+        await productService.adminCreateProduct(formData);
+        Swal.fire({ text: 'HP product created successfully.' });
+      }
       setShowAddProductModal(false);
       resetForm();
       loadHpProducts();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to create product.');
+      Swal.fire({ text: String(err.response?.data?.message || 'Failed to save product.') });
     } finally {
       setProcessing(false);
     }
   };
 
   const handleDeleteProduct = async (uuid) => {
-    if (!window.confirm('Delete this HP product?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Delete this HP product?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await productService.adminDeleteProduct(uuid);
       loadHpProducts();
-    } catch (e) { alert(e.message || 'Failed to delete.'); }
+    } catch (e) { Swal.fire({ text: String(e.message || 'Failed to delete.') }); }
   };
 
   return (
@@ -174,7 +214,7 @@ const AdminHirePurchase = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                    {applications.map((app) => (
+                    {paginatedApps.map((app) => (
                       <tr key={app.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                         <td className="p-4 font-semibold text-secondary-900 dark:text-white">{app.user?.name || 'Customer'}</td>
                         <td className="p-4 text-secondary-700 dark:text-secondary-300">{app.product?.name}</td>
@@ -191,6 +231,7 @@ const AdminHirePurchase = () => {
                     ))}
                   </tbody>
                 </table>
+                <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
               </div>
             )}
           </div>
@@ -259,8 +300,9 @@ const AdminHirePurchase = () => {
               <button onClick={() => setShowAddProductModal(true)} className="mt-4 text-primary-600 font-bold hover:underline">Post the first one</button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {hpProducts.map(p => (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {paginatedHpProducts.map(p => (
                 <div key={p.id || p.uuid} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden shadow-sm flex flex-col">
                   <div className="h-48 bg-secondary-100 dark:bg-secondary-800 relative">
                     {p.primary_image ? (
@@ -273,14 +315,19 @@ const AdminHirePurchase = () => {
                   <div className="p-4 flex-1 flex flex-col">
                     <h3 className="font-bold text-secondary-900 dark:text-white line-clamp-1">{p.name}</h3>
                     <p className="text-primary-600 dark:text-primary-400 font-bold mt-1">GHS {parseFloat(p.price || 0).toLocaleString()}</p>
-                    <div className="mt-auto pt-4 flex justify-end">
-                      <button onClick={() => handleDeleteProduct(p.id || p.uuid)} className="p-2 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/30 rounded-lg">
+                    <div className="mt-auto pt-4 flex justify-end gap-1">
+                      <button onClick={() => handleEditProduct(p)} className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-lg" title="Edit HP Product">
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDeleteProduct(p.id || p.uuid)} className="p-2 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/30 rounded-lg" title="Delete HP Product">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 </div>
-              ))}
+                ))}
+              </div>
+              <DotPagination currentPage={prodPage} totalPages={totalProdPages} onPageChange={setProdPage} />
             </div>
           )}
         </div>
@@ -292,10 +339,10 @@ const AdminHirePurchase = () => {
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl w-full max-w-lg shadow-2xl relative mt-20">
             <button onClick={() => { setShowAddProductModal(false); resetForm(); }} className="absolute top-4 right-4 p-1 rounded-md hover:bg-secondary-100 dark:hover:bg-secondary-800 text-secondary-500"><X className="w-5 h-5" /></button>
             <div className="p-6">
-              <h3 className="font-bold text-xl text-secondary-900 dark:text-white mb-1">Post Hire Purchase Product</h3>
-              <p className="text-xs text-secondary-500 mb-6">Create a product listing that customers can apply to pay for in installments.</p>
+              <h3 className="font-bold text-xl text-secondary-900 dark:text-white mb-1">{editingProductId ? 'Edit Hire Purchase Product' : 'Post Hire Purchase Product'}</h3>
+              <p className="text-xs text-secondary-500 mb-6">{editingProductId ? 'Update product installment terms and details.' : 'Create a product listing that customers can apply to pay for in installments.'}</p>
               
-              <form onSubmit={handleCreateProduct} className="space-y-4">
+              <form onSubmit={handleSaveProduct} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Product Name</label>
                   <input type="text" required value={name} onChange={e => setName(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500" placeholder="e.g. Samsung Galaxy S23" />
@@ -313,6 +360,21 @@ const AdminHirePurchase = () => {
                       {categories.map(c => <option key={c.id || c.uuid} value={c.id || c.uuid}>{c.name}</option>)}
                     </select>
                   </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5" title="e.g. 5 for 5%">Interest Rate (%)</label>
+                      <input type="number" min="0" step="0.01" value={hpInterestRate} onChange={e => setHpInterestRate(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500" placeholder="e.g. 5.0" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5" title="Minimum deposit percentage">Min Deposit (%)</label>
+                      <input type="number" min="0" step="0.01" value={hpMinDepositPercent} onChange={e => setHpMinDepositPercent(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500" placeholder="e.g. 20.0" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5" title="Maximum duration allowed">Max Duration (Mos)</label>
+                      <input type="number" min="1" step="1" value={hpMaxDurationMonths} onChange={e => setHpMaxDurationMonths(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500" placeholder="e.g. 12" />
+                    </div>
                 </div>
 
                 <div>
@@ -340,7 +402,7 @@ const AdminHirePurchase = () => {
                 </div>
 
                 <button type="submit" disabled={processing} className="w-full premium-button-primary py-3 rounded-xl font-bold flex items-center justify-center gap-2 mt-4">
-                  {processing ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Publish HP Product'}
+                  {processing ? <RefreshCw className="w-5 h-5 animate-spin" /> : (editingProductId ? 'Save Changes' : 'Publish HP Product')}
                 </button>
               </form>
             </div>

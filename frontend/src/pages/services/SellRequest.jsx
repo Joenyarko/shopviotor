@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import sellRequestService from '../../services/sellRequestService';
@@ -20,11 +21,6 @@ const SellRequest = () => {
   // Detail/Edit Modal State
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [chatStatus, setChatStatus] = useState('open');
-  const [msgBody, setMsgBody] = useState('');
-  const [sendingMsg, setSendingMsg] = useState(false);
-  const chatEndRef = useRef(null);
 
   const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm({
     defaultValues: {
@@ -99,7 +95,7 @@ const SellRequest = () => {
       if (isEditing) {
         formData.append('_method', 'PUT'); // Laravel form method spoofing
         await sellRequestService.updateSell(selectedRequest.id || selectedRequest.uuid, formData);
-        alert('Request updated successfully!');
+        Swal.fire({ text: String('Request updated successfully!') });
         setIsEditing(false);
         setSelectedRequest(null);
         loadMyRequests();
@@ -125,40 +121,54 @@ const SellRequest = () => {
 
   const openRequest = async (req) => {
     setSelectedRequest(req);
-    setMessages([]);
-    setChatStatus('open');
+  };
+
+  const handleAccept = async (req) => {
+    const __confirmResult = await Swal.fire({ title: 'Proceed to WhatsApp?', text: 'You are being directed to WhatsApp to proceed with the deal. Proceed?', icon: 'info', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
-      const res = await sellRequestService.getMessages(req.id || req.uuid);
-      setMessages(res.data?.data || []);
-      setChatStatus(res.data?.chat_status || 'open');
+      await sellRequestService.acceptOffer(req.id || req.uuid);
+      setSelectedRequest(prev => ({ ...prev, status: 'accepted' }));
+      loadMyRequests();
+      
+      const adminWhatsApp = '+233541234567'; // Placeholder, replace with actual
+      const message = `Hi, I accept your buyout offer of GHS ${req.offered_price} for my ${req.item_name}. Let's proceed.`;
+      window.open(`https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`, '_blank');
     } catch (e) {
-      console.error(e);
+      Swal.fire({ text: 'Failed to accept offer.' });
     }
   };
 
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!msgBody.trim() || !selectedRequest) return;
-    setSendingMsg(true);
+  const handleReject = async (req) => {
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Are you sure you want to reject this offer? The deal will be closed.', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
-      const res = await sellRequestService.sendMessage(selectedRequest.id || selectedRequest.uuid, msgBody);
-      setMessages(prev => [...prev, res.data?.data || res.data]);
-      setMsgBody('');
+      await sellRequestService.rejectOffer(req.id || req.uuid);
+      setSelectedRequest(prev => ({ ...prev, status: 'rejected' }));
+      loadMyRequests();
+      Swal.fire({ text: 'Offer rejected.', icon: 'success' });
     } catch (e) {
-      alert('Failed to send message.');
-    } finally {
-      setSendingMsg(false);
+      Swal.fire({ text: 'Failed to reject offer.' });
     }
+  };
+
+  const handleCounter = async (req) => {
+    const __confirmResult = await Swal.fire({ title: 'Proceed to WhatsApp?', text: 'You are being directed to WhatsApp to proceed with the deal. Proceed?', icon: 'info', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
+    const adminWhatsApp = '+233541234567'; // Placeholder, replace with actual
+    const message = `Hi, regarding your buyout offer of GHS ${req.offered_price} for my ${req.item_name}, I would like to counter with...`;
+    window.open(`https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleDelete = async (uuid) => {
-    if (!window.confirm('Are you sure you want to delete this pending request?')) return;
+    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Are you sure you want to delete this pending request?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
     try {
       await sellRequestService.deleteSell(uuid);
       setSelectedRequest(null);
       loadMyRequests();
     } catch (e) {
-      alert(e.response?.data?.message || 'Failed to delete request.');
+      Swal.fire({ text: String(e.response?.data?.message || 'Failed to delete request.') });
     }
   };
 
@@ -178,9 +188,7 @@ const SellRequest = () => {
     setActiveTab('submit');
   };
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-8">
@@ -395,8 +403,9 @@ const SellRequest = () => {
                     <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400">
                       {req.offered_price ? `GHS ${parseFloat(req.offered_price).toLocaleString()}` : '-'}
                     </td>
-                    <td className="p-4 text-right">
-                      <button onClick={() => openRequest(req)} className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg"><Eye className="w-4 h-4" /></button>
+                    <td className="p-4 text-right flex items-center justify-end gap-1">
+                      <button onClick={() => openRequest(req)} className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg" title="View details"><Eye className="w-4 h-4" /></button>
+                      <button onClick={() => handleDelete(req.id || req.uuid)} className="p-1.5 text-accent-600 hover:bg-accent-50 rounded-lg" title="Delete request"><Trash2 className="w-4 h-4" /></button>
                     </td>
                   </tr>
                 ))}
@@ -409,13 +418,12 @@ const SellRequest = () => {
       {/* Detail & Chat Modal */}
       {selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-secondary-900 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col md:flex-row overflow-hidden shadow-2xl">
+          <div className="bg-white dark:bg-secondary-900 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative">
+            <button onClick={() => setSelectedRequest(null)} className="absolute top-4 right-4 p-2 text-secondary-400 hover:text-secondary-600 z-10 bg-secondary-100 dark:bg-secondary-800 rounded-full shadow-sm hover:bg-secondary-200"><X className="w-5 h-5" /></button>
             
-            {/* Left side: Request Details */}
-            <div className="w-full md:w-1/2 flex flex-col border-r border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-850/50">
-              <div className="p-4 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center bg-white dark:bg-secondary-900">
+            <div className="w-full flex flex-col bg-secondary-50 dark:bg-secondary-850/50">
+              <div className="p-4 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center bg-white dark:bg-secondary-900 pr-12">
                 <h3 className="font-bold text-lg text-secondary-900 dark:text-white">Request Details</h3>
-                <button onClick={() => setSelectedRequest(null)} className="p-1 text-secondary-400 hover:text-secondary-600 md:hidden"><X className="w-5 h-5" /></button>
               </div>
               <div className="p-6 overflow-y-auto flex-1 space-y-6">
                 <div>
@@ -473,57 +481,23 @@ const SellRequest = () => {
                     </button>
                   </div>
                 )}
-              </div>
-            </div>
-
-            {/* Right side: Chat */}
-            <div className="w-full md:w-1/2 flex flex-col h-[60vh] md:h-auto bg-white dark:bg-secondary-900 relative">
-              <button onClick={() => setSelectedRequest(null)} className="absolute top-4 right-4 p-1 text-secondary-400 hover:text-secondary-600 hidden md:block z-10 bg-white dark:bg-secondary-900 rounded-full shadow-sm"><X className="w-5 h-5" /></button>
-              
-              <div className="p-4 border-b border-secondary-200 dark:border-secondary-800 flex items-center justify-between bg-white dark:bg-secondary-900">
-                <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${chatStatus === 'open' ? 'bg-emerald-500 animate-pulse' : 'bg-secondary-300'}`}></span>
-                  <h3 className="font-bold text-secondary-900 dark:text-white">Admin Chat & Feedback</h3>
-                </div>
-                {chatStatus === 'closed' && (
-                  <span className="text-xs px-2 py-1 bg-secondary-100 dark:bg-secondary-800 text-secondary-500 rounded font-semibold uppercase">Chat Closed</span>
-                )}
-              </div>
-              
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-secondary-50/50 dark:bg-secondary-900/50">
-                {messages.length === 0 ? (
-                  <div className="text-center text-secondary-400 text-sm mt-10">
-                    No messages yet. Ask a question or wait for an admin to review your item.
-                  </div>
-                ) : (
-                  messages.map(msg => (
-                    <div key={msg.id} className={`flex flex-col ${msg.is_admin ? 'items-start' : 'items-end'}`}>
-                      <div className="text-xxs text-secondary-400 mb-1 px-1">{msg.is_admin ? 'Viotor Support' : 'You'}</div>
-                      <div className={`px-4 py-2 rounded-2xl max-w-[85%] text-sm ${msg.is_admin ? 'bg-secondary-200 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-tl-sm' : 'bg-primary-500 text-white rounded-tr-sm'}`}>
-                        {msg.body}
-                      </div>
-                      <div className="text-[10px] text-secondary-400 mt-1 px-1">{new Date(msg.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</div>
+                {selectedRequest.status === 'approved' && (
+                  <div className="pt-6 mt-4 border-t border-secondary-200 dark:border-secondary-800">
+                    <h4 className="font-bold text-secondary-900 dark:text-white mb-3">Decision</h4>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button onClick={() => handleAccept(selectedRequest)} className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold transition-colors">
+                        Accept Offer
+                      </button>
+                      <button onClick={() => handleCounter(selectedRequest)} className="flex-1 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-bold transition-colors">
+                        Counter Offer
+                      </button>
+                      <button onClick={() => handleReject(selectedRequest)} className="flex-1 py-3 bg-accent-100 text-accent-700 hover:bg-accent-200 rounded-lg font-bold transition-colors">
+                        Reject
+                      </button>
                     </div>
-                  ))
+                  </div>
                 )}
-                <div ref={chatEndRef} />
               </div>
-              
-              <form onSubmit={handleSendMessage} className="p-3 border-t border-secondary-200 dark:border-secondary-800 bg-white dark:bg-secondary-900">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={msgBody}
-                    onChange={(e) => setMsgBody(e.target.value)}
-                    placeholder={chatStatus === 'closed' ? "This chat has been closed by an admin" : "Type a message..."}
-                    disabled={chatStatus === 'closed'}
-                    className="flex-1 p-2.5 bg-secondary-100 dark:bg-secondary-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary-500 outline-none dark:text-white disabled:opacity-50"
-                  />
-                  <button type="submit" disabled={sendingMsg || !msgBody.trim() || chatStatus === 'closed'} className="p-2.5 bg-primary-500 hover:bg-primary-600 text-white rounded-xl disabled:opacity-50 transition-colors">
-                    <Send className="w-5 h-5" />
-                  </button>
-                </div>
-              </form>
             </div>
             
           </div>

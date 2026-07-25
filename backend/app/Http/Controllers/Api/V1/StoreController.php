@@ -43,11 +43,12 @@ class StoreController extends Controller
         $store = Store::where('slug', $slug)
             ->where('status', 'active')
             ->with('user')
-            ->withCount(['products' => fn($q) => $q->where('status', 'active')])
+            ->withCount(['products' => fn($q) => $q->where('status', 'active')->where('is_layaway', false)])
             ->firstOrFail();
 
         $products = Product::where('store_id', $store->id)
             ->where('status', 'active')
+            ->where('is_layaway', false)
             ->with('images', 'category')
             ->latest()
             ->paginate(20);

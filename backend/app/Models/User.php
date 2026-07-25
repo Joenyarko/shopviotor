@@ -37,6 +37,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_login_at',
         'last_login_ip',
         'device_token',
+        'student_id',
+        'student_verification_status',
     ];
 
     protected $hidden = [
@@ -44,6 +46,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
         'two_factor_secret',
         'two_factor_recovery_codes',
+    ];
+
+    protected $appends = [
+        'name',
     ];
 
     protected function casts(): array
@@ -201,11 +207,16 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function isCustomer(): bool
     {
-        return $this->role === UserRole::Customer;
+        return $this->role === UserRole::Customer || $this->role === UserRole::Student;
     }
 
     public function isVendor(): bool
     {
         return $this->role === UserRole::Vendor;
+    }
+
+    public function getNameAttribute(): string
+    {
+        return trim("{$this->first_name} {$this->last_name}");
     }
 }

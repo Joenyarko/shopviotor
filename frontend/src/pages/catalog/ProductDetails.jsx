@@ -360,8 +360,8 @@ const ProductDetails = () => {
                       </button>
                     )}
                     {product.available_for_preorder && (
-                      <button onClick={() => navigate(`/pre-orders/${product.uuid}`)} className="w-full border-2 border-orange-100 dark:border-orange-900/30 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-700 dark:text-orange-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
-                        <Package className="w-4 h-4" /> Pre-Order
+                      <button onClick={() => navigate(`/pre-orders/${product.id}`)} className="w-full border-2 border-orange-100 dark:border-orange-900/30 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-700 dark:text-orange-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                        <Package className="w-5 h-5" /> Reserve Pre-Order
                       </button>
                     )}
                     {product.is_layaway && product.layaway_boxes > 0 && (

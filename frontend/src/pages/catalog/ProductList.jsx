@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import productService from '../../services/productService';
 import ProductCard from '../../components/ProductCard';
 import { Filter, SlidersHorizontal, ArrowUpDown, RefreshCw } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -10,6 +11,10 @@ const ProductList = () => {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 12;
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const paginatedProducts = products.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   // Filter States
   const [category, setCategory] = useState(searchParams.get('category') || '');
@@ -230,10 +235,13 @@ const ProductList = () => {
             <p className="text-secondary-500 dark:text-secondary-400 mt-2">Try adjusting your filters or search query.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
-            {products.map(product => (
-              <ProductCard key={product.id || product.uuid} product={product} />
-            ))}
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
+              {paginatedProducts.map(product => (
+                <ProductCard key={product.id || product.uuid} product={product} />
+              ))}
+            </div>
+            <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
           </div>
         )}
       </div>
