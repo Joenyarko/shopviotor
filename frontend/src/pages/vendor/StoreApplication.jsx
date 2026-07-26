@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import vendorService from '../../services/vendorService';
 import { Store, Upload, AlertCircle, RefreshCw, CheckCircle2, Phone, MapPin, X, ArrowRight } from 'lucide-react';
 
 const StoreApplication = () => {
   const navigate = useNavigate();
+  const { user, updateUser } = useAuth();
+  const [existingStore, setExistingStore] = useState(null);
+  const [checkingStore, setCheckingStore] = useState(true);
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -19,6 +24,21 @@ const StoreApplication = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    vendorService.getMyStore()
+      .then(res => {
+        const storeData = res?.data?.data || res?.data || (res && res.uuid ? res : null);
+        if (storeData) {
+          setExistingStore(storeData);
+          if (storeData.status === 'active' && user && user.role !== 'vendor' && user.role !== 'admin' && user.role !== 'super_admin') {
+            updateUser({ ...user, role: 'vendor' });
+          }
+        }
+      })
+      .catch((err) => console.error("Error fetching my store:", err))
+      .finally(() => setCheckingStore(false));
+  }, []);
 
   const handleChange = (e) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -60,6 +80,75 @@ const StoreApplication = () => {
       setLoading(false);
     }
   };
+
+  if (checkingStore) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-24 text-center">
+        <RefreshCw className="w-10 h-10 animate-spin text-primary-500 mx-auto" />
+        <p className="text-secondary-500 dark:text-secondary-400 mt-4 font-semibold">Checking store status...</p>
+      </div>
+    );
+  }
+
+  if (existingStore) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-8 animate-in fade-in duration-500">
+        <div className={`w-24 h-24 rounded-3xl flex items-center justify-center mx-auto shadow-2xl border ${
+          existingStore.status === 'active' ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-500' : 'bg-amber-500/20 border-amber-400/30 text-amber-500'
+        }`}>
+          <Store className="w-12 h-12" />
+        </div>
+
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary-100 dark:bg-secondary-800 text-xs font-black tracking-wider uppercase text-secondary-700 dark:text-secondary-300">
+            {existingStore.status === 'active' ? '🎉 Approved Vendor Store' : '⏳ Application Under Review'}
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-secondary-900 dark:text-white">{existingStore.name}</h1>
+          <p className="text-secondary-600 dark:text-secondary-400 max-w-lg mx-auto text-base leading-relaxed">
+            {existingStore.status === 'active' 
+              ? 'Congratulations! Your store is approved and active on Shop Viotor. You can now access your dedicated Vendor Hub to start listing and managing your products.'
+              : 'You have already submitted an application for this store. Our admin team is currently reviewing your application. You will be able to access your Vendor Hub as soon as it is approved.'}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-4 justify-center pt-4">
+          {existingStore.status === 'active' ? (
+            <>
+              <Link 
+                to="/vendor" 
+                className="px-8 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-base flex items-center gap-2 shadow-xl hover:shadow-emerald-500/20 transition-all active:scale-95"
+              >
+                <Store className="w-5 h-5" /> Go to Vendor Hub
+              </Link>
+              <a 
+                href={`/shops/${existingStore.slug}`} 
+                target="_blank" 
+                rel="noreferrer"
+                className="px-8 py-4 rounded-2xl bg-secondary-100 dark:bg-secondary-800 hover:bg-secondary-200 dark:hover:bg-secondary-700 text-secondary-900 dark:text-white font-extrabold text-base flex items-center gap-2 transition-colors"
+              >
+                View Public Storefront
+              </a>
+            </>
+          ) : (
+            <>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-8 py-4 rounded-2xl bg-primary-500 hover:bg-primary-600 text-secondary-900 font-extrabold text-base flex items-center gap-2 shadow-lg transition-all"
+              >
+                <RefreshCw className="w-5 h-5" /> Refresh Status
+              </button>
+              <Link 
+                to="/dashboard" 
+                className="px-8 py-4 rounded-2xl bg-secondary-100 dark:bg-secondary-800 hover:bg-secondary-200 dark:hover:bg-secondary-700 text-secondary-900 dark:text-white font-extrabold text-base transition-colors"
+              >
+                Back to Dashboard
+              </Link>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (success) {
     return (

@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\V1\StoreController;
 use App\Http\Controllers\Api\V1\BannerController;
 use App\Http\Controllers\Api\V1\Vendor\VendorProductController;
 use App\Http\Controllers\Api\V1\Vendor\VendorDashboardController;
+use App\Http\Controllers\Api\V1\Vendor\VendorOrderController;
 
 // Admin Controllers
 use App\Http\Controllers\Api\V1\Admin\DashboardController as AdminDashboardController;
@@ -64,6 +65,12 @@ Route::prefix('v1')->group(function () {
 
     // Public Stores
     Route::get('/stores', [StoreController::class, 'index']);
+    // Register my-store BEFORE {slug} so it's matched first (not intercepted by slug pattern)
+    Route::middleware('auth:sanctum')->group(function () use (&$StoreController) {
+        Route::get('/stores/my-store', [StoreController::class, 'myStore']);
+        Route::post('/stores/my-store/update', [StoreController::class, 'update']);
+        Route::post('/stores/apply', [StoreController::class, 'apply']);
+    });
     Route::get('/stores/{slug}', [StoreController::class, 'show']);
 
     Route::get('/banners', [BannerController::class, 'index']);
@@ -142,10 +149,8 @@ Route::prefix('v1')->group(function () {
         // Raffles
         Route::get('/raffles/my-tickets', [RaffleController::class, 'myTickets']);
 
-        // Store Application (any authenticated user can apply)
-        Route::post('/stores/apply', [StoreController::class, 'apply']);
-        Route::get('/stores/my-store', [StoreController::class, 'myStore']);
-        Route::post('/stores/my-store/update', [StoreController::class, 'update']);
+        // NOTE: /stores/apply, /stores/my-store, /stores/my-store/update
+        // are now registered ABOVE the {slug} route with auth:sanctum middleware.
 
         // Vendor Routes (requires active store and vendor role)
         Route::prefix('vendor')->middleware('role:vendor,admin,super_admin')->group(function () {
@@ -154,6 +159,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/products', [VendorProductController::class, 'store']);
             Route::post('/products/{uuid}', [VendorProductController::class, 'update']);
             Route::delete('/products/{uuid}', [VendorProductController::class, 'destroy']);
+            Route::get('/orders', [VendorOrderController::class, 'index']);
+            Route::get('/orders/{uuid}', [VendorOrderController::class, 'show']);
+            Route::post('/orders/{uuid}/status', [VendorOrderController::class, 'updateStatus']);
         });
 
         // ─── ADMIN ROUTES ─────────────────────────────────────────────────────────
@@ -230,6 +238,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/stores/{uuid}/suspend', [AdminStoreController::class, 'suspend']);
             Route::post('/stores/{uuid}/restore', [AdminStoreController::class, 'restore']);
             Route::post('/stores/{uuid}/commission', [AdminStoreController::class, 'updateCommission']);
+            Route::post('/stores/{uuid}/permissions', [AdminStoreController::class, 'updatePermissions']);
 
             // Payments (Admin)
             Route::get('/payments', [\App\Http\Controllers\Api\V1\PaymentController::class, 'adminIndex']);

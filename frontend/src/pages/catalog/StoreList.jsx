@@ -19,7 +19,7 @@ const StoreList = () => {
 
   useEffect(() => {
     vendorService.getStores()
-      .then(res => setStores(res.data?.data || []))
+      .then(res => setStores(res.data?.data || res.data || []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -27,28 +27,33 @@ const StoreList = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-900 via-teal-800 to-cyan-900 text-white p-10 md:p-14 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl text-white p-10 md:p-14 shadow-2xl" style={{background: 'linear-gradient(135deg, #111111 0%, #1e1e1e 50%, #141400 100%)'}}>
+        {/* Yellow glow accents */}
+        <div className="absolute -top-20 -right-20 w-96 h-96 rounded-full pointer-events-none" style={{background: 'radial-gradient(circle, rgba(245,192,0,0.35) 0%, transparent 70%)'}} />
+        <div className="absolute bottom-0 left-1/4 w-56 h-56 rounded-full pointer-events-none" style={{background: 'radial-gradient(circle, rgba(245,192,0,0.15) 0%, transparent 70%)'}} />
         <div className="relative z-10 max-w-2xl space-y-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 w-fit">
-            <Store className="w-4 h-4 text-emerald-300" />
-            <span className="text-xs font-semibold tracking-wider uppercase text-emerald-200">Marketplace</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full w-fit" style={{background: 'rgba(245,192,0,0.15)', border: '1px solid rgba(245,192,0,0.4)'}}>
+            <Store className="w-4 h-4" style={{color: '#f5c000'}} />
+            <span className="text-xs font-semibold tracking-wider uppercase" style={{color: '#f5c000'}}>Marketplace</span>
           </div>
           <h1 className="text-4xl md:text-5xl font-black">Browse All Stores</h1>
-          <p className="text-emerald-100 text-lg max-w-xl">
+          <p className="text-gray-400 text-lg max-w-xl">
             Discover independent vendors selling authentic products. Buy directly from trusted local and national sellers.
           </p>
           <div className="relative max-w-lg">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
             <input
               type="text"
               placeholder="Search by store name or location..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/50 focus:outline-none focus:border-white/40 backdrop-blur-sm"
+              className="w-full pl-12 pr-4 py-3.5 rounded-xl text-white placeholder-white/40 focus:outline-none transition-all"
+              style={{background: 'rgba(255,255,255,0.07)', border: '1.5px solid rgba(245,192,0,0.3)'}}
+              onFocus={e => e.target.style.border = '1.5px solid rgba(245,192,0,0.7)'}
+              onBlur={e => e.target.style.border = '1.5px solid rgba(245,192,0,0.3)'}
             />
           </div>
         </div>
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-emerald-500 rounded-full blur-[120px] opacity-40" />
       </div>
 
       {/* Vendor CTA */}
@@ -57,7 +62,11 @@ const StoreList = () => {
           <h3 className="font-bold text-lg text-secondary-900 dark:text-white">Want to sell on Viotor?</h3>
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Apply to open your own store and reach thousands of customers.</p>
         </div>
-        <Link to="/become-a-vendor" className="flex-shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors">
+        <Link
+          to="/become-a-vendor"
+          className="flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all hover:opacity-90 hover:scale-105 shadow-md"
+          style={{background: '#f5c000', color: '#111'}}
+        >
           Open Your Store <ArrowRight className="w-4 h-4" />
         </Link>
       </div>

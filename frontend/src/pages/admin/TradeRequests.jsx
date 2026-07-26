@@ -55,7 +55,7 @@ const TradeRequests = () => {
     setLoadingProducts(true);
     try {
       const res = await productService.adminGetProducts({ available_for_trade: true });
-      setTradeProducts(res.data?.data || []);
+      setTradeProducts(res.data?.data || res.data || []);
     } catch (e) {
       console.error(e);
     } finally {

@@ -40,7 +40,7 @@ const AdminPreOrders = () => {
     setLoading(true);
     try {
       const res = await preorderService.adminGetPreOrders(activeOrderTab !== 'all' ? { status: activeOrderTab } : {});
-      setPreOrders(res.data?.data || []);
+      setPreOrders(res.data?.data || res.data || []);
     } catch (e) {
       console.error(e);
     } finally {

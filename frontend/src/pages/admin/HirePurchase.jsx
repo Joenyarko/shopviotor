@@ -56,7 +56,7 @@ const AdminHirePurchase = () => {
     setLoadingProducts(true);
     try {
       const res = await productService.adminGetProducts({ available_for_hire_purchase: true });
-      setHpProducts(res.data?.data || []);
+      setHpProducts(res.data?.data || res.data || []);
     } catch (e) {
       console.error(e);
     } finally {

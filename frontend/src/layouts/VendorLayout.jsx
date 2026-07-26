@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { LayoutDashboard, Package, ShoppingCart, Settings, Store, LogOut, Sun, Moon, Menu, X, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { LayoutDashboard, Package, ShoppingCart, Settings, Store, LogOut, Sun, Moon, X, ExternalLink } from 'lucide-react';
+import vendorService from '../services/vendorService';
 
 const VendorLayout = () => {
   const { user, logout } = useAuth();
   const { darkMode, toggleDarkMode } = useTheme();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [storeSlug, setStoreSlug] = useState(null);
+
+  useEffect(() => {
+    vendorService.getMyStore()
+      .then(res => {
+        const s = res?.data?.data || res?.data;
+        if (s?.slug) setStoreSlug(s.slug);
+      })
+      .catch(() => {});
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -88,6 +98,12 @@ const VendorLayout = () => {
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
+          {storeSlug && (
+            <Link to={`/shops/${storeSlug}`} target="_blank" className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-semibold">
+              <ExternalLink className="w-5 h-5" />
+              <span>View My Store</span>
+            </Link>
+          )}
           <Link to="/" className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800">
             <Store className="w-5 h-5" />
             <span>Back to Storefront</span>

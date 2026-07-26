@@ -17,12 +17,18 @@ const vendorService = {
   updateProduct: (uuid, formData) => apiClient.post(`/vendor/products/${uuid}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   deleteProduct: (uuid) => apiClient.delete(`/vendor/products/${uuid}`),
 
+  // Vendor orders
+  getOrders: (params = {}) => apiClient.get('/vendor/orders', { params }),
+  getOrder: (uuid) => apiClient.get(`/vendor/orders/${uuid}`),
+  updateOrderStatus: (uuid, status, note = null) => apiClient.post(`/vendor/orders/${uuid}/status`, { status, note }),
+
   // Admin
   adminGetStores: (params = {}) => apiClient.get('/admin/stores', { params }),
   adminApproveStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/approve`),
   adminSuspendStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/suspend`),
   adminRestoreStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/restore`),
   adminUpdateCommission: (uuid, rate) => apiClient.post(`/admin/stores/${uuid}/commission`, { commission_rate: rate }),
+  adminUpdatePermissions: (uuid, permissions) => apiClient.post(`/admin/stores/${uuid}/permissions`, permissions),
 };
 
 export default vendorService;

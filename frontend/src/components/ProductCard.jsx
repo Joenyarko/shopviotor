@@ -71,6 +71,11 @@ const ProductCard = ({ product, onWishlistToggle }) => {
       {/* Product Content Details */}
       <div className="p-3 flex flex-col flex-grow">
         <div className="mb-1">
+          {product.store && (
+            <Link to={`/shops/${product.store.slug || product.store.id}`} className="inline-flex items-center gap-1 text-[10px] text-primary-600 dark:text-primary-400 font-bold mb-1 hover:underline">
+              <ShieldCheck className="w-3 h-3" /> Sold by {product.store.name}
+            </Link>
+          )}
           <Link to={`/products/${product.id || product.uuid}`} className="hover:text-primary-600 dark:hover:text-primary-400">
             <h3 className="font-semibold text-secondary-900 dark:text-white line-clamp-2 text-xs md:text-sm leading-snug">
               {product.name}

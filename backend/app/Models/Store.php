@@ -17,15 +17,21 @@ class Store extends Model
         'uuid', 'user_id', 'name', 'slug', 'logo', 'banner',
         'description', 'phone', 'whatsapp', 'location',
         'status', 'subscription_plan', 'commission_rate',
+        'can_offer_layaway', 'can_offer_hire_purchase',
+        'can_offer_preorders', 'can_offer_trades',
         'approved_at', 'suspended_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'commission_rate' => 'decimal:2',
-            'approved_at'     => 'datetime',
-            'suspended_at'    => 'datetime',
+            'commission_rate'         => 'decimal:2',
+            'can_offer_layaway'       => 'boolean',
+            'can_offer_hire_purchase' => 'boolean',
+            'can_offer_preorders'     => 'boolean',
+            'can_offer_trades'        => 'boolean',
+            'approved_at'             => 'datetime',
+            'suspended_at'            => 'datetime',
         ];
     }
 

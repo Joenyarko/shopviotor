@@ -111,7 +111,7 @@ const SellerInfoCard = ({ store, navigate, product }) => {
         </div>
 
         <button 
-          onClick={() => navigate(`/stores/${store.slug}`)}
+          onClick={() => navigate(`/shops/${store.slug}`)}
           className="w-full py-2.5 border border-secondary-300 dark:border-secondary-700 rounded-xl text-sm font-semibold text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors"
         >
           Visit Store
@@ -272,6 +272,34 @@ const ProductDetails = () => {
                   <div className="flex justify-between items-start gap-4">
                     <h1 className="text-2xl sm:text-3xl font-extrabold text-secondary-900 dark:text-white leading-tight">{product.name}</h1>
                   </div>
+                  {product.store ? (
+                    <div className="mt-3 p-3 bg-secondary-50 dark:bg-secondary-800/60 rounded-xl border border-secondary-200 dark:border-secondary-700 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {product.store.logo ? (
+                          <img src={product.store.logo} alt="" className="w-10 h-10 rounded-lg object-cover bg-white border border-secondary-200" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center text-white font-bold text-base">
+                            {product.store.name?.charAt(0)}
+                          </div>
+                        )}
+                        <div>
+                          <span className="text-xxs font-bold text-secondary-500 uppercase tracking-wider flex items-center gap-1">
+                            <ShieldCheck className="w-3.5 h-3.5 text-primary-500" /> Verified Seller Store
+                          </span>
+                          <Link to={`/shops/${product.store.slug || product.store.id}`} className="font-extrabold text-secondary-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 text-sm md:text-base block">
+                            {product.store.name}
+                          </Link>
+                        </div>
+                      </div>
+                      <Link to={`/shops/${product.store.slug || product.store.id}`} className="px-3 py-1.5 bg-white dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-600 rounded-lg text-xs font-bold text-secondary-900 dark:text-white hover:bg-secondary-100 transition-colors shadow-sm">
+                        Visit Store
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-1 rounded-full">
+                      <ShieldCheck className="w-4 h-4" /> Official ShopViotor Direct Merchandise
+                    </div>
+                  )}
                   {product.brand && (
                     <p className="text-sm text-secondary-600 dark:text-secondary-400 mt-2">
                       Brand: <span className="text-primary-600 font-semibold">{product.brand.name}</span> | <span className="hover:underline cursor-pointer">Similar products from {product.brand.name}</span>

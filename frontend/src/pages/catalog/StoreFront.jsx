@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import vendorService from '../../services/vendorService';
-import { Store, MapPin, Phone, MessageCircle, Package, RefreshCw, ArrowLeft } from 'lucide-react';
+import {
+  Store, MapPin, Phone, MessageCircle, Package,
+  RefreshCw, ArrowLeft, ShieldCheck, Star, Users,
+  ChevronRight, ExternalLink
+} from 'lucide-react';
 
 const StoreFront = () => {
   const { slug } = useParams();
@@ -13,115 +17,252 @@ const StoreFront = () => {
   useEffect(() => {
     vendorService.getStore(slug)
       .then(res => {
-        setStore(res.data?.store);
-        setProducts(res.data?.products || []);
+        const storeData = res?.store || res?.data?.store;
+        const productsData = res?.products || res?.data?.products || [];
+        if (!storeData) {
+          setError('Store not found or is no longer active.');
+        } else {
+          setStore(storeData);
+          setProducts(productsData);
+        }
       })
       .catch(() => setError('Store not found or is no longer active.'))
       .finally(() => setLoading(false));
   }, [slug]);
 
   if (loading) return (
-    <div className="flex justify-center py-32">
-      <RefreshCw className="w-10 h-10 text-primary-500 animate-spin" />
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <RefreshCw className="w-10 h-10 text-primary-500 animate-spin" />
+        <p className="text-secondary-500 dark:text-secondary-400 text-sm font-medium">Loading store...</p>
+      </div>
     </div>
   );
 
   if (error || !store) return (
-    <div className="max-w-md mx-auto text-center py-20 space-y-4">
-      <Store className="w-16 h-16 text-secondary-300 mx-auto" />
-      <h2 className="text-xl font-bold text-secondary-900 dark:text-white">Store Not Found</h2>
-      <p className="text-secondary-500 dark:text-secondary-400">{error}</p>
-      <Link to="/shops" className="inline-flex items-center gap-2 premium-button-primary px-5 py-2.5 rounded-xl text-sm font-bold">
+    <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6 px-4">
+      <div className="w-24 h-24 rounded-3xl bg-secondary-100 dark:bg-secondary-800 flex items-center justify-center">
+        <Store className="w-12 h-12 text-secondary-400 dark:text-secondary-500" />
+      </div>
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-black text-secondary-900 dark:text-white">Store Not Found</h2>
+        <p className="text-secondary-500 dark:text-secondary-400 max-w-sm">{error || 'This store does not exist or has been deactivated.'}</p>
+      </div>
+      <Link
+        to="/shops"
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold text-white shadow-lg transition-all hover:scale-105"
+        style={{ background: 'linear-gradient(135deg, #111 0%, #222 100%)', border: '1.5px solid #f5c000' }}
+      >
         <ArrowLeft className="w-4 h-4" /> Browse All Stores
       </Link>
     </div>
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-0 space-y-0">
-      {/* Banner */}
-      <div className="relative h-52 md:h-72 overflow-hidden rounded-b-3xl bg-gradient-to-br from-primary-900 to-secondary-900">
+    <div className="bg-secondary-50 dark:bg-secondary-950 min-h-screen">
+
+      {/* ── HERO BANNER ─────────────────────────────────────────────────── */}
+      <div className="relative w-full h-56 md:h-80 overflow-hidden bg-secondary-900">
         {store.banner_url ? (
-          <img src={store.banner_url} alt="banner" className="w-full h-full object-cover" />
+          <img
+            src={store.banner_url}
+            alt={`${store.name} banner`}
+            className="w-full h-full object-cover"
+          />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary-900 via-primary-800 to-secondary-900" />
+          /* Default branded banner when no banner image */
+          <div className="absolute inset-0 flex items-center justify-center overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, #0f0f0f 0%, #1c1c1c 50%, #0f0a00 100%)' }}>
+            {/* Decorative circles */}
+            <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full opacity-30"
+              style={{ background: 'radial-gradient(circle, #f5c000 0%, transparent 70%)' }} />
+            <div className="absolute -bottom-20 -left-10 w-60 h-60 rounded-full opacity-20"
+              style={{ background: 'radial-gradient(circle, #f5c000 0%, transparent 70%)' }} />
+            <Store className="w-20 h-20 opacity-10 text-white" />
+          </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        {/* Gradient overlay so logo/text pops */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+        {/* Back link */}
+        <Link
+          to="/shops"
+          className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 transition-all"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" /> All Stores
+        </Link>
       </div>
 
-      {/* Store Info */}
-      <div className="max-w-5xl mx-auto px-4">
-        <div className="relative -mt-16 flex flex-col md:flex-row items-start md:items-end gap-5 pb-6 border-b border-secondary-200 dark:border-secondary-800">
-          {/* Logo */}
-          <div className="w-28 h-28 rounded-2xl border-4 border-white dark:border-secondary-900 overflow-hidden shadow-xl bg-white dark:bg-secondary-800 flex-shrink-0">
-            {store.logo_url ? (
-              <img src={store.logo_url} alt={store.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
-                <Store className="w-10 h-10 text-white" />
+      {/* ── STORE PROFILE CARD ──────────────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="relative -mt-14 md:-mt-16 z-10">
+          <div className="bg-white dark:bg-secondary-900 rounded-3xl shadow-xl border border-secondary-100 dark:border-secondary-800 p-5 md:p-8">
+            <div className="flex flex-col sm:flex-row gap-5 items-start">
+
+              {/* Logo */}
+              <div className="relative flex-shrink-0">
+                <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden border-4 border-white dark:border-secondary-800 shadow-xl bg-white dark:bg-secondary-700">
+                  {store.logo_url ? (
+                    <img src={store.logo_url} alt={store.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-3xl font-black text-white"
+                      style={{ background: 'linear-gradient(135deg, #1a1a1a, #333)' }}>
+                      {store.name?.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                {/* Verified badge */}
+                <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md"
+                  style={{ background: '#f5c000' }}>
+                  <ShieldCheck className="w-4 h-4 text-black" />
+                </div>
               </div>
-            )}
-          </div>
 
-          {/* Details */}
-          <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-black text-secondary-900 dark:text-white">{store.name}</h1>
-            <p className="text-secondary-500 dark:text-secondary-400 mt-1 text-sm max-w-xl">{store.description}</p>
-            <div className="flex flex-wrap gap-4 mt-3">
-              {store.location && (
-                <span className="flex items-center gap-1.5 text-sm text-secondary-600 dark:text-secondary-400">
-                  <MapPin className="w-4 h-4 text-primary-500" /> {store.location}
-                </span>
-              )}
-              {store.phone && (
-                <a href={`tel:${store.phone}`} className="flex items-center gap-1.5 text-sm text-secondary-600 dark:text-secondary-400 hover:text-primary-600">
-                  <Phone className="w-4 h-4 text-primary-500" /> {store.phone}
-                </a>
-              )}
-              {store.whatsapp && (
-                <a href={`https://wa.me/${store.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700">
-                  <MessageCircle className="w-4 h-4" /> WhatsApp
-                </a>
-              )}
+              {/* Store details */}
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full text-black"
+                        style={{ background: '#f5c000' }}>
+                        Official Store
+                      </span>
+                    </div>
+                    <h1 className="text-xl md:text-2xl lg:text-3xl font-black text-secondary-900 dark:text-white leading-tight">
+                      {store.name}
+                    </h1>
+                    {store.description && (
+                      <p className="text-secondary-500 dark:text-secondary-400 text-sm mt-1.5 max-w-xl line-clamp-2">
+                        {store.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Contact buttons */}
+                  <div className="flex gap-2 flex-shrink-0">
+                    {store.phone && (
+                      <a
+                        href={`tel:${store.phone}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-semibold text-secondary-700 dark:text-secondary-300 border-secondary-200 dark:border-secondary-700 hover:border-primary-400 hover:text-primary-600 transition-all"
+                      >
+                        <Phone className="w-4 h-4" />
+                        <span className="hidden md:inline">{store.phone}</span>
+                      </a>
+                    )}
+                    {store.whatsapp && (
+                      <a
+                        href={`https://wa.me/${store.whatsapp.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition-all shadow-sm"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>WhatsApp</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* Meta row */}
+                <div className="flex flex-wrap items-center gap-4 mt-3">
+                  {store.location && (
+                    <span className="flex items-center gap-1.5 text-sm text-secondary-500 dark:text-secondary-400">
+                      <MapPin className="w-4 h-4 text-primary-500" />
+                      {store.location}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="flex gap-2 mt-2 md:mt-0">
-            <div className="bg-primary-50 dark:bg-primary-950/20 text-primary-600 dark:text-primary-400 px-4 py-2 rounded-xl text-sm font-bold">
-              {store.products_count} Products
+            {/* ── Stats bar ─────────────────────────────────────────────── */}
+            <div className="mt-6 pt-6 border-t border-secondary-100 dark:border-secondary-800 grid grid-cols-3 gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-black text-secondary-900 dark:text-white">
+                  {store.products_count ?? products.length}
+                </p>
+                <p className="text-xs text-secondary-500 dark:text-secondary-400 font-medium mt-0.5">Products</p>
+              </div>
+              <div className="text-center border-x border-secondary-100 dark:border-secondary-800">
+                <p className="text-2xl font-black text-secondary-900 dark:text-white flex items-center justify-center gap-1">
+                  <Star className="w-5 h-5" style={{ color: '#f5c000' }} />
+                  <span>4.9</span>
+                </p>
+                <p className="text-xs text-secondary-500 dark:text-secondary-400 font-medium mt-0.5">Seller Score</p>
+              </div>
+              <div className="text-center">
+                <p className="text-2xl font-black text-secondary-900 dark:text-white flex items-center justify-center gap-1">
+                  <Users className="w-4 h-4 text-primary-500" />
+                  <span>10K+</span>
+                </p>
+                <p className="text-xs text-secondary-500 dark:text-secondary-400 font-medium mt-0.5">Followers</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Products */}
-        <div className="py-8">
-          <h2 className="text-xl font-bold text-secondary-900 dark:text-white mb-6 flex items-center gap-2">
-            <Package className="w-5 h-5 text-primary-500" /> Products from {store.name}
-          </h2>
+        {/* ── PRODUCTS SECTION ────────────────────────────────────────── */}
+        <div className="mt-8 pb-16">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-black text-secondary-900 dark:text-white flex items-center gap-2">
+              <Package className="w-5 h-5 text-primary-500" />
+              All Products
+              <span className="ml-1 text-sm font-semibold text-secondary-400 dark:text-secondary-500">
+                ({products.length})
+              </span>
+            </h2>
+          </div>
 
           {products.length === 0 ? (
-            <div className="py-16 text-center text-secondary-500 dark:text-secondary-400">
-              <Package className="w-12 h-12 mx-auto mb-3 text-secondary-200 dark:text-secondary-700" />
-              <p className="font-semibold">No products listed yet.</p>
+            <div className="py-20 text-center bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-100 dark:border-secondary-800 space-y-3">
+              <Package className="w-14 h-14 mx-auto text-secondary-200 dark:text-secondary-700" />
+              <p className="font-bold text-secondary-900 dark:text-white">No products listed yet</p>
+              <p className="text-sm text-secondary-500 dark:text-secondary-400">Check back soon for new listings.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {products.map(p => (
                 <Link
                   key={p.id}
                   to={`/products/${p.id}`}
-                  className="bg-white dark:bg-secondary-900 hover:shadow-lg transition-all duration-300 flex flex-col relative z-0 hover:z-10"
+                  className="group bg-white dark:bg-secondary-900 rounded-2xl overflow-hidden border border-secondary-100 dark:border-secondary-800 hover:border-primary-300 dark:hover:border-primary-700 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col"
                 >
-                  <div className="h-44 md:h-52 bg-secondary-100 dark:bg-secondary-850 overflow-hidden">
+                  {/* Product image */}
+                  <div className="relative h-40 sm:h-48 bg-secondary-50 dark:bg-secondary-800 overflow-hidden">
                     <img
-                      src={p.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&auto=format'}
+                      src={p.primary_image || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=f5c000&color=000&size=200`}
                       alt={p.name}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      onError={e => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=eee&color=888&size=200`; }}
                     />
+                    {/* View overlay on hover */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 flex items-center justify-center">
+                      <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white dark:bg-secondary-900 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1 shadow-lg">
+                        View <ChevronRight className="w-3 h-3" />
+                      </span>
+                    </div>
                   </div>
-                  <div className="p-4 flex-1 flex flex-col border-t border-secondary-100 dark:border-secondary-800/80">
-                    <h3 className="font-semibold text-secondary-900 dark:text-white line-clamp-2 text-sm md:text-base leading-snug flex-1">{p.name}</h3>
-                    <p className="text-secondary-900 dark:text-white font-bold mt-2 text-lg">GHS {parseFloat(p.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+
+                  {/* Product info */}
+                  <div className="p-3 flex flex-col flex-1">
+                    <h3 className="text-sm font-semibold text-secondary-900 dark:text-white line-clamp-2 leading-snug flex-1">
+                      {p.name}
+                    </h3>
+                    <div className="mt-2 flex items-center justify-between">
+                      <p className="font-black text-base text-secondary-900 dark:text-white">
+                        GHS {parseFloat(p.price).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </p>
+                      {p.compare_price && parseFloat(p.compare_price) > parseFloat(p.price) && (
+                        <span className="text-xxs font-bold px-1.5 py-0.5 rounded-full bg-red-100 text-red-600">
+                          {Math.round((1 - p.price / p.compare_price) * 100)}% off
+                        </span>
+                      )}
+                    </div>
+                    {p.compare_price && parseFloat(p.compare_price) > parseFloat(p.price) && (
+                      <p className="text-xs text-secondary-400 line-through">
+                        GHS {parseFloat(p.compare_price).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </p>
+                    )}
                   </div>
                 </Link>
               ))}

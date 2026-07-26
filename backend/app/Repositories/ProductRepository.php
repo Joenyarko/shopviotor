@@ -48,7 +48,7 @@ class ProductRepository extends BaseRepository
 
     public function getActive(int $perPage = 15, array $filters = [])
     {
-        $query = $this->model->active()->with(['category', 'brand', 'primaryImage']);
+        $query = $this->model->active()->with(['category', 'brand', 'primaryImage', 'store']);
 
         if (!empty($filters['category_id'])) {
             $categoryIdentifier = $filters['category_id'];
@@ -105,8 +105,8 @@ class ProductRepository extends BaseRepository
 
         $sort = $filters['sort'] ?? 'latest';
         match($sort) {
-            'price_asc'  => $query->orderBy('price'),
-            'price_desc' => $query->orderByDesc('price'),
+            'price_asc'  => $query->orderBy('price', 'asc'),
+            'price_desc' => $query->orderBy('price', 'desc'),
             'popular'    => $query->orderByDesc('views_count'),
             'rating'     => $query->orderByDesc('average_rating'),
             default      => $query->latest(),
@@ -115,12 +115,23 @@ class ProductRepository extends BaseRepository
         return $query->paginate($perPage);
     }
 
+    public function findByUuid(string $uuid, array $relations = []): Product
+    {
+        $query = $this->model->with($relations);
+
+        if (is_numeric($uuid)) {
+            return $query->where('id', $uuid)->firstOrFail();
+        }
+
+        return $query->where('uuid', $uuid)->firstOrFail();
+    }
+
     public function search(string $term, int $perPage = 15, array $filters = [])
     {
         $query = $this->model->active()
             ->where('is_layaway', false)
             ->search($term)
-            ->with(['category', 'brand', 'primaryImage']);
+            ->with(['category', 'brand', 'primaryImage', 'store']);
             
         if (!empty($filters['category_id'])) {
             $categoryIdentifier = $filters['category_id'];
@@ -141,7 +152,7 @@ class ProductRepository extends BaseRepository
     {
         return $this->model->featured()
             ->where('is_layaway', false)
-            ->with(['category', 'brand', 'primaryImage'])
+            ->with(['category', 'brand', 'primaryImage', 'store'])
             ->limit($limit)
             ->get();
     }

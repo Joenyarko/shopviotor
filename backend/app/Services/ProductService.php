@@ -22,6 +22,25 @@ class ProductService
             $images = $data['images'] ?? [];
             unset($data['images']);
 
+            if (!empty($data['store_id'])) {
+                $store = \App\Models\Store::find($data['store_id']);
+                if ($store) {
+                    if (!$store->can_offer_layaway && !empty($data['available_for_layaway'])) {
+                        $data['available_for_layaway'] = false;
+                        $data['is_layaway'] = false;
+                    }
+                    if (!$store->can_offer_hire_purchase && !empty($data['available_for_hire_purchase'])) {
+                        $data['available_for_hire_purchase'] = false;
+                    }
+                    if (!$store->can_offer_preorders && !empty($data['available_for_preorder'])) {
+                        $data['available_for_preorder'] = false;
+                    }
+                    if (!$store->can_offer_trades && !empty($data['available_for_trade'])) {
+                        $data['available_for_trade'] = false;
+                    }
+                }
+            }
+
             $isLayawayOnly = !empty($data['is_layaway']);
             $isAvailableForLayaway = $isLayawayOnly || !empty($data['available_for_layaway']);
             $data['is_layaway'] = $isLayawayOnly;
@@ -79,6 +98,25 @@ class ProductService
                 Storage::disk('public')->delete($image->path);
                 $image->delete();
             });
+
+            if ($product->store_id) {
+                $store = \App\Models\Store::find($product->store_id);
+                if ($store) {
+                    if (!$store->can_offer_layaway && !empty($data['available_for_layaway'])) {
+                        $data['available_for_layaway'] = false;
+                        $data['is_layaway'] = false;
+                    }
+                    if (!$store->can_offer_hire_purchase && !empty($data['available_for_hire_purchase'])) {
+                        $data['available_for_hire_purchase'] = false;
+                    }
+                    if (!$store->can_offer_preorders && !empty($data['available_for_preorder'])) {
+                        $data['available_for_preorder'] = false;
+                    }
+                    if (!$store->can_offer_trades && !empty($data['available_for_trade'])) {
+                        $data['available_for_trade'] = false;
+                    }
+                }
+            }
 
             if (isset($data['is_layaway']) || isset($data['available_for_layaway']) || isset($data['layaway_total_boxes']) || isset($data['layaway_boxes'])) {
                 if (isset($data['is_layaway'])) {

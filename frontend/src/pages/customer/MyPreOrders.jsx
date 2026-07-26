@@ -11,7 +11,7 @@ const MyPreOrders = () => {
     const fetchMyPreOrders = async () => {
       try {
         const res = await preorderService.getMyPreOrders();
-        setPreOrders(res.data?.data || []);
+        setPreOrders(res.data?.data || res.data || []);
       } catch (e) {
         console.error(e);
       } finally {

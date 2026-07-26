@@ -22,7 +22,7 @@ const VendorStores = () => {
     try {
       const params = activeTab !== 'all' ? { status: activeTab } : {};
       const res = await vendorService.adminGetStores(params);
-      setStores(res.data?.data || []);
+      setStores(res.data?.data || res.data || []);
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
@@ -72,6 +72,19 @@ const VendorStores = () => {
       loadStores();
     } catch (e) { Swal.fire({ text: String(e.message || 'Failed.') }); }
     finally { setProcessing(false); }
+  };
+
+  const handleTogglePermission = async (uuid, permissionKey, currentValue) => {
+    setProcessing(true);
+    try {
+      const res = await vendorService.adminUpdatePermissions(uuid, { [permissionKey]: !currentValue });
+      setSelectedStore(prev => prev ? { ...prev, ...res.data?.store } : null);
+      loadStores();
+    } catch (e) {
+      Swal.fire({ text: String(e.message || 'Failed to update permission.') });
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const statusBadge = (status) => {
@@ -229,6 +242,36 @@ const VendorStores = () => {
                   ) : (
                     <span className="font-bold text-secondary-900 dark:text-white">{selectedStore.commission_rate}%</span>
                   )}
+                </div>
+
+                {/* Specialized Model Permissions */}
+                <div className="pt-3 border-t border-secondary-100 dark:border-secondary-800">
+                  <span className="text-xxs text-secondary-500 uppercase font-bold tracking-wider mb-2 block">Specialized Selling Permissions</span>
+                  <div className="space-y-2">
+                    {[
+                      { key: 'can_offer_layaway', label: 'Layaway Model', desc: 'Allow installment box plans' },
+                      { key: 'can_offer_hire_purchase', label: 'Hire Purchase', desc: 'Allow credit/installment sales' },
+                      { key: 'can_offer_preorders', label: 'Pre-Orders', desc: 'Allow accepting deposit pre-orders' },
+                      { key: 'can_offer_trades', label: 'Trade-Ins', desc: 'Allow accepting trade-in offers' },
+                    ].map(perm => (
+                      <div key={perm.key} className="flex items-center justify-between p-2 rounded-xl bg-secondary-50 dark:bg-secondary-800/50 border border-secondary-200 dark:border-secondary-800">
+                        <div>
+                          <p className="font-bold text-xs text-secondary-900 dark:text-white">{perm.label}</p>
+                          <p className="text-xxs text-secondary-500">{perm.desc}</p>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={processing}
+                          onClick={() => handleTogglePermission(selectedStore.uuid, perm.key, selectedStore[perm.key])}
+                          className={`w-10 h-5 flex items-center rounded-full p-1 cursor-pointer transition-colors ${
+                            selectedStore[perm.key] ? 'bg-primary-600 justify-end' : 'bg-secondary-300 dark:bg-secondary-700 justify-start'
+                          }`}
+                        >
+                          <div className="bg-white w-3.5 h-3.5 rounded-full shadow-md transform transition-transform" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 

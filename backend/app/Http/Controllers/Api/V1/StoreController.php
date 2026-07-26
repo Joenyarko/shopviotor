@@ -55,7 +55,7 @@ class StoreController extends Controller
 
         return response()->json([
             'store'    => $this->formatStore($store),
-            'products' => $products->items(),
+            'products' => \App\Http\Resources\ProductResource::collection($products->items()),
             'meta'     => [
                 'current_page' => $products->currentPage(),
                 'last_page'    => $products->lastPage(),
@@ -185,12 +185,16 @@ class StoreController extends Controller
             'location'        => $store->location,
             'logo_url'        => $store->logo_url,
             'banner_url'      => $store->banner_url,
-            'status'          => $store->status,
-            'commission_rate' => (float) $store->commission_rate,
-            'products_count'  => $store->products_count ?? 0,
-            'approved_at'     => $store->approved_at?->toISOString(),
-            'created_at'      => $store->created_at->toISOString(),
-            'owner'           => $store->user ? [
+            'status'                  => $store->status,
+            'commission_rate'         => (float) $store->commission_rate,
+            'can_offer_layaway'       => (bool) $store->can_offer_layaway,
+            'can_offer_hire_purchase' => (bool) $store->can_offer_hire_purchase,
+            'can_offer_preorders'     => (bool) $store->can_offer_preorders,
+            'can_offer_trades'        => (bool) $store->can_offer_trades,
+            'products_count'          => $store->products_count ?? 0,
+            'approved_at'             => $store->approved_at?->toISOString(),
+            'created_at'              => $store->created_at->toISOString(),
+            'owner'                   => $store->user ? [
                 'name' => $store->user->full_name,
             ] : null,
         ];

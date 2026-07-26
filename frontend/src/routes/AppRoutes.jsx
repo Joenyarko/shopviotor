@@ -70,6 +70,8 @@ const VendorStores = React.lazy(() => import('../pages/admin/VendorStores'));
 import VendorLayout from '../layouts/VendorLayout';
 const VendorDashboard = React.lazy(() => import('../pages/vendor/VendorDashboard'));
 const VendorProducts = React.lazy(() => import('../pages/vendor/VendorProducts'));
+const VendorOrders = React.lazy(() => import('../pages/vendor/VendorOrders'));
+const VendorSettings = React.lazy(() => import('../pages/vendor/VendorSettings'));
 const StoreApplication = React.lazy(() => import('../pages/vendor/StoreApplication'));
 const StoreList = React.lazy(() => import('../pages/catalog/StoreList'));
 const StoreFront = React.lazy(() => import('../pages/catalog/StoreFront'));
@@ -154,6 +156,8 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute><VendorLayout /></ProtectedRoute>}>
         <Route path="/vendor" element={<VendorDashboard />} />
         <Route path="/vendor/products" element={<VendorProducts />} />
+        <Route path="/vendor/orders" element={<VendorOrders />} />
+        <Route path="/vendor/settings" element={<VendorSettings />} />
       </Route>
 
       {/* ─── ADMIN FLOW (PROTECTED) ────────────────────────────────────────── */}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import vendorService from '../../services/vendorService';
-import { BarChart2, Package, ShoppingCart, DollarSign, RefreshCw, ArrowRight, Plus, TrendingUp } from 'lucide-react';
+import { BarChart2, Package, ShoppingCart, DollarSign, RefreshCw, ArrowRight, Plus, TrendingUp, Clock, Percent, Scale, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
 
 const VendorDashboard = () => {
   const [data, setData] = useState(null);
@@ -9,7 +9,7 @@ const VendorDashboard = () => {
 
   useEffect(() => {
     vendorService.getDashboard()
-      .then(res => setData(res.data?.data))
+      .then(res => setData(res?.data?.data || res?.data || res || null))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -63,6 +63,129 @@ const VendorDashboard = () => {
             <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-0.5">{label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Permitted Selling Models Card Grid */}
+      <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-5 sm:p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="font-bold text-base sm:text-lg text-secondary-900 dark:text-white flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-primary-500" /> My Store Selling Capabilities & Models
+            </h2>
+            <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">
+              These are the e-commerce and specialized selling models currently authorized for your store by Shop Viotor administration.
+            </p>
+          </div>
+          <span className="text-xxs font-extrabold uppercase px-2.5 py-1 bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 rounded-lg border border-primary-200 dark:border-primary-800 hidden sm:inline-block">
+            Tiered Access
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* E-Commerce (Always active) */}
+          <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+                <ShoppingCart className="w-4 h-4" />
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" /> Enabled
+              </span>
+            </div>
+            <div>
+              <p className="font-bold text-sm text-secondary-900 dark:text-white">Standard E-Commerce</p>
+              <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">Direct checkout & cart purchases</p>
+            </div>
+          </div>
+
+          {/* Layaway */}
+          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_layaway ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center ${store.can_offer_layaway ? 'bg-blue-600' : 'bg-secondary-400 dark:bg-secondary-700'}`}>
+                <Clock className="w-4 h-4" />
+              </div>
+              {store.can_offer_layaway ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Enabled
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-400 flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Locked
+                </span>
+              )}
+            </div>
+            <div>
+              <p className="font-bold text-sm text-secondary-900 dark:text-white">Layaway / Susu Plans</p>
+              <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">Installment box reservations</p>
+            </div>
+          </div>
+
+          {/* Hire Purchase */}
+          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_hire_purchase ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center ${store.can_offer_hire_purchase ? 'bg-primary-600' : 'bg-secondary-400 dark:bg-secondary-700'}`}>
+                <Percent className="w-4 h-4" />
+              </div>
+              {store.can_offer_hire_purchase ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Enabled
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-400 flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Locked
+                </span>
+              )}
+            </div>
+            <div>
+              <p className="font-bold text-sm text-secondary-900 dark:text-white">Hire Purchase</p>
+              <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">Credit & financing plans</p>
+            </div>
+          </div>
+
+          {/* Pre-Orders */}
+          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_preorders ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center ${store.can_offer_preorders ? 'bg-orange-600' : 'bg-secondary-400 dark:bg-secondary-700'}`}>
+                <Package className="w-4 h-4" />
+              </div>
+              {store.can_offer_preorders ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Enabled
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-400 flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Locked
+                </span>
+              )}
+            </div>
+            <div>
+              <p className="font-bold text-sm text-secondary-900 dark:text-white">Pre-Orders</p>
+              <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">Early release bookings</p>
+            </div>
+          </div>
+
+          {/* Trade-Ins */}
+          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_trades ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center ${store.can_offer_trades ? 'bg-purple-600' : 'bg-secondary-400 dark:bg-secondary-700'}`}>
+                <Scale className="w-4 h-4" />
+              </div>
+              {store.can_offer_trades ? (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Enabled
+                </span>
+              ) : (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-400 flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Locked
+                </span>
+              )}
+            </div>
+            <div>
+              <p className="font-bold text-sm text-secondary-900 dark:text-white">Trade-In / Barter</p>
+              <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">Accept old device swaps</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Quick Actions */}

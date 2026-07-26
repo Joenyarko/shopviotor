@@ -27,16 +27,20 @@ class AdminStoreController extends Controller
             'name'             => $s->name,
             'slug'             => $s->slug,
             'status'           => $s->status,
-            'commission_rate'  => (float) $s->commission_rate,
-            'products_count'   => $s->products_count ?? 0,
-            'logo_url'         => $s->logo_url,
-            'banner_url'       => $s->banner_url,
-            'description'      => $s->description,
-            'phone'            => $s->phone,
-            'location'         => $s->location,
-            'approved_at'      => $s->approved_at?->toISOString(),
-            'created_at'       => $s->created_at->toISOString(),
-            'owner'            => [
+            'commission_rate'         => (float) $s->commission_rate,
+            'can_offer_layaway'       => (bool) $s->can_offer_layaway,
+            'can_offer_hire_purchase' => (bool) $s->can_offer_hire_purchase,
+            'can_offer_preorders'     => (bool) $s->can_offer_preorders,
+            'can_offer_trades'        => (bool) $s->can_offer_trades,
+            'products_count'          => $s->products_count ?? 0,
+            'logo_url'                => $s->logo_url,
+            'banner_url'              => $s->banner_url,
+            'description'             => $s->description,
+            'phone'                   => $s->phone,
+            'location'                => $s->location,
+            'approved_at'             => $s->approved_at?->toISOString(),
+            'created_at'              => $s->created_at->toISOString(),
+            'owner'                   => [
                 'uuid'  => $s->user?->uuid,
                 'name'  => $s->user?->full_name,
                 'email' => $s->user?->email,
@@ -66,9 +70,9 @@ class AdminStoreController extends Controller
             'approved_at' => now(),
         ]);
 
-        // Upgrade user role to vendor only if they are a regular customer
-        if ($store->user->role === UserRole::Customer->value) {
-            $store->user->update(['role' => UserRole::Vendor->value]);
+        // Upgrade user role to vendor only if they are not already admin or super admin
+        if ($store->user && $store->user->role !== UserRole::Admin && $store->user->role !== UserRole::SuperAdmin) {
+            $store->user->update(['role' => UserRole::Vendor]);
         }
 
         return response()->json(['message' => 'Store approved and vendor role granted.']);
@@ -117,5 +121,32 @@ class AdminStoreController extends Controller
         $store->update(['commission_rate' => $request->commission_rate]);
 
         return response()->json(['message' => 'Commission rate updated.', 'commission_rate' => $request->commission_rate]);
+    }
+
+    /**
+     * Update permissions for a store.
+     */
+    public function updatePermissions(Request $request, string $uuid): JsonResponse
+    {
+        $validated = $request->validate([
+            'can_offer_layaway'       => 'nullable|boolean',
+            'can_offer_hire_purchase' => 'nullable|boolean',
+            'can_offer_preorders'     => 'nullable|boolean',
+            'can_offer_trades'        => 'nullable|boolean',
+        ]);
+
+        $store = Store::where('uuid', $uuid)->firstOrFail();
+        $store->update($validated);
+
+        return response()->json([
+            'message' => 'Store permissions updated successfully.',
+            'store'   => [
+                'uuid'                    => $store->uuid,
+                'can_offer_layaway'       => (bool) $store->can_offer_layaway,
+                'can_offer_hire_purchase' => (bool) $store->can_offer_hire_purchase,
+                'can_offer_preorders'     => (bool) $store->can_offer_preorders,
+                'can_offer_trades'        => (bool) $store->can_offer_trades,
+            ],
+        ]);
     }
 }

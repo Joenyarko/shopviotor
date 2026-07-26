@@ -164,13 +164,21 @@ const Navbar = () => {
                         <LayoutDashboard className="w-4 h-4" /> Admin Portal
                       </Link>
                     )}
-                    {isVendor() && (
+                    {isVendor() ? (
                       <Link
                         to="/vendor"
                         onClick={() => setUserDropdownOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors border-b border-emerald-100 dark:border-emerald-900/30"
                       >
-                        <Store className="w-4 h-4" /> Vendor Dashboard
+                        <Store className="w-4 h-4 text-emerald-500" /> Vendor Hub (My Store)
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/become-a-vendor"
+                        onClick={() => setUserDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-sm text-amber-600 dark:text-amber-400 font-semibold hover:bg-secondary-100 dark:hover:bg-secondary-700"
+                      >
+                        <Store className="w-4 h-4" /> My Store / Become Vendor
                       </Link>
                     )}
                     <Link
