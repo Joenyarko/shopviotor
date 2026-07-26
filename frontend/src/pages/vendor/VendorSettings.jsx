@@ -112,7 +112,7 @@ const VendorSettings = () => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <RefreshCw className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
+        <RefreshCw className="w-12 h-12 text-primary-500 animate-spin mb-4" />
         <p className="text-secondary-500 font-bold">Loading store settings...</p>
       </div>
     );
@@ -138,7 +138,7 @@ const VendorSettings = () => {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-black text-secondary-900 dark:text-white flex items-center gap-3">
-          <Store className="w-8 h-8 text-emerald-500" /> Store Settings
+          <Store className="w-8 h-8 text-primary-500" /> Store Settings
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">
           Customize your storefront identity, manage contact details, and review your marketplace model permissions.
@@ -167,7 +167,7 @@ const VendorSettings = () => {
                   <img src={bannerPreview} alt="Banner Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <div className="text-center space-y-2 p-4">
-                    <Upload className="w-8 h-8 text-secondary-400 mx-auto group-hover:text-emerald-500 transition-colors" />
+                    <Upload className="w-8 h-8 text-secondary-400 mx-auto group-hover:text-primary-500 transition-colors" />
                     <p className="text-xs font-bold text-secondary-600 dark:text-secondary-400">Click to browse or upload banner</p>
                   </div>
                 )}
@@ -184,7 +184,7 @@ const VendorSettings = () => {
                 {logoPreview ? (
                   <img src={logoPreview} alt="Logo Preview" className="w-full h-full object-cover" />
                 ) : (
-                  <Upload className="w-6 h-6 text-secondary-400 group-hover:text-emerald-500 transition-colors" />
+                  <Upload className="w-6 h-6 text-secondary-400 group-hover:text-primary-500 transition-colors" />
                 )}
                 <input ref={logoInputRef} type="file" accept="image/*" onChange={handleLogoChange} className="hidden" />
               </div>
@@ -224,7 +224,7 @@ const VendorSettings = () => {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="e.g. Joejoe Electronics Hub"
-                className="w-full px-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+                className="w-full px-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary-500 transition-all"
               />
             </div>
 
@@ -241,7 +241,7 @@ const VendorSettings = () => {
                   value={formData.location}
                   onChange={handleChange}
                   placeholder="e.g. Accra, Ghana"
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary-500 transition-all"
                 />
               </div>
             </div>
@@ -259,7 +259,7 @@ const VendorSettings = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+233 24 123 4567"
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary-500 transition-all"
                 />
               </div>
             </div>
@@ -276,7 +276,7 @@ const VendorSettings = () => {
                   value={formData.whatsapp}
                   onChange={handleChange}
                   placeholder="+233 24 123 4567"
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary-500 transition-all"
                 />
               </div>
             </div>
@@ -292,7 +292,7 @@ const VendorSettings = () => {
                 value={formData.description}
                 onChange={handleChange}
                 placeholder="Describe your products, warranty policies, and specialty offerings..."
-                className="w-full px-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-emerald-500 transition-all resize-none"
+                className="w-full px-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary-500 transition-all resize-none"
               />
             </div>
           </div>
@@ -302,7 +302,7 @@ const VendorSettings = () => {
         <div className="bg-gradient-to-br from-secondary-900 to-secondary-950 text-white rounded-3xl p-6 md:p-8 shadow-2xl border border-secondary-800 space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-secondary-800 pb-6">
             <div>
-              <span className="text-xs font-black text-emerald-400 uppercase tracking-widest flex items-center gap-1.5">
+              <span className="text-xs font-black text-primary-400 uppercase tracking-widest flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4" /> Marketplace Model Permissions
               </span>
               <h3 className="text-xl font-black text-white mt-1">Authorized Commerce Channels</h3>
@@ -312,7 +312,7 @@ const VendorSettings = () => {
             </div>
 
             <div className="bg-secondary-800/60 px-5 py-3 rounded-2xl border border-secondary-700 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-primary-500/20 text-primary-400 flex items-center justify-center">
                 <Percent className="w-5 h-5" />
               </div>
               <div>
@@ -323,34 +323,34 @@ const VendorSettings = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className={`p-4 rounded-2xl border ${permissions.allow_layaway ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
+            <div className={`p-4 rounded-2xl border ${permissions.allow_layaway ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-black uppercase tracking-wider">Layaway</span>
-                {permissions.allow_layaway ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Lock className="w-4 h-4" />}
+                {permissions.allow_layaway ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
               </div>
               <div className="text-sm font-bold">{permissions.allow_layaway ? 'Enabled' : 'Disabled'}</div>
             </div>
 
-            <div className={`p-4 rounded-2xl border ${permissions.allow_hire_purchase ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
+            <div className={`p-4 rounded-2xl border ${permissions.allow_hire_purchase ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-black uppercase tracking-wider">Hire Purchase</span>
-                {permissions.allow_hire_purchase ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Lock className="w-4 h-4" />}
+                {permissions.allow_hire_purchase ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
               </div>
               <div className="text-sm font-bold">{permissions.allow_hire_purchase ? 'Enabled' : 'Disabled'}</div>
             </div>
 
-            <div className={`p-4 rounded-2xl border ${permissions.allow_barter ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
+            <div className={`p-4 rounded-2xl border ${permissions.allow_barter ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-black uppercase tracking-wider">Barter Trade</span>
-                {permissions.allow_barter ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Lock className="w-4 h-4" />}
+                {permissions.allow_barter ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
               </div>
               <div className="text-sm font-bold">{permissions.allow_barter ? 'Enabled' : 'Disabled'}</div>
             </div>
 
-            <div className={`p-4 rounded-2xl border ${permissions.allow_raffles ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
+            <div className={`p-4 rounded-2xl border ${permissions.allow_raffles ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-black uppercase tracking-wider">Raffles</span>
-                {permissions.allow_raffles ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Lock className="w-4 h-4" />}
+                {permissions.allow_raffles ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
               </div>
               <div className="text-sm font-bold">{permissions.allow_raffles ? 'Enabled' : 'Disabled'}</div>
             </div>
@@ -362,7 +362,7 @@ const VendorSettings = () => {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-base shadow-xl shadow-emerald-500/20 transition-all disabled:opacity-50 active:scale-95"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-primary-500 hover:bg-primary-600 text-white font-extrabold text-base shadow-xl shadow-primary-500/20 transition-all disabled:opacity-50 active:scale-95"
           >
             {saving ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save Store Settings
           </button>

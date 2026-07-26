@@ -94,7 +94,7 @@ const StoreApplication = () => {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center space-y-8 animate-in fade-in duration-500">
         <div className={`w-24 h-24 rounded-3xl flex items-center justify-center mx-auto shadow-2xl border ${
-          existingStore.status === 'active' ? 'bg-emerald-500/20 border-emerald-400/30 text-emerald-500' : 'bg-amber-500/20 border-amber-400/30 text-amber-500'
+          existingStore.status === 'active' ? 'bg-primary-500/20 border-primary-400/30 text-primary-500' : 'bg-amber-500/20 border-amber-400/30 text-amber-500'
         }`}>
           <Store className="w-12 h-12" />
         </div>
@@ -116,7 +116,7 @@ const StoreApplication = () => {
             <>
               <Link 
                 to="/vendor" 
-                className="px-8 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-base flex items-center gap-2 shadow-xl hover:shadow-emerald-500/20 transition-all active:scale-95"
+                className="px-8 py-4 rounded-2xl bg-primary-500 hover:bg-primary-600 text-white font-extrabold text-base flex items-center gap-2 shadow-xl hover:shadow-primary-500/20 transition-all active:scale-95"
               >
                 <Store className="w-5 h-5" /> Go to Vendor Hub
               </Link>
@@ -153,8 +153,8 @@ const StoreApplication = () => {
   if (success) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center space-y-6">
-        <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-950/20 flex items-center justify-center mx-auto">
-          <CheckCircle2 className="w-10 h-10 text-green-500" />
+        <div className="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-950/20 flex items-center justify-center mx-auto">
+          <CheckCircle2 className="w-10 h-10 text-primary-500" />
         </div>
         <h2 className="text-3xl font-black text-secondary-900 dark:text-white">Application Submitted! 🎉</h2>
         <p className="text-secondary-500 dark:text-secondary-400 max-w-md mx-auto text-lg">

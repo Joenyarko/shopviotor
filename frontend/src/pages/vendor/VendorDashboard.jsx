@@ -35,7 +35,7 @@ const VendorDashboard = () => {
             Welcome back, {store.name}!
           </h1>
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1 flex items-center gap-1.5">
-            <span className={`inline-block w-2 h-2 rounded-full ${store.status === 'active' ? 'bg-emerald-500' : 'bg-yellow-500'}`} />
+            <span className={`inline-block w-2 h-2 rounded-full ${store.status === 'active' ? 'bg-primary-500' : 'bg-yellow-500'}`} />
             Store is <span className="font-semibold capitalize">{store.status}</span>
           </p>
         </div>
@@ -51,7 +51,7 @@ const VendorDashboard = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Total Products', value: stats.total_products ?? 0, icon: Package, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-950/20' },
-          { label: 'Active Listings', value: stats.active_products ?? 0, icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
+          { label: 'Active Listings', value: stats.active_products ?? 0, icon: TrendingUp, color: 'text-primary-500', bg: 'bg-primary-50 dark:bg-primary-950/20' },
           { label: 'Total Orders', value: stats.total_orders ?? 0, icon: ShoppingCart, color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-950/20' },
           { label: 'Total Revenue', value: `GHS ${(stats.total_revenue ?? 0).toLocaleString()}`, icon: DollarSign, color: 'text-primary-500', bg: 'bg-primary-50 dark:bg-primary-950/20' },
         ].map(({ label, value, icon: Icon, color, bg }) => (
@@ -83,12 +83,12 @@ const VendorDashboard = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
           {/* E-Commerce (Always active) */}
-          <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10 flex flex-col justify-between">
+          <div className="p-4 rounded-xl border border-primary-200 dark:border-primary-800 bg-primary-50/40 dark:bg-primary-950/10 flex flex-col justify-between">
             <div className="flex items-center justify-between mb-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-primary-500 text-white flex items-center justify-center">
                 <ShoppingCart className="w-4 h-4" />
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-100 text-secondary-900 dark:bg-primary-900/50 dark:text-primary-300 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" /> Enabled
               </span>
             </div>
@@ -99,13 +99,13 @@ const VendorDashboard = () => {
           </div>
 
           {/* Layaway */}
-          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_layaway ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
+          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_layaway ? 'border-primary-200 dark:border-primary-800 bg-primary-50/40 dark:bg-primary-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
             <div className="flex items-center justify-between mb-2">
               <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center ${store.can_offer_layaway ? 'bg-blue-600' : 'bg-secondary-400 dark:bg-secondary-700'}`}>
                 <Clock className="w-4 h-4" />
               </div>
               {store.can_offer_layaway ? (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-100 text-secondary-900 dark:bg-primary-900/50 dark:text-primary-300 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Enabled
                 </span>
               ) : (
@@ -121,13 +121,13 @@ const VendorDashboard = () => {
           </div>
 
           {/* Hire Purchase */}
-          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_hire_purchase ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
+          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_hire_purchase ? 'border-primary-200 dark:border-primary-800 bg-primary-50/40 dark:bg-primary-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
             <div className="flex items-center justify-between mb-2">
               <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center ${store.can_offer_hire_purchase ? 'bg-primary-600' : 'bg-secondary-400 dark:bg-secondary-700'}`}>
                 <Percent className="w-4 h-4" />
               </div>
               {store.can_offer_hire_purchase ? (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-100 text-secondary-900 dark:bg-primary-900/50 dark:text-primary-300 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Enabled
                 </span>
               ) : (
@@ -143,13 +143,13 @@ const VendorDashboard = () => {
           </div>
 
           {/* Pre-Orders */}
-          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_preorders ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
+          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_preorders ? 'border-primary-200 dark:border-primary-800 bg-primary-50/40 dark:bg-primary-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
             <div className="flex items-center justify-between mb-2">
               <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center ${store.can_offer_preorders ? 'bg-orange-600' : 'bg-secondary-400 dark:bg-secondary-700'}`}>
                 <Package className="w-4 h-4" />
               </div>
               {store.can_offer_preorders ? (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-100 text-secondary-900 dark:bg-primary-900/50 dark:text-primary-300 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Enabled
                 </span>
               ) : (
@@ -165,13 +165,13 @@ const VendorDashboard = () => {
           </div>
 
           {/* Trade-Ins */}
-          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_trades ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
+          <div className={`p-4 rounded-xl border flex flex-col justify-between ${store.can_offer_trades ? 'border-primary-200 dark:border-primary-800 bg-primary-50/40 dark:bg-primary-950/10' : 'border-secondary-200 dark:border-secondary-800 bg-secondary-50/60 dark:bg-secondary-850/40 opacity-75'}`}>
             <div className="flex items-center justify-between mb-2">
               <div className={`w-8 h-8 rounded-lg text-white flex items-center justify-center ${store.can_offer_trades ? 'bg-purple-600' : 'bg-secondary-400 dark:bg-secondary-700'}`}>
                 <Scale className="w-4 h-4" />
               </div>
               {store.can_offer_trades ? (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center gap-1">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-primary-100 text-secondary-900 dark:bg-primary-900/50 dark:text-primary-300 flex items-center gap-1">
                   <CheckCircle2 className="w-3 h-3" /> Enabled
                 </span>
               ) : (
@@ -232,7 +232,7 @@ const VendorDashboard = () => {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-sm text-primary-600 dark:text-primary-400">GHS {order.total?.toLocaleString()}</p>
-                  <span className={`text-xxs font-bold px-2 py-0.5 rounded-full ${order.status === 'completed' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400'}`}>
+                  <span className={`text-xxs font-bold px-2 py-0.5 rounded-full ${order.status === 'completed' ? 'bg-primary-100 text-emerald-700 dark:bg-primary-950/20 dark:text-primary-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-400'}`}>
                     {order.status}
                   </span>
                 </div>

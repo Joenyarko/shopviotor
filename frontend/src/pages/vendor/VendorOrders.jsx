@@ -78,7 +78,7 @@ const VendorOrders = () => {
     const val = statusVal?.value || statusVal || 'pending';
     switch (val) {
       case 'delivered':
-        return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800"><CheckCircle2 className="w-3.5 h-3.5" /> Delivered</span>;
+        return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-primary-100 dark:bg-primary-950/40 text-emerald-700 dark:text-primary-400 border border-emerald-300 dark:border-primary-800"><CheckCircle2 className="w-3.5 h-3.5" /> Delivered</span>;
       case 'shipped':
         return <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-300 dark:border-blue-800"><Truck className="w-3.5 h-3.5" /> Shipped</span>;
       case 'processing':
@@ -108,7 +108,7 @@ const VendorOrders = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-secondary-900 dark:text-white flex items-center gap-3">
-            <ShoppingCart className="w-8 h-8 text-emerald-500" /> Store Orders
+            <ShoppingCart className="w-8 h-8 text-primary-500" /> Store Orders
           </h1>
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">
             Manage customer orders, track fulfillments, and update shipping statuses.
@@ -132,7 +132,7 @@ const VendorOrders = () => {
             placeholder="Search by Order # or Customer..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 rounded-2xl bg-secondary-50 dark:bg-secondary-800 border-none text-secondary-900 dark:text-white placeholder-secondary-400 text-sm font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+            className="w-full pl-12 pr-4 py-3 rounded-2xl bg-secondary-50 dark:bg-secondary-800 border-none text-secondary-900 dark:text-white placeholder-secondary-400 text-sm font-medium focus:ring-2 focus:ring-primary-500 transition-all"
           />
         </div>
 
@@ -141,7 +141,7 @@ const VendorOrders = () => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full md:w-56 px-4 py-3 rounded-2xl bg-secondary-50 dark:bg-secondary-800 border-none text-secondary-900 dark:text-white text-sm font-bold focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+            className="w-full md:w-56 px-4 py-3 rounded-2xl bg-secondary-50 dark:bg-secondary-800 border-none text-secondary-900 dark:text-white text-sm font-bold focus:ring-2 focus:ring-primary-500 transition-all cursor-pointer"
           >
             <option value="all">All Statuses ({orders.length})</option>
             <option value="pending">Pending</option>
@@ -157,12 +157,12 @@ const VendorOrders = () => {
       {/* Orders List / Table */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-secondary-900 rounded-3xl border border-secondary-200 dark:border-secondary-800 shadow-xl">
-          <RefreshCw className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
+          <RefreshCw className="w-12 h-12 text-primary-500 animate-spin mb-4" />
           <p className="text-secondary-500 dark:text-secondary-400 font-bold">Loading orders...</p>
         </div>
       ) : filteredOrders.length === 0 ? (
         <div className="text-center py-20 bg-white dark:bg-secondary-900 rounded-3xl border border-secondary-200 dark:border-secondary-800 shadow-xl space-y-4">
-          <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-500">
+          <div className="w-20 h-20 bg-primary-500/10 rounded-full flex items-center justify-center mx-auto text-primary-500">
             <ShoppingCart className="w-10 h-10" />
           </div>
           <h3 className="text-xl font-extrabold text-secondary-900 dark:text-white">No Orders Found</h3>
@@ -208,7 +208,7 @@ const VendorOrders = () => {
                       </td>
                       <td className="p-5">
                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-secondary-100 dark:bg-secondary-800 font-bold text-secondary-700 dark:text-secondary-300 text-xs">
-                          <Package className="w-3.5 h-3.5 text-emerald-500" /> {itemsCount} {itemsCount === 1 ? 'item' : 'items'}
+                          <Package className="w-3.5 h-3.5 text-primary-500" /> {itemsCount} {itemsCount === 1 ? 'item' : 'items'}
                         </span>
                       </td>
                       <td className="p-5 font-black text-secondary-900 dark:text-white">
@@ -223,7 +223,7 @@ const VendorOrders = () => {
                       <td className="p-5 text-right">
                         <button
                           onClick={() => handleOpenModal(order)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary-100 dark:bg-secondary-800 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-600 text-secondary-800 dark:text-white font-bold text-xs transition-all shadow-sm"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary-100 dark:bg-secondary-800 hover:bg-primary-500 hover:text-white dark:hover:bg-primary-600 text-secondary-800 dark:text-white font-bold text-xs transition-all shadow-sm"
                         >
                           <Eye className="w-4 h-4" /> Manage
                         </button>
@@ -243,7 +243,7 @@ const VendorOrders = () => {
           <div className="bg-white dark:bg-secondary-900 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-secondary-200 dark:border-secondary-800 p-6 md:p-8 space-y-6">
             <div className="flex items-center justify-between border-b border-secondary-200 dark:border-secondary-800 pb-5">
               <div>
-                <span className="text-xs font-black text-emerald-500 uppercase tracking-widest">Order Details</span>
+                <span className="text-xs font-black text-primary-500 uppercase tracking-widest">Order Details</span>
                 <h2 className="text-2xl font-black text-secondary-900 dark:text-white mt-1">
                   #{selectedOrder.order_number}
                 </h2>
@@ -260,7 +260,7 @@ const VendorOrders = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-secondary-50 dark:bg-secondary-800/50 rounded-2xl p-5 border border-secondary-200 dark:border-secondary-700/50">
               <div className="space-y-2">
                 <div className="text-xs font-black text-secondary-400 uppercase flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-emerald-500" /> Customer Information
+                  <User className="w-3.5 h-3.5 text-primary-500" /> Customer Information
                 </div>
                 <div className="font-bold text-secondary-900 dark:text-white">
                   {selectedOrder.user ? `${selectedOrder.user.first_name || ''} ${selectedOrder.user.last_name || ''}`.trim() : 'Guest Customer'}
@@ -273,7 +273,7 @@ const VendorOrders = () => {
 
               <div className="space-y-2">
                 <div className="text-xs font-black text-secondary-400 uppercase flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-500" /> Shipping Address
+                  <MapPin className="w-3.5 h-3.5 text-primary-500" /> Shipping Address
                 </div>
                 <div className="text-xs text-secondary-700 dark:text-secondary-300 leading-relaxed font-medium">
                   {selectedOrder.address ? (
@@ -323,7 +323,7 @@ const VendorOrders = () => {
             {/* Status Update Form */}
             <form onSubmit={handleUpdateStatus} className="bg-secondary-50 dark:bg-secondary-800/50 rounded-2xl p-5 border border-secondary-200 dark:border-secondary-700/50 space-y-4">
               <h4 className="text-sm font-black text-secondary-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
-                <Edit3 className="w-4 h-4 text-emerald-500" /> Update Fulfillment Status
+                <Edit3 className="w-4 h-4 text-primary-500" /> Update Fulfillment Status
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -334,7 +334,7 @@ const VendorOrders = () => {
                   <select
                     value={newStatus}
                     onChange={(e) => setNewStatus(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-secondary-900 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-bold focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-secondary-900 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-bold focus:ring-2 focus:ring-primary-500 transition-all cursor-pointer"
                   >
                     <option value="pending">Pending</option>
                     <option value="confirmed">Confirmed</option>
@@ -354,7 +354,7 @@ const VendorOrders = () => {
                     placeholder="e.g. Dispatched via Express Courier..."
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-secondary-900 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white placeholder-secondary-400 text-sm font-medium focus:ring-2 focus:ring-emerald-500 transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-secondary-900 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white placeholder-secondary-400 text-sm font-medium focus:ring-2 focus:ring-primary-500 transition-all"
                   />
                 </div>
               </div>
@@ -370,7 +370,7 @@ const VendorOrders = () => {
                 <button
                   type="submit"
                   disabled={updating}
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-sm shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50 active:scale-95"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-black text-sm shadow-lg shadow-primary-500/20 transition-all disabled:opacity-50 active:scale-95"
                 >
                   {updating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />} Save Changes
                 </button>

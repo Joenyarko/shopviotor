@@ -44,7 +44,7 @@ const VendorLayout = () => {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-secondary-900 border-r border-secondary-200 dark:border-secondary-800 flex flex-col transform lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:flex-shrink-0 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="h-16 flex items-center justify-between px-5 border-b border-secondary-200 dark:border-secondary-800">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
               <Store className="w-4 h-4 text-white" />
             </div>
             <span className="font-bold text-secondary-900 dark:text-white">Vendor <span className="text-emerald-600">Hub</span></span>
@@ -57,7 +57,7 @@ const VendorLayout = () => {
         {/* User info */}
         <div className="p-5 border-b border-secondary-200 dark:border-secondary-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-sm">
               {user?.first_name?.charAt(0)}
             </div>
             <div className="overflow-hidden">
@@ -76,7 +76,7 @@ const VendorLayout = () => {
               end={end}
               onClick={() => setSidebarOpen(false)}
               className={({ isActive }) =>
-                `flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' : 'text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800'}`
+                `flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive ? 'bg-primary-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-primary-400' : 'text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800'}`
               }
             >
               {({ isActive }) => (
@@ -99,7 +99,7 @@ const VendorLayout = () => {
             <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
           {storeSlug && (
-            <Link to={`/shops/${storeSlug}`} target="_blank" className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-semibold">
+            <Link to={`/shops/${storeSlug}`} target="_blank" className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-emerald-700 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-emerald-950/20 font-semibold">
               <ExternalLink className="w-5 h-5" />
               <span>View My Store</span>
             </Link>
