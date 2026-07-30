@@ -18,7 +18,7 @@ class SellRequestService
             // Upload images
             $uploadedPaths = [];
             foreach ($images as $file) {
-                $path = $file->store("sell-requests/{$userId}", 'public');
+                $path = $file->storeOnCloudinary("sell-requests/{$userId}")->getSecurePath();
                 $uploadedPaths[] = $path;
             }
 
@@ -39,7 +39,7 @@ class SellRequestService
             if (!empty($images)) {
                 $uploadedPaths = [];
                 foreach ($images as $file) {
-                    $path = $file->store("sell-requests/{$request->user_id}", 'public');
+                    $path = $file->storeOnCloudinary("sell-requests/{$request->user_id}")->getSecurePath();
                     $uploadedPaths[] = $path;
                 }
                 $data['images'] = $uploadedPaths;

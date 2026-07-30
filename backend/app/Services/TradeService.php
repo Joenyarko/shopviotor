@@ -26,7 +26,7 @@ class TradeService
 
                 $uploadedPaths = [];
                 foreach ($images as $file) {
-                    $path = $file->store("trade-requests/{$trade->id}", 'public');
+                    $path = $file->storeOnCloudinary("trade-requests/{$trade->id}")->getSecurePath();
                     $uploadedPaths[] = $path;
                 }
 

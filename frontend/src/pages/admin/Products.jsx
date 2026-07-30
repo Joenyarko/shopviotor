@@ -36,6 +36,8 @@ const Products = () => {
   const [condition, setCondition] = useState('new');
   const [status, setStatus] = useState('active');
   const [description, setDescription] = useState('');
+  const [shippingType, setShippingType] = useState('default');
+  const [customShippingFee, setCustomShippingFee] = useState('');
   const [isNegotiable, setIsNegotiable] = useState(false);
   const [availableForTrade, setAvailableForTrade] = useState(false);
   const [availableForHp, setAvailableForHp] = useState(false);
@@ -79,9 +81,9 @@ const Products = () => {
 
   const resetForm = () => {
     setName(''); setPrice(''); setComparePrice(''); setStock('');
-    setMainCategoryId(''); setSubCategoryId(''); setSubSubCategoryId(''); setBrandId(''); setCondition('new'); setStatus('active');
-    setDescription(''); setIsNegotiable(false); setAvailableForTrade(false);
-    setAvailableForHp(false); setHpInterestRate(''); setHpMinDeposit(''); setHpMaxDuration(''); setAvailableForLayaway(false); setLayawayTotalBoxes(''); 
+    setMainCategoryId(''); setSubCategoryId('');    setSubSubCategoryId(''); setBrandId(''); setCondition('new'); setStatus('active'); setDescription('');
+    setShippingType('default'); setCustomShippingFee('');
+    setIsNegotiable(false); setAvailableForTrade(false); setAvailableForHp(false); setHpInterestRate(''); setHpMinDeposit(''); setHpMaxDuration(''); setAvailableForLayaway(false); setLayawayTotalBoxes(''); 
     setAvailableForPreorder(false); setPreorderDepositAmount(''); setPreorderExpectedDate('');
     setIsFeatured(false); setExistingImages([]);
     setImageFiles([]); setImagePreviews([]); setActiveImageIdx(0); setVariations([]); setSpecifications([]);
@@ -117,9 +119,11 @@ const Products = () => {
     setSubSubCategoryId(chain[2]?.id || chain[2]?.uuid || '');
     setBrandId(product.brand_id || product.brand?.id || '');
     setCondition(product.condition || 'new');
-    setStatus(product.status?.value || product.status || 'active');
+    setStatus(product.status || 'active');
     setDescription(product.description || '');
-    setIsNegotiable(!!product.is_negotiable);
+    setShippingType(product.shipping_type || 'default');
+    setCustomShippingFee(product.custom_shipping_fee || '');
+    setIsNegotiable(product.is_negotiable);
     setAvailableForTrade(!!product.available_for_trade);
     setAvailableForHp(!!product.available_for_hire_purchase);
     setHpInterestRate(product.hp_interest_rate || '');
@@ -211,6 +215,8 @@ const Products = () => {
     formData.append('brand_id', brandId);
     formData.append('condition', condition);
     formData.append('status', status);
+    formData.append('shipping_type', shippingType);
+    if (shippingType === 'custom' && customShippingFee) formData.append('custom_shipping_fee', customShippingFee);
     formData.append('description', description);
     formData.append('is_featured', isFeatured ? '1' : '0');
     formData.append('is_negotiable', isNegotiable ? '1' : '0');
@@ -446,6 +452,25 @@ const Products = () => {
                     <label className={labelClass}>Description</label>
                     <textarea rows={4} value={description} onChange={e => setDescription(e.target.value)} className={inputClass} placeholder="Describe the product..." />
                   </div>
+                  
+                  {/* Shipping Section */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 mt-2 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
+                    <div>
+                      <label className={labelClass}>Shipping Type</label>
+                      <select value={shippingType} onChange={e => setShippingType(e.target.value)} className={inputClass}>
+                        <option value="default">Default Global Fee</option>
+                        <option value="free">Free Shipping</option>
+                        <option value="custom">Custom Fee</option>
+                      </select>
+                    </div>
+                    {shippingType === 'custom' && (
+                      <div>
+                        <label className={labelClass}>Custom Shipping Fee (GHS)</label>
+                        <input type="number" step="0.01" min="0" value={customShippingFee} onChange={e => setCustomShippingFee(e.target.value)} className={inputClass} placeholder="e.g. 100" />
+                      </div>
+                    )}
+                  </div>
+                  
                   <div className="flex flex-wrap gap-4 pt-2">
                     {[
                       { label: 'Is Featured Deal', val: isFeatured, set: setIsFeatured },

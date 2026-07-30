@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import sellRequestService from '../../services/sellRequestService';
 import productService from '../../services/productService';
 import { Upload, X, AlertCircle, RefreshCw, CheckCircle2, Package, Search, Eye, Send, Phone, Edit, Trash2 } from 'lucide-react';
+import CategorySelector from '../../components/CategorySelector';
 
 const SellRequest = () => {
   const [activeTab, setActiveTab] = useState('submit'); // 'submit' or 'my-requests'
@@ -22,7 +23,7 @@ const SellRequest = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: {
       item_name: '',
       category_id: '',
@@ -190,6 +191,8 @@ const SellRequest = () => {
 
 
 
+  const category_id = watch('category_id');
+
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-8">
       <div>
@@ -264,16 +267,16 @@ const SellRequest = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Category</label>
-                  <select
-                    {...register('category_id', { required: 'Category is required' })}
-                    className="w-full mt-1.5 p-2.5 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-lg text-sm"
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map(cat => (
-                      <option key={cat.id || cat.uuid} value={cat.id || cat.uuid}>{cat.name}</option>
-                    ))}
-                  </select>
+                  <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300 mb-1.5">Category</label>
+                  <CategorySelector 
+                    categories={categories}
+                    value={category_id}
+                    onChange={(v) => setValue('category_id', v, { shouldValidate: true })}
+                    required={true}
+                  />
+                  {/* Hidden input for react-hook-form validation to hook into */}
+                  <input type="hidden" {...register('category_id', { required: 'Category is required' })} />
+                  {errors.category_id && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.category_id.message}</span>}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Brand (optional)</label>

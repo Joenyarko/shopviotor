@@ -35,11 +35,11 @@ class AdminCampaignController extends Controller
 
         $validated = $request->validate($rules);
 
-        $path = $request->file('image')->store('campaigns', 'public');
+        $path = $request->file('image')->storeOnCloudinary('campaigns')->getSecurePath();
 
         $campaign = Campaign::create([
             'title' => $validated['title'],
-            'image_path' => asset('storage/' . $path),
+            'image_path' => $path,
             'target_url' => $validated['target_url'] ?? null,
             'start_date' => $validated['start_date'] ?? null,
             'end_date' => $validated['end_date'] ?? null,
@@ -82,8 +82,8 @@ class AdminCampaignController extends Controller
         $campaign->display_location = $validated['display_location'];
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('campaigns', 'public');
-            $campaign->image_path = asset('storage/' . $path);
+            $path = $request->file('image')->storeOnCloudinary('campaigns')->getSecurePath();
+            $campaign->image_path = $path;
         }
 
         $campaign->save();

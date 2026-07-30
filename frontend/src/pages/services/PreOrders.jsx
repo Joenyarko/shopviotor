@@ -62,7 +62,7 @@ const PreOrders = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800 mt-8">
           {products.map(product => {
             const primaryImage = product.primary_image || (product.images && product.images[0]?.url) || 'https://via.placeholder.com/300?text=No+Image';
-            const deposit = product.preorder_deposit_amount;
+            const deposit = product.preorder_deposit_amount || (product.price * 0.2).toFixed(2);
             
             return (
               <div key={product.id} className="bg-white dark:bg-secondary-900 hover:shadow-lg transition-all group flex flex-col relative z-0 hover:z-10">

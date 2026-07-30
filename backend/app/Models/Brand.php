@@ -30,7 +30,10 @@ class Brand extends Model
 
     public function getLogoUrlAttribute(): ?string
     {
-        return $this->logo ? asset('storage/' . $this->logo) : null;
+        if (!$this->logo) return null;
+        return \Illuminate\Support\Str::startsWith($this->logo, ['http://', 'https://']) 
+            ? $this->logo 
+            : asset('storage/' . $this->logo);
     }
 
     public function products(): HasMany

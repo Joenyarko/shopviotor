@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { LayoutDashboard, Package, ShoppingCart, Settings, Store, LogOut, Sun, Moon, X, ExternalLink, Menu, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Settings, Store, LogOut, Sun, Moon, X, ExternalLink, Menu, ChevronRight, Wallet } from 'lucide-react';
 import vendorService from '../services/vendorService';
 
 const VendorLayout = () => {
@@ -30,6 +30,7 @@ const VendorLayout = () => {
     { to: '/vendor', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: '/vendor/products', label: 'My Products', icon: Package },
     { to: '/vendor/orders', label: 'Orders', icon: ShoppingCart },
+    { to: '/vendor/wallet', label: 'Wallet', icon: Wallet },
     { to: '/vendor/settings', label: 'Store Settings', icon: Settings },
   ];
 

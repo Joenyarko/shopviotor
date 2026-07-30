@@ -25,7 +25,9 @@ import {
   Briefcase,
   Store,
   Layers3,
-  Image
+  Image,
+  ImageIcon,
+  Wallet
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -48,10 +50,11 @@ const AdminLayout = () => {
     { name: 'Hire Purchase', path: '/admin/hire-purchase', icon: Briefcase },
     { name: 'Layaway Plans', path: '/admin/layaway', icon: Layers3 },
     { name: 'Vendor Stores', path: '/admin/vendor-stores', icon: Store },
+    { name: 'Vendor Payouts', path: '/admin/payouts', icon: Wallet },
     { name: 'Raffles', path: '/admin/raffles', icon: Ticket },
     { name: 'Pre-Orders', path: '/admin/pre-orders', icon: Package },
     { name: 'Marketing Ads', path: '/admin/banners', icon: Image },
-    { name: 'Promo Popups', path: '/admin/campaigns', icon: Layers },
+    { name: 'Promo Popups', path: '/admin/popups', icon: ImageIcon },
     { name: 'Flash Sales', path: '/admin/flash-sales', icon: Tag },
     { name: 'Collections', path: '/admin/collections', icon: Package },
     { name: 'Reports', path: '/admin/reports', icon: BarChart },

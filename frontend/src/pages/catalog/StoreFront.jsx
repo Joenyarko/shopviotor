@@ -6,6 +6,7 @@ import {
   RefreshCw, ArrowLeft, ShieldCheck, Star, Users,
   ChevronRight, ExternalLink
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const StoreFront = () => {
   const { slug } = useParams();
@@ -13,6 +14,7 @@ const StoreFront = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
 
   useEffect(() => {
     vendorService.getStore(slug)
@@ -29,6 +31,14 @@ const StoreFront = () => {
       .catch(() => setError('Store not found or is no longer active.'))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  useEffect(() => {
+    if (!store || !store.banners_urls || store.banners_urls.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentBannerIndex((prev) => (prev + 1) % store.banners_urls.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [store]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -62,8 +72,25 @@ const StoreFront = () => {
     <div className="bg-secondary-50 dark:bg-secondary-950 min-h-screen">
 
       {/* ── HERO BANNER ─────────────────────────────────────────────────── */}
-      <div className="relative w-full h-56 md:h-80 overflow-hidden bg-secondary-900">
-        {store.banner_url ? (
+      <div className="relative w-full h-40 sm:h-48 md:h-[530px] overflow-hidden bg-secondary-900 group">
+        {store.banners_urls && store.banners_urls.length > 0 ? (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentBannerIndex}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="absolute inset-0"
+            >
+              <img
+                src={store.banners_urls[currentBannerIndex]}
+                alt={`${store.name} banner ${currentBannerIndex + 1}`}
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          </AnimatePresence>
+        ) : store.banner_url ? (
           <img
             src={store.banner_url}
             alt={`${store.name} banner`}
@@ -79,6 +106,24 @@ const StoreFront = () => {
             <div className="absolute -bottom-20 -left-10 w-60 h-60 rounded-full opacity-20"
               style={{ background: 'radial-gradient(circle, #f5c000 0%, transparent 70%)' }} />
             <Store className="w-20 h-20 opacity-10 text-white" />
+          </div>
+        )}
+        
+        {/* Navigation Dots */}
+        {store.banners_urls && store.banners_urls.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+            {store.banners_urls.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentBannerIndex(idx)}
+                className={`transition-all duration-300 rounded-full ${
+                  idx === currentBannerIndex
+                    ? 'w-6 h-1.5 bg-primary-500'
+                    : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'
+                }`}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
           </div>
         )}
         {/* Gradient overlay so logo/text pops */}

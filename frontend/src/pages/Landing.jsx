@@ -137,7 +137,7 @@ const Landing = () => {
         />
         
         {/* Search bar beneath Hero */}
-        <div className="mt-6 md:mt-8 max-w-3xl mx-auto px-4">
+        <div className="mt-6 md:hidden max-w-3xl mx-auto px-4">
           <motion.form 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

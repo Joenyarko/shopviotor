@@ -37,7 +37,10 @@ class Category extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image ? asset('storage/' . $this->image) : null;
+        if (!$this->image) return null;
+        return \Illuminate\Support\Str::startsWith($this->image, ['http://', 'https://']) 
+            ? $this->image 
+            : asset('storage/' . $this->image);
     }
 
     public function parent(): BelongsTo

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import productService from '../../services/productService';
 import { X, Upload, Image as ImageIcon, RefreshCw, AlertCircle } from 'lucide-react';
+import CategorySelector from '../CategorySelector';
 
 const LayawayProductModal = ({ isOpen, onClose, onSuccess }) => {
   const [categories, setCategories] = useState([]);
@@ -79,15 +80,6 @@ const LayawayProductModal = ({ isOpen, onClose, onSuccess }) => {
 
   if (!isOpen) return null;
 
-  // Flatten categories for simple select
-  const flatCats = [];
-  const processCats = (cats, prefix = '') => {
-    cats.forEach(c => {
-      flatCats.push({ id: c.id, name: `${prefix}${c.name}` });
-      if (c.children?.length) processCats(c.children, `${prefix}${c.name} > `);
-    });
-  };
-  processCats(categories);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
@@ -142,10 +134,12 @@ const LayawayProductModal = ({ isOpen, onClose, onSuccess }) => {
               </div>
               <div>
                 <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Category *</label>
-                <select required value={categoryId} onChange={e => setCategoryId(e.target.value)} className="w-full p-3 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 text-secondary-900 dark:text-white">
-                  <option value="">Select Category</option>
-                  {flatCats.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                <CategorySelector 
+                  categories={categories}
+                  value={categoryId}
+                  onChange={setCategoryId}
+                  required={true}
+                />
               </div>
               <div>
                 <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Total Product Price (GHS) *</label>

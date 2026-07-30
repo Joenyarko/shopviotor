@@ -4,6 +4,7 @@ import preorderService from '../../services/preorderService';
 import productService from '../../services/productService';
 import { Package, RefreshCw, Check, X, Eye, Plus, Upload, Box, ListOrdered } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
+import CategorySelector from '../../components/CategorySelector';
 
 const AdminPreOrders = () => {
   const [mainTab, setMainTab] = useState('orders'); // 'orders' | 'products'
@@ -304,10 +305,12 @@ const AdminPreOrders = () => {
                 </div>
                 <div>
                   <label className={labelClass}>Category *</label>
-                  <select required value={categoryId} onChange={e => setCategoryId(e.target.value)} className={inputClass}>
-                    <option value="">Select</option>
-                    {categories.map(c => <option key={c.id || c.uuid} value={c.id || c.uuid}>{c.name}</option>)}
-                  </select>
+                  <CategorySelector 
+                    categories={categories}
+                    value={categoryId}
+                    onChange={setCategoryId}
+                    required={true}
+                  />
                 </div>
               </div>
 

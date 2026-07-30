@@ -4,6 +4,7 @@ import tradeService from '../../services/tradeService';
 import productService from '../../services/productService';
 import { Scale, X, RefreshCw, Eye, Plus, Image as ImageIcon, Upload, Trash2, Edit } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
+import CategorySelector from '../../components/CategorySelector';
 
 const TradeRequests = () => {
   const [activeTab, setActiveTab] = useState('requests'); // 'requests' | 'products'
@@ -378,10 +379,12 @@ const TradeRequests = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Category</label>
-                    <select required value={categoryId} onChange={e => setCategoryId(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500">
-                      <option value="">Select</option>
-                      {categories.map(c => <option key={c.id || c.uuid} value={c.id || c.uuid}>{c.name}</option>)}
-                    </select>
+                    <CategorySelector 
+                      categories={categories}
+                      value={categoryId}
+                      onChange={setCategoryId}
+                      required={true}
+                    />
                   </div>
                 </div>
 

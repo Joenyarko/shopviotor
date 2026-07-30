@@ -18,7 +18,7 @@ class Product extends Model
     protected $fillable = [
         'uuid', 'user_id', 'store_id', 'category_id', 'brand_id',
         'name', 'slug', 'description', 'short_description',
-        'price', 'compare_price', 'cost_price',
+        'price', 'compare_price', 'cost_price', 'shipping_type', 'custom_shipping_fee',
         'stock_quantity', 'sku', 'barcode', 'condition', 'status',
         'is_featured',
         'is_negotiable',
@@ -47,6 +47,7 @@ class Product extends Model
             'price'                       => 'decimal:2',
             'compare_price'               => 'decimal:2',
             'cost_price'                  => 'decimal:2',
+            'custom_shipping_fee'         => 'decimal:2',
             'average_rating'              => 'decimal:2',
             'is_featured'                 => 'boolean',
             'is_negotiable'               => 'boolean',
@@ -82,8 +83,13 @@ class Product extends Model
         if (empty(trim($term))) {
             return $query;
         }
-        return $query->whereFullText(['name', 'description'], $term)
-            ->orWhere('name', 'like', "%{$term}%");
+        // Note: whereFullText() requires a MySQL FULLTEXT index.
+        // Using LIKE for broad compatibility; add FULLTEXT index + switch back when in production on MySQL.
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+              ->orWhere('description', 'like', "%{$term}%")
+              ->orWhere('tags', 'like', "%{$term}%");
+        });
     }
 
     // ─── Accessors ────────────────────────────────────────────────────────────
@@ -91,7 +97,10 @@ class Product extends Model
     public function getPrimaryImageAttribute(): ?string
     {
         $primary = $this->images->where('is_primary', true)->first();
-        return $primary ? asset('storage/' . $primary->path) : null;
+        if (!$primary) return null;
+        return \Illuminate\Support\Str::startsWith($primary->path, ['http://', 'https://']) 
+            ? $primary->path 
+            : asset('storage/' . $primary->path);
     }
 
     public function getDiscountPercentageAttribute(): ?float

@@ -243,6 +243,11 @@ const ProductDetails = () => {
                         FEATURED
                       </span>
                     )}
+                    {product.shipping_type === 'free' && (
+                      <span className="bg-green-600 text-white text-xs font-bold px-2 py-1 rounded shadow-sm">
+                        FREE SHIPPING
+                      </span>
+                    )}
                   </div>
                 </div>
                 

@@ -57,6 +57,7 @@ const AdminRaffles = React.lazy(() => import('../pages/admin/Raffles'));
 const Banners = React.lazy(() => import('../pages/admin/Banners'));
 const AdminReports = React.lazy(() => import('../pages/admin/Reports'));
 const AdminSettings = React.lazy(() => import('../pages/admin/Settings'));
+const AdminPopups = React.lazy(() => import('../pages/admin/AdminPopups'));
 // const AdsManager = React.lazy(() => import('../pages/admin/AdsManager'));
 const AdminCategories = React.lazy(() => import('../pages/admin/Categories'));
 const AdminBrands = React.lazy(() => import('../pages/admin/Brands'));
@@ -72,6 +73,8 @@ const VendorDashboard = React.lazy(() => import('../pages/vendor/VendorDashboard
 const VendorProducts = React.lazy(() => import('../pages/vendor/VendorProducts'));
 const VendorOrders = React.lazy(() => import('../pages/vendor/VendorOrders'));
 const VendorSettings = React.lazy(() => import('../pages/vendor/VendorSettings'));
+const VendorWallet = React.lazy(() => import('../pages/vendor/VendorWallet'));
+const AdminPayouts = React.lazy(() => import('../pages/admin/AdminPayouts'));
 const StoreApplication = React.lazy(() => import('../pages/vendor/StoreApplication'));
 const StoreList = React.lazy(() => import('../pages/catalog/StoreList'));
 const StoreFront = React.lazy(() => import('../pages/catalog/StoreFront'));
@@ -158,6 +161,7 @@ const AppRoutes = () => {
         <Route path="/vendor/products" element={<VendorProducts />} />
         <Route path="/vendor/orders" element={<VendorOrders />} />
         <Route path="/vendor/settings" element={<VendorSettings />} />
+        <Route path="/vendor/wallet" element={<VendorWallet />} />
       </Route>
 
       {/* ─── ADMIN FLOW (PROTECTED) ────────────────────────────────────────── */}
@@ -177,12 +181,14 @@ const AppRoutes = () => {
         <Route path="/admin/vendor-stores" element={<VendorStores />} />
         <Route path="/admin/raffles" element={<AdminRaffles />} />
         <Route path="/admin/banners" element={<Banners />} />
+        <Route path="/admin/popups" element={<AdminPopups />} />
         {/* <Route path="/admin/ads" element={<AdsManager />} /> */}
         <Route path="/admin/campaigns" element={<AdminCampaigns />} />
         <Route path="/admin/flash-sales" element={<AdminFlashSales />} />
         <Route path="/admin/collections" element={<AdminCollections />} />
         <Route path="/admin/reports" element={<AdminReports />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
+        <Route path="/admin/payouts" element={<AdminPayouts />} />
       </Route>
 
       {/* ─── FALLBACKS ─────────────────────────────────────────────────────── */}

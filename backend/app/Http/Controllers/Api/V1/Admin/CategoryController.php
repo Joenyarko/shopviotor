@@ -30,6 +30,8 @@ class CategoryController extends Controller
         $validated['uuid'] = Str::uuid()->toString();
 
         $category = Category::create($validated);
+        
+        \Illuminate\Support\Facades\Cache::forget('categories.tree');
 
         return response()->json(['data' => $category], 201);
     }
@@ -52,13 +54,19 @@ class CategoryController extends Controller
         $validated['slug'] = Str::slug($validated['name']);
 
         $category->update($validated);
+        
+        \Illuminate\Support\Facades\Cache::forget('categories.tree');
+        \Illuminate\Support\Facades\Cache::forget("categories.{$category->slug}");
 
         return response()->json(['data' => $category]);
     }
 
     public function destroy(Category $category): JsonResponse
     {
+        \Illuminate\Support\Facades\Cache::forget('categories.tree');
+        \Illuminate\Support\Facades\Cache::forget("categories.{$category->slug}");
         $category->delete();
+
         return response()->json(null, 204);
     }
 }

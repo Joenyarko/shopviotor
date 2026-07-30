@@ -23,7 +23,9 @@ class ProductImage extends Model
 
     public function getUrlAttribute(): string
     {
-        return asset('storage/' . $this->path);
+        return \Illuminate\Support\Str::startsWith($this->path, ['http://', 'https://']) 
+            ? $this->path 
+            : asset('storage/' . $this->path);
     }
 
     public function product(): BelongsTo

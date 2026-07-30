@@ -4,6 +4,7 @@ import vendorService from '../../services/vendorService';
 import productService from '../../services/productService';
 import { Package, Plus, Trash2, RefreshCw, X, Upload, Image as ImageIcon, Edit } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
+import CategorySelector from '../../components/CategorySelector';
 
 const VendorProducts = () => {
   const [products, setProducts] = useState([]);
@@ -26,6 +27,8 @@ const VendorProducts = () => {
   const [stockQty, setStockQty] = useState('');
   const [condition, setCondition] = useState('new');
   const [categoryId, setCategoryId] = useState('');
+  const [shippingType, setShippingType] = useState('default');
+  const [customShippingFee, setCustomShippingFee] = useState('');
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [availableForLayaway, setAvailableForLayaway] = useState(false);
@@ -57,6 +60,7 @@ const VendorProducts = () => {
   const resetForm = () => {
     setName(''); setPrice(''); setComparePrice(''); setDescription('');
     setStockQty(''); setCondition('new'); setCategoryId('');
+    setShippingType('default'); setCustomShippingFee('');
     setImageFiles([]); setImagePreviews([]); setEditingProduct(null);
     setAvailableForLayaway(false); setLayawayBoxes('');
     setAvailableForHP(false); setAvailableForPreorder(false); setAvailableForTrade(false);
@@ -73,7 +77,9 @@ const VendorProducts = () => {
     setDescription(p.description || '');
     setStockQty(p.stock_quantity || '');
     setCondition(p.condition || 'new');
-    setCategoryId(p.category?.id || p.category?.uuid || p.category_id || '');
+    setCategoryId(p.category_id || p.category?.id || '');
+    setShippingType(p.shipping_type || 'default');
+    setCustomShippingFee(p.custom_shipping_fee || '');
     setAvailableForLayaway(!!p.available_for_layaway);
     setLayawayBoxes(p.layaway_total_boxes || p.layaway_boxes || '');
     setAvailableForHP(!!p.available_for_hire_purchase);
@@ -129,6 +135,8 @@ const VendorProducts = () => {
     formData.append('stock_quantity', stockQty);
     formData.append('condition', condition);
     formData.append('category_id', categoryId);
+    formData.append('shipping_type', shippingType);
+    if (shippingType === 'custom' && customShippingFee) formData.append('custom_shipping_fee', customShippingFee);
     formData.append('available_for_layaway', availableForLayaway ? 1 : 0);
     if (availableForLayaway && layawayBoxes) {
       formData.append('layaway_boxes', layawayBoxes);
@@ -308,12 +316,33 @@ const VendorProducts = () => {
                         </select>
                       </div>
                     </div>
+                    
+                    {/* Shipping Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 mt-2 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
+                      <div>
+                        <label className="block text-xs font-semibold text-secondary-500 dark:text-secondary-400 mb-1">Shipping Type</label>
+                        <select value={shippingType} onChange={e => setShippingType(e.target.value)} className="w-full bg-secondary-50 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg px-3 py-2 text-sm text-secondary-900 dark:text-white outline-none focus:border-primary-500">
+                          <option value="default">Default Global Fee</option>
+                          <option value="free">Free Shipping</option>
+                          <option value="custom">Custom Fee</option>
+                        </select>
+                      </div>
+                      {shippingType === 'custom' && (
+                        <div>
+                          <label className="block text-xs font-semibold text-secondary-500 dark:text-secondary-400 mb-1">Custom Shipping Fee (GHS)</label>
+                          <input type="number" step="0.01" min="0" value={customShippingFee} onChange={e => setCustomShippingFee(e.target.value)} className="w-full bg-secondary-50 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg px-3 py-2 text-sm text-secondary-900 dark:text-white outline-none focus:border-primary-500" placeholder="e.g. 100" />
+                        </div>
+                      )}
+                    </div>
+
                     <div>
                       <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Category *</label>
-                      <select required value={categoryId} onChange={e => setCategoryId(e.target.value)} className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-sm">
-                        <option value="">Select Category</option>
-                        {categories.map(c => <option key={c.id || c.uuid} value={c.id || c.uuid}>{c.name}</option>)}
-                      </select>
+                      <CategorySelector 
+                        categories={categories} 
+                        value={categoryId} 
+                        onChange={setCategoryId} 
+                        required={true} 
+                      />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-secondary-500 uppercase mb-1.5">Description</label>

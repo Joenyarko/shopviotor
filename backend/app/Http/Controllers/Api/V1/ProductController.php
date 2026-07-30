@@ -14,9 +14,24 @@ class ProductController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $filters = $request->only(['category_id', 'brand_id', 'min_price', 'max_price', 'condition', 'city', 'sort', 'available_for_preorder', 'available_for_layaway', 'available_for_hire_purchase', 'available_for_trade']);
+
+        if ($request->user()) {
+            $mostViewedCategory = \App\Models\UserProductView::where('user_id', $request->user()->id)
+                ->select('category_id')
+                ->whereNotNull('category_id')
+                ->groupBy('category_id')
+                ->orderByRaw('COUNT(*) DESC')
+                ->value('category_id');
+                
+            if ($mostViewedCategory) {
+                $filters['boost_category_id'] = $mostViewedCategory;
+            }
+        }
+
         $products = $this->productRepo->getActive(
             $request->input('per_page', 15),
-            $request->only(['category_id', 'brand_id', 'min_price', 'max_price', 'condition', 'city', 'sort', 'available_for_preorder', 'available_for_layaway', 'available_for_hire_purchase', 'available_for_trade'])
+            $filters
         );
 
         return response()->json([
@@ -24,7 +39,7 @@ class ProductController extends Controller
         ]);
     }
 
-    public function show(string $uuid): JsonResponse
+    public function show(Request $request, string $uuid): JsonResponse
     {
         $product = $this->productRepo->findByUuid($uuid, ['category', 'brand', 'images', 'reviews.user', 'store', 'variations.options']);
 
@@ -33,6 +48,15 @@ class ProductController extends Controller
         }
 
         $this->productRepo->incrementViews($product);
+
+        if ($request->user() || $request->hasCookie('session_id')) {
+            \App\Models\UserProductView::create([
+                'user_id' => $request->user()?->id,
+                'session_id' => $request->cookie('session_id') ?? request()->getSession()->getId(),
+                'product_id' => $product->id,
+                'category_id' => $product->category_id,
+            ]);
+        }
 
         return response()->json([
             'data' => new ProductResource($product),

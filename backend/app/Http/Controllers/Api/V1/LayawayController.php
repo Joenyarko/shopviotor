@@ -132,8 +132,8 @@ class LayawayController extends Controller
     public function pay(Request $request, string $uuid): JsonResponse
     {
         $request->validate([
-            'amount' => 'required|numeric|min:1',
-            'reference' => 'required|string', // From Paystack
+            'amount'    => 'required|numeric|min:1',
+            'reference' => 'required|string|max:255',
         ]);
 
         $card = LayawayCard::where('uuid', $uuid)
@@ -141,52 +141,78 @@ class LayawayController extends Controller
             ->where('status', 'active')
             ->firstOrFail();
 
-        $amount = (float) $request->amount;
+        // ─── Prevent reference replay attacks ─────────────────────────────────
+        $refAlreadyUsed = $card->payments()->where('reference', $request->reference)->exists();
+        if ($refAlreadyUsed) {
+            return response()->json([
+                'message' => 'This payment reference has already been used.',
+            ], 422);
+        }
+
+        // ─── Verify payment with gateway ───────────────────────────────────────
+        // TESTING MODE: accept any reference (mock mode).
+        // In production: verify with Paystack before recording payment.
+        $isMockMode = empty(config('services.paystack.secret_key'));
+
+        if (!$isMockMode) {
+            // TODO: Uncomment when Paystack is configured
+            // try {
+            //     $result = app(PaymentService::class)->verifyReference($request->reference);
+            //     if (!$result['success'] || abs($result['amount'] - $request->amount) > 0.01) {
+            //         return response()->json(['message' => 'Payment verification failed.'], 422);
+            //     }
+            // } catch (\Exception $e) {
+            //     return response()->json(['message' => 'Could not verify payment: ' . $e->getMessage()], 502);
+            // }
+        }
+
+        $amount   = (float) $request->amount;
         $boxPrice = (float) $card->box_price;
 
-        // Allowing small floating point variations
+        // Allow small floating point tolerance
         if (fmod($amount, $boxPrice) > 0.01 && fmod($amount, $boxPrice) < ($boxPrice - 0.01)) {
             return response()->json([
-                'message' => "Amount must be a multiple of the box price (GHS {$boxPrice})."
+                'message' => "Amount must be a multiple of the box price (GHS {$boxPrice}).",
             ], 422);
         }
 
         $boxesCovered = (int) round($amount / $boxPrice);
 
-        // Check if exceeding remaining boxes
-        $currentBoxes = $card->payments()->sum('boxes_covered');
+        // Check remaining boxes
+        $currentBoxes   = $card->payments()->sum('boxes_covered');
         $remainingBoxes = $card->total_boxes - $currentBoxes;
 
         if ($boxesCovered > $remainingBoxes) {
             return response()->json([
-                'message' => "Payment exceeds remaining boxes. Only {$remainingBoxes} boxes left."
+                'message' => "Payment exceeds remaining boxes. Only {$remainingBoxes} boxes left.",
             ], 422);
         }
 
-        // Generate alternating color (Yellow/Black)
+        // Alternating yellow/black color per payment
         $paymentCount = $card->payments()->count();
-        $colorCode = ($paymentCount % 2 === 0) ? '#eab308' : '#000000'; // Yellow (tailwind yellow-500) and Black
+        $colorCode    = ($paymentCount % 2 === 0) ? '#eab308' : '#000000';
 
-        DB::transaction(function () use ($card, $amount, $boxesCovered, $request, $colorCode, $currentBoxes, $remainingBoxes) {
+        DB::transaction(function () use ($card, $amount, $boxesCovered, $request, $colorCode, $currentBoxes) {
             $card->payments()->create([
-                'uuid' => Str::uuid()->toString(),
-                'amount' => $amount,
-                'boxes_covered' => $boxesCovered,
+                'uuid'           => Str::uuid()->toString(),
+                'amount'         => $amount,
+                'boxes_covered'  => $boxesCovered,
                 'payment_method' => 'Paystack',
-                'reference' => $request->reference,
-                'notes' => 'Online payment',
-                'color_code' => $colorCode,
+                'reference'      => $request->reference,
+                'notes'          => 'Online payment',
+                'color_code'     => $colorCode,
             ]);
 
-            if ($currentBoxes + $boxesCovered >= $card->total_boxes) {
+            if (($currentBoxes + $boxesCovered) >= $card->total_boxes) {
                 $card->update(['status' => 'completed']);
             }
         });
 
         return response()->json([
-            'message' => 'Payment recorded successfully.'
+            'message' => 'Payment recorded successfully.' . (empty(config('services.paystack.secret_key')) ? ' (Testing Mode)' : ''),
         ]);
     }
+
 
     public function terms(): JsonResponse
     {

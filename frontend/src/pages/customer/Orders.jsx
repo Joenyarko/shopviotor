@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import orderService from '../../services/orderService';
-import { ShoppingBag, RefreshCw } from 'lucide-react';
+import { ShoppingBag, RefreshCw, Clock, Package, Truck, CheckCircle } from 'lucide-react';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -61,6 +61,47 @@ const Orders = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Status Timeline */}
+              {order.status !== 'cancelled' && (
+                <div className="mb-6 pt-2 pb-4">
+                  <div className="relative flex items-center justify-between w-full max-w-xl mx-auto">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-secondary-200 dark:bg-secondary-800 -z-10 rounded-full"></div>
+                    
+                    {/* Pending */}
+                    <div className="flex flex-col items-center gap-1 bg-white dark:bg-secondary-900 px-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['pending', 'processing', 'shipped', 'delivered'].includes(order.status) ? 'bg-primary-500 text-white' : 'bg-secondary-200 dark:bg-secondary-700 text-secondary-500'}`}>
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase text-secondary-600 dark:text-secondary-400">Pending</span>
+                    </div>
+
+                    {/* Processing */}
+                    <div className="flex flex-col items-center gap-1 bg-white dark:bg-secondary-900 px-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['processing', 'shipped', 'delivered'].includes(order.status) ? 'bg-primary-500 text-white' : 'bg-secondary-200 dark:bg-secondary-700 text-secondary-500'}`}>
+                        <Package className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase text-secondary-600 dark:text-secondary-400">Processing</span>
+                    </div>
+
+                    {/* Shipped */}
+                    <div className="flex flex-col items-center gap-1 bg-white dark:bg-secondary-900 px-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['shipped', 'delivered'].includes(order.status) ? 'bg-primary-500 text-white' : 'bg-secondary-200 dark:bg-secondary-700 text-secondary-500'}`}>
+                        <Truck className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase text-secondary-600 dark:text-secondary-400">Shipped</span>
+                    </div>
+
+                    {/* Delivered */}
+                    <div className="flex flex-col items-center gap-1 bg-white dark:bg-secondary-900 px-2">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['delivered'].includes(order.status) ? 'bg-emerald-500 text-white' : 'bg-secondary-200 dark:bg-secondary-700 text-secondary-500'}`}>
+                        <CheckCircle className="w-4 h-4" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase text-secondary-600 dark:text-secondary-400">Delivered</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Order Items */}
               <div className="space-y-3">

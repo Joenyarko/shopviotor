@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Cookie } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const CookieConsent = () => {
+const SiteNotice = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -74,4 +74,4 @@ const CookieConsent = () => {
   );
 };
 
-export default CookieConsent;
+export default SiteNotice;

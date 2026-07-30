@@ -77,7 +77,11 @@ class ProductRepository extends BaseRepository
             $query->where('price', '<=', $filters['max_price']);
         }
         if (!empty($filters['condition'])) {
-            $query->where('condition', $filters['condition']);
+            if ($filters['condition'] === 'used') {
+                $query->where('condition', '!=', 'new');
+            } else {
+                $query->where('condition', $filters['condition']);
+            }
         }
         if (!empty($filters['city'])) {
             $query->where('city', $filters['city']);
@@ -104,6 +108,10 @@ class ProductRepository extends BaseRepository
         }
 
         $sort = $filters['sort'] ?? 'latest';
+        if (!empty($filters['boost_category_id']) && $sort === 'latest') {
+            $query->orderByRaw('CASE WHEN category_id = ? THEN 0 ELSE 1 END', [$filters['boost_category_id']]);
+        }
+
         match($sort) {
             'price_asc'  => $query->orderBy('price', 'asc'),
             'price_desc' => $query->orderBy('price', 'desc'),

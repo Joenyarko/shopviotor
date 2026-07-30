@@ -4,7 +4,8 @@ import PwaPrompt from './components/PwaPrompt';
 import ScrollToTop from './components/ScrollToTop';
 import WhatsAppCTA from './components/WhatsAppCTA';
 import ChatWidget from './components/ChatWidget';
-import CookieConsent from './components/CookieConsent';
+import SiteNotice from './components/SiteNotice';
+import PromoPopupManager from './components/PromoPopupManager';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -17,7 +18,8 @@ function App() {
       {/* Floating Action Widgets — always visible */}
       <WhatsAppCTA />
       <ChatWidget />
-      <CookieConsent />
+      <SiteNotice />
+      <PromoPopupManager />
       <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
     </div>
   );

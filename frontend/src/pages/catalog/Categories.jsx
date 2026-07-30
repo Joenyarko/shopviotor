@@ -7,6 +7,7 @@ import {
   Music, Puzzle, TreePine, Box, Factory, FlaskConical, Watch, Camera, Headphones, Sparkles
 } from 'lucide-react';
 import productService from '../../services/productService';
+import ProductCard from '../../components/ProductCard';
 
 const iconMap = {
   Car: Car, Automobile: Car, Smartphone: Smartphone, 'Phones and Tablets': Smartphone,

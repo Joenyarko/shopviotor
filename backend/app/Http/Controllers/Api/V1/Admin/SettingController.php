@@ -38,4 +38,34 @@ class SettingController extends Controller
             'message' => 'Layaway terms updated successfully.'
         ]);
     }
+
+    public function getSettings()
+    {
+        $settings = Setting::where('group', 'general')->pluck('value', 'key');
+        return response()->json([
+            'data' => $settings
+        ]);
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $data = $request->validate([
+            'default_shipping_fee' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
+        foreach ($data as $key => $value) {
+            Setting::updateOrCreate(
+                ['key' => $key],
+                [
+                    'value' => $value,
+                    'type' => is_numeric($value) ? 'decimal' : 'string',
+                    'group' => 'general'
+                ]
+            );
+        }
+
+        return response()->json([
+            'message' => 'Settings updated successfully.'
+        ]);
+    }
 }

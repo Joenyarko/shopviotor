@@ -93,7 +93,7 @@ class VendorProductController extends Controller
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $idx => $imageFile) {
-                $path = $imageFile->store("products/{$product->id}", 'public');
+                $path = $imageFile->storeOnCloudinary("products/{$product->id}")->getSecurePath();
                 $product->images()->create([
                     'path'       => $path,
                     'is_primary' => $idx === 0,
@@ -151,7 +151,7 @@ class VendorProductController extends Controller
         // Handle new images
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $idx => $imageFile) {
-                $path = $imageFile->store("products/{$product->id}", 'public');
+                $path = $imageFile->storeOnCloudinary("products/{$product->id}")->getSecurePath();
                 $product->images()->create([
                     'path'       => $path,
                     'is_primary' => $idx === 0 && $product->images()->count() === 0,

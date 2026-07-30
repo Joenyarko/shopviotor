@@ -19,8 +19,7 @@ const StoreApplication = () => {
   });
   const [logo, setLogo] = useState(null);
   const [logoPreview, setLogoPreview] = useState(null);
-  const [banner, setBanner] = useState(null);
-  const [bannerPreview, setBannerPreview] = useState(null);
+  const [bannerFiles, setBannerFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -52,10 +51,14 @@ const StoreApplication = () => {
   };
 
   const handleBannerChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setBanner(file);
-    setBannerPreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      setBannerFiles((prev) => [...prev, ...files]);
+    }
+  };
+
+  const removeBanner = (index) => {
+    setBannerFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -70,7 +73,9 @@ const StoreApplication = () => {
       const data = new FormData();
       Object.entries(formData).forEach(([k, v]) => v && data.append(k, v));
       if (logo) data.append('logo', logo);
-      if (banner) data.append('banner', banner);
+      bannerFiles.forEach((file) => {
+        data.append('banners[]', file);
+      });
 
       await vendorService.applyForStore(data);
       setSuccess(true);
@@ -287,24 +292,25 @@ const StoreApplication = () => {
                 </div>
               </div>
 
-              {/* Banner */}
+              {/* Banners */}
               <div>
-                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Store Banner</label>
-                {bannerPreview ? (
-                  <div className="relative rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700 h-32">
-                    <img src={bannerPreview} alt="banner" className="w-full h-full object-cover" />
-                    <button type="button" onClick={() => { setBanner(null); setBannerPreview(null); }} className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1">
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
+                <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Store Banners (Max 5)</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {bannerFiles.map((file, index) => (
+                    <div key={index} className="relative rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700 h-32 group">
+                      <img src={URL.createObjectURL(file)} alt={`Banner ${index + 1}`} className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => removeBanner(index)} className="absolute top-2 right-2 bg-red-500/90 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
                   <label className="flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-secondary-300 dark:border-secondary-700 cursor-pointer hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950/10 text-secondary-400 hover:text-primary-500 transition-colors">
-                    <Upload className="w-7 h-7" />
-                    <span className="text-sm font-medium mt-2">Upload Banner Image</span>
-                    <span className="text-xs mt-0.5">Wide image recommended (e.g. 1400×400). Max 4MB.</span>
-                    <input type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+                    <Upload className="w-6 h-6 mb-2" />
+                    <span className="text-sm font-medium">Add Banner</span>
+                    <span className="text-xs mt-0.5 text-center px-2">Wide image (e.g. 1920×400). Max 4MB.</span>
+                    <input type="file" multiple accept="image/*" className="hidden" onChange={handleBannerChange} />
                   </label>
-                )}
+                </div>
               </div>
 
               <button

@@ -44,16 +44,20 @@ class UpdateProductRequest extends FormRequest
 
     public function rules(): array
     {
+        $productId = $this->route('product');
+
         return [
             'name'                        => ['sometimes', 'required', 'string', 'max:255'],
             'description'                 => ['sometimes', 'required', 'string'],
             'short_description'           => ['nullable', 'string', 'max:500'],
-            'price'                       => ['sometimes', 'required', 'numeric', 'min:0.01', 'max:9999999'],
-            'compare_price'               => ['nullable', 'numeric', 'min:0'],
+            'price'                       => ['sometimes', 'required', 'numeric', 'min:0'],
+            'compare_price'               => ['nullable', 'numeric', 'gte:price'],
             'cost_price'                  => ['nullable', 'numeric', 'min:0'],
+            'shipping_type'               => ['nullable', 'in:free,default,custom'],
+            'custom_shipping_fee'         => ['nullable', 'required_if:shipping_type,custom', 'numeric', 'min:0'],
             'stock_quantity'              => ['sometimes', 'required', 'integer', 'min:0'],
-            'sku'                         => ['nullable', 'string', 'max:50'],
-            'barcode'                     => ['nullable', 'string', 'max:50'],
+            'sku'                         => ['nullable', 'string', 'max:100', Rule::unique('products')->ignore($productId)],
+            'barcode'                     => ['nullable', 'string', 'max:100', Rule::unique('products')->ignore($productId)],
             'condition'                   => ['sometimes', 'required', 'string', 'in:new,used_good,used_fair,refurbished'],
             'status'                      => ['nullable', 'string', 'in:active,inactive,draft'],
             'is_featured'                 => ['nullable', 'boolean'],

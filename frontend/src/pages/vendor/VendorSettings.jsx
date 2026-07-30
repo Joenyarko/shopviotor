@@ -16,9 +16,10 @@ const VendorSettings = () => {
   });
 
   const [logoFile, setLogoFile] = useState(null);
-  const [bannerFile, setBannerFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState('');
-  const [bannerPreview, setBannerPreview] = useState('');
+  const [bannerFiles, setBannerFiles] = useState([]);
+  const [existingBanners, setExistingBanners] = useState([]);
+  const [removedBanners, setRemovedBanners] = useState([]);
 
   const logoInputRef = useRef(null);
   const bannerInputRef = useRef(null);
@@ -38,7 +39,13 @@ const VendorSettings = () => {
           location: storeData.location || '',
         });
         setLogoPreview(storeData.logo_url || '');
-        setBannerPreview(storeData.banner_url || '');
+        if (storeData.banners_urls && storeData.banners_urls.length > 0) {
+          setExistingBanners(storeData.banners_urls);
+        } else if (storeData.banner_url) {
+          setExistingBanners([storeData.banner_url]);
+        } else {
+          setExistingBanners([]);
+        }
       }
     } catch (err) {
       console.error(err);
@@ -69,11 +76,19 @@ const VendorSettings = () => {
   };
 
   const handleBannerChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setBannerFile(file);
-      setBannerPreview(URL.createObjectURL(file));
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      setBannerFiles((prev) => [...prev, ...files]);
     }
+  };
+
+  const removeNewBanner = (index) => {
+    setBannerFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingBanner = (url) => {
+    setExistingBanners((prev) => prev.filter((b) => b !== url));
+    setRemovedBanners((prev) => [...prev, url]);
   };
 
   const handleSubmit = async (e) => {
@@ -86,7 +101,13 @@ const VendorSettings = () => {
         payload.append(key, formData[key] || '');
       });
       if (logoFile) payload.append('logo', logoFile);
-      if (bannerFile) payload.append('banner', bannerFile);
+      
+      bannerFiles.forEach((file) => {
+        payload.append('banners[]', file);
+      });
+      removedBanners.forEach((url) => {
+        payload.append('removed_banners[]', url);
+      });
 
       await vendorService.updateMyStore(payload);
       Swal.fire({
@@ -150,29 +171,54 @@ const VendorSettings = () => {
         <div className="bg-white dark:bg-secondary-900 rounded-3xl shadow-xl border border-secondary-200 dark:border-secondary-800 overflow-hidden">
           <div className="p-6 border-b border-secondary-200 dark:border-secondary-800">
             <h3 className="text-lg font-black text-secondary-900 dark:text-white">Store Branding</h3>
-            <p className="text-xs text-secondary-500 mt-0.5">Upload a clean banner and brand logo for your public storefront.</p>
+            <p className="text-xs text-secondary-500 mt-0.5">Upload a clean banner for your public storefront. Recommended size: 1920px width by 400px height.</p>
           </div>
 
           <div className="p-6 space-y-6">
             {/* Banner Upload */}
             <div>
-              <label className="block text-xs font-black text-secondary-700 dark:text-secondary-300 uppercase tracking-wider mb-2">
-                Store Banner Image (Recommended: 1200x400)
-              </label>
-              <div 
-                onClick={() => bannerInputRef.current?.click()}
-                className="relative h-48 w-full rounded-2xl border-2 border-dashed border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800/50 hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors overflow-hidden flex flex-col items-center justify-center cursor-pointer group"
-              >
-                {bannerPreview ? (
-                  <img src={bannerPreview} alt="Banner Preview" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <div className="text-center space-y-2 p-4">
-                    <Upload className="w-8 h-8 text-secondary-400 mx-auto group-hover:text-primary-500 transition-colors" />
-                    <p className="text-xs font-bold text-secondary-600 dark:text-secondary-400">Click to browse or upload banner</p>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-black text-secondary-700 dark:text-secondary-300 uppercase tracking-wider">
+                  Store Banner Images (Max 5)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => bannerInputRef.current?.click()}
+                  className="px-3 py-1.5 bg-primary-500/10 text-primary-600 dark:text-primary-400 font-bold text-xs rounded-lg hover:bg-primary-500/20 transition-colors"
+                >
+                  + Add Banner
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {existingBanners.map((url, i) => (
+                  <div key={'ext-'+i} className="relative h-32 rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700 group">
+                    <img src={url} alt="Banner" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => removeExistingBanner(url)} className="absolute top-2 right-2 bg-red-500/90 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  </div>
+                ))}
+                {bannerFiles.map((file, i) => (
+                  <div key={'new-'+i} className="relative h-32 rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700 group">
+                    <img src={URL.createObjectURL(file)} alt="Banner" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => removeNewBanner(i)} className="absolute top-2 right-2 bg-red-500/90 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    <span className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-0.5 rounded backdrop-blur-sm">New</span>
+                  </div>
+                ))}
+                {existingBanners.length + bannerFiles.length === 0 && (
+                  <div 
+                    onClick={() => bannerInputRef.current?.click()}
+                    className="col-span-full h-32 rounded-xl border-2 border-dashed border-secondary-300 dark:border-secondary-700 flex flex-col items-center justify-center cursor-pointer hover:border-primary-500 hover:text-primary-500 text-secondary-400 transition-colors"
+                  >
+                    <Upload className="w-6 h-6 mb-2" />
+                    <span className="text-xs font-bold">Upload a banner image</span>
                   </div>
                 )}
-                <input ref={bannerInputRef} type="file" accept="image/*" onChange={handleBannerChange} className="hidden" />
               </div>
+              <input ref={bannerInputRef} type="file" multiple accept="image/*" onChange={handleBannerChange} className="hidden" />
             </div>
 
             {/* Logo Upload */}

@@ -42,7 +42,7 @@ const HeroBanner = ({ position, fallbackContent }) => {
   if (banners.length > 0) {
     const banner = banners[currentIndex];
     return (
-      <div className="-mx-4 md:-mx-8 -mt-6 mb-8 relative overflow-hidden shadow-lg h-64 md:h-[400px] group bg-secondary-900">
+      <div className="-mx-4 md:-mx-8 -mt-6 mb-8 relative overflow-hidden shadow-lg h-40 sm:h-48 md:h-[530px] group bg-secondary-900">
         <AnimatePresence mode="wait">
           <motion.div
             key={banner.id}

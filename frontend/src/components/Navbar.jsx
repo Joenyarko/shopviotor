@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useTheme } from '../contexts/ThemeContext';
+import MegaMenu from './MegaMenu';
 import { 
   Search, 
   ShoppingCart, 
@@ -73,28 +74,19 @@ const Navbar = () => {
           </div>
 
           {/* Mega Category Dropdown */}
-          <div className="hidden lg:block relative">
+          <div 
+            className="hidden lg:block relative"
+            onMouseEnter={() => setCategoriesDropdownOpen(true)}
+            onMouseLeave={() => setCategoriesDropdownOpen(false)}
+          >
             <button
               onClick={() => setCategoriesDropdownOpen(!categoriesDropdownOpen)}
-              className="inline-flex items-center text-sm font-medium text-secondary-700 dark:text-secondary-200 hover:text-primary-600 dark:hover:text-primary-400 gap-1"
+              className="inline-flex items-center text-sm font-medium text-secondary-700 dark:text-secondary-200 hover:text-primary-600 dark:hover:text-primary-400 gap-1 h-20"
             >
               Categories <ChevronDown className="w-4 h-4" />
             </button>
             {categoriesDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white dark:bg-secondary-800 ring-1 ring-black ring-opacity-5 z-50 py-1 max-h-96 overflow-y-auto">
-                {categories.length > 0 ? categories.map((cat) => (
-                  <Link
-                    key={cat.id || cat.uuid}
-                    to={`/products?category=${cat.slug || cat.id}`}
-                    onClick={() => setCategoriesDropdownOpen(false)}
-                    className="block px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
-                  >
-                    {cat.name}
-                  </Link>
-                )) : (
-                  <div className="px-4 py-2 text-sm text-secondary-500 dark:text-secondary-400">Loading...</div>
-                )}
-              </div>
+              <MegaMenu categories={categories} closeMenu={() => setCategoriesDropdownOpen(false)} />
             )}
           </div>
 
@@ -287,6 +279,7 @@ const Navbar = () => {
             <h3 className="text-xs font-bold text-secondary-900/60 uppercase tracking-wider mb-4">Services</h3>
             <div className="grid grid-cols-2 gap-3">
               <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Products</Link>
+              <Link to="/products?condition=used" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Second Hand</Link>
               <Link to="/sell" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-secondary-900 hover:bg-secondary-800 text-white rounded-xl text-sm font-bold transition-colors shadow-sm">Sell Item</Link>
               <Link to="/barter" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Barter</Link>
               <Link to="/hire-purchase" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Hire Purchase</Link>

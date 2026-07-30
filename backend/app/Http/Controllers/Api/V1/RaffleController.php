@@ -6,17 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\PurchaseTicketRequest;
 use App\Http\Resources\RaffleResource;
 use App\Models\Raffle;
-use App\Services\PaymentService;
 use App\Services\RaffleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class RaffleController extends Controller
 {
-    public function __construct(
-        private RaffleService  $raffleService,
-        private PaymentService $paymentService
-    ) {}
+    public function __construct(private RaffleService $raffleService) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -29,10 +27,9 @@ class RaffleController extends Controller
 
     public function winners(Request $request): JsonResponse
     {
-        $limit = $request->input('limit', 8);
+        $limit   = $request->input('limit', 8);
         $winners = \App\Models\RaffleWinner::with(['user', 'raffle.product'])->latest()->take($limit)->get();
 
-        // Format as expected by frontend
         $formatted = $winners->map(function ($winner) {
             return [
                 'id'           => $winner->id,
@@ -44,18 +41,13 @@ class RaffleController extends Controller
             ];
         });
 
-        return response()->json([
-            'data' => $formatted,
-        ]);
+        return response()->json(['data' => $formatted]);
     }
 
     public function show(string $uuid): JsonResponse
     {
         $raffle = Raffle::where('uuid', $uuid)->with('product')->firstOrFail();
-
-        return response()->json([
-            'data' => new RaffleResource($raffle),
-        ]);
+        return response()->json(['data' => new RaffleResource($raffle)]);
     }
 
     public function myTickets(Request $request): JsonResponse
@@ -77,39 +69,60 @@ class RaffleController extends Controller
 
     public function purchaseTicket(PurchaseTicketRequest $request, string $uuid): JsonResponse
     {
-        $user = $request->user();
-        
-        $raffle = Raffle::where('uuid', $uuid)->active()->firstOrFail();
-        $data   = $request->validated();
+        $user     = $request->user();
+        $data     = $request->validated();
         $quantity = $data['quantity'] ?? 1;
 
-        // Check Max Per User
-        if ($raffle->max_per_user) {
-            $userTotalTickets = \App\Models\RaffleTicket::where('raffle_id', $raffle->id)
-                ->where('user_id', $user->id)
-                ->count();
-            
-            if (($userTotalTickets + $quantity) > $raffle->max_per_user) {
-                return response()->json([
-                    'message' => 'You cannot purchase this many tickets. The maximum allowed per user is ' . $raffle->max_per_user . '. You currently have ' . $userTotalTickets . ' ticket(s).',
-                ], 422);
+        // Lock the raffle row to prevent oversell race conditions
+        $raffle = DB::transaction(function () use ($uuid, $user, $quantity) {
+            $raffle = Raffle::where('uuid', $uuid)->active()->lockForUpdate()->firstOrFail();
+
+            // Check max per user
+            if ($raffle->max_per_user) {
+                $userTotalTickets = \App\Models\RaffleTicket::where('raffle_id', $raffle->id)
+                    ->where('user_id', $user->id)
+                    ->count();
+
+                if (($userTotalTickets + $quantity) > $raffle->max_per_user) {
+                    abort(422, 'You cannot purchase this many tickets. Maximum allowed per user is ' .
+                        $raffle->max_per_user . '. You currently have ' . $userTotalTickets . ' ticket(s).');
+                }
             }
-        }
 
-        // 1. For testing purposes, we skip the actual payment gateway redirection
-        // and immediately generate the requested tickets.
+            // Fresh DB count to avoid stale tickets_sold value
+            $soldCount = \App\Models\RaffleTicket::where('raffle_id', $raffle->id)->count();
+            if ($raffle->max_tickets && ($soldCount + $quantity) > $raffle->max_tickets) {
+                abort(422, 'Not enough tickets available. Only ' . ($raffle->max_tickets - $soldCount) . ' left.');
+            }
+
+            return $raffle;
+        });
+
+        // ─── Payment ──────────────────────────────────────────────────────────
+        // In TESTING MODE: tickets are issued with a mock payment reference.
+        // When PAYSTACK_SECRET_KEY is set in .env, replace this block with
+        // PaymentService::initiate() and only issue tickets after webhook confirms payment.
+        $isMockMode = empty(config('services.paystack.secret_key'));
+
         $tickets = [];
-        
-        for ($i = 0; $i < $quantity; $i++) {
-            $tickets[] = $this->raffleService->purchaseTicket($user->id, $raffle, 'test_ref_' . uniqid());
+        if ($isMockMode) {
+            // Testing: generate tickets immediately with a server-side reference
+            for ($i = 0; $i < $quantity; $i++) {
+                $reference = 'MOCK-RAFFLE-' . strtoupper(Str::random(12));
+                $tickets[] = $this->raffleService->purchaseTicket($user->id, $raffle, $reference);
+            }
+
+            return response()->json([
+                'message' => 'Tickets issued successfully (Testing Mode — no real payment charged).',
+                'mode'    => 'testing',
+                'tickets' => $tickets,
+            ]);
         }
 
+        // Production: initiate Paystack payment (tickets issued via webhook)
+        // TODO: Implement when Paystack keys are available
         return response()->json([
-            'message' => 'Payment successful (Testing mode). Tickets generated!',
-            'payment' => [
-                'authorization_url' => null, // Skip redirect
-            ],
-            'tickets' => $tickets
-        ]);
+            'message' => 'Payment gateway not configured. Please contact support.',
+        ], 503);
     }
 }

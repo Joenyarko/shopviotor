@@ -33,7 +33,7 @@ class BrandController extends Controller
         $validated['is_active'] = $validated['is_active'] ?? true;
 
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('brands', 'public');
+            $validated['logo'] = $request->file('logo')->storeOnCloudinary('brands')->getSecurePath();
         } else {
             unset($validated['logo']); // Don't try to store string if empty or null from JS
         }
@@ -62,10 +62,10 @@ class BrandController extends Controller
         $validated['slug'] = Str::slug($validated['name']);
 
         if ($request->hasFile('logo')) {
-            if ($brand->getRawOriginal('logo')) {
+            if ($brand->getRawOriginal('logo') && !\Illuminate\Support\Str::startsWith($brand->getRawOriginal('logo'), ['http://', 'https://'])) {
                 Storage::disk('public')->delete($brand->getRawOriginal('logo'));
             }
-            $validated['logo'] = $request->file('logo')->store('brands', 'public');
+            $validated['logo'] = $request->file('logo')->storeOnCloudinary('brands')->getSecurePath();
         } else {
             // Remove it from validated so it doesn't overwrite existing logo with null if no new file is provided
             unset($validated['logo']); 

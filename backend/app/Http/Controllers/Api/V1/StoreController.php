@@ -87,6 +87,8 @@ class StoreController extends Controller
             'location'    => 'nullable|string|max:200',
             'logo'        => 'nullable|image|max:2048',
             'banner'      => 'nullable|image|max:4096',
+            'banners'     => 'nullable|array|max:5',
+            'banners.*'   => 'image|max:4096',
         ]);
 
         $slug = Str::slug($request->name);
@@ -96,8 +98,15 @@ class StoreController extends Controller
             $slug = $originalSlug . '-' . $counter++;
         }
 
-        $logoPath   = $request->hasFile('logo')   ? $request->file('logo')->store('stores/logos', 'public')     : null;
-        $bannerPath = $request->hasFile('banner')  ? $request->file('banner')->store('stores/banners', 'public') : null;
+        $logoPath   = $request->hasFile('logo')   ? $request->file('logo')->storeOnCloudinary('stores/logos')->getSecurePath()     : null;
+        $bannerPath = $request->hasFile('banner')  ? $request->file('banner')->storeOnCloudinary('stores/banners')->getSecurePath() : null;
+
+        $bannersPaths = [];
+        if ($request->hasFile('banners')) {
+            foreach ($request->file('banners') as $file) {
+                $bannersPaths[] = $file->storeOnCloudinary('stores/banners')->getSecurePath();
+            }
+        }
 
         $store = Store::create([
             'user_id'     => $user->id,
@@ -109,6 +118,7 @@ class StoreController extends Controller
             'location'    => $request->location,
             'logo'        => $logoPath,
             'banner'      => $bannerPath,
+            'banners'     => !empty($bannersPaths) ? $bannersPaths : null,
             'status'      => 'pending',
         ]);
 
@@ -155,14 +165,31 @@ class StoreController extends Controller
             'location'    => 'nullable|string|max:200',
             'logo'        => 'nullable|image|max:2048',
             'banner'      => 'nullable|image|max:4096',
+            'banners'     => 'nullable|array|max:5',
+            'banners.*'   => 'image|max:4096',
+            'removed_banners' => 'nullable|array',
+            'removed_banners.*' => 'string',
         ]);
 
         if ($request->hasFile('logo')) {
-            $store->logo = $request->file('logo')->store('stores/logos', 'public');
+            $store->logo = $request->file('logo')->storeOnCloudinary('stores/logos')->getSecurePath();
         }
         if ($request->hasFile('banner')) {
-            $store->banner = $request->file('banner')->store('stores/banners', 'public');
+            $store->banner = $request->file('banner')->storeOnCloudinary('stores/banners')->getSecurePath();
         }
+        
+        $currentBanners = $store->banners ?? [];
+        if ($request->has('removed_banners')) {
+            $removed = $request->input('removed_banners');
+            $currentBanners = array_values(array_filter($currentBanners, fn($b) => !in_array(asset('storage/' . $b), $removed) && !in_array($b, $removed)));
+        }
+
+        if ($request->hasFile('banners')) {
+            foreach ($request->file('banners') as $file) {
+                $currentBanners[] = $file->storeOnCloudinary('stores/banners')->getSecurePath();
+            }
+        }
+        $store->banners = !empty($currentBanners) ? $currentBanners : null;
 
         $store->fill($request->only(['name', 'description', 'phone', 'whatsapp', 'location']));
         $store->save();
@@ -185,6 +212,7 @@ class StoreController extends Controller
             'location'        => $store->location,
             'logo_url'        => $store->logo_url,
             'banner_url'      => $store->banner_url,
+            'banners_urls'    => $store->banners_urls,
             'status'                  => $store->status,
             'commission_rate'         => (float) $store->commission_rate,
             'can_offer_layaway'       => (bool) $store->can_offer_layaway,

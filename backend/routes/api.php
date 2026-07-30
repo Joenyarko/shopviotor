@@ -43,6 +43,9 @@ use App\Http\Controllers\Api\V1\Admin\LayawayController as AdminLayawayControlle
 use App\Http\Controllers\Api\V1\Admin\AdminStoreController;
 use App\Http\Controllers\Api\V1\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Api\V1\Admin\BannerController as AdminBannerController;
+use App\Http\Controllers\Api\V1\Admin\BannerCampaignController as AdminBannerCampaignController;
+use App\Http\Controllers\Api\V1\Admin\PromoPopupController as AdminPromoPopupController;
+use App\Http\Controllers\Api\V1\PromoPopupController;
 
 Route::prefix('v1')->group(function () {
     
@@ -74,6 +77,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/stores/{slug}', [StoreController::class, 'show']);
 
     Route::get('/banners', [BannerController::class, 'index']);
+    Route::get('/promo-popups/active', [PromoPopupController::class, 'active']);
 
     Route::get('/raffles', [RaffleController::class, 'index']);
     Route::get('/raffles/winners', [RaffleController::class, 'winners']);
@@ -180,8 +184,13 @@ Route::prefix('v1')->group(function () {
             // Categories
             Route::apiResource('categories', AdminCategoryController::class);
 
-            // Banners
+            // Banners & Popups
+            Route::apiResource('banner-campaigns', AdminBannerCampaignController::class)->except(['show']);
             Route::apiResource('banners', AdminBannerController::class)->except(['show']);
+            Route::get('/promo-popups', [AdminPromoPopupController::class, 'index']);
+            Route::post('/promo-popups', [AdminPromoPopupController::class, 'store']);
+            Route::post('/promo-popups/{uuid}', [AdminPromoPopupController::class, 'update']);
+            Route::delete('/promo-popups/{uuid}', [AdminPromoPopupController::class, 'destroy']);
 
             // Brands
             Route::apiResource('brands', \App\Http\Controllers\Api\V1\Admin\BrandController::class);

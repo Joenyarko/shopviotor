@@ -35,4 +35,8 @@ export default defineConfig({
       }
     })
   ],
+  server: {
+    host: true,           // listen on all network interfaces
+    allowedHosts: 'all',  // allow Cloudflare, ngrok, and any tunnel
+  },
 })

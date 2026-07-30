@@ -98,7 +98,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getAvatarUrlAttribute(): ?string
     {
-        return $this->avatar ? asset('storage/' . $this->avatar) : null;
+        if (!$this->avatar) return null;
+        return \Illuminate\Support\Str::startsWith($this->avatar, ['http://', 'https://']) 
+            ? $this->avatar 
+            : asset('storage/' . $this->avatar);
     }
 
     // ─── Relationships ────────────────────────────────────────────────────────

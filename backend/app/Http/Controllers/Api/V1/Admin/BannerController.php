@@ -24,6 +24,7 @@ class BannerController extends Controller
                 'position' => $banner->position,
                 'is_active' => $banner->is_active,
                 'sort_order' => $banner->sort_order,
+                'banner_campaign_id' => $banner->banner_campaign_id,
             ];
         });
 
@@ -35,21 +36,23 @@ class BannerController extends Controller
         $data = $request->validate([
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
-            'link' => 'nullable|url|max:255',
+            'link' => 'nullable|string|max:255',
             'position' => 'required|string|max:50',
             'is_active' => 'boolean',
-            'image' => 'required|image|mimes:jpeg,png,webp,gif|max:5120',
+            'image' => 'required|image|mimes:jpeg,png,webp,gif|max:20480',
+            'banner_campaign_id' => 'required|exists:banner_campaigns,id',
         ]);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('banners', 'public');
+            $data['image'] = $request->file('image')->storeOnCloudinary('banners')->getSecurePath();
         }
 
         $data['title'] = $data['title'] ?? '';
         $data['subtitle'] = $data['subtitle'] ?? '';
         $data['link'] = $data['link'] ?? '';
         $data['is_active'] = $request->input('is_active', true);
-        $data['sort_order'] = Banner::max('sort_order') + 1;
+        $data['sort_order'] = Banner::where('banner_campaign_id', $data['banner_campaign_id'])->max('sort_order') + 1;
+        $data['banner_campaign_id'] = $data['banner_campaign_id'];
 
         $banner = Banner::create($data);
 
@@ -66,17 +69,18 @@ class BannerController extends Controller
         $data = $request->validate([
             'title' => 'nullable|string|max:255',
             'subtitle' => 'nullable|string|max:255',
-            'link' => 'nullable|url|max:255',
+            'link' => 'nullable|string|max:255',
             'position' => 'required|string|max:50',
             'is_active' => 'boolean',
-            'image' => 'nullable|image|mimes:jpeg,png,webp,gif|max:5120',
+            'image' => 'nullable|image|mimes:jpeg,png,webp,gif|max:20480',
+            'banner_campaign_id' => 'required|exists:banner_campaigns,id',
         ]);
 
         if ($request->hasFile('image')) {
-            if ($banner->image) {
+            if ($banner->image && !\Illuminate\Support\Str::startsWith($banner->image, ['http://', 'https://'])) {
                 Storage::disk('public')->delete($banner->image);
             }
-            $data['image'] = $request->file('image')->store('banners', 'public');
+            $data['image'] = $request->file('image')->storeOnCloudinary('banners')->getSecurePath();
         }
 
         $data['title'] = $data['title'] ?? '';

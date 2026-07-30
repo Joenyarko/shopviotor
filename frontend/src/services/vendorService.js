@@ -22,6 +22,12 @@ const vendorService = {
   getOrder: (uuid) => apiClient.get(`/vendor/orders/${uuid}`),
   updateOrderStatus: (uuid, status, note = null) => apiClient.post(`/vendor/orders/${uuid}/status`, { status, note }),
 
+  // Vendor Wallet & Payouts
+  getWallet: () => apiClient.get('/vendor/wallet'),
+  getWalletTransactions: (params = {}) => apiClient.get('/vendor/wallet/transactions', { params }),
+  getPayouts: (params = {}) => apiClient.get('/vendor/payouts', { params }),
+  requestPayout: (data) => apiClient.post('/vendor/payouts', data),
+
   // Admin
   adminGetStores: (params = {}) => apiClient.get('/admin/stores', { params }),
   adminApproveStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/approve`),
@@ -29,6 +35,10 @@ const vendorService = {
   adminRestoreStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/restore`),
   adminUpdateCommission: (uuid, rate) => apiClient.post(`/admin/stores/${uuid}/commission`, { commission_rate: rate }),
   adminUpdatePermissions: (uuid, permissions) => apiClient.post(`/admin/stores/${uuid}/permissions`, permissions),
+  
+  // Admin Payouts
+  adminGetPayouts: (params = {}) => apiClient.get('/admin/payouts', { params }),
+  adminProcessPayout: (uuid, data) => apiClient.post(`/admin/payouts/${uuid}/process`, data),
 };
 
 export default vendorService;

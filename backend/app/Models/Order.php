@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Order extends Model
 {
@@ -50,7 +51,12 @@ class Order extends Model
 
     public static function generateOrderNumber(): string
     {
-        return 'VIO-' . strtoupper(uniqid());
+        // Use Str::random for collision safety (uniqid() can collide under high concurrency)
+        do {
+            $number = 'VIO-' . strtoupper(Str::random(10));
+        } while (static::where('order_number', $number)->exists());
+
+        return $number;
     }
 
     // ─── Scopes ───────────────────────────────────────────────────────────────

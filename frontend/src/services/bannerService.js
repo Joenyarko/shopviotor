@@ -18,6 +18,12 @@ export const bannerService = {
     });
   },
   adminDeleteBanner: (id) => apiClient.delete(`/admin/banners/${id}`),
+
+  // Campaigns
+  adminGetCampaigns: () => apiClient.get('/admin/banner-campaigns'),
+  adminCreateCampaign: (data) => apiClient.post('/admin/banner-campaigns', data),
+  adminUpdateCampaign: (id, data) => apiClient.put(`/admin/banner-campaigns/${id}`, data),
+  adminDeleteCampaign: (id) => apiClient.delete(`/admin/banner-campaigns/${id}`),
 };
 
 export default bannerService;
