@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X } from 'lucide-react';
 
 // Replace with your actual WhatsApp business number (no + or spaces)
-const WHATSAPP_NUMBER = '233XXXXXXXXX'; // e.g. 233245678901
+const WHATSAPP_NUMBER = '233508208803';
 const DEFAULT_MESSAGE = encodeURIComponent(
   'Hello VIOTOR! 👋 I need help with my order / have a question about a product.'
 );

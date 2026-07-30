@@ -88,7 +88,7 @@ const ChatWidget = () => {
       {/* Toggle Button - stacked above WhatsApp CTA (bottom-right) */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-24 right-6 z-50 w-12 h-12 bg-secondary-900 dark:bg-secondary-800 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform"
+        className="fixed bottom-24 md:bottom-6 left-6 z-50 w-12 h-12 bg-secondary-900 dark:bg-secondary-800 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform"
         aria-label="Open AI Assistant"
       >
         {open ? <X className="w-5 h-5" /> : <MessageCircle className="w-5 h-5" />}
