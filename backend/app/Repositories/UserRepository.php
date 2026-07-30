@@ -17,6 +17,11 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         return $this->model->where('email', $email)->first();
     }
 
+    public function findById(int $id, array $with = [])
+    {
+        return $this->model->with($with)->find($id);
+    }
+
     public function findByUuid(string $uuid, array $with = [])
     {
         return $this->model->with($with)->where('uuid', $uuid)->firstOrFail();
