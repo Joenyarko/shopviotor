@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import { Settings as SettingsIcon, Save, RefreshCw, Truck } from 'lucide-react';
-import api from '../../services/api';
+import api from '../../api/client';
 
 const Settings = () => {
   const [siteName, setSiteName] = useState('Shop Viotor');
