@@ -8,6 +8,7 @@ import SiteNotice from './components/SiteNotice';
 import PromoPopupManager from './components/PromoPopupManager';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <SiteNotice />
       <PromoPopupManager />
       <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
+      <Analytics />
     </div>
   );
 }
