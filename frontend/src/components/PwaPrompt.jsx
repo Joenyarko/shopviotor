@@ -3,6 +3,7 @@ import { X, Download } from 'lucide-react';
 
 const PwaPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showPrompt, setShowPrompt] = useState(false);
   const [isIos, setIsIos] = useState(false);
 
   useEffect(() => {
