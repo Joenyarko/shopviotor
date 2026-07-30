@@ -9,6 +9,7 @@ import PromoPopupManager from './components/PromoPopupManager';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <PromoPopupManager />
       <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
       <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
