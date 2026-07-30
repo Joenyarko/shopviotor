@@ -14,14 +14,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Admin User
+        // Create Owner Admin User
         User::updateOrCreate(
-            ['email' => 'admin@vte.com'],
+            ['email' => 'joenyarko2001@gmail.com'],
             [
                 'uuid'        => Str::uuid()->toString(),
-                'first_name'  => 'Admin',
-                'last_name'   => 'Viotor',
-                'password'    => 'password', // hashed casting
+                'first_name'  => 'Joe',
+                'last_name'   => 'Nyarko',
+                'password'    => 'Joe@nyarko1234', // hashed casting
                 'role'        => UserRole::Admin,
                 'is_active'   => true,
                 'is_verified' => true,
