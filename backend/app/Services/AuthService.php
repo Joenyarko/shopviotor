@@ -58,8 +58,37 @@ class AuthService
             ]);
         }
 
-        // Revoke old tokens on login for security (optional)
-        // $user->tokens()->delete();
+        // Generate 2FA Code
+        $code = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+        
+        // Store in cache for 10 minutes
+        \Illuminate\Support\Facades\Cache::put('2fa_code_' . $user->id, $code, now()->addMinutes(10));
+        
+        // Send email
+        \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\TwoFactorAuthMail($user, $code));
+        
+        $this->logLoginAttempt($user, $ip, $userAgent, 'successful');
+
+        return [
+            'requires_2fa' => true,
+            'user_id'      => $user->id,
+            'message'      => 'A verification code has been sent to your email.'
+        ];
+    }
+
+    public function verify2Fa(int $userId, string $code, string $ip = null, string $userAgent = null): array
+    {
+        $cachedCode = \Illuminate\Support\Facades\Cache::get('2fa_code_' . $userId);
+
+        if (!$cachedCode || $cachedCode !== $code) {
+            throw ValidationException::withMessages([
+                'code' => ['The verification code is invalid or has expired.'],
+            ]);
+        }
+
+        \Illuminate\Support\Facades\Cache::forget('2fa_code_' . $userId);
+
+        $user = $this->userRepo->findById($userId);
 
         $abilities  = $user->isAdmin() ? ['admin', 'customer'] : ['customer'];
         $token      = $user->createToken('auth_token', $abilities)->plainTextToken;
@@ -68,8 +97,6 @@ class AuthService
             'last_login_at' => now(),
             'last_login_ip' => $ip,
         ]);
-
-        $this->logLoginAttempt($user, $ip, $userAgent, 'success');
 
         return ['user' => $user, 'token' => $token];
     }

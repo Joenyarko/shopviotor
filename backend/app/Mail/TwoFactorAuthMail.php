@@ -10,13 +10,13 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Address;
 
-class WelcomeEmail extends Mailable
+class TwoFactorAuthMail extends Mailable
 {
     use Queueable, SerializesModels;
 
     
 
-    public function __construct(public \App\Models\User $user)
+    public function __construct(public \App\Models\User $user, public string $code)
     {
         //
     }
@@ -24,15 +24,15 @@ class WelcomeEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('welcome@shopviotor.com', 'Shop Viotor'),
-            subject: 'Welcome to Shop Viotor!',
+            from: new Address('support@shopviotor.com', 'Shop Viotor Security'),
+            subject: 'Your Login Code',
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.welcome'
+            view: 'emails.two-factor-code'
         );
     }
 

@@ -8,7 +8,11 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { login } = useAuth();
+  const { login, verify2Fa } = useAuth();
+  
+  const [step, setStep] = useState(1); // 1 = Login, 2 = 2FA
+  const [userId, setUserId] = useState(null);
+  const [code, setCode] = useState('');
   
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -28,7 +32,14 @@ const Login = () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const user = await login(data);
+      const response = await login(data);
+      if (response.requires_2fa) {
+        setUserId(response.user_id);
+        setStep(2);
+        return;
+      }
+      
+      const user = response;
       if (user.role === 'admin' || user.role === 'super_admin') {
         navigate('/admin');
       } else {
@@ -41,6 +52,76 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  const handleVerify2Fa = async (e) => {
+    e.preventDefault();
+    if (!code || code.length !== 6) {
+      setErrorMsg('Please enter a valid 6-digit code.');
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      const user = await verify2Fa({ user_id: userId, code });
+      if (user.role === 'admin' || user.role === 'super_admin') {
+        navigate('/admin');
+      } else {
+        navigate(redirectTo, { replace: true });
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.message || 'Invalid verification code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (step === 2) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-xl font-bold text-secondary-900 dark:text-white">Two-Factor Verification</h3>
+          <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">We've sent a 6-digit code to your email.</p>
+        </div>
+
+        {errorMsg && (
+          <div className="p-3 bg-accent-50 dark:bg-accent-950/20 text-accent-600 dark:text-accent-400 rounded-lg flex items-start gap-2.5 text-sm border border-accent-200/50">
+            <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        <form onSubmit={handleVerify2Fa} className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Verification Code</label>
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="123456"
+              maxLength={6}
+              className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors tracking-widest text-center text-xl font-bold"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold py-2.5 px-4 rounded-lg transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Verify & Sign In'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="w-full text-sm text-secondary-500 hover:text-secondary-900 dark:hover:text-white transition-colors"
+          >
+            Back to login
+          </button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

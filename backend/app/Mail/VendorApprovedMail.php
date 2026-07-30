@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Mail\Mailables\Address;
 
-class WelcomeEmail extends Mailable
+class VendorApprovedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -24,15 +24,15 @@ class WelcomeEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('welcome@shopviotor.com', 'Shop Viotor'),
-            subject: 'Welcome to Shop Viotor!',
+            from: new Address('support@shopviotor.com', 'Shop Viotor Support'),
+            subject: 'Store Approved! 🎉',
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.welcome'
+            view: 'emails.vendor-approved'
         );
     }
 

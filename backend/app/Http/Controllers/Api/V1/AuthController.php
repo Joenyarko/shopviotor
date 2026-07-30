@@ -40,6 +40,27 @@ class AuthController extends Controller
         );
 
         return response()->json([
+            'message'      => $result['message'],
+            'requires_2fa' => $result['requires_2fa'],
+            'user_id'      => $result['user_id'],
+        ], 202);
+    }
+
+    public function verify2Fa(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'code'    => 'required|string|size:6',
+        ]);
+
+        $result = $this->authService->verify2Fa(
+            $request->input('user_id'),
+            $request->input('code'),
+            $request->ip(),
+            $request->userAgent()
+        );
+
+        return response()->json([
             'message' => 'Login successful.',
             'user'    => new UserResource($result['user']),
             'token'   => $result['token'],

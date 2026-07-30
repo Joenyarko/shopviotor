@@ -44,6 +44,28 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await authService.login(credentials);
+      
+      // If backend returns requires_2fa, we just pass the response back to Login.jsx
+      if (response.requires_2fa) {
+        return response;
+      }
+      
+      // Fallback for normal login (if 2FA is ever disabled)
+      const { user: loggedInUser, token: authToken } = response;
+      localStorage.setItem('viotor_token', authToken);
+      localStorage.setItem('viotor_user', JSON.stringify(loggedInUser));
+      setToken(authToken);
+      setUser(loggedInUser);
+      return loggedInUser;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verify2Fa = async (data) => {
+    setLoading(true);
+    try {
+      const response = await authService.verify2Fa(data);
       const { user: loggedInUser, token: authToken } = response;
       
       localStorage.setItem('viotor_token', authToken);
@@ -103,7 +125,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAdmin, isVendor, updateUser, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAdmin, isVendor, updateUser, isAuthenticated: !!user, verify2Fa }}>
       {children}
     </AuthContext.Provider>
   );
