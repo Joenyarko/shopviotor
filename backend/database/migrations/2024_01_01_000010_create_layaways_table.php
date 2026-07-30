@@ -27,24 +27,10 @@ return new class extends Migration
 
             $table->index(['user_id', 'status']);
         });
-
-        Schema::create('layaway_payments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('layaway_id')->constrained()->cascadeOnDelete();
-            $table->decimal('amount', 12, 2);
-            $table->string('payment_reference')->nullable();
-            $table->string('method')->nullable();
-            $table->timestamp('paid_at');
-            $table->text('notes')->nullable();
-            $table->timestamps();
-
-            $table->index('layaway_id');
-        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('layaway_payments');
         Schema::dropIfExists('layaways');
     }
 };
