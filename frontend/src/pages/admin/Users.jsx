@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
-import { RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { RefreshCw, CheckCircle, XCircle, Trash2 } from 'lucide-react';
 import adminService from '../../api/client'; // direct client helper
 import DotPagination from '../../components/DotPagination';
 
@@ -57,6 +57,28 @@ const Users = () => {
         title: 'Error',
         text: e.response?.data?.message || e.message || 'Failed to update user status.',
       });
+    }
+  };
+
+  const handleDelete = async (uuid) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this! The user and all their data will be permanently deleted.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await adminService.delete(`/admin/users/${uuid}`);
+        fetchUsers();
+        Swal.fire('Deleted!', 'User has been deleted.', 'success');
+      } catch (e) {
+        Swal.fire('Error', e.response?.data?.message || e.message || 'Failed to delete user.', 'error');
+      }
     }
   };
 
@@ -121,7 +143,7 @@ const Users = () => {
                   <th className="p-4">Email</th>
                   <th className="p-4">Role</th>
                   <th className="p-4">Status</th>
-                  <th className="p-4 text-right">Failsafe Toggle</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
@@ -136,12 +158,21 @@ const Users = () => {
                       </span>
                     </td>
                     <td className="p-4 text-right">
-                      <button
-                        onClick={() => handleToggleStatus(u.uuid)}
-                        className={`p-1.5 rounded-lg border text-xs font-semibold ${u.is_active ? 'text-accent-600 dark:text-accent-400 bg-accent-50 dark:bg-accent-950/20 border-accent-200 dark:border-accent-800' : 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/20 border-primary-200 dark:border-primary-800'}`}
-                      >
-                        {u.is_active ? 'Suspend' : 'Activate'}
-                      </button>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleToggleStatus(u.uuid)}
+                          className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center min-w-[80px] ${u.is_active ? 'text-accent-600 dark:text-accent-400 bg-accent-50 dark:bg-accent-950/20 border-accent-200 dark:border-accent-800' : 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/20 border-primary-200 dark:border-primary-800'}`}
+                        >
+                          {u.is_active ? 'Suspend' : 'Activate'}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(u.uuid)}
+                          className="p-1.5 rounded-lg border text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                          title="Permanently Delete User"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

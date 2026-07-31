@@ -48,6 +48,23 @@ class UserController extends Controller
         ]);
     }
 
+    public function destroy(string $uuid): JsonResponse
+    {
+        $user = $this->userRepo->findByUuid($uuid);
+
+        if (auth()->id() === $user->id) {
+            return response()->json([
+                'message' => 'You cannot delete yourself.'
+            ], 403);
+        }
+
+        $user->delete();
+
+        return response()->json([
+            'message' => 'User deleted successfully.'
+        ]);
+    }
+
     public function pendingStudentVerifications(Request $request): JsonResponse
     {
         $users = \App\Models\User::where('student_verification_status', 'pending')

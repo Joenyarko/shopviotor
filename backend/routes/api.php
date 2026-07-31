@@ -184,7 +184,7 @@ Route::prefix('v1')->group(function () {
             // Users
             Route::get('/users/student-verifications/pending', [AdminUserController::class, 'pendingStudentVerifications']);
             Route::post('/users/{uuid}/approve-student-verification', [AdminUserController::class, 'approveStudentVerification']);
-            Route::apiResource('users', AdminUserController::class)->only(['index', 'show']);
+            Route::apiResource('users', AdminUserController::class)->only(['index', 'show', 'destroy']);
             Route::post('/users/{uuid}/toggle-status', [AdminUserController::class, 'toggleStatus']);
 
             // Categories
