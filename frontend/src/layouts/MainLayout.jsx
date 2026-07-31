@@ -35,39 +35,25 @@ const MainLayout = () => {
             Sell to SHOP VIOTOR
           </NavLink>
           <span className="text-white/30">|</span>
-          <NavLink 
-            to="/barter" 
-            className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
-          >
-            Trade by Barter
-          </NavLink>
+          <div className="relative group">
+            <button className="text-white/80 hover:text-white transition-colors font-medium flex items-center gap-1">
+              Viotor Exclusives
+              <svg className="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div className="absolute top-full left-0 mt-2 w-48 bg-secondary-900 border border-secondary-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
+              <NavLink to="/barter" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Trade by Barter</NavLink>
+              <NavLink to="/hire-purchase" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Hire Purchase</NavLink>
+              <NavLink to="/layaway" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Layaway</NavLink>
+              <NavLink to="/pre-orders" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Pre-Orders</NavLink>
+              <NavLink to="/raffles" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Raffles</NavLink>
+            </div>
+          </div>
           <span className="text-white/30">|</span>
           <NavLink 
-            to="/hire-purchase" 
+            to="/professionals" 
             className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
           >
-            Hire Purchase
-          </NavLink>
-          <span className="text-white/30">|</span>
-          <NavLink 
-            to="/layaway" 
-            className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
-          >
-            Layaway
-          </NavLink>
-          <span className="text-white/30">|</span>
-          <NavLink 
-            to="/raffles" 
-            className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
-          >
-            Raffles
-          </NavLink>
-          <span className="text-white/30">|</span>
-          <NavLink 
-            to="/pre-orders" 
-            className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
-          >
-            Pre-Orders
+            Hire Professionals
           </NavLink>
           <span className="text-white/30">|</span>
           <NavLink 
