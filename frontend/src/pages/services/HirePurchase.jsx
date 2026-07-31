@@ -277,7 +277,7 @@ const HirePurchase = () => {
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {productPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Interest Cost ({interestRate}%)</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Interest Cost ({hpInterestRate}%)</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {interestAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
