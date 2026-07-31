@@ -39,6 +39,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'device_token',
         'student_id',
         'student_verification_status',
+        'google_id',
+        'google_token',
     ];
 
     protected $hidden = [

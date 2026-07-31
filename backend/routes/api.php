@@ -55,6 +55,10 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/register/verify', [AuthController::class, 'verifyRegistration']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/verify-2fa', [AuthController::class, 'verify2Fa']);
+    
+    // Google Authentication
+    Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
+    Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
     // Catalog
     Route::get('/categories', [CategoryController::class, 'index']);

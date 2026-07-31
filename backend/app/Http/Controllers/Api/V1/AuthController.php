@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -58,8 +59,59 @@ class AuthController extends Controller
             'message'      => $result['message'],
             'requires_2fa' => $result['requires_2fa'],
             'user_id'      => $result['user_id'],
-        ], 202);
+        ], 200);
     }
+
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->stateless()->redirect();
+    }
+
+    public function handleGoogleCallback(Request $request)
+    {
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+            
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if ($user) {
+                // Update existing user with Google ID
+                $user->update([
+                    'google_id' => $googleUser->getId(),
+                    'google_token' => $googleUser->token,
+                ]);
+            } else {
+                // Create new user
+                $user = User::create([
+                    'first_name' => $googleUser->user['given_name'] ?? $googleUser->getName(),
+                    'last_name' => $googleUser->user['family_name'] ?? '',
+                    'email' => $googleUser->getEmail(),
+                    'google_id' => $googleUser->getId(),
+                    'google_token' => $googleUser->token,
+                    'role' => \App\Enums\UserRole::Customer->value,
+                    'is_active' => true,
+                    'is_verified' => true,
+                ]);
+                event(new \Illuminate\Auth\Events\Registered($user));
+            }
+
+            // Generate token
+            $abilities = $user->isAdmin() ? ['admin', 'customer'] : ['customer'];
+            $token = $user->createToken('auth_token', $abilities)->plainTextToken;
+
+            // Redirect back to frontend with the token
+            // Ensure FRONTEND_URL is set in your .env (e.g., https://www.shopviotor.com)
+            $frontendUrl = env('FRONTEND_URL', 'https://www.shopviotor.com');
+            return redirect($frontendUrl . '/auth/callback?token=' . $token);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to authenticate with Google.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
     public function verify2Fa(Request $request): JsonResponse
     {
