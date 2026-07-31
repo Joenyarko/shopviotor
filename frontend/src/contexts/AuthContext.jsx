@@ -83,6 +83,19 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const response = await authService.register(data);
+      if (response.requires_verification) {
+        return response; // Return response so UI can switch to OTP step
+      }
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyRegistration = async (data) => {
+    setLoading(true);
+    try {
+      const response = await authService.verifyRegistration(data);
       const { user: registeredUser, token: authToken } = response;
 
       localStorage.setItem('viotor_token', authToken);
@@ -125,7 +138,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAdmin, isVendor, updateUser, isAuthenticated: !!user, verify2Fa }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, verifyRegistration, logout, isAdmin, isVendor, updateUser, isAuthenticated: !!user, verify2Fa }}>
       {children}
     </AuthContext.Provider>
   );

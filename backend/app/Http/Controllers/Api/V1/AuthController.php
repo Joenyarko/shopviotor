@@ -24,6 +24,21 @@ class AuthController extends Controller
     {
         $result = $this->authService->register($request->validated());
 
+        return response()->json($result, 202); // 202 Accepted because we need OTP
+    }
+
+    public function verifyRegistration(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp'   => 'required|string|size:6',
+        ]);
+
+        $result = $this->authService->verifyRegistration(
+            $request->input('email'),
+            $request->input('otp')
+        );
+
         return response()->json([
             'message' => 'Registration successful.',
             'user'    => new UserResource($result['user']),

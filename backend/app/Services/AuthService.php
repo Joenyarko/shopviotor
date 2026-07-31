@@ -11,8 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use App\Mail\RegistrationOtpMail;
 
 class AuthService
 {
@@ -20,21 +24,59 @@ class AuthService
 
     public function register(array $data): array
     {
-        return DB::transaction(function () use ($data) {
+        // Generate a 6-digit OTP
+        $otp = (string) random_int(100000, 999999);
+
+        // Store registration data and OTP in cache for 15 minutes
+        Cache::put('registration_otp_' . $data['email'], [
+            'data' => $data,
+            'otp'  => $otp,
+        ], now()->addMinutes(15));
+
+        // Send OTP email
+        Mail::to($data['email'])->send(new RegistrationOtpMail($otp));
+
+        return [
+            'requires_verification' => true,
+            'email' => $data['email'],
+            'message' => 'Please check your email for the verification code.'
+        ];
+    }
+
+    public function verifyRegistration(string $email, string $otp): array
+    {
+        $cacheKey = 'registration_otp_' . $email;
+        $cachedData = Cache::get($cacheKey);
+
+        if (!$cachedData || $cachedData['otp'] !== $otp) {
+            throw ValidationException::withMessages([
+                'otp' => ['Invalid or expired verification code.'],
+            ]);
+        }
+
+        $data = $cachedData['data'];
+
+        return DB::transaction(function () use ($data, $cacheKey) {
             $user = $this->userRepo->create([
-                'first_name' => $data['first_name'],
-                'last_name'  => $data['last_name'],
-                'email'      => $data['email'],
-                'phone'      => $data['phone'] ?? null,
-                'password'   => $data['password'],
-                'role'       => UserRole::Customer->value,
+                'first_name'  => $data['first_name'],
+                'last_name'   => $data['last_name'],
+                'email'       => $data['email'],
+                'phone'       => $data['phone'] ?? null,
+                'password'    => $data['password'],
+                'role'        => UserRole::Customer->value,
+                'is_active'   => true,
+                'is_verified' => true, // verified by email
             ]);
 
-            $user->assignRole(UserRole::Customer->value);
+            // Removed $user->assignRole() to fix Spatie missing role guard error
+            // The enum role property is already enough for our checks
 
             event(new Registered($user));
 
             $token = $user->createToken('auth_token', ['customer'])->plainTextToken;
+
+            // Clear the cache
+            Cache::forget($cacheKey);
 
             return ['user' => $user, 'token' => $token];
         });

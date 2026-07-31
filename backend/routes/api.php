@@ -52,6 +52,7 @@ Route::prefix('v1')->group(function () {
     // ─── PUBLIC ROUTES ────────────────────────────────────────────────────────
     
     Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/register/verify', [AuthController::class, 'verifyRegistration']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     Route::post('/auth/verify-2fa', [AuthController::class, 'verify2Fa']);
 

@@ -6,10 +6,13 @@ import { AlertCircle, RefreshCw } from 'lucide-react';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { register: signup } = useAuth();
+  const { register: signup, verifyRegistration } = useAuth();
   
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState(1);
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: {
@@ -28,8 +31,12 @@ const Register = () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      await signup(data);
-      navigate('/dashboard');
+      const res = await signup(data);
+      if (res && res.requires_verification) {
+        setRegisteredEmail(data.email);
+        setSuccessMsg(res.message || 'Please check your email for the verification code.');
+        setStep(2);
+      }
     } catch (err) {
       console.error(err);
       setErrorMsg(err.message || 'Registration failed. Please check inputs.');
@@ -38,11 +45,36 @@ const Register = () => {
     }
   };
 
+  const onVerifyOtp = async (e) => {
+    e.preventDefault();
+    const otp = e.target.otp.value;
+    if (!otp || otp.length !== 6) {
+      setErrorMsg('Please enter a valid 6-digit code.');
+      return;
+    }
+    
+    setLoading(true);
+    setErrorMsg('');
+    try {
+      await verifyRegistration({ email: registeredEmail, otp });
+      navigate('/dashboard');
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.message || 'Verification failed. Invalid code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-bold text-secondary-900 dark:text-white">Create a New Account</h3>
-        <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Start selling, trading, and buying today.</p>
+        <h3 className="text-xl font-bold text-secondary-900 dark:text-white">
+          {step === 1 ? 'Create a New Account' : 'Verify Your Email'}
+        </h3>
+        <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">
+          {step === 1 ? 'Start selling, trading, and buying today.' : `We sent a code to ${registeredEmail}`}
+        </p>
       </div>
 
       {errorMsg && (
@@ -52,101 +84,144 @@ const Register = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
+      {successMsg && step === 2 && (
+        <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 rounded-lg flex items-start gap-2.5 text-sm border border-emerald-200/50">
+          <span>{successMsg}</span>
+        </div>
+      )}
+
+      {step === 1 && (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">First Name</label>
+              <input
+                type="text"
+                {...register('first_name', { required: 'First name is required' })}
+                placeholder="John"
+                className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+              />
+              {errors.first_name && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.first_name.message}</span>}
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Last Name</label>
+              <input
+                type="text"
+                {...register('last_name', { required: 'Last name is required' })}
+                placeholder="Doe"
+                className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+              />
+              {errors.last_name && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.last_name.message}</span>}
+            </div>
+          </div>
+
           <div>
-            <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">First Name</label>
+            <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Email Address</label>
             <input
-              type="text"
-              {...register('first_name', { required: 'First name is required' })}
-              placeholder="John"
+              type="email"
+              {...register('email', { 
+                required: 'Email is required',
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Invalid email address'
+                }
+              })}
+              placeholder="john@example.com"
               className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
             />
-            {errors.first_name && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.first_name.message}</span>}
+            {errors.email && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.email.message}</span>}
           </div>
+
           <div>
-            <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Last Name</label>
+            <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Phone (optional)</label>
             <input
               type="text"
-              {...register('last_name', { required: 'Last name is required' })}
-              placeholder="Doe"
+              {...register('phone')}
+              placeholder="+233240000000"
               className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
             />
-            {errors.last_name && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.last_name.message}</span>}
           </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Password</label>
+            <input
+              type="password"
+              {...register('password', { 
+                required: 'Password is required',
+                minLength: {
+                  value: 8,
+                  message: 'Password must be at least 8 characters'
+                }
+              })}
+              placeholder="••••••••"
+              className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+            />
+            {errors.password && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.password.message}</span>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Confirm Password</label>
+            <input
+              type="password"
+              {...register('password_confirmation', { 
+                required: 'Confirm your password',
+                validate: (val) => val === passwordVal || "Passwords don't match"
+              })}
+              placeholder="••••••••"
+              className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
+            />
+            {errors.password_confirmation && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.password_confirmation.message}</span>}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full premium-button-primary py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2"
+          >
+            {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Register'}
+          </button>
+        </form>
+      )}
+
+      {step === 2 && (
+        <form onSubmit={onVerifyOtp} className="space-y-6">
+          <div>
+            <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300 text-center mb-4">
+              Enter 6-digit Code
+            </label>
+            <input
+              type="text"
+              name="otp"
+              maxLength={6}
+              placeholder="123456"
+              className="w-full text-center text-3xl tracking-[0.5em] mt-1.5 px-4 py-3 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors uppercase font-mono"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full premium-button-primary py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2"
+          >
+            {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Verify & Create Account'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="w-full py-2 text-sm text-secondary-500 hover:text-secondary-700 dark:hover:text-secondary-300 font-medium"
+          >
+            &larr; Back to registration
+          </button>
+        </form>
+      )}
+
+      {step === 1 && (
+        <div className="text-center text-sm text-secondary-500 dark:text-secondary-400">
+          Already have an account?{' '}
+          <Link to="/login" className="text-primary-600 font-semibold hover:underline">Sign In</Link>
         </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Email Address</label>
-          <input
-            type="email"
-            {...register('email', { 
-              required: 'Email is required',
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: 'Invalid email address'
-              }
-            })}
-            placeholder="john@example.com"
-            className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
-          />
-          {errors.email && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.email.message}</span>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Phone (optional)</label>
-          <input
-            type="text"
-            {...register('phone')}
-            placeholder="+233240000000"
-            className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Password</label>
-          <input
-            type="password"
-            {...register('password', { 
-              required: 'Password is required',
-              minLength: {
-                value: 8,
-                message: 'Password must be at least 8 characters'
-              }
-            })}
-            placeholder="••••••••"
-            className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
-          />
-          {errors.password && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.password.message}</span>}
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300">Confirm Password</label>
-          <input
-            type="password"
-            {...register('password_confirmation', { 
-              required: 'Confirm your password',
-              validate: (val) => val === passwordVal || "Passwords don't match"
-            })}
-            placeholder="••••••••"
-            className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
-          />
-          {errors.password_confirmation && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.password_confirmation.message}</span>}
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full premium-button-primary py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2"
-        >
-          {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Register'}
-        </button>
-      </form>
-
-      <div className="text-center text-sm text-secondary-500 dark:text-secondary-400">
-        Already have an account?{' '}
-        <Link to="/login" className="text-primary-600 font-semibold hover:underline">Sign In</Link>
-      </div>
+      )}
     </div>
   );
 };

@@ -1,7 +1,13 @@
 import apiClient from '../api/client';
 
 const authService = {
-  register: (data) => apiClient.post('/auth/register', data),
+  async register(data) {
+    return apiClient.post('/auth/register', data);
+  },
+  
+  async verifyRegistration(data) {
+    return apiClient.post('/auth/register/verify', data);
+  },
   login: (data) => apiClient.post('/auth/login', data),
   logout: () => apiClient.post('/auth/logout'),
   me: () => apiClient.get('/auth/me'),
