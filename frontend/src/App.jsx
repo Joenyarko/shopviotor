@@ -3,7 +3,7 @@ import AppRoutes from './routes/AppRoutes';
 import PwaPrompt from './components/PwaPrompt';
 import ScrollToTop from './components/ScrollToTop';
 import WhatsAppCTA from './components/WhatsAppCTA';
-import ChatWidget from './components/ChatWidget';
+// import ChatWidget from './components/ChatWidget';
 import SiteNotice from './components/SiteNotice';
 import PromoPopupManager from './components/PromoPopupManager';
 import { ToastContainer } from 'react-toastify';
@@ -18,7 +18,7 @@ function App() {
       <PwaPrompt />
       {/* Floating Action Widgets — always visible */}
       <WhatsAppCTA />
-      <ChatWidget />
+      {/* <ChatWidget /> */}
       <SiteNotice />
       <PromoPopupManager />
       <ToastContainer position="bottom-right" autoClose={3000} hideProgressBar />
