@@ -81,6 +81,9 @@ const StoreList = React.lazy(() => import('../pages/catalog/StoreList'));
 const StoreFront = React.lazy(() => import('../pages/catalog/StoreFront'));
 const LayawayDetail = React.lazy(() => import('../pages/services/LayawayDetail'));
 const MyLayaways = React.lazy(() => import('../pages/customer/MyLayaways'));
+const ManageServiceProfile = React.lazy(() => import('../pages/customer/ManageServiceProfile'));
+const ProfessionalsDirectory = React.lazy(() => import('../pages/services/ProfessionalsDirectory'));
+const ProfessionalProfile = React.lazy(() => import('../pages/services/ProfessionalProfile'));
 
 // Helper Component: Protect user routes
 const ProtectedRoute = ({ children }) => {
@@ -116,6 +119,8 @@ const AppRoutes = () => {
         {/* Vendor Storefronts (public) */}
         <Route path="/shops" element={<StoreList />} />
         <Route path="/shops/:slug" element={<StoreFront />} />
+        <Route path="/professionals" element={<ProfessionalsDirectory />} />
+        <Route path="/professionals/:slug" element={<ProfessionalProfile />} />
       </Route>
 
       {/* ─── AUTHENTICATION FLOW ───────────────────────────────────────────── */}
@@ -146,6 +151,8 @@ const AppRoutes = () => {
         <Route path="/pre-orders" element={<ProtectedRoute><PreOrders /></ProtectedRoute>} />
         <Route path="/pre-orders/:uuid" element={<ProtectedRoute><PreOrderDetail /></ProtectedRoute>} />
         <Route path="/my-pre-orders" element={<ProtectedRoute><MyPreOrders /></ProtectedRoute>} />
+        
+        <Route path="/my-service-profile" element={<ProtectedRoute><ManageServiceProfile /></ProtectedRoute>} />
 
         <Route path="/become-a-vendor" element={<ProtectedRoute><StoreApplication /></ProtectedRoute>} />
         <Route path="/raffles" element={<ProtectedRoute><Raffles /></ProtectedRoute>} />
