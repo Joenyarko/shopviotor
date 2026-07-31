@@ -40,8 +40,13 @@ class Banner extends Model
         return $this->belongsTo(BannerCampaign::class, 'banner_campaign_id');
     }
 
-    public function getImageUrlAttribute(): string
+    public function getImageUrlAttribute(): ?string
     {
+        if (!$this->image) return null;
+        // If it's already a full URL (Cloudinary), return as-is
+        if (str_starts_with($this->image, 'http')) {
+            return $this->image;
+        }
         return asset('storage/' . $this->image);
     }
 }
