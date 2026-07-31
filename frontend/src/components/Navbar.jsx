@@ -277,7 +277,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 py-6 space-y-8">
+        <div className="flex-1 overflow-y-auto px-5 pt-6 pb-32 space-y-8">
           <form onSubmit={handleSearch} className="relative w-full">
             <input
               type="text"
@@ -295,10 +295,12 @@ const Navbar = () => {
               <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Products</Link>
               <Link to="/products?condition=used" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Second Hand</Link>
               <Link to="/sell" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-secondary-900 hover:bg-secondary-800 text-white rounded-xl text-sm font-bold transition-colors shadow-sm">Sell Item</Link>
+              <Link to="/professionals" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Hire Pro</Link>
               <Link to="/barter" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Barter</Link>
               <Link to="/hire-purchase" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Hire Purchase</Link>
               <Link to="/raffles" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Raffles</Link>
               <Link to="/layaway" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Layaway</Link>
+              <Link to="/pre-orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center col-span-2 py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Pre-Orders</Link>
             </div>
           </div>
 
