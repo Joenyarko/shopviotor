@@ -56,16 +56,32 @@ class AuthService
         $data = $cachedData['data'];
 
         return DB::transaction(function () use ($data, $cacheKey) {
-            $user = $this->userRepo->create([
-                'first_name'  => $data['first_name'],
-                'last_name'   => $data['last_name'],
-                'email'       => $data['email'],
-                'phone'       => $data['phone'] ?? null,
-                'password'    => $data['password'],
-                'role'        => UserRole::Customer->value,
-                'is_active'   => true,
-                'is_verified' => true, // verified by email
-            ]);
+            $user = User::withTrashed()->where('email', $data['email'])->first();
+
+            if ($user) {
+                if ($user->trashed()) {
+                    $user->restore();
+                }
+                $user->update([
+                    'first_name'  => $data['first_name'],
+                    'last_name'   => $data['last_name'],
+                    'phone'       => $data['phone'] ?? null,
+                    'password'    => $data['password'],
+                    'is_active'   => true,
+                    'is_verified' => true,
+                ]);
+            } else {
+                $user = $this->userRepo->create([
+                    'first_name'  => $data['first_name'],
+                    'last_name'   => $data['last_name'],
+                    'email'       => $data['email'],
+                    'phone'       => $data['phone'] ?? null,
+                    'password'    => $data['password'],
+                    'role'        => UserRole::Customer->value,
+                    'is_active'   => true,
+                    'is_verified' => true, // verified by email
+                ]);
+            }
 
             // Removed $user->assignRole() to fix Spatie missing role guard error
             // The enum role property is already enough for our checks

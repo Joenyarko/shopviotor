@@ -72,9 +72,13 @@ class AuthController extends Controller
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
             
-            $user = User::where('email', $googleUser->getEmail())->first();
+            $user = User::withTrashed()->where('email', $googleUser->getEmail())->first();
 
             if ($user) {
+                if ($user->trashed()) {
+                    $user->restore(); // Restore soft-deleted account
+                }
+
                 // Update existing user with Google ID
                 $user->update([
                     'google_id' => $googleUser->getId(),

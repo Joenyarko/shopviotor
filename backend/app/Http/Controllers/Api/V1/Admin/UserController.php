@@ -58,7 +58,7 @@ class UserController extends Controller
             ], 403);
         }
 
-        $user->delete();
+        $user->forceDelete(); // Permanently delete to prevent unique constraint errors
 
         return response()->json([
             'message' => 'User deleted successfully.'
