@@ -85,6 +85,7 @@ Route::prefix('v1')->group(function () {
     });
     Route::get('/stores/{slug}', [StoreController::class, 'show']);
 
+    Route::get('/services/categories', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'categories']);
     Route::get('/services', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'index']);
     Route::get('/services/{slug}', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'show']);
 
@@ -192,6 +193,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/users/{uuid}/approve-student-verification', [AdminUserController::class, 'approveStudentVerification']);
             Route::apiResource('users', AdminUserController::class)->only(['index', 'show', 'destroy']);
             Route::post('/users/{uuid}/toggle-status', [AdminUserController::class, 'toggleStatus']);
+
+            // Service Categories
+            Route::apiResource('service-categories', \App\Http\Controllers\Api\V1\Admin\ServiceCategoryController::class)->except(['show']);
 
             // Categories
             Route::apiResource('categories', AdminCategoryController::class);

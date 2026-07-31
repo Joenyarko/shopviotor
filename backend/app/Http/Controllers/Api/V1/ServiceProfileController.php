@@ -7,11 +7,17 @@ use Illuminate\Http\Request;
 
 use App\Models\ServiceProfile;
 use App\Models\ServiceImage;
+use App\Models\ServiceCategory;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 class ServiceProfileController extends Controller
 {
+    public function categories()
+    {
+        $categories = ServiceCategory::where('is_active', true)->orderBy('name')->pluck('name');
+        return response()->json(['data' => $categories]);
+    }
     public function index(Request $request)
     {
         $query = ServiceProfile::where('is_active', true)->with('images');
