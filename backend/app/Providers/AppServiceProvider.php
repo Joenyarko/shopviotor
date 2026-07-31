@@ -37,5 +37,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+
+        // Manually register Cloudinary macro if package auto-discovery fails
+        \Illuminate\Http\UploadedFile::macro('storeOnCloudinary', function ($folder = null) {
+            return cloudinary()->upload($this->getRealPath(), ['folder' => $folder]);
+        });
     }
 }
