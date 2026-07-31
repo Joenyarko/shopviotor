@@ -92,7 +92,6 @@ class AuthController extends Controller
                     'is_active' => true,
                     'is_verified' => true,
                 ]);
-                event(new \Illuminate\Auth\Events\Registered($user));
             }
 
             // Generate token

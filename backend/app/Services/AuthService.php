@@ -70,8 +70,6 @@ class AuthService
             // Removed $user->assignRole() to fix Spatie missing role guard error
             // The enum role property is already enough for our checks
 
-            event(new Registered($user));
-
             $token = $user->createToken('auth_token', ['customer'])->plainTextToken;
 
             // Clear the cache
