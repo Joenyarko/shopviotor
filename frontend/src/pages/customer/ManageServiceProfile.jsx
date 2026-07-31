@@ -22,10 +22,22 @@ const ManageServiceProfile = () => {
   const [existingImages, setExistingImages] = useState([]);
   const [deleteImages, setDeleteImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
 
   useEffect(() => {
     fetchProfile();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await apiClient.get('/services/categories');
+      setCategories(res.data?.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -33,9 +45,12 @@ const ManageServiceProfile = () => {
       const res = await apiClient.get('/services/my-profile');
       if (res.data?.data) {
         const profile = res.data.data;
+        const cat = profile.category || '';
+        // If we have categories loaded, check if the profile category is in the predefined list
+        // Wait, fetchCategories runs parallel. We will just set it, and in the render decide if it's 'Other'
         setFormData({
           business_name: profile.business_name || '',
-          category: profile.category || '',
+          category: cat,
           location: profile.location || '',
           city: profile.city || '',
           region: profile.region || '',
@@ -141,17 +156,41 @@ const ManageServiceProfile = () => {
             </div>
             <div>
               <label className={labelClass}>Category *</label>
-              <select name="category" required value={formData.category} onChange={handleChange} className={inputClass}>
+              <select 
+                name="category" 
+                required={!isCustomCategory} 
+                value={isCustomCategory ? 'Other' : (categories.includes(formData.category) ? formData.category : (formData.category ? 'Other' : ''))} 
+                onChange={(e) => {
+                  if (e.target.value === 'Other') {
+                    setIsCustomCategory(true);
+                    setFormData({ ...formData, category: '' });
+                  } else {
+                    setIsCustomCategory(false);
+                    setFormData({ ...formData, category: e.target.value });
+                  }
+                }} 
+                className={inputClass}
+              >
                 <option value="">Select Category</option>
-                <option value="Beautician & Makeup">Beautician & Makeup</option>
-                <option value="Hairdresser & Barber">Hairdresser & Barber</option>
-                <option value="Woodworker & Carpentry">Woodworker & Carpentry</option>
-                <option value="Plumbing">Plumbing</option>
-                <option value="Electrical">Electrical</option>
-                <option value="Graphic Design">Graphic Design</option>
-                <option value="Photography & Video">Photography & Video</option>
-                <option value="Other">Other</option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+                <option value="Other">Other (Specify)</option>
               </select>
+
+              {(isCustomCategory || (formData.category && !categories.includes(formData.category) && categories.length > 0)) && (
+                <div className="mt-3">
+                  <input 
+                    type="text" 
+                    name="category" 
+                    required 
+                    value={formData.category} 
+                    onChange={handleChange} 
+                    className={inputClass} 
+                    placeholder="Enter custom category" 
+                  />
+                </div>
+              )}
             </div>
           </div>
 

@@ -8,10 +8,19 @@ const ProfessionalsDirectory = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [categories, setCategories] = useState([
-    'Beautician & Makeup', 'Hairdresser & Barber', 'Woodworker & Carpentry', 
-    'Plumbing', 'Electrical', 'Graphic Design', 'Photography & Video', 'Other'
-  ]);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        const res = await apiClient.get('/services/categories');
+        setCategories(res.data?.data || []);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchCats();
+  }, []);
 
   useEffect(() => {
     fetchProfessionals();
@@ -39,15 +48,15 @@ const ProfessionalsDirectory = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="space-y-8">
       {/* Hero Section */}
-      <div className="bg-primary-900 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-        <div className="absolute top-0 left-0 w-64 h-64 bg-secondary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob animation-delay-2000"></div>
+      <div className="bg-primary-500 py-16 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
+        <div className="absolute top-0 left-0 w-64 h-64 bg-secondary-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
         
         <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-          <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">Hire Local Professionals</h1>
-          <p className="text-primary-100 text-lg">Find the best services and skilled experts in your area. From beauty to home repair, we've got you covered.</p>
+          <h1 className="text-4xl md:text-5xl font-black text-secondary-900 tracking-tight">Hire Local Professionals</h1>
+          <p className="text-secondary-800 text-lg font-medium">Find the best services and skilled experts in your area. From beauty to home repair, we've got you covered.</p>
           
           <form onSubmit={handleSearch} className="mt-8 flex gap-2 max-w-xl mx-auto">
             <div className="relative flex-1">
@@ -57,7 +66,7 @@ const ProfessionalsDirectory = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="What service do you need?" 
-                className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 focus:outline-none focus:ring-4 focus:ring-primary-500/50 text-lg shadow-xl"
+                className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 focus:outline-none focus:ring-4 focus:ring-secondary-900/50 text-lg shadow-xl"
               />
             </div>
             <button type="submit" className="px-8 py-4 bg-secondary-900 hover:bg-black text-white font-bold rounded-xl transition-colors shadow-xl">
@@ -67,8 +76,9 @@ const ProfessionalsDirectory = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filters Sidebar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Filters Sidebar */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-secondary-900 p-6 rounded-2xl border border-secondary-200 dark:border-secondary-800 shadow-sm">
             <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Filter className="w-5 h-5" /> Categories</h3>
@@ -136,6 +146,7 @@ const ProfessionalsDirectory = () => {
               ))}
             </div>
           )}
+        </div>
         </div>
       </div>
     </div>

@@ -42,6 +42,7 @@ const AdminLayout = () => {
     { name: 'Users', path: '/admin/users', icon: Users },
     { name: 'Products', path: '/admin/products', icon: Package },
     { name: 'Categories', path: '/admin/categories', icon: Tag },
+    { name: 'Service Categories', path: '/admin/service-categories', icon: Tag },
     { name: 'Brands', path: '/admin/brands', icon: Layers }, // Uses Layers since it is already imported
     { name: 'Orders', path: '/admin/orders', icon: ShoppingCart },
     { name: 'Payments', path: '/admin/payments', icon: CreditCard },
