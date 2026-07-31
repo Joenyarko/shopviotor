@@ -43,7 +43,7 @@ const HirePurchase = () => {
     e.preventDefault();
     if (!targetProduct) return;
     if (deposit < minDeposit) {
-      setErrorMsg(`Minimum deposit is GHS ${minDeposit.toFixed(2)} (20% of product value).`);
+      setErrorMsg(`Minimum deposit is GHS ${minDeposit.toFixed(2)} (${hpMinDepositPercent}% of product value).`);
       return;
     }
 
@@ -232,7 +232,7 @@ const HirePurchase = () => {
                     className="w-28 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-lg text-sm font-bold text-center"
                   />
                 </div>
-                <span className="text-xxs text-secondary-500 dark:text-secondary-400 block mt-2">Minimum required: GHS {minDeposit.toFixed(2)} (20%)</span>
+                <span className="text-xxs text-secondary-500 dark:text-secondary-400 block mt-2">Minimum required: GHS {minDeposit.toFixed(2)} ({hpMinDepositPercent}%)</span>
               </div>
 
               {/* Installment Term selection */}
