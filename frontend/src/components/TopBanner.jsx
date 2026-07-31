@@ -25,7 +25,7 @@ const TopBanner = () => {
             className="flex items-center hover:text-white transition-colors"
           >
             <Phone className="w-4 h-4 mr-2" />
-            <span className="text-xs sm:text-sm">CALL TO ORDER: 030 274 0642 | WA: 0508208803</span>
+            <span className="text-xs sm:text-sm">CALL TO ORDER: 0508208803</span>
           </a>
         </div>
         
