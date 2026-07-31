@@ -40,7 +40,16 @@ class AppServiceProvider extends ServiceProvider
 
         // Manually register Cloudinary macro if package auto-discovery fails
         \Illuminate\Http\UploadedFile::macro('storeOnCloudinary', function ($folder = null) {
-            return cloudinary()->upload($this->getRealPath(), ['folder' => $folder]);
+            $response = cloudinary()->uploadApi()->upload($this->getRealPath(), ['folder' => $folder]);
+            
+            // The Cloudinary package expects the macro to return an object with a getSecurePath() method.
+            // We can wrap the response in the package's CloudinaryEngine or just return a mock class
+            // that mimics the expected behavior for getSecurePath()
+            return new class($response['secure_url']) {
+                private $url;
+                public function __construct($url) { $this->url = $url; }
+                public function getSecurePath() { return $this->url; }
+            };
         });
     }
 }
