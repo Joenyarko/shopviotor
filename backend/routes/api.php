@@ -75,12 +75,18 @@ Route::prefix('v1')->group(function () {
     // Public Stores
     Route::get('/stores', [StoreController::class, 'index']);
     // Register my-store BEFORE {slug} so it's matched first (not intercepted by slug pattern)
-    Route::middleware('auth:sanctum')->group(function () use (&$StoreController) {
+    Route::middleware('auth:sanctum')->group(function () {
         Route::get('/stores/my-store', [StoreController::class, 'myStore']);
         Route::post('/stores/my-store/update', [StoreController::class, 'update']);
         Route::post('/stores/apply', [StoreController::class, 'apply']);
+        
+        Route::get('/services/my-profile', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'myProfile']);
+        Route::post('/services/my-profile', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'update']);
     });
     Route::get('/stores/{slug}', [StoreController::class, 'show']);
+
+    Route::get('/services', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'index']);
+    Route::get('/services/{slug}', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'show']);
 
     Route::get('/banners', [BannerController::class, 'index']);
     Route::get('/promo-popups/active', [PromoPopupController::class, 'active']);
