@@ -11,7 +11,7 @@ const Footer = () => {
         <div className="py-12 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-md">
             <h2 className="text-2xl font-bold text-white tracking-tight mb-1">Stay in the loop</h2>
-            <p className="text-sm text-secondary-400">
+            <p className="text-sm text-white/70">
               Get updates on our products and community impact — <span className="text-primary-400 font-bold">no spam, ever.</span>
             </p>
           </div>
@@ -26,7 +26,7 @@ const Footer = () => {
                 Subscribe &rarr;
               </button>
             </form>
-            <p className="text-xs text-secondary-500 mt-2 flex items-center gap-1.5">
+            <p className="text-xs text-white/60 mt-2 flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5" /> We respect your privacy. Unsubscribe anytime.
             </p>
           </div>
@@ -40,7 +40,7 @@ const Footer = () => {
             <Link to="/" className="inline-block mb-4">
               <img src="/shopviotorlogo2.png" alt="SHOP VIOTOR Logo" className="h-16 w-auto object-contain rounded-md bg-white p-1" />
             </Link>
-            <p className="text-secondary-300 text-sm leading-relaxed mb-6 max-w-sm">
+            <p className="text-white/70 text-sm leading-relaxed mb-6 max-w-sm">
               The premier Ghanaian marketplace bringing hope, dignity, and practical support through meaningful commerce. Buy, sell, trade, and finance with ease.
             </p>
             <div className="flex gap-3">
@@ -72,17 +72,17 @@ const Footer = () => {
             <h3 className="text-xs font-bold text-primary-500 uppercase tracking-widest mb-6">Contact Us</h3>
             
             <div className="mb-5">
-              <span className="block text-xs text-secondary-500 uppercase tracking-wider mb-1">Email</span>
+              <span className="block text-xs text-white/50 uppercase tracking-wider mb-1">Email</span>
               <a href="mailto:support@shopviotor.com" className="text-white hover:text-primary-400 text-sm transition-colors">support@shopviotor.com</a>
             </div>
             
             <div className="mb-5">
-              <span className="block text-xs text-secondary-500 uppercase tracking-wider mb-1">Phone</span>
+              <span className="block text-xs text-white/50 uppercase tracking-wider mb-1">Phone</span>
               <p className="text-white text-sm">0500 708 204 / 0500 708 204</p>
             </div>
             
             <div>
-              <span className="block text-xs text-secondary-500 uppercase tracking-wider mb-1">Address</span>
+              <span className="block text-xs text-white/50 uppercase tracking-wider mb-1">Address</span>
               <p className="text-white text-sm">Ghana, Accra</p>
             </div>
           </div>
@@ -94,12 +94,12 @@ const Footer = () => {
       {/* Bottom Legal / Copyright Bar */}
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-secondary-500">
+          <p className="text-xs text-white/60">
             &copy; {new Date().getFullYear()} All Rights Reserved &middot; Design and Developed by SHOP VIOTOR
           </p>
           <div className="flex space-x-6">
-            <Link to="/privacy" className="text-xs text-secondary-500 hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="text-xs text-secondary-500 hover:text-white transition-colors">Terms</Link>
+            <Link to="/privacy" className="text-xs text-white/60 hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/terms" className="text-xs text-white/60 hover:text-white transition-colors">Terms</Link>
           </div>
         </div>
       </div>

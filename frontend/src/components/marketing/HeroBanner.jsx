@@ -50,7 +50,18 @@ const HeroBanner = ({ position, fallbackContent }) => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.5 }}
-            className="absolute inset-0"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={1}
+            onDragEnd={(e, { offset, velocity }) => {
+              const swipe = offset.x;
+              if (swipe < -50) {
+                setCurrentIndex((prev) => (prev + 1) % banners.length);
+              } else if (swipe > 50) {
+                setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
+              }
+            }}
+            className="absolute inset-0 cursor-grab active:cursor-grabbing"
           >
             <img 
               src={banner.image_url} 
@@ -75,13 +86,13 @@ const HeroBanner = ({ position, fallbackContent }) => {
 
         {/* Carousel Indicators */}
         {banners.length > 1 && (
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-30">
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-30">
             {banners.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                  currentIndex === idx ? 'bg-primary-500 w-8' : 'bg-white/50 hover:bg-white'
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                  currentIndex === idx ? 'bg-primary-500 w-4' : 'bg-white/50 hover:bg-white'
                 }`}
               />
             ))}

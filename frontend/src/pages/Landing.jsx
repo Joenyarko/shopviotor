@@ -164,13 +164,13 @@ const Landing = () => {
 
       {/* 2. CATEGORY BOXES / GRID */}
       <section className="space-y-6">
-        <div className="flex justify-between items-end">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">Explore Categories</h2>
-            <p className="text-sm text-secondary-500 dark:text-secondary-400">Find exactly what you need by selecting any division below.</p>
+        <div className="flex justify-between items-end gap-2">
+          <div className="flex-1">
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">Explore Categories</h2>
+            <p className="text-xs md:text-sm text-secondary-500 dark:text-secondary-400 mt-1">Find exactly what you need by selecting any division below.</p>
           </div>
-          <Link to="/categories" className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
-            All Categories <ArrowRight className="w-4 h-4" />
+          <Link to="/categories" className="text-xs md:text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1 flex-shrink-0">
+            All Categories <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
           </Link>
         </div>
 
@@ -232,13 +232,13 @@ const Landing = () => {
 
       {/* 4. FEATURED PRODUCTS (CAROUSEL / GRID) */}
       <section className="space-y-6">
-        <div className="flex justify-between items-end">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">Featured Deals</h2>
-            <p className="text-sm text-secondary-500 dark:text-secondary-400">Handpicked items and promotions running on the marketplace.</p>
+        <div className="flex justify-between items-end gap-2">
+          <div className="flex-1">
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">Featured Deals</h2>
+            <p className="text-xs md:text-sm text-secondary-500 dark:text-secondary-400 mt-1">Handpicked items and promotions running on the marketplace.</p>
           </div>
-          <Link to="/products?featured=true" className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
-            See All <ArrowRight className="w-4 h-4" />
+          <Link to="/products?featured=true" className="text-xs md:text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1 flex-shrink-0">
+            See All <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
           </Link>
         </div>
 
@@ -286,13 +286,13 @@ const Landing = () => {
 
       {/* LATEST PRODUCTS */}
       <section className="space-y-6">
-        <div className="flex justify-between items-end">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">Latest Listings</h2>
-            <p className="text-sm text-secondary-500 dark:text-secondary-400">Discover fresh listings submitted just now.</p>
+        <div className="flex justify-between items-end gap-2">
+          <div className="flex-1">
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-secondary-900 dark:text-white">Latest Listings</h2>
+            <p className="text-xs md:text-sm text-secondary-500 dark:text-secondary-400 mt-1">Discover fresh listings submitted just now.</p>
           </div>
-          <Link to="/products" className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
-            See All <ArrowRight className="w-4 h-4" />
+          <Link to="/products" className="text-xs md:text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1 flex-shrink-0">
+            See All <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
           </Link>
         </div>
 

@@ -66,11 +66,18 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="flex items-center gap-2">
-              <img src="/shopviotorlogo2.png" alt="SHOP VIOTOR Logo" className="h-16 w-auto object-contain rounded-md" />
+              <img src="/shopviotorlogo2.png" alt="SHOP VIOTOR Logo" className="h-14 sm:h-16 w-auto object-contain rounded-md dark:bg-white dark:p-1" />
               <span className="text-xl font-bold text-primary-500 tracking-tight hidden sm:block">
                 SHOP VIOTOR
               </span>
             </Link>
+          </div>
+
+          {/* Mobile centered text */}
+          <div className="sm:hidden flex-1 flex justify-center">
+            <span className="text-lg font-bold text-primary-500 tracking-tight text-center whitespace-nowrap">
+                SHOP VIOTOR
+            </span>
           </div>
 
           {/* Mega Category Dropdown */}
