@@ -17,7 +17,7 @@ class RegistrationOtpMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(public string $otp)
     {
         //
     }
@@ -38,7 +38,7 @@ class RegistrationOtpMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.auth.registration_otp',
         );
     }
 
