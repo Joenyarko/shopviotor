@@ -18,15 +18,16 @@ const TopBanner = () => {
     <div className="bg-primary-500 text-secondary-900 px-4 py-2 w-full">
       <div className="max-w-7xl mx-auto w-full flex flex-row items-center justify-between font-bold text-sm tracking-wide">
         <div className="flex items-center">
-        <a 
-          href="https://wa.me/233508208803?text=Hello%20VIOTOR!%20I%20would%20like%20to%20place%20an%20order."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center hover:text-white transition-colors"
-        >
-          <Phone className="w-4 h-4 mr-2" />
-          <span className="text-xs sm:text-sm">CALL TO ORDER: 030 274 0642 | WA: 0508208803</span>
-        </a>
+          <a 
+            href="https://wa.me/233508208803?text=Hello%20VIOTOR!%20I%20would%20like%20to%20place%20an%20order."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center hover:text-white transition-colors"
+          >
+            <Phone className="w-4 h-4 mr-2" />
+            <span className="text-xs sm:text-sm">CALL TO ORDER: 030 274 0642 | WA: 0508208803</span>
+          </a>
+        </div>
         
         <div className="flex items-center gap-4">
           <a href="#" className="hover:text-white transition-colors flex items-center gap-1.5">
