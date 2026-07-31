@@ -24,6 +24,7 @@ const Login = React.lazy(() => import('../pages/auth/Login'));
 const Register = React.lazy(() => import('../pages/auth/Register'));
 const ForgotPassword = React.lazy(() => import('../pages/auth/ForgotPassword'));
 const ResetPassword = React.lazy(() => import('../pages/auth/ResetPassword'));
+const GoogleCallback = React.lazy(() => import('../pages/auth/GoogleCallback'));
 
 // Customer Protected Pages
 const Dashboard = React.lazy(() => import('../pages/customer/Dashboard'));
@@ -123,6 +124,7 @@ const AppRoutes = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/auth/callback" element={<GoogleCallback />} />
       </Route>
 
       {/* ─── CUSTOMER PORTAL FLOW (PROTECTED) ──────────────────────────────── */}

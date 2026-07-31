@@ -137,8 +137,28 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('viotor_user', JSON.stringify(userData));
   };
 
+  const loginWithToken = (newToken) => {
+    localStorage.setItem('viotor_token', newToken);
+    setToken(newToken);
+    // User profile will automatically be fetched by the useEffect that watches `token`
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, verifyRegistration, logout, isAdmin, isVendor, updateUser, isAuthenticated: !!user, verify2Fa }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      token, 
+      loading, 
+      login, 
+      verify2Fa,
+      register, 
+      verifyRegistration,
+      logout, 
+      isAdmin,
+      isVendor,
+      updateUser,
+      loginWithToken,
+      isAuthenticated: !!user 
+    }}>
       {children}
     </AuthContext.Provider>
   );
