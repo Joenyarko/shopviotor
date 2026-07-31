@@ -160,13 +160,13 @@ const Users = () => {
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() => handleToggleStatus(u.uuid)}
+                          onClick={() => handleToggleStatus(u.id)}
                           className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center min-w-[80px] ${u.is_active ? 'text-accent-600 dark:text-accent-400 bg-accent-50 dark:bg-accent-950/20 border-accent-200 dark:border-accent-800' : 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/20 border-primary-200 dark:border-primary-800'}`}
                         >
                           {u.is_active ? 'Suspend' : 'Activate'}
                         </button>
                         <button
-                          onClick={() => handleDelete(u.uuid)}
+                          onClick={() => handleDelete(u.id)}
                           className="p-1.5 rounded-lg border text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                           title="Permanently Delete User"
                         >
@@ -206,13 +206,13 @@ const Users = () => {
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() => handleApproveStudent(u.uuid, 'approved')}
+                          onClick={() => handleApproveStudent(u.id, 'approved')}
                           className="px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-bold hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors flex items-center gap-1"
                         >
                           <CheckCircle className="w-3.5 h-3.5" /> Approve
                         </button>
                         <button
-                          onClick={() => handleApproveStudent(u.uuid, 'rejected')}
+                          onClick={() => handleApproveStudent(u.id, 'rejected')}
                           className="px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-1"
                         >
                           <XCircle className="w-3.5 h-3.5" /> Reject

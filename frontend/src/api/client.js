@@ -39,9 +39,19 @@ apiClient.interceptors.response.use(
       window.dispatchEvent(new Event('auth_session_expired'));
     }
 
+    let message = data?.message || error.message || 'An unexpected error occurred.';
+
+    // If it's a Laravel validation error, extract the first actual error message
+    if (status === 422 && data?.errors) {
+      const firstErrorKey = Object.keys(data.errors)[0];
+      if (firstErrorKey && data.errors[firstErrorKey][0]) {
+        message = data.errors[firstErrorKey][0];
+      }
+    }
+
     const customError = {
       status,
-      message: data?.message || error.message || 'An unexpected error occurred.',
+      message,
       errors: data?.errors || null,
       raw: error,
     };
