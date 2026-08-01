@@ -15,6 +15,7 @@ const StoreFront = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+  const carouselRef = React.useRef(null);
 
   useEffect(() => {
     vendorService.getStore(slug)
@@ -35,10 +36,26 @@ const StoreFront = () => {
   useEffect(() => {
     if (!store || !store.banners_urls || store.banners_urls.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrentBannerIndex((prev) => (prev + 1) % store.banners_urls.length);
+      setCurrentBannerIndex((prev) => {
+        const next = (prev + 1) % store.banners_urls.length;
+        if (carouselRef.current) {
+          const itemWidth = carouselRef.current.scrollWidth / store.banners_urls.length;
+          carouselRef.current.scrollTo({ left: next * itemWidth, behavior: 'smooth' });
+        }
+        return next;
+      });
     }, 5000);
     return () => clearInterval(timer);
   }, [store]);
+
+  const handleScroll = (e) => {
+    if (!store || !store.banners_urls) return;
+    const itemWidth = e.target.scrollWidth / store.banners_urls.length;
+    const index = Math.round(e.target.scrollLeft / itemWidth);
+    if (index !== currentBannerIndex && index >= 0 && index < store.banners_urls.length) {
+      setCurrentBannerIndex(index);
+    }
+  };
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -72,85 +89,91 @@ const StoreFront = () => {
     <div className="bg-secondary-50 dark:bg-secondary-950 min-h-screen">
 
       {/* ── HERO BANNER ─────────────────────────────────────────────────── */}
-      <div className="relative w-full h-40 sm:h-48 md:h-[530px] overflow-hidden bg-secondary-900 group">
+      <div className="w-full bg-secondary-50 dark:bg-secondary-950 pt-4 pb-2">
         {store.banners_urls && store.banners_urls.length > 0 ? (
-          <AnimatePresence initial={false}>
-            <motion.div
-              key={currentBannerIndex}
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ duration: 0.6, ease: 'easeInOut' }}
-              className="absolute inset-0"
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.2}
-              onDragEnd={(e, { offset, velocity }) => {
-                const swipe = Math.abs(offset.x) * velocity.x;
-                if (swipe < -10000 || offset.x < -50) {
-                  setCurrentBannerIndex((prev) => (prev + 1) % store.banners_urls.length);
-                } else if (swipe > 10000 || offset.x > 50) {
-                  setCurrentBannerIndex((prev) => (prev === 0 ? store.banners_urls.length - 1 : prev - 1));
-                }
-              }}
-            >
-              <img
-                src={store.banners_urls[currentBannerIndex]}
-                alt={`${store.name} banner ${currentBannerIndex + 1}`}
-                className="w-full h-full object-cover pointer-events-none"
-              />
-            </motion.div>
-          </AnimatePresence>
+          <div className="flex flex-col">
+            <div className="relative w-full h-40 sm:h-56 md:h-[480px] overflow-hidden">
+              <div 
+                ref={carouselRef}
+                onScroll={handleScroll}
+                className="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar space-x-3 px-4"
+              >
+                {store.banners_urls.map((url, idx) => (
+                  <div 
+                    key={idx} 
+                    className="w-[88%] sm:w-[85%] md:w-[80%] flex-shrink-0 snap-center h-full rounded-2xl overflow-hidden shadow-sm border border-secondary-200/50 dark:border-secondary-800/50"
+                  >
+                    <img
+                      src={url}
+                      alt={`${store.name} banner ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Navigation Dots Below Images */}
+            {store.banners_urls.length > 1 && (
+              <div className="flex items-center justify-center gap-1.5 mt-4 pb-2">
+                {store.banners_urls.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setCurrentBannerIndex(idx);
+                      if (carouselRef.current) {
+                        const itemWidth = carouselRef.current.scrollWidth / store.banners_urls.length;
+                        carouselRef.current.scrollTo({ left: idx * itemWidth, behavior: 'smooth' });
+                      }
+                    }}
+                    className={`transition-all duration-300 rounded-full ${
+                      idx === currentBannerIndex
+                        ? 'w-6 h-2 bg-primary-500'
+                        : 'w-2 h-2 bg-secondary-300 dark:bg-secondary-700 hover:bg-secondary-400'
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         ) : store.banner_url ? (
-          <img
-            src={store.banner_url}
-            alt={`${store.name} banner`}
-            className="w-full h-full object-cover"
-          />
+          <div className="relative w-full h-40 sm:h-56 md:h-[480px] px-4">
+            <div className="w-full h-full rounded-2xl overflow-hidden shadow-sm">
+              <img
+                src={store.banner_url}
+                alt={`${store.name} banner`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
         ) : (
           /* Default branded banner when no banner image */
-          <div className="absolute inset-0 flex items-center justify-center overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, #0f0f0f 0%, #1c1c1c 50%, #0f0a00 100%)' }}>
-            {/* Decorative circles */}
-            <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full opacity-30"
-              style={{ background: 'radial-gradient(circle, #f5c000 0%, transparent 70%)' }} />
-            <div className="absolute -bottom-20 -left-10 w-60 h-60 rounded-full opacity-20"
-              style={{ background: 'radial-gradient(circle, #f5c000 0%, transparent 70%)' }} />
-            <Store className="w-20 h-20 opacity-10 text-white" />
+          <div className="relative w-full h-40 sm:h-56 md:h-[480px] px-4">
+            <div className="w-full h-full rounded-2xl overflow-hidden shadow-sm flex items-center justify-center relative"
+              style={{ background: 'linear-gradient(135deg, #0f0f0f 0%, #1c1c1c 50%, #0f0a00 100%)' }}>
+              <div className="absolute -top-16 -right-16 w-80 h-80 rounded-full opacity-30"
+                style={{ background: 'radial-gradient(circle, #f5c000 0%, transparent 70%)' }} />
+              <div className="absolute -bottom-20 -left-10 w-60 h-60 rounded-full opacity-20"
+                style={{ background: 'radial-gradient(circle, #f5c000 0%, transparent 70%)' }} />
+              <Store className="w-20 h-20 opacity-10 text-white" />
+            </div>
           </div>
         )}
-        
-        {/* Navigation Dots */}
-        {store.banners_urls && store.banners_urls.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
-            {store.banners_urls.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentBannerIndex(idx)}
-                className={`transition-all duration-300 rounded-full ${
-                  idx === currentBannerIndex
-                    ? 'w-6 h-1.5 bg-primary-500'
-                    : 'w-1.5 h-1.5 bg-white/40 hover:bg-white/70'
-                }`}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
-            ))}
-          </div>
-        )}
-        {/* Gradient overlay so logo/text pops */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
         {/* Back link */}
-        <Link
-          to="/shops"
-          className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-black/40 backdrop-blur-sm border border-white/20 hover:bg-black/60 transition-all"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" /> All Stores
-        </Link>
+        <div className="px-4 mt-2">
+          <Link
+            to="/shops"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-secondary-600 bg-secondary-200/50 hover:bg-secondary-200 dark:text-secondary-300 dark:bg-secondary-800/50 dark:hover:bg-secondary-800 transition-all"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" /> All Stores
+          </Link>
+        </div>
       </div>
 
       {/* ── STORE PROFILE CARD ──────────────────────────────────────────── */}
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4 mt-4">
         <div className="relative -mt-14 md:-mt-16 z-10">
           <div className="bg-white dark:bg-secondary-900 rounded-3xl shadow-xl border border-secondary-100 dark:border-secondary-800 p-5 md:p-8">
             <div className="flex flex-col sm:flex-row gap-5 items-start">
