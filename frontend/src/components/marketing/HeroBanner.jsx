@@ -57,7 +57,7 @@ const HeroBanner = ({ position, fallbackContent }) => {
   if (banners.length > 0) {
     return (
       <div className="w-full py-2">
-        <div className="relative w-full h-40 sm:h-52 md:h-[420px] overflow-hidden">
+        <div className="relative w-full h-28 sm:h-44 md:h-[420px] overflow-hidden">
           <div 
             ref={carouselRef}
             onScroll={handleScroll}
