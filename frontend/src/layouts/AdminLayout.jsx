@@ -79,26 +79,26 @@ const AdminLayout = () => {
       )}
 
       {/* Sidebar Panel */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-secondary-900 border-r border-secondary-200 dark:border-secondary-800 flex flex-col transform lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:flex-shrink-0 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-primary-500 border-r border-primary-600 flex flex-col transform lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:flex-shrink-0 transition-transform duration-300 shadow-xl ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         
         {/* Logo and close */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-secondary-200 dark:border-secondary-800">
-          <Link to="/" className="text-xl font-bold tracking-wider text-secondary-900 dark:text-white">
-            SHOP <span className="text-primary-500">VIOTOR</span> <span className="text-xs bg-primary-100 text-primary-800 dark:bg-primary-900/50 dark:text-primary-300 px-2 py-0.5 rounded-full ml-1">ADMIN</span>
+        <div className="h-16 flex items-center justify-between px-6 border-b border-primary-600/40">
+          <Link to="/" className="text-xl font-black tracking-wider text-secondary-900">
+            SHOP VIOTOR <span className="text-xs bg-secondary-900 text-primary-400 px-2 py-0.5 rounded-full ml-1 font-bold">ADMIN</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 text-secondary-500 dark:text-secondary-400 hover:bg-secondary-100 rounded-md">
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 text-secondary-900 hover:bg-primary-600/30 rounded-md">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* User profile widget */}
-        <div className="p-6 border-b border-secondary-200 dark:border-secondary-800 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold">
+        <div className="p-6 border-b border-primary-600/40 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-secondary-900 text-white flex items-center justify-center font-black text-base shadow-sm">
             {user?.first_name?.charAt(0)}
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-secondary-900 dark:text-white leading-tight">{user?.name}</h4>
-            <span className="text-xs text-secondary-500 dark:text-secondary-400 capitalize">{user?.role}</span>
+            <h4 className="text-sm font-bold text-secondary-900 leading-tight">{user?.name}</h4>
+            <span className="text-xs text-secondary-900/70 font-bold capitalize">{user?.role}</span>
           </div>
         </div>
 
@@ -112,30 +112,30 @@ const AdminLayout = () => {
                 key={item.name}
                 to={item.path}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center justify-between px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive ? 'bg-primary-50 text-primary-600 dark:bg-primary-950/30 dark:text-primary-400' : 'text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800'}`}
+                className={`flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${isActive ? 'bg-secondary-900 text-white shadow-md' : 'text-secondary-900/80 hover:bg-primary-600/30 hover:text-secondary-900'}`}
               >
                 <div className="flex items-center gap-3">
                   <Icon className="w-5 h-5" />
                   <span>{item.name}</span>
                 </div>
-                {isActive && <ChevronRight className="w-4 h-4" />}
+                {isActive && <ChevronRight className="w-4 h-4 text-primary-400" />}
               </Link>
             );
           })}
         </nav>
 
         {/* Bottom bar inside sidebar */}
-        <div className="p-4 border-t border-secondary-200 dark:border-secondary-800 flex flex-col gap-2">
+        <div className="p-4 border-t border-primary-600/40 flex flex-col gap-2">
           <button 
             onClick={toggleDarkMode}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold text-secondary-900 hover:bg-primary-600/30 transition-colors"
           >
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
           <button 
             onClick={handleLogout}
-            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-extrabold text-accent-900 hover:bg-accent-600/20 transition-colors"
           >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
@@ -147,18 +147,18 @@ const AdminLayout = () => {
       <div className="flex-grow flex flex-col min-w-0">
         
         {/* Header bar */}
-        <header className="h-16 bg-white dark:bg-secondary-900 border-b border-secondary-200 dark:border-secondary-800 flex items-center justify-between px-6 sticky top-0 z-30 transition-colors">
+        <header className="h-16 bg-primary-500 border-b border-primary-600 flex items-center justify-between px-6 sticky top-0 z-30 transition-colors shadow-sm">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 rounded-md"
+              className="lg:hidden p-2 text-secondary-900 hover:bg-primary-600/30 rounded-md"
             >
               <Menu className="w-6 h-6" />
             </button>
-            <h1 className="text-lg font-semibold text-secondary-900 dark:text-white">Admin Management Portal</h1>
+            <h1 className="text-lg font-extrabold text-secondary-900">Admin Management Portal</h1>
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm font-semibold text-primary-600 dark:text-primary-400 hover:underline">
+            <Link to="/" className="text-sm font-extrabold text-secondary-900 hover:underline">
               Go to Storefront
             </Link>
           </div>

@@ -174,14 +174,14 @@ const Landing = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div className="flex overflow-x-auto space-x-3 pb-2 sm:grid sm:grid-cols-4 lg:grid-cols-8 sm:space-x-0 sm:gap-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {categories.map((cat, idx) => {
             const IconComponent = iconMap[cat.icon] || iconMap[cat.name] || Sparkles;
             return (
               <Link 
                 key={cat.id || cat.uuid} 
                 to={`/products?category=${cat.slug || cat.id}`}
-                className="group bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-4 text-center hover:border-primary-500 hover:shadow-sm transition-all duration-300 flex flex-col items-center justify-center gap-3"
+                className="flex-shrink-0 w-28 sm:w-auto group bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-4 text-center hover:border-primary-500 hover:shadow-sm transition-all duration-300 flex flex-col items-center justify-center gap-3"
               >
                 <div className="w-12 h-12 rounded-2xl bg-secondary-50 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 flex items-center justify-center group-hover:bg-primary-50 dark:group-hover:bg-primary-950/20 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors text-2xl">
                   {cat.icon && !iconMap[cat.icon] ? cat.icon : <IconComponent className="w-6 h-6" />}
