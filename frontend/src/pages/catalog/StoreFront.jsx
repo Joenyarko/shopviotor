@@ -92,7 +92,7 @@ const StoreFront = () => {
       <div className="w-full bg-secondary-50 dark:bg-secondary-950 pt-4 pb-2">
         {store.banners_urls && store.banners_urls.length > 0 ? (
           <div className="flex flex-col">
-            <div className="relative w-full h-28 sm:h-44 md:h-[480px] overflow-hidden">
+            <div className="relative w-full h-36 sm:h-48 md:h-[480px] overflow-hidden">
               <div 
                 ref={carouselRef}
                 onScroll={handleScroll}
