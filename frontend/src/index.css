@@ -152,3 +152,12 @@ body {
 @keyframes scroll-left { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 .animate-marquee { animation: scroll-left 20s linear infinite; }
 .animate-marquee:hover { animation-play-state: paused; }
+
+/* Prevent iOS Safari auto-zoom on input focus by ensuring 16px minimum font size */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select,
+  textarea,
+  input {
+    font-size: 16px !important;
+  }
+}
