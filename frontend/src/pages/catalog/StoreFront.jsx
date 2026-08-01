@@ -74,19 +74,30 @@ const StoreFront = () => {
       {/* ── HERO BANNER ─────────────────────────────────────────────────── */}
       <div className="relative w-full h-40 sm:h-48 md:h-[530px] overflow-hidden bg-secondary-900 group">
         {store.banners_urls && store.banners_urls.length > 0 ? (
-          <AnimatePresence mode="wait">
+          <AnimatePresence initial={false}>
             <motion.div
               key={currentBannerIndex}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
               className="absolute inset-0"
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onDragEnd={(e, { offset, velocity }) => {
+                const swipe = Math.abs(offset.x) * velocity.x;
+                if (swipe < -10000 || offset.x < -50) {
+                  setCurrentBannerIndex((prev) => (prev + 1) % store.banners_urls.length);
+                } else if (swipe > 10000 || offset.x > 50) {
+                  setCurrentBannerIndex((prev) => (prev === 0 ? store.banners_urls.length - 1 : prev - 1));
+                }
+              }}
             >
               <img
                 src={store.banners_urls[currentBannerIndex]}
                 alt={`${store.name} banner ${currentBannerIndex + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover pointer-events-none"
               />
             </motion.div>
           </AnimatePresence>

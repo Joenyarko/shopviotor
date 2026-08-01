@@ -53,6 +53,7 @@ class ProductRepository extends BaseRepository
         if (!empty($filters['category_id'])) {
             $categoryIdentifier = $filters['category_id'];
             $category = \App\Models\Category::where('id', $categoryIdentifier)
+                ->orWhere('uuid', $categoryIdentifier)
                 ->orWhere('slug', $categoryIdentifier)
                 ->first();
                 
