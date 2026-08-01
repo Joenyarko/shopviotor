@@ -14,12 +14,14 @@ class UserController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $role = $request->input('role', 'customer');
+        $role = $request->input('role');
 
         if ($role === 'admin') {
-            $users = $this->userRepo->getAdmins($request->input('per_page', 15));
+            $users = $this->userRepo->getAdmins($request->input('per_page', 100));
+        } elseif ($role === 'customer') {
+            $users = $this->userRepo->getCustomers($request->input('per_page', 100));
         } else {
-            $users = $this->userRepo->getCustomers($request->input('per_page', 15));
+            $users = \App\Models\User::latest()->paginate($request->input('per_page', 100));
         }
 
         return response()->json([
