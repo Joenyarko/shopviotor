@@ -295,7 +295,7 @@ const Navbar = () => {
               <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Products</Link>
               <Link to="/products?condition=used" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Second Hand</Link>
               <Link to="/sell" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-secondary-900 hover:bg-secondary-800 text-white rounded-xl text-sm font-bold transition-colors shadow-sm">Sell Item</Link>
-              <Link to="/professionals" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Hire Pro</Link>
+              <Link to="/professionals" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Buy ATU</Link>
               <Link to="/barter" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Barter</Link>
               <Link to="/hire-purchase" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Hire Purchase</Link>
               <Link to="/raffles" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Raffles</Link>
@@ -309,12 +309,17 @@ const Navbar = () => {
             <div className="flex flex-col space-y-1">
               {isAuthenticated ? (
                 <>
+                  {isAdmin() && (
+                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 bg-white/40 hover:bg-primary-600/30 rounded-xl font-bold transition-colors flex items-center gap-2">
+                      <LayoutDashboard className="w-4 h-4" /> Admin Portal
+                    </Link>
+                  )}
                   <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Profile</Link>
+                  <Link to="/my-service-profile" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Service Profile</Link>
                   <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Wishlist</Link>
                   <Link to="/my-tickets" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Tickets</Link>
                   <Link to="/my-pre-orders" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Pre-Orders</Link>
                   <Link to="/my-layaways" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Layaways</Link>
-                  <Link to="/messages" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">Messages</Link>
                   <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }} className="w-full text-left py-3 px-4 text-accent-700 hover:bg-primary-600/30 rounded-xl font-bold transition-colors">Logout</button>
                 </>
               ) : (

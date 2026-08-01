@@ -38,6 +38,28 @@ const Users = () => {
     fetchUsers();
   }, [activeTab]);
 
+  const handleRoleChange = async (uuid, newRole) => {
+    try {
+      await adminService.post(`/admin/users/${uuid}/role`, { role: newRole });
+      fetchUsers();
+      Swal.fire({
+        icon: 'success',
+        title: 'Role Updated',
+        text: `User role has been updated to ${newRole}.`,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+      });
+    } catch (e) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: e.response?.data?.message || e.message || 'Failed to update user role.',
+      });
+    }
+  };
+
   const handleToggleStatus = async (uuid) => {
     try {
       await adminService.post(`/admin/users/${uuid}/toggle-status`);
@@ -151,7 +173,17 @@ const Users = () => {
                   <tr key={u.id || u.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                     <td className="p-4 font-semibold text-secondary-900 dark:text-white">{u.first_name} {u.last_name}</td>
                     <td className="p-4 text-secondary-600 dark:text-secondary-300">{u.email}</td>
-                    <td className="p-4 capitalize"><span className="text-xxs font-bold px-2 py-0.5 rounded bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300">{u.role}</span></td>
+                    <td className="p-4">
+                      <select
+                        value={u.role || 'customer'}
+                        onChange={(e) => handleRoleChange(u.id || u.uuid, e.target.value)}
+                        className="text-xs font-bold px-2 py-1 rounded bg-secondary-100 dark:bg-secondary-800 text-secondary-800 dark:text-secondary-200 border border-secondary-200 dark:border-secondary-700 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-500"
+                      >
+                        <option value="customer">Customer</option>
+                        <option value="admin">Admin</option>
+                        <option value="vendor">Vendor</option>
+                      </select>
+                    </td>
                     <td className="p-4">
                       <span className={`text-xxs px-2 py-0.5 rounded-full font-bold uppercase ${u.is_active ? 'bg-emerald-100 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400' : 'bg-accent-100 dark:bg-accent-950/20 text-accent-800 dark:text-accent-400'}`}>
                         {u.is_active ? 'Active' : 'Locked'}

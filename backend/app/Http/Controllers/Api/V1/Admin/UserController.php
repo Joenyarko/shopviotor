@@ -48,6 +48,60 @@ class UserController extends Controller
         ]);
     }
 
+    public function updateRole(string $uuid, Request $request): JsonResponse
+    {
+        $request->validate([
+            'role' => ['required', 'in:customer,admin,vendor'],
+        ]);
+
+        $user = $this->userRepo->findByUuid($uuid);
+        $user->update(['role' => $request->role]);
+
+        return response()->json([
+            'message' => 'User role updated successfully.',
+            'data' => new UserResource($user),
+        ]);
+    }
+
+    public function sendAdminOtp(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (!$user || !$user->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $code = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+        \Illuminate\Support\Facades\Cache::put('admin_otp_' . $user->id, $code, now()->addMinutes(10));
+        \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\TwoFactorAuthMail($user, $code));
+
+        return response()->json(['message' => 'Verification code sent to your email.']);
+    }
+
+    public function verifyAdminOtp(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => 'required|string|size:6',
+        ]);
+
+        $user = $request->user();
+        if (!$user || !$user->isAdmin()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $cachedCode = \Illuminate\Support\Facades\Cache::get('admin_otp_' . $user->id);
+
+        if (!$cachedCode || $cachedCode !== $request->code) {
+            return response()->json(['message' => 'The verification code is invalid or has expired.'], 422);
+        }
+
+        \Illuminate\Support\Facades\Cache::forget('admin_otp_' . $user->id);
+
+        return response()->json([
+            'message' => 'Admin portal access verified.',
+            'verified' => true
+        ]);
+    }
+
     public function destroy(string $uuid): JsonResponse
     {
         $user = $this->userRepo->findByUuid($uuid);

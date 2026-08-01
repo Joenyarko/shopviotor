@@ -19,10 +19,14 @@ const TopBanner = () => {
       <div className="max-w-7xl mx-auto w-full flex flex-row items-center justify-between font-bold text-sm tracking-wide">
         <div className="flex items-center">
           <a 
-            href="https://wa.me/233508208803?text=Hello%20VIOTOR!%20I%20would%20like%20to%20place%20an%20order."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center hover:text-white transition-colors"
+            href="tel:0508208803"
+            onClick={(e) => {
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText("0508208803");
+              }
+            }}
+            className="flex items-center hover:text-white transition-colors cursor-pointer"
+            title="Click to call or copy number"
           >
             <Phone className="w-4 h-4 mr-2" />
             <span className="text-xs sm:text-sm">CALL TO ORDER: 0508208803</span>

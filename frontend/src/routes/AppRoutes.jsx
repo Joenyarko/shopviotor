@@ -93,11 +93,23 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
+import AdminOtpVerification from '../components/auth/AdminOtpVerification';
+
 // Helper Component: Protect admin routes
 const AdminRoute = ({ children }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
+  const [verified, setVerified] = React.useState(() => {
+    return sessionStorage.getItem('admin_2fa_verified') === 'true';
+  });
+
   if (loading) return <div className="h-screen flex items-center justify-center dark:bg-secondary-950 dark:text-white">Loading session...</div>;
-  return isAuthenticated && isAdmin() ? children : <Navigate to="/" replace />;
+  if (!isAuthenticated || !isAdmin()) return <Navigate to="/" replace />;
+
+  if (!verified) {
+    return <AdminOtpVerification onVerified={() => setVerified(true)} />;
+  }
+
+  return children;
 };
 
 const AppRoutes = () => {

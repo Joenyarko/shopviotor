@@ -55,7 +55,7 @@ const MainLayout = () => {
             to="/professionals" 
             className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
           >
-            Hire Professionals
+            Buy ATU
           </NavLink>
           <span className="text-white/30">|</span>
           <NavLink 
