@@ -96,12 +96,12 @@ const StoreFront = () => {
               <div 
                 ref={carouselRef}
                 onScroll={handleScroll}
-                className="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar space-x-3 px-4"
+                className="flex w-full h-full overflow-x-auto snap-x snap-mandatory space-x-1.5 px-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
               >
                 {store.banners_urls.map((url, idx) => (
                   <div 
                     key={idx} 
-                    className="w-[88%] sm:w-[85%] md:w-[80%] flex-shrink-0 snap-center h-full rounded-2xl overflow-hidden shadow-sm border border-secondary-200/50 dark:border-secondary-800/50"
+                    className="w-[90%] sm:w-[88%] md:w-[85%] flex-shrink-0 snap-center h-full rounded-none overflow-hidden shadow-sm"
                   >
                     <img
                       src={url}

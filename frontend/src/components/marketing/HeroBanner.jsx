@@ -56,17 +56,17 @@ const HeroBanner = ({ position, fallbackContent }) => {
 
   if (banners.length > 0) {
     return (
-      <div className="w-full pt-2 pb-2">
+      <div className="w-full py-2">
         <div className="relative w-full h-40 sm:h-52 md:h-[420px] overflow-hidden">
           <div 
             ref={carouselRef}
             onScroll={handleScroll}
-            className="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar space-x-3 px-4"
+            className="flex w-full h-full overflow-x-auto snap-x snap-mandatory space-x-1.5 px-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
             {banners.map((banner, idx) => (
               <div 
                 key={banner.id || idx} 
-                className="relative w-[88%] sm:w-[85%] md:w-[80%] flex-shrink-0 snap-center h-full rounded-2xl overflow-hidden shadow-md border border-secondary-200/50 dark:border-secondary-800/50 group bg-secondary-900"
+                className="relative w-[90%] sm:w-[88%] md:w-[85%] flex-shrink-0 snap-center h-full rounded-none overflow-hidden shadow-sm group bg-secondary-900"
               >
                 <img 
                   src={banner.image_url} 
