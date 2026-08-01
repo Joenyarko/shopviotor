@@ -66,12 +66,12 @@ const HeroBanner = ({ position, fallbackContent }) => {
             {banners.map((banner, idx) => (
               <div 
                 key={banner.id || idx} 
-                className="relative w-[90%] sm:w-[88%] md:w-[85%] flex-shrink-0 snap-center h-full rounded-none overflow-hidden shadow-sm group bg-secondary-900"
+                className="relative w-[90%] sm:w-[88%] md:w-[85%] flex-shrink-0 snap-center h-full rounded-xl overflow-hidden shadow-sm group bg-secondary-900"
               >
                 <img 
                   src={banner.image_url} 
                   alt={banner.title || 'Advertisement'} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-fill sm:object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 
                 {(banner.title || banner.subtitle) && (

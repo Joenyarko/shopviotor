@@ -101,12 +101,12 @@ const StoreFront = () => {
                 {store.banners_urls.map((url, idx) => (
                   <div 
                     key={idx} 
-                    className="w-[90%] sm:w-[88%] md:w-[85%] flex-shrink-0 snap-center h-full rounded-none overflow-hidden shadow-sm"
+                    className="w-[90%] sm:w-[88%] md:w-[85%] flex-shrink-0 snap-center h-full rounded-xl overflow-hidden shadow-sm"
                   >
                     <img
                       src={url}
                       alt={`${store.name} banner ${idx + 1}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-fill sm:object-cover"
                     />
                   </div>
                 ))}
