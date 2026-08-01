@@ -233,8 +233,8 @@ const ManageServiceProfile = () => {
             {existingImages.length > 0 && (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-4">
                 {existingImages.map(img => (
-                  <div key={img.id} className="relative group rounded-lg overflow-hidden border border-secondary-200">
-                    <img src={`${import.meta.env.VITE_STORAGE_URL}/${img.path}`} alt="Portfolio" className={`w-full h-24 object-cover ${deleteImages.includes(img.id) ? 'opacity-30' : ''}`} />
+                  <div key={img.id} className="relative group">
+                    <img src={img.path.startsWith('http') ? img.path : `${import.meta.env.VITE_STORAGE_URL}/${img.path}`} alt="Portfolio" className={`w-full h-24 object-cover ${deleteImages.includes(img.id) ? 'opacity-30' : ''}`} />
                     <button type="button" onClick={() => toggleDeleteImage(img.id)} className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-bold">
                       {deleteImages.includes(img.id) ? 'Keep' : 'Delete'}
                     </button>

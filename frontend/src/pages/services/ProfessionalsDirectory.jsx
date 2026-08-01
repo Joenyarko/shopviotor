@@ -122,7 +122,7 @@ const ProfessionalsDirectory = () => {
                 <Link key={pro.uuid} to={`/professionals/${pro.slug}`} className="group bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800 overflow-hidden shadow-sm hover:shadow-xl hover:border-primary-500 transition-all flex flex-col">
                   <div className="h-48 overflow-hidden bg-secondary-100 dark:bg-secondary-800 relative">
                     {pro.images?.length > 0 ? (
-                      <img src={`${import.meta.env.VITE_STORAGE_URL}/${pro.images[0].path}`} alt={pro.business_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                      <img src={pro.images[0].path.startsWith('http') ? pro.images[0].path : `${import.meta.env.VITE_STORAGE_URL}/${pro.images[0].path}`} alt={pro.business_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Briefcase className="w-12 h-12 text-secondary-300" />

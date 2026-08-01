@@ -85,7 +85,7 @@ const ProfessionalProfile = () => {
               
               <div className="rounded-2xl overflow-hidden bg-secondary-100 dark:bg-secondary-950 mb-4 aspect-video relative">
                 <img 
-                  src={`${import.meta.env.VITE_STORAGE_URL}/${profile.images[activeImage].path}`} 
+                  src={profile.images[activeImage].path.startsWith('http') ? profile.images[activeImage].path : `${import.meta.env.VITE_STORAGE_URL}/${profile.images[activeImage].path}`} 
                   alt="Portfolio Large" 
                   className="w-full h-full object-contain"
                 />
@@ -98,7 +98,7 @@ const ProfessionalProfile = () => {
                     onClick={() => setActiveImage(idx)}
                     className={`rounded-xl overflow-hidden border-2 transition-all aspect-square ${activeImage === idx ? 'border-primary-500 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
                   >
-                    <img src={`${import.meta.env.VITE_STORAGE_URL}/${img.path}`} alt="Thumbnail" className="w-full h-full object-cover" />
+                    <img src={img.path.startsWith('http') ? img.path : `${import.meta.env.VITE_STORAGE_URL}/${img.path}`} alt="Thumbnail" className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
