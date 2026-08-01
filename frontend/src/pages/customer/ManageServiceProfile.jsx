@@ -33,7 +33,7 @@ const ManageServiceProfile = () => {
   const fetchCategories = async () => {
     try {
       const res = await apiClient.get('/services/categories');
-      setCategories(res.data?.data || []);
+      setCategories(res.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -43,8 +43,8 @@ const ManageServiceProfile = () => {
     try {
       setLoading(true);
       const res = await apiClient.get('/services/my-profile');
-      if (res.data?.data) {
-        const profile = res.data.data;
+      if (res.data) {
+        const profile = res.data;
         const cat = profile.category || '';
         // If we have categories loaded, check if the profile category is in the predefined list
         // Wait, fetchCategories runs parallel. We will just set it, and in the render decide if it's 'Other'

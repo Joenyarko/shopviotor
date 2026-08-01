@@ -18,7 +18,7 @@ const ServiceCategories = () => {
     try {
       setLoading(true);
       const res = await apiClient.get('/admin/service-categories');
-      setCategories(res.data?.data || []);
+      setCategories(res.data || []);
     } catch (err) {
       console.error(err);
     } finally {

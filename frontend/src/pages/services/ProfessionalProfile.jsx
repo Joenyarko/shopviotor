@@ -16,7 +16,7 @@ const ProfessionalProfile = () => {
   const fetchProfile = async () => {
     try {
       const res = await apiClient.get(`/services/${slug}`);
-      setProfile(res.data?.data || null);
+      setProfile(res.data || null);
     } catch (err) {
       console.error(err);
     } finally {

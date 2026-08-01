@@ -14,7 +14,7 @@ const ProfessionalsDirectory = () => {
     const fetchCats = async () => {
       try {
         const res = await apiClient.get('/services/categories');
-        setCategories(res.data?.data || []);
+        setCategories(res.data || []);
       } catch (e) {
         console.error(e);
       }
@@ -34,7 +34,7 @@ const ProfessionalsDirectory = () => {
       if (search) url += `search=${encodeURIComponent(search)}&`;
       
       const res = await apiClient.get(url);
-      setProfessionals(res.data?.data?.data || []);
+      setProfessionals(res.data?.data || []);
     } catch (err) {
       console.error(err);
     } finally {
