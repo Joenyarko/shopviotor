@@ -25,14 +25,19 @@ const MyTickets = () => {
     const fetch = async () => {
       try {
         const res = await raffleService.getMyTickets({ _t: Date.now() });
-        window.__debug_raw_res = res;
-        console.log("MyTickets fetch res:", res);
-        let rawData = res.data?.data || res.data || res || [];
-        console.log("MyTickets rawData:", rawData);
+        let rawData = [];
+        if (Array.isArray(res.data?.data)) {
+          rawData = res.data.data;
+        } else if (Array.isArray(res.data)) {
+          rawData = res.data;
+        } else if (Array.isArray(res)) {
+          rawData = res;
+        }
         
         // Group tickets by raffle
         const grouped = rawData.reduce((acc, ticket) => {
           const rId = ticket.raffle_id || ticket.raffle?.id;
+          if (!rId) return acc;
           if (!acc[rId]) {
             acc[rId] = {
               ...ticket,
@@ -60,7 +65,6 @@ const MyTickets = () => {
         setTickets(processedData);
       } catch (e) {
         console.error(e);
-        window.__debug_error = e.message || e.toString();
         setTickets([]);
       } finally {
         setLoading(false);
@@ -131,12 +135,6 @@ const MyTickets = () => {
         <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
           <Ticket className="w-12 h-12 mx-auto mb-3 text-secondary-300 opacity-60" />
           <p className="font-semibold text-secondary-600 dark:text-secondary-400">No {filter !== 'all' ? filter : ''} tickets found.</p>
-          {window.__debug_error && (
-            <p className="text-red-500 mt-4 text-xs font-mono">{window.__debug_error}</p>
-          )}
-          {window.__debug_raw_res && (
-             <p className="text-blue-500 mt-2 text-xs font-mono">{JSON.stringify(window.__debug_raw_res).substring(0, 200)}</p>
-          )}
           <Link to="/raffles" className="inline-flex items-center gap-2 mt-4 bg-primary-500 text-secondary-900 font-bold px-6 py-2.5 rounded-xl text-sm hover:bg-primary-600 transition-colors">
             Buy Your First Ticket
           </Link>

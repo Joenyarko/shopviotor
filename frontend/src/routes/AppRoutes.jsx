@@ -148,6 +148,7 @@ const AppRoutes = () => {
       {/* ─── CUSTOMER PORTAL FLOW (PROTECTED) ──────────────────────────────── */}
       <Route element={<MainLayout />}>
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/customer/dashboard" element={<Navigate to="/dashboard" replace />} />
         <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
         <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />

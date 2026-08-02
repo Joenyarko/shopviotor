@@ -26,7 +26,7 @@ const GoogleCallback = () => {
       toast.success('Successfully logged in with Google!');
       // Navigate to dashboard after a short delay to allow profile fetch
       setTimeout(() => {
-        navigate('/customer/dashboard'); // Ensure correct dashboard route based on user
+        navigate('/dashboard');
       }, 1000);
     } else {
       toast.error('No token received from Google.');
