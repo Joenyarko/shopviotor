@@ -64,21 +64,20 @@ const Campaigns = () => {
     if (imageFile) fd.append('image', imageFile);
 
     try {
-      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
       if (editing) {
-        await apiClient.post(`/admin/marketing/campaigns/${editing.uuid}`, fd, config);
+        fd.append('_method', 'PUT');
+        await apiClient.post(`/admin/marketing/campaigns/${editing.uuid}`, fd);
       } else {
-        await apiClient.post('/admin/marketing/campaigns', fd, config);
+        await apiClient.post('/admin/marketing/campaigns', fd);
       }
       setModalOpen(false);
       fetchCampaigns();
     } catch (err) {
-      if (err.response?.status === 422) {
-        const errors = err.response.data.errors;
-        const messages = Object.values(errors).flat().join('\n');
+      if (err.status === 422 && err.errors) {
+        const messages = Object.values(err.errors).flat().join('\n');
         Swal.fire({ text: String('Validation Error:\n' + messages) });
       } else {
-        Swal.fire({ text: String(err.response?.data?.message || err.message) });
+        Swal.fire({ text: String(err.message || 'An error occurred') });
       }
     } finally {
       setSubmitting(false);
