@@ -81,7 +81,7 @@ const AdminCategories = () => {
     const payload = { name, slug: slug || toSlug(name), icon, description, parent_id: parentId || null };
     try {
       if (editingCat) {
-        await productService.adminUpdateCategory(editingCat.id || editingCat.uuid, payload);
+        await productService.adminUpdateCategory(editingCat.uuid, payload);
       } else {
         await productService.adminCreateCategory(payload);
       }
@@ -136,7 +136,7 @@ const AdminCategories = () => {
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button onClick={() => handleOpenEdit(cat)} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg"><Edit2 className="w-4 h-4" /></button>
-                        <button onClick={() => handleDelete(cat.id || cat.uuid)} className="p-1.5 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                        <button onClick={() => handleDelete(cat.uuid)} className="p-1.5 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20 rounded-lg"><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </td>
                   </tr>

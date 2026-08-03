@@ -70,6 +70,8 @@ export const AuthProvider = ({ children }) => {
       
       localStorage.setItem('viotor_token', authToken);
       localStorage.setItem('viotor_user', JSON.stringify(loggedInUser));
+      // Reset admin portal 2FA so the new session requires fresh admin OTP verification
+      sessionStorage.removeItem('admin_2fa_verified');
       
       setToken(authToken);
       setUser(loggedInUser);
@@ -119,6 +121,8 @@ export const AuthProvider = ({ children }) => {
     } finally {
       localStorage.removeItem('viotor_token');
       localStorage.removeItem('viotor_user');
+      // Clear admin portal 2FA verification so next admin login requires re-verification
+      sessionStorage.removeItem('admin_2fa_verified');
       setToken(null);
       setUser(null);
     }
@@ -139,6 +143,8 @@ export const AuthProvider = ({ children }) => {
 
   const loginWithToken = async (newToken) => {
     setLoading(true);
+    // Clear admin portal 2FA so Google-authenticated admins must re-verify via OTP
+    sessionStorage.removeItem('admin_2fa_verified');
     localStorage.setItem('viotor_token', newToken);
     setToken(newToken);
     try {
