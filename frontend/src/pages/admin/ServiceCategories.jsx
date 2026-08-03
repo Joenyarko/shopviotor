@@ -136,7 +136,6 @@ const ServiceCategories = () => {
             </tbody>
           </table>
         </div>
-      </div>
 
       {/* Modal */}
       {isModalOpen && (

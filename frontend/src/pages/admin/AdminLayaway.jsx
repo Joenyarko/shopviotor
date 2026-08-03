@@ -628,8 +628,9 @@ const AdminLayaway = () => {
             {loadingSales ? (
               <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                <table className="w-full min-w-[650px] text-left text-sm text-gray-700">
+              <>
+                <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                  <table className="w-full min-w-[650px] text-left text-sm text-gray-700">
                     <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 uppercase tracking-wider text-xs">
                       <tr>
                         <th className="p-4">Customer</th>
@@ -686,7 +687,7 @@ const AdminLayaway = () => {
                   totalPages={salesMeta?.last_page || 1}
                   onPageChange={setSalesPage}
                 />
-              </div>
+              </>
             )}
           </div>
         )}
@@ -721,8 +722,9 @@ const AdminLayaway = () => {
             {loadingInventory ? (
               <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                <table className="w-full min-w-[650px] text-left text-sm text-gray-700">
+              <>
+                <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                  <table className="w-full min-w-[650px] text-left text-sm text-gray-700">
                     <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 uppercase tracking-wider text-xs">
                       <tr>
                         <th className="p-4">Product Name</th>
@@ -783,7 +785,7 @@ const AdminLayaway = () => {
                   totalPages={inventoryMeta?.last_page || 1}
                   onPageChange={setInventoryPage}
                 />
-              </div>
+              </>
             )}
           </div>
         )}

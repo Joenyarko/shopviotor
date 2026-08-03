@@ -389,7 +389,7 @@ const ProductDetails = () => {
                     )}
                     {product.available_for_trade && (
                       <button onClick={() => navigate('/barter', { state: { targetProduct: product } })} className="w-full border-2 border-purple-100 dark:border-purple-900/30 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-purple-700 dark:text-purple-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
-                        <Scale className="w-4 h-4" /> Swap/Barter
+                        <Scale className="w-4 h-4" /> Trade by Barter
                       </button>
                     )}
                     {product.available_for_preorder && (
@@ -439,7 +439,7 @@ const ProductDetails = () => {
                 <h3 className="font-bold text-secondary-900 dark:text-white mb-4 uppercase text-sm tracking-wide">Key Features</h3>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-secondary-700 dark:text-secondary-300">
                   {product.available_for_trade && (
-                    <li>Eligible for direct Barter/Swap</li>
+                    <li>Eligible for direct Trade by Barter</li>
                   )}
                   {product.available_for_hire_purchase && (
                     <li>Available for Pay-in-Installments (Hire Purchase)</li>

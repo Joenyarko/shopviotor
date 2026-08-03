@@ -349,7 +349,6 @@ const AdminRaffles = () => {
               </table>
               <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
             </div>
-          </div>
         )
       )}
 

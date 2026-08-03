@@ -161,7 +161,6 @@ const AdminPayouts = () => {
         
         {/* Pagination placeholder if needed */}
       </div>
-    </div>
   );
 };
 

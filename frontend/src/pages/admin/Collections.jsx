@@ -14,14 +14,14 @@ const Collections = () => {
   const itemsPerPage = 8;
   const totalPages = Math.ceil(collections.length / itemsPerPage);
   const paginatedCollections = collections.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-  
+
   const [title, setTitle] = useState('');
   const [headerColor, setHeaderColor] = useState('yellow');
   const [description, setDescription] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [sortOrder, setSortOrder] = useState(0);
   const [selectedProducts, setSelectedProducts] = useState([]); // [{id, name, original_price}]
-  
+
   const [submitting, setSubmitting] = useState(false);
 
   // Product Search State
@@ -86,7 +86,7 @@ const Collections = () => {
         name: p.name,
         original_price: p.price,
         sort_order: p.pivot.sort_order || i,
-      })).sort((a,b) => a.sort_order - b.sort_order));
+      })).sort((a, b) => a.sort_order - b.sort_order));
     } else {
       setEditing(null);
       setTitle(''); setHeaderColor('yellow'); setDescription(''); setSortOrder(0); setIsActive(true); setSelectedProducts([]);
@@ -98,7 +98,7 @@ const Collections = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    
+
     // Auto-assign sort_order based on array index if user didn't specify properly
     const productsPayload = selectedProducts.map((p, idx) => ({
       id: p.id, sort_order: idx
@@ -194,32 +194,32 @@ const Collections = () => {
               <h3 className="font-bold text-lg">{editing ? 'Edit Collection' : 'Create Collection'}</h3>
               <button onClick={() => setModalOpen(false)}><X className="w-5 h-5 text-secondary-500 dark:text-secondary-400" /></button>
             </div>
-            
+
             <div className="flex-grow overflow-y-auto p-6 flex flex-col lg:flex-row gap-8">
               {/* Left Column: Details */}
               <div className="w-full lg:w-1/3 space-y-4">
                 <h4 className="font-bold text-sm text-secondary-900 border-b pb-2">Collection Details</h4>
                 <div>
                   <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Title *</label>
-                  <input required type="text" value={title} onChange={e=>setTitle(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
+                  <input required type="text" value={title} onChange={e => setTitle(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Header Color *</label>
-                  <select value={headerColor} onChange={e=>setHeaderColor(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50">
+                  <select value={headerColor} onChange={e => setHeaderColor(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50">
                     <option value="yellow">Yellow</option>
                     <option value="black">Black</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Description</label>
-                  <textarea value={description} onChange={e=>setDescription(e.target.value)} rows="3" className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
+                  <textarea value={description} onChange={e => setDescription(e.target.value)} rows="3" className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 mb-1">Sort Order (Display order on homepage)</label>
-                  <input type="number" value={sortOrder} onChange={e=>setSortOrder(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
+                  <input type="number" value={sortOrder} onChange={e => setSortOrder(e.target.value)} className="w-full p-2.5 border border-secondary-300 rounded-lg bg-secondary-50" />
                 </div>
                 <label className="flex items-center gap-2 text-sm font-semibold pt-2 cursor-pointer">
-                  <input type="checkbox" checked={isActive} onChange={e=>setIsActive(e.target.checked)} className="w-4 h-4 text-primary-600 rounded border-secondary-300" />
+                  <input type="checkbox" checked={isActive} onChange={e => setIsActive(e.target.checked)} className="w-4 h-4 text-primary-600 rounded border-secondary-300" />
                   Is Active
                 </label>
               </div>
@@ -227,28 +227,28 @@ const Collections = () => {
               {/* Right Column: Products */}
               <div className="w-full lg:w-2/3 space-y-4 border-t lg:border-t-0 lg:border-l border-secondary-200 lg:pl-8 pt-4 lg:pt-0">
                 <h4 className="font-bold text-sm text-secondary-900 border-b pb-2">Select Products (Drag order is maintained)</h4>
-                
+
                 {/* Search */}
                 <div className="flex gap-2">
-                  <select 
-                    value={selectedCategory} 
+                  <select
+                    value={selectedCategory}
                     onChange={e => setSelectedCategory(e.target.value)}
                     className="w-1/3 p-2 border border-secondary-300 rounded-lg text-sm"
                   >
                     <option value="">All Categories</option>
                     {categories.map(c => <option key={c.id || c.uuid} value={c.id}>{c.name}</option>)}
                   </select>
-                  <input 
-                    type="text" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} 
+                  <input
+                    type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSearchProduct()}
-                    placeholder="Search by name..." 
-                    className="flex-grow w-2/3 p-2 border border-secondary-300 rounded-lg text-sm" 
+                    placeholder="Search by name..."
+                    className="flex-grow w-2/3 p-2 border border-secondary-300 rounded-lg text-sm"
                   />
                   <button type="button" onClick={handleSearchProduct} className="bg-secondary-100 p-2 rounded-lg text-secondary-700 dark:text-secondary-200 hover:bg-secondary-200">
                     {searching ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
                   </button>
                 </div>
-                
+
                 {searchResults.length > 0 && (
                   <div className="max-h-40 overflow-y-auto border border-secondary-200 rounded-lg divide-y divide-secondary-100 bg-secondary-50">
                     {searchResults.map(p => (
@@ -269,7 +269,7 @@ const Collections = () => {
                         <span className="text-secondary-400 font-mono text-xs">{idx + 1}.</span>
                         <span className="font-semibold truncate">{p.name}</span>
                       </div>
-                      <button type="button" onClick={() => handleRemoveProduct(p.id)} className="p-1 text-accent-600 hover:bg-accent-50 rounded"><X className="w-4 h-4"/></button>
+                      <button type="button" onClick={() => handleRemoveProduct(p.id)} className="p-1 text-accent-600 hover:bg-accent-50 rounded"><X className="w-4 h-4" /></button>
                     </div>
                   ))}
                   {selectedProducts.length === 0 && <p className="text-secondary-400 text-sm italic">No products added yet.</p>}
@@ -277,7 +277,7 @@ const Collections = () => {
 
               </div>
             </div>
-            
+
             <div className="p-5 border-t border-secondary-200 bg-secondary-50 flex justify-end gap-3 sticky bottom-0">
               <button type="button" onClick={() => setModalOpen(false)} className="px-5 py-2.5 bg-white border border-secondary-300 text-secondary-700 dark:text-secondary-200 rounded-xl font-semibold text-sm hover:bg-secondary-100">Cancel</button>
               <button type="button" onClick={handleSubmit} disabled={submitting} className="premium-button-primary px-8 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2">

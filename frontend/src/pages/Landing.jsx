@@ -212,7 +212,7 @@ const Landing = () => {
               <TrendingUp className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-bold text-secondary-900 dark:text-white">Swap & Barter Support</h3>
+              <h3 className="font-bold text-secondary-900 dark:text-white">Trade by Barter Support</h3>
               <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Short on cash? Propose items to trade/swap with sellers directly.</p>
             </div>
           </div>

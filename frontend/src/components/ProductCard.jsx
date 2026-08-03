@@ -61,8 +61,8 @@ const ProductCard = ({ product, onWishlistToggle }) => {
             </span>
           )}
           {product.available_for_trade && (
-            <span className="bg-purple-600 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Available for Barter">
-              <Scale className="w-2.5 h-2.5" /> Swap
+            <span className="bg-purple-600 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Available for Trade by Barter">
+              <Scale className="w-2.5 h-2.5" /> Barter
             </span>
           )}
           {product.available_for_hire_purchase && (
