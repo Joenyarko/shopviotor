@@ -42,7 +42,7 @@ class BannerCampaignController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, BannerCampaign $campaign): JsonResponse
+    public function update(Request $request, BannerCampaign $banner_campaign): JsonResponse
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
@@ -51,7 +51,7 @@ class BannerCampaignController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $campaign->update([
+        $banner_campaign->update([
             'name' => $data['name'],
             'starts_at' => $data['starts_at'] ?? null,
             'ends_at' => $data['ends_at'] ?? null,
@@ -60,15 +60,15 @@ class BannerCampaignController extends Controller
 
         return response()->json([
             'message' => 'Campaign updated successfully.',
-            'data' => $campaign->load('banners')
+            'data' => $banner_campaign->load('banners')
         ]);
     }
 
-    public function destroy(BannerCampaign $campaign): JsonResponse
+    public function destroy(BannerCampaign $banner_campaign): JsonResponse
     {
         // Delete all banners in the campaign
-        $campaign->banners()->delete();
-        $campaign->delete();
+        $banner_campaign->banners()->delete();
+        $banner_campaign->delete();
 
         return response()->json(['message' => 'Campaign deleted successfully.']);
     }
