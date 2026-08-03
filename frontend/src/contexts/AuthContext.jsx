@@ -137,10 +137,23 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('viotor_user', JSON.stringify(userData));
   };
 
-  const loginWithToken = (newToken) => {
+  const loginWithToken = async (newToken) => {
+    setLoading(true);
     localStorage.setItem('viotor_token', newToken);
     setToken(newToken);
-    // User profile will automatically be fetched by the useEffect that watches `token`
+    try {
+      const response = await authService.me();
+      const userData = response.user;
+      setUser(userData);
+      localStorage.setItem('viotor_user', JSON.stringify(userData));
+      return userData;
+    } catch (e) {
+      console.error('Failed to load user profile with token:', e);
+      logout();
+      throw e;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

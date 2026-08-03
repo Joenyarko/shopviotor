@@ -13,25 +13,34 @@ const GoogleCallback = () => {
   const [status, setStatus] = useState('Authenticating...');
 
   useEffect(() => {
-    if (error) {
-      toast.error('Google authentication failed.');
-      navigate('/login');
-      return;
-    }
+    const processGoogleAuth = async () => {
+      if (error) {
+        toast.error('Google authentication failed.');
+        navigate('/login', { replace: true });
+        return;
+      }
 
-    if (token) {
-      setStatus('Logging you in...');
-      loginWithToken(token);
-      
-      toast.success('Successfully logged in with Google!');
-      // Navigate to dashboard after a short delay to allow profile fetch
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1000);
-    } else {
-      toast.error('No token received from Google.');
-      navigate('/login');
-    }
+      if (token) {
+        setStatus('Logging you in...');
+        try {
+          const user = await loginWithToken(token);
+          toast.success('Successfully logged in with Google!');
+          if (user && (user.role === 'admin' || user.role === 'super_admin')) {
+            navigate('/admin', { replace: true });
+          } else {
+            navigate('/dashboard', { replace: true });
+          }
+        } catch (err) {
+          toast.error('Authentication failed. Please try logging in again.');
+          navigate('/login', { replace: true });
+        }
+      } else {
+        toast.error('No token received from Google.');
+        navigate('/login', { replace: true });
+      }
+    };
+
+    processGoogleAuth();
   }, [token, error, navigate, loginWithToken]);
 
   return (

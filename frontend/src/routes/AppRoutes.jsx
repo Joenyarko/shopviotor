@@ -19,12 +19,12 @@ const Privacy = React.lazy(() => import('../pages/static/Privacy'));
 const Terms = React.lazy(() => import('../pages/static/Terms'));
 const NotFound = React.lazy(() => import('../pages/static/NotFound'));
 
-// Auth Pages
-const Login = React.lazy(() => import('../pages/auth/Login'));
-const Register = React.lazy(() => import('../pages/auth/Register'));
-const ForgotPassword = React.lazy(() => import('../pages/auth/ForgotPassword'));
-const ResetPassword = React.lazy(() => import('../pages/auth/ResetPassword'));
-const GoogleCallback = React.lazy(() => import('../pages/auth/GoogleCallback'));
+// Auth Pages (Static import to prevent iOS Safari blank screen chunk loading glitches)
+import Login from '../pages/auth/Login';
+import Register from '../pages/auth/Register';
+import ForgotPassword from '../pages/auth/ForgotPassword';
+import ResetPassword from '../pages/auth/ResetPassword';
+import GoogleCallback from '../pages/auth/GoogleCallback';
 
 // Customer Protected Pages
 const Dashboard = React.lazy(() => import('../pages/customer/Dashboard'));
