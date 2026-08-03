@@ -84,9 +84,8 @@ const AdminPayouts = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-secondary-900 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+      <div className="bg-white dark:bg-secondary-900 rounded-xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <table className="w-full min-w-[650px] text-left border-collapse">
             <thead>
               <tr className="bg-secondary-50 dark:bg-secondary-800/50 border-b border-secondary-200 dark:border-secondary-800 text-sm">
                 <th className="p-4 font-semibold text-secondary-600 dark:text-secondary-400">Date</th>

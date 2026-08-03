@@ -628,9 +628,8 @@ const AdminLayaway = () => {
             {loadingSales ? (
               <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm text-gray-700">
+              <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <table className="w-full min-w-[650px] text-left text-sm text-gray-700">
                     <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 uppercase tracking-wider text-xs">
                       <tr>
                         <th className="p-4">Customer</th>
@@ -722,9 +721,8 @@ const AdminLayaway = () => {
             {loadingInventory ? (
               <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm text-gray-700">
+              <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <table className="w-full min-w-[650px] text-left text-sm text-gray-700">
                     <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 uppercase tracking-wider text-xs">
                       <tr>
                         <th className="p-4">Product Name</th>
@@ -921,8 +919,8 @@ const AdminLayaway = () => {
               </div>
             </div>
 
-            <div className="overflow-y-auto max-h-[420px] border border-gray-200 rounded-lg pr-1 bg-white shadow-inner">
-              <table className="w-full text-left text-sm text-gray-700 border-collapse">
+            <div className="overflow-x-auto border border-gray-200 rounded-lg bg-white shadow-inner [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              <table className="w-full min-w-[650px] text-left text-sm text-gray-700 border-collapse">
                 <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 uppercase tracking-wider text-xs sticky top-0 z-10">
                   <tr>
                     <th className="p-3">Date & Time</th>

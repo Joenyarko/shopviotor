@@ -277,17 +277,16 @@ const AdminRaffles = () => {
         loading ? (
           <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
         ) : (
-          <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
-                    <th className="p-4">Raffle</th>
-                    <th className="p-4 hidden sm:table-cell">Ticket Price</th>
-                    <th className="p-4 hidden md:table-cell">Tickets</th>
-                    <th className="p-4 hidden lg:table-cell">Draw Date</th>
-                    <th className="p-4">Status</th>
-                    <th className="p-4 text-right">Actions</th>
+          <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <table className="w-full min-w-[650px] text-left text-sm">
+              <thead>
+                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
+                  <th className="p-4">Raffle</th>
+                  <th className="p-4">Ticket Price</th>
+                  <th className="p-4">Tickets</th>
+                  <th className="p-4">Draw Date</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
@@ -359,14 +358,14 @@ const AdminRaffles = () => {
         loadingWinners ? (
           <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
         ) : (
-          <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
-            <table className="w-full text-left text-sm">
+          <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <table className="w-full min-w-[650px] text-left text-sm">
               <thead>
                 <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
                   <th className="p-4">Winner</th>
-                  <th className="p-4 hidden sm:table-cell">Raffle</th>
-                  <th className="p-4 hidden md:table-cell">Ticket #</th>
-                  <th className="p-4 hidden lg:table-cell">Prize Value</th>
+                  <th className="p-4">Raffle</th>
+                  <th className="p-4">Ticket #</th>
+                  <th className="p-4">Prize Value</th>
                   <th className="p-4">Draw Date</th>
                 </tr>
               </thead>

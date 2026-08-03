@@ -148,8 +148,8 @@ const Collections = () => {
       {loading ? (
         <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
       ) : (
-        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
-          <table className="w-full text-left text-sm">
+        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <table className="w-full min-w-[650px] text-left text-sm">
             <thead className="bg-secondary-50 border-b border-secondary-200">
               <tr>
                 <th className="p-4">Sort Order</th>

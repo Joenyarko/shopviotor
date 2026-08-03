@@ -109,20 +109,20 @@ const AdminCategories = () => {
       {loading ? (
         <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
       ) : (
-        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
+        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {categories.length === 0 ? (
             <div className="p-12 text-center flex flex-col items-center text-secondary-400">
               <Tag className="w-12 h-12 mb-3 opacity-40" />
               <p className="font-semibold">No categories yet. Add one to get started.</p>
             </div>
           ) : (
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[600px] text-left text-sm">
               <thead>
                 <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
                   <th className="p-4">Icon</th>
                   <th className="p-4">Name</th>
-                  <th className="p-4 hidden sm:table-cell">Slug</th>
-                  <th className="p-4 hidden md:table-cell">Description</th>
+                  <th className="p-4">Slug</th>
+                  <th className="p-4">Description</th>
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>

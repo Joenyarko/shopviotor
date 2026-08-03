@@ -94,13 +94,13 @@ const SellRequests = () => {
         <p className="text-sm text-secondary-500 mt-1">Review items submitted by customers for Shop Viotor direct acquisition.</p>
       </div>
 
-      <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {loading ? (
           <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
         ) : sells.length === 0 ? (
           <div className="p-8 text-center text-secondary-500 font-semibold">No buyout requests found.</div>
         ) : (
-          <table className="w-full text-left border-collapse text-sm">
+          <table className="w-full min-w-[650px] text-left border-collapse text-sm">
             <thead>
               <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xxs">
                 <th className="p-4">Customer</th>

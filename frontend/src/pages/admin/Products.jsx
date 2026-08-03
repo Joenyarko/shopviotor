@@ -286,19 +286,18 @@ const Products = () => {
       ) : products.length === 0 ? (
         <div className="p-12 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500 dark:text-secondary-400">No products found.</div>
       ) : (
-        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
-                  <th className="p-4">Product</th>
-                  <th className="p-4 hidden sm:table-cell">Category</th>
-                  <th className="p-4">Price</th>
-                  <th className="p-4 hidden md:table-cell">Stock</th>
-                  <th className="p-4 hidden lg:table-cell">Status</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
+        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <table className="w-full min-w-[700px] text-left text-sm">
+            <thead>
+              <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider text-xs">
+                <th className="p-4">Product</th>
+                <th className="p-4">Category</th>
+                <th className="p-4">Price</th>
+                <th className="p-4">Stock</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-right">Actions</th>
+              </tr>
+            </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
                 {paginatedProducts.map((p) => (
                   <tr key={p.id || p.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
@@ -312,10 +311,10 @@ const Products = () => {
                         <span className="font-semibold text-secondary-900 dark:text-white line-clamp-1">{p.name}</span>
                       </div>
                     </td>
-                    <td className="p-4 text-secondary-600 dark:text-secondary-300 hidden sm:table-cell">{p.category?.name || 'N/A'}</td>
+                    <td className="p-4 text-secondary-600 dark:text-secondary-300">{p.category?.name || 'N/A'}</td>
                     <td className="p-4 font-bold text-secondary-900 dark:text-white">GHS {parseFloat(p.price || 0).toLocaleString()}</td>
-                    <td className="p-4 text-secondary-700 dark:text-secondary-300 hidden md:table-cell">{p.stock_quantity}</td>
-                    <td className="p-4 hidden lg:table-cell">
+                    <td className="p-4 text-secondary-700 dark:text-secondary-300">{p.stock_quantity}</td>
+                    <td className="p-4">
                       <span className={`text-xxs px-2 py-0.5 font-bold uppercase rounded ${p.status === 'active' || p.status?.value === 'active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400' : 'bg-secondary-100 text-secondary-600 dark:bg-secondary-800 dark:text-secondary-400'}`}>
                         {p.status?.label || p.status}
                       </span>

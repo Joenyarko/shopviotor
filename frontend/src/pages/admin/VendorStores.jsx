@@ -128,8 +128,8 @@ const VendorStores = () => {
               No stores found.
             </div>
           ) : (
-            <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
-              <table className="w-full text-sm border-collapse">
+            <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+              <table className="w-full min-w-[700px] text-sm border-collapse">
                 <thead>
                   <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xxs">
                     <th className="p-4 text-left">Store</th>
