@@ -15,7 +15,7 @@ export default defineConfig({
       },
       manifest: {
         name: 'SHOP VIOTOR',
-        short_name: 'VIOTOR',
+        short_name: 'SHOP VIOTOR',
         description: 'The ATU Student Marketplace',
         theme_color: '#ffb800',
         background_color: '#ffffff',
