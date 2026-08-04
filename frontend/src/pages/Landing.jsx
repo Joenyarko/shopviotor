@@ -150,9 +150,9 @@ const Landing = () => {
               placeholder="Search products, brands, or items..."
               value={searchVal}
               onChange={(e) => setSearchVal(e.target.value)}
-              className="flex-grow pl-4 bg-transparent border-none text-secondary-900 dark:text-white placeholder-secondary-400 focus:outline-none text-sm md:text-base"
+              className="flex-grow min-w-0 w-full pl-2 sm:pl-4 bg-transparent border-none text-secondary-900 dark:text-white placeholder-secondary-400 focus:outline-none text-sm md:text-base"
             />
-            <button type="submit" className="bg-primary-500 hover:bg-primary-600 px-6 py-2.5 rounded-full text-secondary-900 font-bold transition-colors flex items-center gap-2 text-sm shadow-md active:scale-95">
+            <button type="submit" className="bg-primary-500 hover:bg-primary-600 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-secondary-900 font-bold transition-colors flex items-center gap-2 text-sm shadow-md active:scale-95 flex-shrink-0">
               Search
             </button>
           </motion.form>

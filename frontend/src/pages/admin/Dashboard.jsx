@@ -182,10 +182,10 @@ const Dashboard = () => {
                 </h2>
                 <p className="text-xs text-secondary-500 mt-0.5">Historical 6-month financial breakdown across active sales channels.</p>
               </div>
-              <div className="flex items-center gap-3 text-xxs font-bold uppercase tracking-wider">
-                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> E-Commerce</span>
-                <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400"><span className="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span> Layaway</span>
-                <span className="flex items-center gap-1 text-rose-600 dark:text-rose-400"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> Raffles</span>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-[9px] sm:text-xxs font-bold uppercase tracking-wider mt-2 sm:mt-0">
+                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-500 inline-block"></span> E-Commerce</span>
+                <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400"><span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-purple-500 inline-block"></span> Layaway</span>
+                <span className="flex items-center gap-1 text-rose-600 dark:text-rose-400"><span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-500 inline-block"></span> Raffles</span>
               </div>
             </div>
 

@@ -147,18 +147,18 @@ const AdminLayout = () => {
       <div className="flex-grow flex flex-col min-w-0">
         
         {/* Header bar */}
-        <header className="h-16 bg-primary-500 border-b border-primary-600 flex items-center justify-between px-6 sticky top-0 z-30 transition-colors shadow-sm">
-          <div className="flex items-center gap-4">
+        <header className="h-16 bg-primary-500 border-b border-primary-600 flex items-center justify-between px-3 sm:px-6 sticky top-0 z-30 transition-colors shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button 
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 text-secondary-900 hover:bg-primary-600/30 rounded-md"
+              className="lg:hidden p-1.5 sm:p-2 text-secondary-900 hover:bg-primary-600/30 rounded-md"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
-            <h1 className="text-lg font-extrabold text-secondary-900">Admin Management Portal</h1>
+            <h1 className="text-sm sm:text-lg font-extrabold text-secondary-900 leading-tight">Admin Management Portal</h1>
           </div>
-          <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm font-extrabold text-secondary-900 hover:underline">
+          <div className="flex items-center ml-2">
+            <Link to="/" className="text-xs sm:text-sm font-extrabold text-secondary-900 hover:underline whitespace-nowrap">
               Go to Storefront
             </Link>
           </div>
