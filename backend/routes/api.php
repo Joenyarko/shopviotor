@@ -179,6 +179,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/orders', [VendorOrderController::class, 'index']);
             Route::get('/orders/{uuid}', [VendorOrderController::class, 'show']);
             Route::post('/orders/{uuid}/status', [VendorOrderController::class, 'updateStatus']);
+            
+            // Wallet & Payouts
+            Route::get('/wallet', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'index']);
+            Route::get('/wallet/transactions', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'transactions']);
+            Route::get('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'payouts']);
+            Route::post('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'requestPayout']);
         });
 
         // ─── ADMIN ROUTES ─────────────────────────────────────────────────────────

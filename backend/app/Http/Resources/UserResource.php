@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'is_active'     => $this->is_active,
             'email_verified'=> $this->hasVerifiedEmail(),
             'created_at'    => $this->created_at,
+            'has_store'     => $this->store()->exists(),
             'addresses'     => AddressResource::collection($this->whenLoaded('addresses')),
         ];
     }

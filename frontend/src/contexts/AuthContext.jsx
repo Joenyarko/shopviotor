@@ -133,7 +133,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isVendor = () => {
-    return user && (user.role === 'vendor' || user.role === 'admin' || user.role === 'super_admin');
+    return user && (user.role === 'vendor' || user.has_store);
   };
 
   const updateUser = (userData) => {
