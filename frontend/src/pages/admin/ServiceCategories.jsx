@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, CheckCircle, XCircle, Search } from 'lucide-react';
 import apiClient from '../../api/client';
 import Swal from 'sweetalert2';
 
@@ -9,6 +9,11 @@ const ServiceCategories = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ id: null, name: '', is_active: true });
   const [submitting, setSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  const filteredCategories = categories.filter(c => 
+    (c.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     fetchCategories();
@@ -79,17 +84,31 @@ const ServiceCategories = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white tracking-tight">Service Categories</h2>
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Manage categories for Hire Professionals.</p>
         </div>
-        <button 
-          onClick={() => openModal()} 
-          className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 text-sm transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Add Category
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-secondary-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button 
+            onClick={() => openModal()} 
+            className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl font-bold flex items-center justify-center gap-2 text-sm transition-colors whitespace-nowrap"
+          >
+            <Plus className="w-4 h-4" /> Add Category
+          </button>
+        </div>
       </div>
 
       <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
@@ -106,12 +125,12 @@ const ServiceCategories = () => {
                 <tr>
                   <td colSpan="3" className="px-6 py-8 text-center text-secondary-500">Loading categories...</td>
                 </tr>
-              ) : categories.length === 0 ? (
+              ) : filteredCategories.length === 0 ? (
                 <tr>
                   <td colSpan="3" className="px-6 py-8 text-center text-secondary-500">No categories found.</td>
                 </tr>
               ) : (
-                categories.map(category => (
+                filteredCategories.map(category => (
                   <tr key={category.id} className="hover:bg-secondary-50 dark:hover:bg-secondary-800/50">
                     <td className="px-6 py-4 font-medium text-secondary-900 dark:text-white">
                       {category.name}

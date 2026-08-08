@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import vendorService from '../../services/vendorService';
-import { Store, RefreshCw, Eye, Check, Ban, RotateCcw, Edit2 } from 'lucide-react';
+import { Store, RefreshCw, Eye, Check, Ban, RotateCcw, Edit2, Search } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
 const VendorStores = () => {
@@ -12,10 +12,21 @@ const VendorStores = () => {
   const [processing, setProcessing] = useState(false);
   const [commissionInput, setCommissionInput] = useState('');
   const [editingCommission, setEditingCommission] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(stores.length / itemsPerPage);
-  const paginatedStores = stores.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  
+  const filteredStores = stores.filter(s => 
+    (s.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (s.owner?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages = Math.ceil(filteredStores.length / itemsPerPage);
+  const paginatedStores = filteredStores.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
 
   const loadStores = async () => {
     setLoading(true);
@@ -98,11 +109,25 @@ const VendorStores = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
-          <Store className="w-6 h-6 text-primary-500" /> Vendor Stores
-        </h2>
-        <p className="text-sm text-secondary-500 mt-1">Manage vendor applications, active stores, and commission rates.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
+            <Store className="w-6 h-6 text-primary-500" /> Vendor Stores
+          </h2>
+          <p className="text-sm text-secondary-500 mt-1">Manage vendor applications, active stores, and commission rates.</p>
+        </div>
+        <div className="relative w-full sm:w-auto max-w-sm">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-secondary-400" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+            placeholder="Search stores or owners..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       {/* Tabs */}

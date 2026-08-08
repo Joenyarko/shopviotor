@@ -5,7 +5,7 @@ import productService from '../../services/productService';
 import {
   Plus, Edit2, Trash2, RefreshCw, X, Play, Trophy,
   Ticket, Users, Eye, AlertCircle, Image as ImageIcon,
-  Calendar, ChevronDown, CheckCircle, Upload
+  Calendar, ChevronDown, CheckCircle, Upload, Search
 } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
@@ -24,13 +24,24 @@ const AdminRaffles = () => {
   const [holders, setHolders] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [winPage, setWinPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(raffles.length / itemsPerPage);
-  const paginatedRaffles = raffles.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  
+  const filteredRaffles = raffles.filter(r => 
+    (r.title?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages = Math.ceil(filteredRaffles.length / itemsPerPage);
+  const paginatedRaffles = filteredRaffles.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   const totalWinPages = Math.ceil(winners.length / itemsPerPage);
   const paginatedWinners = winners.slice((winPage - 1) * itemsPerPage, winPage * itemsPerPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const fileInputRef = useRef(null);
@@ -247,14 +258,30 @@ const AdminRaffles = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Raffles Management</h2>
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Create, configure, and draw prize raffles.</p>
         </div>
-        <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
-          <Plus className="w-4 h-4" /> Create Raffle
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          {tab === 'raffles' && (
+            <div className="relative w-full sm:w-64">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-secondary-400" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                placeholder="Search raffles..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          )}
+          <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow whitespace-nowrap">
+            <Plus className="w-4 h-4" /> Create Raffle
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

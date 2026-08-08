@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import promoPopupService from "../../services/promoPopupService";
 import bannerService from "../../services/bannerService";
-import { Plus, Trash2, Edit, RefreshCw, Upload, X, Link as LinkIcon, Image as ImageIcon, Folder, Calendar, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, Edit, RefreshCw, Upload, X, Link as LinkIcon, Image as ImageIcon, Folder, Calendar, ArrowLeft, Search } from "lucide-react";
 import Swal from "sweetalert2";
 
 const TARGET_PAGES = [
@@ -19,6 +19,11 @@ const AdminPopups = () => {
     const [loading, setLoading] = useState(true);
     const [selectedCampaign, setSelectedCampaign] = useState(null);
     const [selectedTarget, setSelectedTarget] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
+    
+    const filteredCampaigns = campaigns.filter(c => 
+        (c.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+    );
 
     const [showCampaignModal, setShowCampaignModal] = useState(false);
     const [editingCampaign, setEditingCampaign] = useState(null);
@@ -216,8 +221,21 @@ const AdminPopups = () => {
                     <div className="h-32 bg-secondary-200 dark:bg-secondary-800 rounded-xl animate-pulse" />
                 </div>
             ) : !selectedCampaign ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {campaigns.map(camp => (
+                <>
+                    <div className="relative mb-6 w-full max-w-sm">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Search className="h-4 w-4 text-secondary-400" />
+                        </div>
+                        <input
+                            type="text"
+                            className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                            placeholder="Search campaigns..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredCampaigns.map(camp => (
                         <div key={camp.id} className="bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800 p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col" onClick={() => setSelectedCampaign(camp)}>
                             <div className="flex items-start justify-between mb-4">
                                 <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center">
