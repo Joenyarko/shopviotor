@@ -55,7 +55,7 @@ const Dashboard = () => {
 
     // Load app install analytics
     apiClient.get('/admin/analytics/app-installs')
-      .then(r => setAppInstalls(r.data))
+      .then(r => setAppInstalls(r || { total: 0, android: 0, ios: 0, desktop: 0 }))
       .catch(() => {}); // fail silently
   }, []);
 
