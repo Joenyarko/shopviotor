@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import productService from '../../services/productService';
 import {
   Plus, Edit2, Trash2, RefreshCw, X, AlertCircle,
-  Upload, Image as ImageIcon, PlusCircle, MinusCircle, ChevronLeft, ChevronRight
+  Upload, Image as ImageIcon, PlusCircle, MinusCircle, ChevronLeft, ChevronRight, Search
 } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
@@ -14,10 +14,19 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const paginatedProducts = products.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  
+  const filteredProducts = products.filter(p => 
+    (p.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -271,14 +280,28 @@ const Products = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Products Catalog</h2>
-          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Manage storefront catalog items and inventory.</p>
+          <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Product Catalog</h2>
+          <p className="text-sm text-secondary-500 mt-1">Manage store inventory, variations, and pricing.</p>
         </div>
-        <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
-          <Plus className="w-4 h-4" /> Add Product
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-secondary-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
+            <Plus className="w-4 h-4" /> Add Product
+          </button>
+        </div>
       </div>
 
       {loading ? (

@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import productService from '../../services/productService';
-import { Plus, Edit2, Trash2, RefreshCw, X, AlertCircle, Tag } from 'lucide-react';
+import { Plus, Edit2, Trash2, RefreshCw, X, AlertCircle, Tag, Search } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
 const ICON_OPTIONS = [
@@ -14,10 +14,20 @@ const AdminCategories = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(categories.length / itemsPerPage);
-  const paginatedCategories = categories.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  
+  const filteredCategories = categories.filter(c => 
+    (c.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+  const paginatedCategories = filteredCategories.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
   const [editingCat, setEditingCat] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -96,14 +106,28 @@ const AdminCategories = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-secondary-900 dark:text-white">Category Management</h1>
-          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Manage the categories that appear on the storefront.</p>
+          <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Categories</h2>
+          <p className="text-sm text-secondary-500 mt-1">Manage product categories and sub-categories.</p>
         </div>
-        <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
-          <Plus className="w-4 h-4" /> Add Category
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-secondary-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
+            <Plus className="w-4 h-4" /> Add Category
+          </button>
+        </div>
       </div>
 
       {loading ? (

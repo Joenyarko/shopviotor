@@ -2,7 +2,7 @@ import Swal from 'sweetalert2';
 import React, { useEffect, useState, useRef } from 'react';
 import hpService from '../../services/hpService';
 import productService from '../../services/productService';
-import { Briefcase, X, RefreshCw, Eye, Plus, Image as ImageIcon, Upload, Trash2, CheckCircle, Edit } from 'lucide-react';
+import { Briefcase, X, RefreshCw, Eye, Plus, Image as ImageIcon, Upload, Trash2, CheckCircle, Edit, Search } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 import CategorySelector from '../../components/CategorySelector';
 
@@ -18,13 +18,24 @@ const AdminHirePurchase = () => {
   // Products State
   const [hpProducts, setHpProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [prodPage, setProdPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(applications.length / itemsPerPage);
-  const paginatedApps = applications.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  
+  const filteredApps = applications.filter(a => 
+    (a.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (a.product?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages = Math.ceil(filteredApps.length / itemsPerPage);
+  const paginatedApps = filteredApps.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   const totalProdPages = Math.ceil(hpProducts.length / itemsPerPage);
   const paginatedHpProducts = hpProducts.slice((prodPage - 1) * itemsPerPage, prodPage * itemsPerPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
   
@@ -168,14 +179,33 @@ const AdminHirePurchase = () => {
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
             <Briefcase className="w-6 h-6 text-primary-500" /> Hire Purchase Management
           </h2>
-          <p className="text-sm text-secondary-500 mt-1">Review applications and manage products available for hire purchase.</p>
+          <p className="text-sm text-secondary-500 mt-1">Review applications, track installments, and manage eligible products.</p>
         </div>
-        
-        {activeTab === 'products' && (
-          <button onClick={() => setShowAddProductModal(true)} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
-            <Plus className="w-4 h-4" /> Post HP Product
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          {activeTab === 'applications' && (
+            <div className="relative w-full sm:w-64">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-secondary-400" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                placeholder="Search applications..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          )}
+          <button onClick={() => {
+            setEditingProductId(null);
+            setName(''); setPrice(''); setCategoryId(''); setDescription('');
+            setHpInterestRate(''); setHpMinDepositPercent(''); setHpMaxDurationMonths('');
+            setImageFile(null); setImagePreview(null);
+            setShowAddProductModal(true);
+          }} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 shadow-sm whitespace-nowrap">
+            <Plus className="w-4 h-4" /> Add HP Product
           </button>
-        )}
+        </div>
       </div>
 
       <div className="flex border-b border-secondary-200 dark:border-secondary-800">

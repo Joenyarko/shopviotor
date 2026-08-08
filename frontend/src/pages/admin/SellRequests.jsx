@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import React, { useEffect, useState, useRef } from 'react';
 import sellRequestService from '../../services/sellRequestService';
-import { Truck, X, RefreshCw, Eye, Send, Phone, MessageCircle } from 'lucide-react';
+import { Truck, X, RefreshCw, Eye, Send, Phone, MessageCircle, Search } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
 const SellRequests = () => {
@@ -12,10 +12,21 @@ const SellRequests = () => {
   const [offeredPrice, setOfferedPrice] = useState('');
   const [processing, setProcessing] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(sells.length / itemsPerPage);
-  const paginatedSells = sells.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  
+  const filteredSells = sells.filter(s => 
+    (s.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (s.item_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages = Math.ceil(filteredSells.length / itemsPerPage);
+  const paginatedSells = filteredSells.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
 
   const loadSells = async () => {
     setLoading(true);
@@ -87,11 +98,25 @@ const SellRequests = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
-          <Truck className="w-6 h-6 text-primary-500" /> Corporate Buyout Requests
-        </h2>
-        <p className="text-sm text-secondary-500 mt-1">Review items submitted by customers for Shop Viotor direct acquisition.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
+            <Truck className="w-6 h-6 text-primary-500" /> Corporate Buyout Requests
+          </h2>
+          <p className="text-sm text-secondary-500 mt-1">Review items submitted by customers for Shop Viotor direct acquisition.</p>
+        </div>
+        <div className="relative w-full sm:w-auto max-w-sm">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-secondary-400" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+            placeholder="Search by customer or item..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">

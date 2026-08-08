@@ -1,16 +1,26 @@
 import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import adminService from '../../api/client';
-import { RefreshCw, CheckCircle } from 'lucide-react';
+import { RefreshCw, CheckCircle, Search } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
 const Payments = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(payments.length / itemsPerPage);
-  const paginatedPayments = payments.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  
+  const filteredPayments = payments.filter(p => 
+    (p.reference?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages = Math.ceil(filteredPayments.length / itemsPerPage);
+  const paginatedPayments = filteredPayments.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -46,9 +56,23 @@ const Payments = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Payment Audits</h2>
-        <p className="text-sm text-secondary-500 mt-1">Review webhook responses, gateway references, and manual receipts.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Payment Audits</h2>
+          <p className="text-sm text-secondary-500 mt-1">Review webhook responses, gateway references, and manual receipts.</p>
+        </div>
+        <div className="relative w-full sm:w-auto max-w-sm">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-secondary-400" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+            placeholder="Search by reference..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       {loading ? (

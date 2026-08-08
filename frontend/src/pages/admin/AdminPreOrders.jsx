@@ -2,7 +2,7 @@ import Swal from 'sweetalert2';
 import React, { useState, useEffect, useRef } from 'react';
 import preorderService from '../../services/preorderService';
 import productService from '../../services/productService';
-import { Package, RefreshCw, Check, X, Eye, Plus, Upload, Box, ListOrdered } from 'lucide-react';
+import { Package, RefreshCw, Check, X, Eye, Plus, Upload, Box, ListOrdered, Search } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 import CategorySelector from '../../components/CategorySelector';
 
@@ -17,12 +17,26 @@ const AdminPreOrders = () => {
   const [activeOrderTab, setActiveOrderTab] = useState('all');
   const [processing, setProcessing] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [prodPage, setProdPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(preOrders.length / itemsPerPage);
-  const paginatedPreOrders = preOrders.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  
+  const filteredPreOrders = preOrders.filter(o => 
+    (o.customer_details?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (o.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (o.customer_details?.phone?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (o.user?.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (o.product?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages = Math.ceil(filteredPreOrders.length / itemsPerPage);
+  const paginatedPreOrders = filteredPreOrders.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   const totalProdPages = Math.ceil(products.length / itemsPerPage);
+  
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
   const paginatedProducts = products.slice((prodPage - 1) * itemsPerPage, prodPage * itemsPerPage);
   
   // Product Form State
@@ -146,9 +160,25 @@ const AdminPreOrders = () => {
           </h2>
           <p className="text-sm text-secondary-500 mt-1">Manage customer pre-orders and pre-order products.</p>
         </div>
-        <button onClick={() => setModalOpen(true)} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm">
-          <Plus className="w-4 h-4" /> Post Pre-Order Product
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          {mainTab === 'orders' && (
+            <div className="relative w-full sm:w-64">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-4 w-4 text-secondary-400" />
+              </div>
+              <input
+                type="text"
+                className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                placeholder="Search pre-orders..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          )}
+          <button onClick={() => setModalOpen(true)} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-sm whitespace-nowrap">
+            <Plus className="w-4 h-4" /> Post Pre-Order Product
+          </button>
+        </div>
       </div>
 
       {/* Main Tabs */}

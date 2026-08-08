@@ -9,7 +9,7 @@ import DotPagination from '../../components/DotPagination';
 
 const AdminLayaway = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  
+
   // Dashboard
   const [dashboard, setDashboard] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(false);
@@ -85,7 +85,7 @@ const AdminLayaway = () => {
 
   useEffect(() => {
     if (selectedCardId) return; // Don't load tabs if in detail view
-    
+
     if (activeTab === 'dashboard') loadDashboard();
     if (activeTab === 'customers') loadCustomers();
     if (activeTab === 'sales') loadSales();
@@ -167,7 +167,7 @@ const AdminLayaway = () => {
     try {
       const res = await layawayService.adminGetTerms();
       setTermsText(res.data?.layaway_terms || '');
-    } catch (e) { console.error(e); } 
+    } catch (e) { console.error(e); }
     finally { setLoadingTerms(false); }
   };
 
@@ -279,7 +279,7 @@ const AdminLayaway = () => {
       return;
     }
     setSavingProduct(true);
-    
+
     const formData = new FormData();
     formData.append('name', prodName);
     formData.append('price', prodPrice);
@@ -312,10 +312,10 @@ const AdminLayaway = () => {
   };
 
   const handleDeleteProduct = async (uuid) => {
-    const __confirmResult = await Swal.fire({ 
-      title: 'Are you sure?', 
-      text: 'Delete this layaway product?', 
-      icon: 'warning', 
+    const __confirmResult = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Delete this layaway product?',
+      icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#eab308',
       cancelButtonColor: '#d33',
@@ -326,8 +326,8 @@ const AdminLayaway = () => {
       await productService.adminDeleteProduct(uuid);
       toast.success('Product deleted successfully.');
       loadInventory();
-    } catch (e) { 
-      toast.error(e.response?.data?.message || e.message || 'Failed to delete product.'); 
+    } catch (e) {
+      toast.error(e.response?.data?.message || e.message || 'Failed to delete product.');
     }
   };
 
@@ -367,7 +367,7 @@ const AdminLayaway = () => {
     }
     if (selectedCardDetails) {
       return (
-        <LayawayBoxTracker 
+        <LayawayBoxTracker
           card={selectedCardDetails}
           isAdmin={true}
           onBack={() => setSelectedCardId(null)}
@@ -401,7 +401,7 @@ const AdminLayaway = () => {
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-white text-gray-900">
-      
+
       {/* Horizontal Navbar */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 max-w-7xl mx-auto">
@@ -409,17 +409,16 @@ const AdminLayaway = () => {
             <Package className="w-6 h-6 text-yellow-500" />
             <h2 className="text-xl font-bold text-gray-900">Layaway Hub</h2>
           </div>
-          
+
           <nav className="flex overflow-x-auto gap-2 pb-2 md:pb-0 hide-scrollbar">
             {menuItems.map(item => (
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
-                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  activeTab === item.id 
-                    ? 'bg-yellow-500 text-white shadow' 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === item.id
+                  ? 'bg-yellow-500 text-white shadow'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
               >
                 {item.icon} {item.label}
               </button>
@@ -430,7 +429,7 @@ const AdminLayaway = () => {
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto p-4 md:p-8">
-        
+
         {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
@@ -479,8 +478,8 @@ const AdminLayaway = () => {
               <h1 className="text-3xl font-bold text-yellow-600">Customer Management</h1>
               <div className="flex gap-3 w-full md:w-auto items-center">
                 <form onSubmit={handleCustomerSearch} className="flex gap-2 flex-1 md:flex-initial">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={customerSearch}
                     onChange={e => setCustomerSearch(e.target.value)}
                     placeholder="Search name, phone, or city..."
@@ -490,7 +489,7 @@ const AdminLayaway = () => {
                     <Search className="w-4 h-4" />
                   </button>
                 </form>
-                <button 
+                <button
                   onClick={openAddCustomerModal}
                   className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors whitespace-nowrap shadow-sm"
                 >
@@ -506,10 +505,10 @@ const AdminLayaway = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {customers.map(c => {
                     const latestLayaway = c.layaways && c.layaways.length > 0 ? c.layaways[0] : null;
-                    const progress = latestLayaway && latestLayaway.total_boxes > 0 
-                        ? ((latestLayaway.boxes_checked / latestLayaway.total_boxes) * 100).toFixed(2) 
-                        : 0;
-                        
+                    const progress = latestLayaway && latestLayaway.total_boxes > 0
+                      ? ((latestLayaway.boxes_checked / latestLayaway.total_boxes) * 100).toFixed(2)
+                      : 0;
+
                     return (
                       <div key={c.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
                         <div className="p-5 flex-1">
@@ -519,7 +518,7 @@ const AdminLayaway = () => {
                               {c.total_layaways} Plan(s)
                             </span>
                           </div>
-                          
+
                           <div className="space-y-2 text-sm text-gray-600 mb-6">
                             <p className="flex items-center gap-2">
                               <span className="text-yellow-500">📞</span> {c.customer_phone || 'N/A'}
@@ -539,8 +538,8 @@ const AdminLayaway = () => {
                                 <span>{progress}%</span>
                               </div>
                               <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden mb-4">
-                                <div 
-                                  className="bg-gradient-to-r from-yellow-500 to-yellow-400 h-3 rounded-full" 
+                                <div
+                                  className="bg-gradient-to-r from-yellow-500 to-yellow-400 h-3 rounded-full"
                                   style={{ width: `${progress}%` }}
                                 ></div>
                               </div>
@@ -552,12 +551,12 @@ const AdminLayaway = () => {
                           )}
                           {c.total_layaways > 1 && (
                             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex justify-center items-center h-28">
-                               <p className="text-gray-500 text-sm font-medium">Click to select plan</p>
+                              <p className="text-gray-500 text-sm font-medium">Click to select plan</p>
                             </div>
                           )}
                         </div>
                         <div className="p-4 bg-gray-50 border-t border-gray-200">
-                          <button 
+                          <button
                             onClick={() => handleSelectCustomer(c)}
                             className="w-full py-2 bg-white hover:bg-yellow-500 hover:text-white text-gray-800 font-bold rounded-lg transition-colors border border-gray-300 hover:border-yellow-500 shadow-sm"
                           >
@@ -568,7 +567,7 @@ const AdminLayaway = () => {
                     );
                   })}
                 </div>
-                
+
                 {/* Pagination */}
                 <DotPagination
                   currentPage={customerPage}
@@ -588,8 +587,8 @@ const AdminLayaway = () => {
               <form onSubmit={handleSalesSearch} className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                 <div className="relative flex-1 md:w-60">
                   <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={salesSearch}
                     onChange={e => setSalesSearch(e.target.value)}
                     placeholder="Search customer, email or product..."
@@ -598,19 +597,19 @@ const AdminLayaway = () => {
                 </div>
                 <div className="flex items-center gap-1 bg-white border border-gray-300 px-2 py-1.5 rounded-lg text-sm">
                   <Calendar className="w-4 h-4 text-gray-400" />
-                  <input 
-                    type="date" 
-                    value={salesStartDate} 
-                    onChange={e => setSalesStartDate(e.target.value)} 
-                    className="bg-transparent text-gray-700 text-xs focus:outline-none" 
+                  <input
+                    type="date"
+                    value={salesStartDate}
+                    onChange={e => setSalesStartDate(e.target.value)}
+                    className="bg-transparent text-gray-700 text-xs focus:outline-none"
                     title="Start Date"
                   />
                   <span className="text-gray-400">-</span>
-                  <input 
-                    type="date" 
-                    value={salesEndDate} 
-                    onChange={e => setSalesEndDate(e.target.value)} 
-                    className="bg-transparent text-gray-700 text-xs focus:outline-none" 
+                  <input
+                    type="date"
+                    value={salesEndDate}
+                    onChange={e => setSalesEndDate(e.target.value)}
+                    className="bg-transparent text-gray-700 text-xs focus:outline-none"
                     title="End Date"
                   />
                 </div>
@@ -624,7 +623,7 @@ const AdminLayaway = () => {
                 )}
               </form>
             </div>
-            
+
             {loadingSales ? (
               <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
             ) : (
@@ -662,7 +661,7 @@ const AdminLayaway = () => {
                             <td className="p-4 font-extrabold text-yellow-600">GHS {s.total_amount.toFixed(2)}</td>
                             <td className="p-4 whitespace-nowrap text-gray-600">{s.latest_payment_date ? new Date(s.latest_payment_date).toLocaleDateString() : '—'}</td>
                             <td className="p-4 text-right">
-                              <button 
+                              <button
                                 onClick={() => {
                                   setSelectedCustomerHistory(s);
                                   setHistoryStartDate('');
@@ -699,8 +698,8 @@ const AdminLayaway = () => {
               <h1 className="text-3xl font-bold text-yellow-600">Layaway Products</h1>
               <div className="flex gap-3 w-full md:w-auto items-center">
                 <form onSubmit={handleInventorySearch} className="flex gap-2 flex-1 md:flex-initial">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={inventorySearch}
                     onChange={e => setInventorySearch(e.target.value)}
                     placeholder="Search products..."
@@ -710,7 +709,7 @@ const AdminLayaway = () => {
                     <Search className="w-4 h-4" />
                   </button>
                 </form>
-                <button 
+                <button
                   onClick={() => { resetProdForm(); setShowAddProductModal(true); }}
                   className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors whitespace-nowrap shadow-sm"
                 >
@@ -745,8 +744,8 @@ const AdminLayaway = () => {
                             <td className="p-4">{prod.stock}</td>
                             <td className="p-4 text-center">
                               <label className="relative inline-flex items-center cursor-pointer">
-                                <input 
-                                  type="checkbox" 
+                                <input
+                                  type="checkbox"
                                   className="sr-only peer"
                                   checked={prod.is_layaway}
                                   onChange={() => toggleProductLayaway(prod.uuid)}
@@ -797,19 +796,19 @@ const AdminLayaway = () => {
             <div className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm max-w-4xl">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Layaway Terms & Conditions</h2>
               <p className="text-gray-600 text-sm mb-6">These terms will be displayed to customers when registering for a layaway plan.</p>
-              
+
               {loadingTerms ? (
                 <div className="flex justify-center py-12"><RefreshCw className="w-6 h-6 text-yellow-500 animate-spin" /></div>
               ) : (
                 <div className="space-y-6">
-                  <textarea 
+                  <textarea
                     value={termsText}
                     onChange={e => setTermsText(e.target.value)}
                     className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 min-h-[300px]"
                     placeholder="Enter your global layaway terms and conditions here..."
                   />
-                  <button 
-                    onClick={saveTerms} 
+                  <button
+                    onClick={saveTerms}
                     disabled={savingTerms}
                     className="px-8 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl transition-colors disabled:opacity-50 shadow-sm"
                   >
@@ -827,7 +826,7 @@ const AdminLayaway = () => {
       {customerModalOpen && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-xl w-full p-6 relative">
-            <button 
+            <button
               onClick={() => setCustomerModalOpen(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-900"
             >
@@ -836,8 +835,8 @@ const AdminLayaway = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Select a Layaway Plan</h2>
             <div className="space-y-4">
               {selectedCustomerPlans.map(plan => {
-                 const progress = plan.total_boxes > 0 ? ((plan.boxes_checked / plan.total_boxes) * 100).toFixed(2) : 0;
-                 return (
+                const progress = plan.total_boxes > 0 ? ((plan.boxes_checked / plan.total_boxes) * 100).toFixed(2) : 0;
+                return (
                   <div key={plan.uuid} className="border border-gray-200 rounded-lg p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-yellow-500 transition-colors bg-gray-50">
                     <div>
                       <h4 className="font-bold text-gray-900">{plan.product_name}</h4>
@@ -847,7 +846,7 @@ const AdminLayaway = () => {
                         <span className="text-xs font-bold text-gray-600 bg-gray-200 px-2 py-1 rounded">Bal: GHS{plan.amount_remaining.toFixed(2)}</span>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => {
                         setCustomerModalOpen(false);
                         handleSelectLayaway(plan.uuid);
@@ -857,7 +856,7 @@ const AdminLayaway = () => {
                       View Tracker
                     </button>
                   </div>
-                 );
+                );
               })}
             </div>
           </div>
@@ -868,13 +867,13 @@ const AdminLayaway = () => {
       {historyModalOpen && selectedCustomerHistory && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl max-w-4xl w-full p-6 relative max-h-[85vh] flex flex-col">
-            <button 
+            <button
               onClick={() => setHistoryModalOpen(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
-            
+
             <div className="mb-4 border-b border-gray-100 pb-4 pr-10">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <History className="w-6 h-6 text-yellow-500" />
@@ -894,25 +893,25 @@ const AdminLayaway = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <div className="flex items-center gap-1 bg-white border border-gray-300 px-2.5 py-1 rounded-md text-xs">
                   <span className="text-gray-400">From:</span>
-                  <input 
-                    type="date" 
-                    value={historyStartDate} 
-                    onChange={e => setHistoryStartDate(e.target.value)} 
-                    className="bg-transparent text-gray-700 focus:outline-none cursor-pointer" 
+                  <input
+                    type="date"
+                    value={historyStartDate}
+                    onChange={e => setHistoryStartDate(e.target.value)}
+                    className="bg-transparent text-gray-700 focus:outline-none cursor-pointer"
                   />
                 </div>
                 <div className="flex items-center gap-1 bg-white border border-gray-300 px-2.5 py-1 rounded-md text-xs">
                   <span className="text-gray-400">To:</span>
-                  <input 
-                    type="date" 
-                    value={historyEndDate} 
-                    onChange={e => setHistoryEndDate(e.target.value)} 
-                    className="bg-transparent text-gray-700 focus:outline-none cursor-pointer" 
+                  <input
+                    type="date"
+                    value={historyEndDate}
+                    onChange={e => setHistoryEndDate(e.target.value)}
+                    className="bg-transparent text-gray-700 focus:outline-none cursor-pointer"
                   />
                 </div>
                 {(historyStartDate || historyEndDate) && (
-                  <button 
-                    onClick={() => { setHistoryStartDate(''); setHistoryEndDate(''); }} 
+                  <button
+                    onClick={() => { setHistoryStartDate(''); setHistoryEndDate(''); }}
                     className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2.5 py-1 rounded-md text-xs font-semibold transition-colors flex items-center gap-1"
                   >
                     <RotateCcw className="w-3 h-3" /> Clear

@@ -1,17 +1,27 @@
 import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import apiClient from '../../api/client';
-import { Plus, Edit2, Trash2, RefreshCw, X, AlertCircle, Layers, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit2, Trash2, RefreshCw, X, AlertCircle, Layers, Image as ImageIcon, Search } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
 const AdminBrands = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(brands.length / itemsPerPage);
-  const paginatedBrands = brands.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  
+  const filteredBrands = brands.filter(b => 
+    (b.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  
+  const totalPages = Math.ceil(filteredBrands.length / itemsPerPage);
+  const paginatedBrands = filteredBrands.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
   const [editingBrand, setEditingBrand] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -103,14 +113,28 @@ const AdminBrands = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-secondary-900 dark:text-white">Brand Management</h1>
-          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Manage product brands to allow filtering by brand.</p>
+          <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Brand Management</h2>
+          <p className="text-sm text-secondary-500 mt-1">Manage product brands to allow filtering by brand.</p>
         </div>
-        <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
-          <Plus className="w-4 h-4" /> Add Brand
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-secondary-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              placeholder="Search brands..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
+            <Plus className="w-4 h-4" /> Add Brand
+          </button>
+        </div>
       </div>
 
       {loading ? (

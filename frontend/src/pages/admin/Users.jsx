@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
-import { RefreshCw, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { RefreshCw, CheckCircle, XCircle, Trash2, Search } from 'lucide-react';
 import adminService from '../../api/client'; // direct client helper
 import DotPagination from '../../components/DotPagination';
 
@@ -9,13 +9,31 @@ const Users = () => {
   const [pendingStudents, setPendingStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all'); // all, student_approvals
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [studPage, setStudPage] = useState(1);
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(users.length / itemsPerPage);
-  const paginatedUsers = users.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-  const totalStudPages = Math.ceil(pendingStudents.length / itemsPerPage);
-  const paginatedStudents = pendingStudents.slice((studPage - 1) * itemsPerPage, studPage * itemsPerPage);
+
+  // Filter based on search term
+  const filteredUsers = users.filter(u => 
+    (u.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+    (u.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+  const filteredStudents = pendingStudents.filter(u => 
+    (u.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+    (u.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const paginatedUsers = filteredUsers.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  const totalStudPages = Math.ceil(filteredStudents.length / itemsPerPage);
+  const paginatedStudents = filteredStudents.slice((studPage - 1) * itemsPerPage, studPage * itemsPerPage);
+
+  // Reset pagination when search term changes
+  useEffect(() => {
+    setPage(1);
+    setStudPage(1);
+  }, [searchTerm]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -149,10 +167,24 @@ const Users = () => {
         </div>
       </div>
 
+      {/* Search Bar */}
+      <div className="relative max-w-md">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-secondary-400" />
+        </div>
+        <input
+          type="text"
+          className="block w-full pl-10 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg leading-5 bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors"
+          placeholder="Search users by name or email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {loading ? (
         <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
       ) : activeTab === 'all' ? (
-        users.length === 0 ? (
+        paginatedUsers.length === 0 ? (
           <div className="p-8 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500 dark:text-secondary-400 font-semibold">
             No users found.
           </div>
