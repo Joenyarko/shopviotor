@@ -41,7 +41,7 @@ const PwaPrompt = () => {
       console.log('User accepted the install prompt');
       // Track the install in analytics
       try {
-        await apiClient.post('/v1/analytics/app-installs');
+        await apiClient.post('/analytics/app-installs');
       } catch (e) {
         // Fail silently — don't interrupt the install experience
         console.warn('Analytics tracking failed:', e);

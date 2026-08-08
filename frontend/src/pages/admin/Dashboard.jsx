@@ -54,7 +54,7 @@ const Dashboard = () => {
     loadComprehensiveData();
 
     // Load app install analytics
-    apiClient.get('/v1/admin/analytics/app-installs')
+    apiClient.get('/admin/analytics/app-installs')
       .then(r => setAppInstalls(r.data))
       .catch(() => {}); // fail silently
   }, []);
