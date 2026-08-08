@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import promoPopupService from "../../services/promoPopupService";
 import bannerService from "../../services/bannerService";
 import { Plus, Trash2, Edit, RefreshCw, Upload, X, Link as LinkIcon, Image as ImageIcon, Folder, Calendar, ArrowLeft, Search } from "lucide-react";
@@ -20,8 +20,8 @@ const AdminPopups = () => {
     const [selectedCampaign, setSelectedCampaign] = useState(null);
     const [selectedTarget, setSelectedTarget] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
-    
-    const filteredCampaigns = campaigns.filter(c => 
+
+    const filteredCampaigns = campaigns.filter(c =>
         (c.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
 
@@ -236,31 +236,32 @@ const AdminPopups = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredCampaigns.map(camp => (
-                        <div key={camp.id} className="bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800 p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col" onClick={() => setSelectedCampaign(camp)}>
-                            <div className="flex items-start justify-between mb-4">
-                                <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center">
-                                    <Folder className="w-6 h-6" />
+                            <div key={camp.id} className="bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800 p-5 shadow-sm hover:shadow-md transition-shadow cursor-pointer flex flex-col" onClick={() => setSelectedCampaign(camp)}>
+                                <div className="flex items-start justify-between mb-4">
+                                    <div className="w-12 h-12 bg-primary-100 text-primary-600 rounded-xl flex items-center justify-center">
+                                        <Folder className="w-6 h-6" />
+                                    </div>
+                                    <div className={`px-2 py-1 rounded-md text-xs font-bold ${camp.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                                        {camp.is_active ? "ACTIVE" : "INACTIVE"}
+                                    </div>
                                 </div>
-                                <div className={`px-2 py-1 rounded-md text-xs font-bold ${camp.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                                    {camp.is_active ? "ACTIVE" : "INACTIVE"}
+                                <h3 className="font-bold text-lg text-secondary-900 dark:text-white">{camp.name}</h3>
+                                <p className="text-sm text-secondary-500 flex items-center gap-1 mt-1">
+                                    <Calendar className="w-4 h-4" />
+                                    {camp.starts_at ? new Date(camp.starts_at).toLocaleDateString() : "Anytime"} - {camp.ends_at ? new Date(camp.ends_at).toLocaleDateString() : "Forever"}
+                                </p>
+                                <div className="mt-4 pt-4 border-t border-secondary-100 dark:border-secondary-800 flex justify-between text-sm text-secondary-500">
+                                    <span>{camp.promo_popups?.length || 0} Popups</span>
+                                    <div className="flex gap-2">
+                                        <button onClick={(e) => { e.stopPropagation(); handleOpenCampaignModal(camp); }} className="hover:text-primary-600"><Edit className="w-4 h-4" /></button>
+                                        <button onClick={(e) => { e.stopPropagation(); handleCampaignDelete(camp.id); }} className="hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
+                                    </div>
                                 </div>
                             </div>
-                            <h3 className="font-bold text-lg text-secondary-900 dark:text-white">{camp.name}</h3>
-                            <p className="text-sm text-secondary-500 flex items-center gap-1 mt-1">
-                                <Calendar className="w-4 h-4" /> 
-                                {camp.starts_at ? new Date(camp.starts_at).toLocaleDateString() : "Anytime"} - {camp.ends_at ? new Date(camp.ends_at).toLocaleDateString() : "Forever"}
-                            </p>
-                            <div className="mt-4 pt-4 border-t border-secondary-100 dark:border-secondary-800 flex justify-between text-sm text-secondary-500">
-                                <span>{camp.promo_popups?.length || 0} Popups</span>
-                                <div className="flex gap-2">
-                                    <button onClick={(e) => { e.stopPropagation(); handleOpenCampaignModal(camp); }} className="hover:text-primary-600"><Edit className="w-4 h-4" /></button>
-                                    <button onClick={(e) => { e.stopPropagation(); handleCampaignDelete(camp.id); }} className="hover:text-red-600"><Trash2 className="w-4 h-4" /></button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    {campaigns.length === 0 && <div className="col-span-full text-center py-20 text-secondary-500">No campaigns found.</div>}
-                </div>
+                        ))}
+                        {campaigns.length === 0 && <div className="col-span-full text-center py-20 text-secondary-500">No campaigns found.</div>}
+                    </div>
+                </>
             ) : !selectedTarget ? (
                 <div className="space-y-6">
                     <div className="flex items-center gap-4 bg-white dark:bg-secondary-900 p-4 rounded-2xl border border-secondary-200 dark:border-secondary-800">
@@ -270,7 +271,6 @@ const AdminPopups = () => {
                             <p className="text-xs text-secondary-500">{selectedCampaign.promo_popups?.length || 0} total popups inside</p>
                         </div>
                     </div>
-                    
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {TARGET_PAGES.map(page => {
                             const popupsInPage = (selectedCampaign.promo_popups || []).filter(p => p.target_page === page.value);
@@ -299,7 +299,6 @@ const AdminPopups = () => {
                             <p className="text-xs text-secondary-500">Manage popups for this page</p>
                         </div>
                     </div>
-                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {(selectedCampaign.promo_popups || []).filter(p => p.target_page === selectedTarget.value).map(popup => (
                             <div key={popup.uuid} className="bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800 overflow-hidden group hover:shadow-md transition-shadow relative">
@@ -374,12 +373,11 @@ const AdminPopups = () => {
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
-                        
                         <div className="p-4 sm:p-6 overflow-y-auto">
                             <form id="popupForm" onSubmit={handleSubmit} className="space-y-5">
                                 <div>
                                     <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Popup Image (Sleek Square/Rectangle) *</label>
-                                    <div 
+                                    <div
                                         className="border-2 border-dashed border-secondary-300 dark:border-secondary-700 rounded-xl p-4 text-center cursor-pointer hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors relative aspect-[4/5] sm:aspect-square flex flex-col items-center justify-center overflow-hidden"
                                         onClick={() => fileInputRef.current?.click()}
                                     >
@@ -395,7 +393,6 @@ const AdminPopups = () => {
                                         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
                                     </div>
                                 </div>
-
                                 <div>
                                     <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Target Page</label>
                                     <select value={targetPage} onChange={e => setTargetPage(e.target.value)} className="w-full p-2.5 bg-secondary-50 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm text-secondary-900 dark:text-white outline-none focus:border-primary-500">
@@ -404,17 +401,14 @@ const AdminPopups = () => {
                                         ))}
                                     </select>
                                 </div>
-
                                 <div>
                                     <label className="block text-sm font-bold text-secondary-700 dark:text-secondary-300 mb-2">Link URL (Optional)</label>
                                     <input type="url" value={linkUrl} onChange={e => setLinkUrl(e.target.value)} placeholder="https://example.com/promo" className="w-full p-2.5 bg-secondary-50 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm text-secondary-900 dark:text-white outline-none focus:border-primary-500" />
                                 </div>
-
                                 <div className="flex items-center gap-2">
                                     <input type="checkbox" id="isActive" checked={isActive} onChange={e => setIsActive(e.target.checked)} className="w-4 h-4 text-primary-600 rounded border-secondary-300 focus:ring-primary-500" />
                                     <label htmlFor="isActive" className="text-sm text-secondary-700 dark:text-secondary-300 cursor-pointer">Active / Visible</label>
                                 </div>
-
                                 <button type="submit" disabled={processing} className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-4 rounded-xl transition-colors disabled:opacity-50">
                                     {processing ? "Saving..." : editingPopup ? "Update Popup" : "Create Popup"}
                                 </button>

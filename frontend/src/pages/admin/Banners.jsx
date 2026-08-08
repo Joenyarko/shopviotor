@@ -219,6 +219,7 @@ const Banners = () => {
           ))}
           {campaigns.length === 0 && <div className="col-span-full text-center py-20 text-secondary-500">No campaigns found. Create one to get started!</div>}
         </div>
+        </>
       ) : !selectedPosition ? (
         <div className="space-y-6">
           <div className="flex items-center gap-4 bg-white dark:bg-secondary-900 p-4 rounded-2xl border border-secondary-200 dark:border-secondary-800">
