@@ -3,8 +3,9 @@ import dashboardService from '../../services/dashboardService';
 import { 
   DollarSign, ShoppingCart, UserCheck, TrendingUp, RefreshCw, 
   Package, ArrowUpRight, ArrowDownRight, Layers, CreditCard, 
-  RefreshCcw, Clock, Gift, ShieldAlert, Activity, PieChart
+  RefreshCcw, Clock, Gift, ShieldAlert, Activity, PieChart, Smartphone
 } from 'lucide-react';
+import apiClient from '../../api/client';
 import { 
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, 
   Tooltip, Legend, CartesianGrid 
@@ -33,6 +34,7 @@ const Dashboard = () => {
     monthly_trends: []
   });
   const [loading, setLoading] = useState(true);
+  const [appInstalls, setAppInstalls] = useState({ total: 0, android: 0, ios: 0, desktop: 0 });
 
   useEffect(() => {
     const loadComprehensiveData = async () => {
@@ -50,6 +52,11 @@ const Dashboard = () => {
       }
     };
     loadComprehensiveData();
+
+    // Load app install analytics
+    apiClient.get('/v1/admin/analytics/app-installs')
+      .then(r => setAppInstalls(r.data))
+      .catch(() => {}); // fail silently
   }, []);
 
   const { summary, models, monthly_trends } = data;
@@ -168,6 +175,35 @@ const Dashboard = () => {
               <div className="mt-4 pt-4 border-t border-secondary-100 dark:border-secondary-800 flex items-center justify-between text-xs text-secondary-500">
                 <span>Total Transactions:</span>
                 <span className="font-bold text-secondary-900 dark:text-white">{summary.total_transactions} items</span>
+              </div>
+            </div>
+
+            {/* App Installs */}
+            <div className="relative overflow-hidden bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-primary-400/50 transition-all col-span-1 sm:col-span-2 lg:col-span-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 rounded-2xl border border-primary-200 dark:border-primary-800/50">
+                    <Smartphone className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-xxs font-extrabold uppercase tracking-wider text-secondary-500 dark:text-secondary-400">App Installs (PWA)</span>
+                    <div className="text-3xl font-black mt-0.5 text-secondary-900 dark:text-white">{appInstalls.total.toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="flex gap-3 flex-wrap">
+                  <div className="flex flex-col items-center bg-secondary-50 dark:bg-secondary-800 rounded-2xl px-4 py-2.5 border border-secondary-200 dark:border-secondary-700">
+                    <span className="text-xs font-extrabold text-green-600 dark:text-green-400">{appInstalls.android}</span>
+                    <span className="text-xxs text-secondary-500 font-semibold mt-0.5">Android</span>
+                  </div>
+                  <div className="flex flex-col items-center bg-secondary-50 dark:bg-secondary-800 rounded-2xl px-4 py-2.5 border border-secondary-200 dark:border-secondary-700">
+                    <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400">{appInstalls.ios}</span>
+                    <span className="text-xxs text-secondary-500 font-semibold mt-0.5">iOS</span>
+                  </div>
+                  <div className="flex flex-col items-center bg-secondary-50 dark:bg-secondary-800 rounded-2xl px-4 py-2.5 border border-secondary-200 dark:border-secondary-700">
+                    <span className="text-xs font-extrabold text-secondary-700 dark:text-secondary-300">{appInstalls.desktop}</span>
+                    <span className="text-xxs text-secondary-500 font-semibold mt-0.5">Desktop</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

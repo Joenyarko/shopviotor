@@ -50,14 +50,14 @@ const HeroBanner = ({ position, fallbackContent }) => {
 
   if (loading) {
     return (
-      <div className="relative rounded-2xl overflow-hidden bg-secondary-200 dark:bg-secondary-800 animate-pulse h-36 sm:h-48 md:h-auto md:aspect-[21/9] lg:aspect-[3/1] max-h-[450px] shadow-lg mx-4"></div>
+      <div className="relative rounded-2xl overflow-hidden bg-secondary-200 dark:bg-secondary-800 animate-pulse h-36 sm:h-48 md:h-auto md:aspect-[4/1] lg:aspect-[5/1] xl:aspect-[6/1] max-h-[340px] shadow-lg mx-4"></div>
     );
   }
 
   if (banners.length > 0) {
     return (
       <div className="w-full py-2">
-        <div className="relative w-full h-36 sm:h-48 md:h-auto md:aspect-[21/9] lg:aspect-[3/1] max-h-[450px] overflow-hidden">
+        <div className="relative w-full h-36 sm:h-48 md:h-auto md:aspect-[4/1] lg:aspect-[5/1] xl:aspect-[6/1] max-h-[340px] overflow-hidden">
           <div 
             ref={carouselRef}
             onScroll={handleScroll}

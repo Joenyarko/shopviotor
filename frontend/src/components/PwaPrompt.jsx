@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Download } from 'lucide-react';
+import apiClient from '../api/client';
 
 const PwaPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -38,6 +39,13 @@ const PwaPrompt = () => {
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
       console.log('User accepted the install prompt');
+      // Track the install in analytics
+      try {
+        await apiClient.post('/v1/analytics/app-installs');
+      } catch (e) {
+        // Fail silently — don't interrupt the install experience
+        console.warn('Analytics tracking failed:', e);
+      }
     } else {
       console.log('User dismissed the install prompt');
     }

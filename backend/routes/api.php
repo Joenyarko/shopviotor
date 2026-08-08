@@ -107,6 +107,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/marketing/flash-sales/active', [MarketingController::class, 'activeFlashSales']);
     Route::get('/marketing/collections', [MarketingController::class, 'collections']);
 
+    // Analytics — public (no auth so guest installs are tracked too)
+    Route::post('/analytics/app-installs', [\App\Http\Controllers\Api\V1\AnalyticsController::class, 'recordInstall'])->middleware('throttle:60,1');
+
     // ─── AUTHENTICATED ROUTES ─────────────────────────────────────────────────
     
     Route::middleware('auth:sanctum')->group(function () {
@@ -193,6 +196,7 @@ Route::prefix('v1')->group(function () {
             // Dashboard Stats
             Route::get('/dashboard/comprehensive-stats', [AdminDashboardController::class, 'comprehensiveStats']);
             Route::get('/orders/stats', [AdminOrderController::class, 'stats']);
+            Route::get('/analytics/app-installs', [\App\Http\Controllers\Api\V1\AnalyticsController::class, 'installStats']);
 
             // Users
             Route::get('/users/student-verifications/pending', [AdminUserController::class, 'pendingStudentVerifications']);
