@@ -122,9 +122,8 @@ const Banners = () => {
       payload.append("subtitle", bannerForm.subtitle || "");
       payload.append("link", bannerForm.link || "");
       payload.append("position", bannerForm.position);
-      if (bannerForm.sort_order !== "") {
-        payload.append("sort_order", bannerForm.sort_order);
-      }
+      const sortValue = bannerForm.sort_order !== "" && bannerForm.sort_order !== null && bannerForm.sort_order !== undefined ? String(bannerForm.sort_order) : "0";
+      payload.append("sort_order", sortValue);
       payload.append("is_active", bannerForm.is_active ? "1" : "0");
       payload.append("banner_campaign_id", selectedCampaign.id);
       

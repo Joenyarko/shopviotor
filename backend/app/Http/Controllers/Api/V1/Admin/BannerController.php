@@ -99,10 +99,14 @@ class BannerController extends Controller
             $data['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
         }
         
-        if ($request->has('sort_order') && $request->input('sort_order') !== null) {
-            $data['sort_order'] = (int) $request->input('sort_order');
+        if ($request->filled('sort_order')) {
+            $banner->sort_order = (int) $request->input('sort_order');
+        } else if ($request->has('sort_order')) {
+            $banner->sort_order = 0;
         }
 
+        // Remove sort_order from $data to prevent update() from overwriting it if there's a conflict
+        unset($data['sort_order']);
         $banner->update($data);
 
         return response()->json([
