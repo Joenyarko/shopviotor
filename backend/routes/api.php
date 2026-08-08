@@ -280,6 +280,11 @@ Route::prefix('v1')->group(function () {
             Route::post('/stores/{uuid}/commission', [AdminStoreController::class, 'updateCommission']);
             Route::post('/stores/{uuid}/permissions', [AdminStoreController::class, 'updatePermissions']);
 
+            // Payouts (Admin)
+            Route::get('/payouts', [\App\Http\Controllers\Api\V1\Admin\AdminPayoutController::class, 'index']);
+            Route::post('/payouts/{uuid}/process', [\App\Http\Controllers\Api\V1\Admin\AdminPayoutController::class, 'process']);
+
+
             // Payments (Admin)
             Route::get('/payments', [\App\Http\Controllers\Api\V1\PaymentController::class, 'adminIndex']);
             Route::post('/payments/{uuid}/confirm', [\App\Http\Controllers\Api\V1\PaymentController::class, 'adminConfirm']);
