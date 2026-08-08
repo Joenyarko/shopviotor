@@ -39,6 +39,7 @@ class BannerController extends Controller
             'link' => 'nullable|string|max:255',
             'position' => 'required|string|max:50',
             'is_active' => 'boolean',
+            'sort_order' => 'nullable|integer',
             'image' => 'required|image|mimes:jpeg,png,webp,gif|max:20480',
             'banner_campaign_id' => 'required|exists:banner_campaigns,id',
         ]);
@@ -51,7 +52,13 @@ class BannerController extends Controller
         $data['subtitle'] = $data['subtitle'] ?? '';
         $data['link'] = $data['link'] ?? '';
         $data['is_active'] = $request->input('is_active', true);
-        $data['sort_order'] = Banner::where('banner_campaign_id', $data['banner_campaign_id'])->max('sort_order') + 1;
+        
+        if ($request->has('sort_order') && $request->input('sort_order') !== null) {
+            $data['sort_order'] = (int) $request->input('sort_order');
+        } else {
+            $data['sort_order'] = Banner::where('banner_campaign_id', $data['banner_campaign_id'])->max('sort_order') + 1;
+        }
+        
         $data['banner_campaign_id'] = $data['banner_campaign_id'];
 
         $banner = Banner::create($data);
@@ -72,6 +79,7 @@ class BannerController extends Controller
             'link' => 'nullable|string|max:255',
             'position' => 'required|string|max:50',
             'is_active' => 'boolean',
+            'sort_order' => 'nullable|integer',
             'image' => 'nullable|image|mimes:jpeg,png,webp,gif|max:20480',
             'banner_campaign_id' => 'required|exists:banner_campaigns,id',
         ]);
@@ -89,6 +97,10 @@ class BannerController extends Controller
 
         if ($request->has('is_active')) {
             $data['is_active'] = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN);
+        }
+        
+        if ($request->has('sort_order') && $request->input('sort_order') !== null) {
+            $data['sort_order'] = (int) $request->input('sort_order');
         }
 
         $banner->update($data);

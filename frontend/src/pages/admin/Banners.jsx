@@ -31,7 +31,7 @@ const Banners = () => {
 
   const [showBannerModal, setShowBannerModal] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
-  const [bannerForm, setBannerForm] = useState({ title: "", subtitle: "", position: "storefront_middle", link: "", is_active: true });
+  const [bannerForm, setBannerForm] = useState({ title: "", subtitle: "", position: "storefront_middle", link: "", sort_order: "", is_active: true });
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -104,10 +104,10 @@ const Banners = () => {
   const handleOpenBannerModal = (banner = null) => {
     if (banner) {
       setEditingBanner(banner);
-      setBannerForm({ title: banner.title || "", subtitle: banner.subtitle || "", position: banner.position || "storefront_middle", link: banner.link || "", is_active: banner.is_active });
+      setBannerForm({ title: banner.title || "", subtitle: banner.subtitle || "", position: banner.position || "storefront_middle", link: banner.link || "", sort_order: banner.sort_order ?? "", is_active: banner.is_active });
     } else {
       setEditingBanner(null);
-      setBannerForm({ title: "", subtitle: "", position: selectedPosition ? selectedPosition.id : "storefront_middle", link: "", is_active: true });
+      setBannerForm({ title: "", subtitle: "", position: selectedPosition ? selectedPosition.id : "storefront_middle", link: "", sort_order: "", is_active: true });
     }
     setImageFile(null);
     setShowBannerModal(true);
@@ -122,6 +122,9 @@ const Banners = () => {
       payload.append("subtitle", bannerForm.subtitle || "");
       payload.append("link", bannerForm.link || "");
       payload.append("position", bannerForm.position);
+      if (bannerForm.sort_order !== "") {
+        payload.append("sort_order", bannerForm.sort_order);
+      }
       payload.append("is_active", bannerForm.is_active ? "1" : "0");
       payload.append("banner_campaign_id", selectedCampaign.id);
       
@@ -315,6 +318,7 @@ const Banners = () => {
                 </select>
               </div>
               <div><label className="block text-sm font-semibold mb-1 dark:text-white">Link (URL)</label><input type="url" value={bannerForm.link} onChange={e => setBannerForm({...bannerForm, link: e.target.value})} className="w-full p-2 border rounded-lg dark:bg-secondary-800 dark:text-white" /></div>
+              <div><label className="block text-sm font-semibold mb-1 dark:text-white">Display Order (optional)</label><input type="number" placeholder="1 = First, 2 = Second..." value={bannerForm.sort_order} onChange={e => setBannerForm({...bannerForm, sort_order: e.target.value})} className="w-full p-2 border rounded-lg dark:bg-secondary-800 dark:text-white" /></div>
               <div className="flex items-center gap-2"><input type="checkbox" checked={bannerForm.is_active} onChange={e => setBannerForm({...bannerForm, is_active: e.target.checked})} className="w-4 h-4" /><span className="dark:text-white">Active</span></div>
               <button disabled={isSubmitting} className="w-full py-2.5 bg-primary-600 text-white rounded-lg font-bold hover:bg-primary-700 disabled:opacity-50">Save Banner</button>
             </form>
