@@ -310,7 +310,20 @@ const Banners = () => {
           <div className="bg-white dark:bg-secondary-900 w-full max-w-lg rounded-2xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
             <div className="p-5 border-b border-secondary-200 dark:border-secondary-800 flex justify-between"><h2 className="font-bold dark:text-white">{editingBanner ? "Edit Banner" : "Upload Banner"}</h2><button onClick={() => setShowBannerModal(false)}><X className="w-5 h-5" /></button></div>
             <form onSubmit={handleBannerSubmit} className="p-5 space-y-4 overflow-y-auto flex-1">
-              <div><label className="block text-sm font-semibold mb-1 dark:text-white">Image</label><input type="file" accept="image/*" onChange={e => setImageFile(e.target.files[0])} className="w-full" /></div>
+              <div>
+                <label className="block text-sm font-semibold mb-2 dark:text-white">Banner Image</label>
+                {editingBanner && !imageFile && (
+                  <div className="mb-3 rounded-lg overflow-hidden border border-secondary-200 dark:border-secondary-700 max-w-[200px]">
+                    <img src={editingBanner.image_url || editingBanner.image} alt="Current" className="w-full h-auto object-cover" />
+                    <div className="bg-secondary-100 dark:bg-secondary-800 p-1 text-center text-xs text-secondary-600 dark:text-secondary-400">Current Image</div>
+                  </div>
+                )}
+                {imageFile && (
+                  <div className="mb-2 text-sm text-primary-600 dark:text-primary-400 font-medium">New image selected: {imageFile.name}</div>
+                )}
+                <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files[0])} className="w-full text-sm dark:text-secondary-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 dark:file:bg-primary-900/30 dark:file:text-primary-400" />
+                {!editingBanner && <p className="text-xs text-secondary-500 mt-1">Image is required for new banners.</p>}
+              </div>
               <div>
                 <label className="block text-sm font-semibold mb-1 dark:text-white">Position</label>
                 <select value={bannerForm.position} onChange={e => setBannerForm({...bannerForm, position: e.target.value})} className="w-full p-2.5 border rounded-lg dark:bg-secondary-800 dark:text-white" required>
