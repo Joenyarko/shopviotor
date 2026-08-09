@@ -54,7 +54,7 @@ const AdminRaffles = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [category, setCategory] = useState('');
   const [ticketPrice, setTicketPrice] = useState('');
-  const [maxTickets, setMaxTickets] = useState('');
+  const [maxParticipants, setMaxParticipants] = useState('');
   const [drawDate, setDrawDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [status, setStatus] = useState('active');
@@ -114,7 +114,7 @@ const AdminRaffles = () => {
   const resetForm = () => {
     setProductId(''); setTitle(''); setDescription(''); setCategory('');
     setImageFile(null); setImagePreview(null); setImageUrl('');
-    setTicketPrice(''); setMaxTickets(''); setDrawDate(''); setEndDate(''); setStatus('active');
+    setTicketPrice(''); setMaxParticipants(''); setDrawDate(''); setEndDate(''); setStatus('active');
     setPrizeValue(''); setMaxPerUser(''); setIsSponsored(false); setAllowMultiple(true);
     setErrorMsg('');
   };
@@ -135,7 +135,7 @@ const AdminRaffles = () => {
     setImageFile(null);
     setCategory(r.category || '');
     setTicketPrice(r.ticket_price || '');
-    setMaxTickets(r.max_tickets || '');
+    setMaxParticipants(r.max_participants || '');
     setDrawDate(r.drawn_at ? r.drawn_at.slice(0, 16) : '');
     setEndDate(r.ends_at ? r.ends_at.slice(0, 16) : '');
     setStatus(r.status || 'active');
@@ -214,7 +214,7 @@ const AdminRaffles = () => {
     if (description) payload.append('description', description);
     if (category) payload.append('category', category);
     payload.append('ticket_price', ticketPrice);
-    if (maxTickets) payload.append('max_tickets', maxTickets);
+    if (maxParticipants) payload.append('max_participants', maxParticipants);
     if (drawDate) payload.append('drawn_at', drawDate);
     if (endDate) payload.append('ends_at', endDate);
     payload.append('status', status);
@@ -491,8 +491,9 @@ const AdminRaffles = () => {
                   <input type="number" required min="0.01" step="0.01" value={ticketPrice} onChange={e => setTicketPrice(e.target.value)} className={inputClass} placeholder="e.g. 5.00" />
                 </div>
                 <div>
-                  <label className={labelClass}>Max Tickets *</label>
-                  <input type="number" required min="1" value={maxTickets} onChange={e => setMaxTickets(e.target.value)} className={inputClass} placeholder="e.g. 1000" />
+                  <label className={labelClass}>Max People (Unique Accounts)</label>
+                  <input type="number" required min="1" value={maxParticipants} onChange={e => setMaxParticipants(e.target.value)} className={inputClass} placeholder="e.g. 400" />
+                  <p className="text-xs text-secondary-400 mt-1">Once this many unique accounts have bought a ticket, no new participants can join. Existing participants can still buy more (up to their per-user limit).</p>
                 </div>
               </div>
 

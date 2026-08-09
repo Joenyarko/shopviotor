@@ -20,7 +20,7 @@ class Raffle extends Model
     protected $fillable = [
         'uuid', 'title', 'description', 'product_id',
         'prize_description', 'prize_value', 'ticket_price',
-        'max_tickets', 'tickets_sold', 'status', 'image',
+        'max_tickets', 'max_participants', 'tickets_sold', 'status', 'image',
         'starts_at', 'ends_at', 'drawn_at', 'created_by', 'terms_conditions',
         'category', 'max_per_user', 'allow_multiple', 'is_sponsored',
     ];
@@ -97,5 +97,23 @@ class Raffle extends Model
     {
         if (is_null($this->max_tickets)) return null;
         return $this->max_tickets - $this->tickets_sold;
+    }
+
+    /**
+     * Count unique participants (unique user_ids with at least 1 ticket).
+     */
+    public function getParticipantCountAttribute(): int
+    {
+        return $this->tickets()->distinct('user_id')->count('user_id');
+    }
+
+    /**
+     * Check if the raffle is still open to NEW participants.
+     * Existing participants are never blocked from buying more tickets (unless max_per_user hit).
+     */
+    public function hasAvailableParticipantSlots(): bool
+    {
+        if (is_null($this->max_participants)) return true;
+        return $this->participant_count < $this->max_participants;
     }
 }

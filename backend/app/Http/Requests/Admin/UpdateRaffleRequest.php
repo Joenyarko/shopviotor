@@ -40,6 +40,7 @@ class UpdateRaffleRequest extends FormRequest
             'image' => 'nullable', // Can be file or string
             'ticket_price' => 'nullable|numeric|min:0',
             'max_tickets' => 'nullable|integer|min:1',
+            'max_participants' => 'nullable|integer|min:1',
             'ends_at' => 'nullable|date',
             'drawn_at' => 'nullable|date',
             'status' => 'nullable|in:active,draft,closed,completed',

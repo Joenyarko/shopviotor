@@ -89,10 +89,23 @@ class RaffleController extends Controller
                 }
             }
 
-            // Fresh DB count to avoid stale tickets_sold value
-            $soldCount = \App\Models\RaffleTicket::where('raffle_id', $raffle->id)->count();
-            if ($raffle->max_tickets && ($soldCount + $quantity) > $raffle->max_tickets) {
-                abort(422, 'Not enough tickets available. Only ' . ($raffle->max_tickets - $soldCount) . ' left.');
+            // Check max_participants: gate NEW users when participant cap is hit.
+            // Existing participants (already have ≥1 ticket) can still buy more.
+            if ($raffle->max_participants) {
+                $isExistingParticipant = \App\Models\RaffleTicket::where('raffle_id', $raffle->id)
+                    ->where('user_id', $user->id)
+                    ->exists();
+
+                if (!$isExistingParticipant) {
+                    $uniqueParticipants = \App\Models\RaffleTicket::where('raffle_id', $raffle->id)
+                        ->distinct('user_id')
+                        ->count('user_id');
+
+                    if ($uniqueParticipants >= $raffle->max_participants) {
+                        abort(422, 'This raffle has reached its maximum of ' . $raffle->max_participants .
+                            ' participants. No new accounts can join, but existing participants may still purchase more tickets.');
+                    }
+                }
             }
 
             return $raffle;
