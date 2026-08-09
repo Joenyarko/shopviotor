@@ -69,16 +69,16 @@ const AdminRaffles = () => {
     setLoading(true);
     try {
       const res = await raffleService.adminGetRaffles();
-      setRaffles(res.data?.data?.data || res.data?.data || res.data || MOCK_RAFFLES);
-    } catch { setRaffles(MOCK_RAFFLES); } finally { setLoading(false); }
+      setRaffles(res.data?.data?.data || res.data?.data || res.data || []);
+    } catch { setRaffles([]); } finally { setLoading(false); }
   };
 
   const loadWinners = async () => {
     setLoadingWinners(true);
     try {
       const res = await raffleService.adminGetWinners();
-      setWinners(res.data?.data?.data || res.data?.data || res.data || MOCK_WINNERS);
-    } catch { setWinners(MOCK_WINNERS); } finally { setLoadingWinners(false); }
+      setWinners(res.data?.data?.data || res.data?.data || res.data || []);
+    } catch { setWinners([]); } finally { setLoadingWinners(false); }
   };
 
   const loadProducts = async () => {
@@ -603,17 +603,6 @@ const AdminRaffles = () => {
     </div>
   );
 };
-
-// Mock data fallback
-const MOCK_RAFFLES = [
-  { uuid: 'raf1', title: 'iPhone 17 Pro Max Raffle', category: 'Smartphones', ticket_price: 10, tickets_sold: 153, max_tickets: 1000, draw_date: new Date(Date.now() + 4 * 86400000).toISOString(), status: 'active', image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=120&auto=format&fit=crop&q=60' },
-  { uuid: 'raf2', title: 'MacBook Pro M4 Raffle', category: 'Laptops', ticket_price: 25, tickets_sold: 200, max_tickets: 200, draw_date: new Date(Date.now() - 86400000).toISOString(), status: 'closed', image: null },
-];
-
-const MOCK_WINNERS = [
-  { id: 1, user_name: 'Anthony Adjege', raffle_title: 'iPhone 17 Pro Max', ticket_number: 'TKT-0042', prize_value: 25000, draw_date: '2025-02-28' },
-  { id: 2, user_name: 'appalling843', raffle_title: 'Samsung / TCL 55" Smart TV', ticket_number: 'TKT-0017', prize_value: 8000, draw_date: '2025-06-14' },
-];
 
 export default AdminRaffles;
 export { AdminRaffles };

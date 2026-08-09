@@ -14,16 +14,7 @@ const gradients = [
   'from-fuchsia-500 to-pink-600',
 ];
 
-const MOCK_WINNERS = [
-  { id: 1, user_name: 'appalling843', raffle_title: 'Samsung / TCL 55" Smart TV', ticket_price: 8000, draw_date: '2025-06-14', amount_paid: 5 },
-  { id: 2, user_name: 'Anthony Adjege', raffle_title: 'iPhone 17 Pro Max', ticket_price: 25000, draw_date: '2025-02-28', amount_paid: 10 },
-  { id: 3, user_name: 'Akampoi Dominic', raffle_title: 'AirtelTigo Data Bundle', ticket_price: 50, draw_date: '2025-11-03', amount_paid: 5 },
-  { id: 4, user_name: 'Margam alassan', raffle_title: 'AirtelTigo Data Bundle', ticket_price: 50, draw_date: '2025-11-03', amount_paid: 5 },
-  { id: 5, user_name: 'Kwame Asante', raffle_title: 'TECNO MegaBook K15S', ticket_price: 12000, draw_date: '2025-12-01', amount_paid: 10 },
-  { id: 6, user_name: 'Ama Boateng', raffle_title: 'Samsung Galaxy A16', ticket_price: 2000, draw_date: '2025-10-20', amount_paid: 5 },
-  { id: 7, user_name: 'Kofi Mensah', raffle_title: 'iPad Pro 11"', ticket_price: 8500, draw_date: '2026-01-15', amount_paid: 10 },
-  { id: 8, user_name: 'Abena Serwaa', raffle_title: 'PlayStation 5', ticket_price: 4500, draw_date: '2026-02-20', amount_paid: 5 },
-];
+
 
 const RaffleWinners = () => {
   const [winners, setWinners] = useState([]);
@@ -37,13 +28,13 @@ const RaffleWinners = () => {
       const res = await raffleService.getWinners({ page: p, per_page: 12 });
       const data = res.data?.data || res.data || [];
       if (p === 1) {
-        setWinners(data.length > 0 ? data : MOCK_WINNERS);
+        setWinners(data);
       } else {
         setWinners(prev => [...prev, ...data]);
       }
       setHasMore(data.length === 12);
     } catch {
-      if (p === 1) setWinners(MOCK_WINNERS);
+      if (p === 1) setWinners([]);
     } finally {
       setLoading(false);
     }

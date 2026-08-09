@@ -155,10 +155,10 @@ const Raffles = () => {
         ]);
         const raffleData = raffleRes.status === 'fulfilled'
           ? (raffleRes.value.data?.data || raffleRes.value.data || [])
-          : MOCK_RAFFLES;
+          : [];
         const winnerData = winnerRes.status === 'fulfilled'
           ? (winnerRes.value.data?.data || winnerRes.value.data || [])
-          : MOCK_WINNERS;
+          : [];
 
         setRaffles(raffleData);
         setWinners(winnerData);
@@ -170,8 +170,8 @@ const Raffles = () => {
         });
       } catch (e) {
         console.error(e);
-        setRaffles(MOCK_RAFFLES);
-        setWinners(MOCK_WINNERS);
+        setRaffles([]);
+        setWinners([]);
       } finally {
         setLoading(false);
       }
@@ -328,45 +328,7 @@ const Raffles = () => {
   );
 };
 
-// ──────────────────────────────────────────────
-// Mock data (fallback when API is unavailable)
-// ──────────────────────────────────────────────
-const MOCK_RAFFLES = [
-  {
-    uuid: 'mock-1',
-    title: 'Samsung Galaxy A16 (6.7", 50MP)',
-    description: 'Stand a chance to win the brand new Samsung Galaxy A16!',
-    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=60',
-    ticket_price: 5, tickets_sold: 150, max_tickets: 1000,
-    draw_date: new Date(Date.now() + 7 * 86400000).toISOString(),
-    category: 'Smartphones',
-  },
-  {
-    uuid: 'mock-2',
-    title: 'TECNO MegaBook K15S AMD R5 (512GB)',
-    description: 'Win the powerful TECNO MegaBook laptop!',
-    image: 'https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=600&auto=format&fit=crop&q=60',
-    ticket_price: 10, tickets_sold: 96, max_tickets: 1000,
-    draw_date: new Date(Date.now() + 3 * 86400000).toISOString(),
-    category: 'Laptops',
-  },
-  {
-    uuid: 'mock-3',
-    title: 'Samsung/TCL 55" Smart TV',
-    description: 'Experience cinema at home with this stunning smart TV!',
-    image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f4834c?w=600&auto=format&fit=crop&q=60',
-    ticket_price: 5, tickets_sold: 319, max_tickets: 1000,
-    draw_date: new Date(Date.now() + 5 * 86400000).toISOString(),
-    category: 'Electronics',
-  },
-];
 
-const MOCK_WINNERS = [
-  { id: 1, user_name: 'appalling843', raffle_title: 'Samsung / TCL 55" Smart TV', ticket_price: 8000, draw_date: '2025-06-14' },
-  { id: 2, user_name: 'Anthony Adjege', raffle_title: 'iPhone 17 Pro Max', ticket_price: 25000, draw_date: '2025-02-28' },
-  { id: 3, user_name: 'Akampoi Dominic', raffle_title: 'AirtelTigo Data Bundle', ticket_price: 50, draw_date: '2025-11-03' },
-  { id: 4, user_name: 'Margam alassan', raffle_title: 'AirtelTigo Data Bundle', ticket_price: 50, draw_date: '2025-11-03' },
-];
 
 export default Raffles;
 export { Raffles };
