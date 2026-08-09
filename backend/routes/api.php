@@ -248,6 +248,7 @@ Route::prefix('v1')->group(function () {
 
             // Raffles (Admin)
             Route::get('/raffles/winners', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'winners']);
+            Route::delete('/raffles/winners/{id}', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'deleteWinner']);
             Route::get('/raffles/{uuid}/tickets', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'tickets']);
             Route::post('/raffles/{uuid}/draw', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'draw']);
             Route::apiResource('raffles', \App\Http\Controllers\Api\V1\Admin\RaffleController::class)->except(['show']);

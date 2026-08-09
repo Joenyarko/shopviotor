@@ -166,6 +166,24 @@ const AdminRaffles = () => {
     } catch (e) { Swal.fire('Error', e.response?.data?.message || e.message || 'Failed to delete.', 'error'); }
   };
 
+  const handleDeleteWinner = async (id) => {
+    const result = await Swal.fire({
+      title: 'Remove Winner?',
+      text: "This will remove them from the winners history.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#3b82f6',
+      confirmButtonText: 'Yes, remove them'
+    });
+    if (!result.isConfirmed) return;
+    try {
+      await raffleService.adminDeleteWinner(id);
+      loadWinners();
+      Swal.fire('Removed!', 'Winner has been removed.', 'success');
+    } catch (e) { Swal.fire('Error', e.response?.data?.message || e.message || 'Failed to remove winner.', 'error'); }
+  };
+
   const handleDraw = async (uuid, ticketId, userName) => {
     const result = await Swal.fire({
       title: 'Select as Winner?',
@@ -385,6 +403,7 @@ const AdminRaffles = () => {
                   <th className="p-4">Ticket #</th>
                   <th className="p-4">Prize Value</th>
                   <th className="p-4">Draw Date</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
@@ -405,6 +424,11 @@ const AdminRaffles = () => {
                     </td>
                     <td className="p-4 text-secondary-600 dark:text-secondary-300">
                       {w.draw_date ? new Date(w.draw_date).toLocaleDateString() : '—'}
+                    </td>
+                    <td className="p-4 text-right">
+                      <button onClick={() => handleDeleteWinner(w.id)} className="p-1.5 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20 rounded-lg" title="Remove Winner">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -78,11 +78,7 @@ class RaffleController extends Controller
     {
         $raffle = Raffle::where('uuid', $uuid)->firstOrFail();
         
-        if ($raffle->tickets()->exists()) {
-            return response()->json([
-                'message' => 'Cannot delete raffle that already has tickets sold.',
-            ], 422);
-        }
+
 
         $raffle->delete();
 
@@ -141,6 +137,21 @@ class RaffleController extends Controller
             ->paginate($request->input('per_page', 15));
 
         return response()->json($winners);
+    }
+
+    public function deleteWinner($id): JsonResponse
+    {
+        $winner = \App\Models\RaffleWinner::findOrFail($id);
+        
+        // Reset the ticket's is_winner flag
+        $ticket = \App\Models\RaffleTicket::find($winner->raffle_ticket_id);
+        if ($ticket) {
+            $ticket->update(['is_winner' => false]);
+        }
+        
+        $winner->delete();
+
+        return response()->json(['message' => 'Winner record deleted successfully.']);
     }
 
     public function tickets(string $uuid, Request $request): JsonResponse
