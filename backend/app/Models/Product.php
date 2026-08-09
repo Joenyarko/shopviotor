@@ -36,7 +36,7 @@ class Product extends Model
         'preorder_deposit_amount',
         'preorder_expected_date',
         'location', 'city', 'region',
-        'specifications', 'tags', 'views_count', 'likes_count',
+        'specifications', 'key_features', 'tags', 'views_count', 'likes_count',
         'average_rating', 'reviews_count',
         'meta_title', 'meta_description', 'meta_keywords',
     ];
@@ -56,6 +56,7 @@ class Product extends Model
             'is_layaway'                  => 'boolean',
             'available_for_layaway'       => 'boolean',
             'specifications'              => 'array',
+            'key_features'                => 'array',
             'tags'                        => 'array',
             'status'                      => ProductStatus::class,
         ];

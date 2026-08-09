@@ -42,6 +42,7 @@ class ProductResource extends JsonResource
             'preorder_deposit_amount'     => $this->preorder_deposit_amount,
             'preorder_expected_date'      => $this->preorder_expected_date,
             'specifications'              => $this->specifications,
+            'key_features'                => $this->key_features,
             'tags'                        => $this->tags,
             'primary_image'               => $this->primary_image,
             'category'                    => new CategoryResource($this->whenLoaded('category')),

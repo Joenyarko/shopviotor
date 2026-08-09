@@ -70,6 +70,7 @@ const Products = () => {
   // Variation states  [ { name, options: [{value, price_delta}] } ]
   const [variations, setVariations] = useState([]);
   const [specifications, setSpecifications] = useState([]);
+  const [keyFeatures, setKeyFeatures] = useState([]);
 
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -95,7 +96,7 @@ const Products = () => {
     setIsNegotiable(false); setAvailableForTrade(false); setAvailableForHp(false); setHpInterestRate(''); setHpMinDeposit(''); setHpMaxDuration(''); setAvailableForLayaway(false); setLayawayTotalBoxes(''); 
     setAvailableForPreorder(false); setPreorderDepositAmount(''); setPreorderExpectedDate('');
     setIsFeatured(false); setExistingImages([]);
-    setImageFiles([]); setImagePreviews([]); setActiveImageIdx(0); setVariations([]); setSpecifications([]);
+    setImageFiles([]); setImagePreviews([]); setActiveImageIdx(0); setVariations([]); setSpecifications([]); setKeyFeatures([]);
     setErrorMsg(''); setActiveTab('basic');
   };
 
@@ -209,6 +210,11 @@ const Products = () => {
   const removeSpecification = (idx) => setSpecifications(prev => prev.filter((_, i) => i !== idx));
   const updateSpecification = (idx, field, val) => setSpecifications(prev => prev.map((s, i) => i === idx ? { ...s, [field]: val } : s));
 
+  // --- KEY FEATURES HANDLING ---
+  const addKeyFeature = () => setKeyFeatures(prev => [...prev, '']);
+  const removeKeyFeature = (idx) => setKeyFeatures(prev => prev.filter((_, i) => i !== idx));
+  const updateKeyFeature = (idx, val) => setKeyFeatures(prev => prev.map((f, i) => i === idx ? val : f));
+
   // --- SUBMIT ---
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -255,6 +261,9 @@ const Products = () => {
       if (s.key.trim() && s.value.trim()) specsObj[s.key.trim()] = s.value.trim();
     });
     formData.append('specifications', JSON.stringify(specsObj));
+
+    const validKeyFeatures = keyFeatures.filter(f => f.trim() !== '');
+    formData.append('key_features', JSON.stringify(validKeyFeatures));
 
     existingImages.forEach((img, i) => formData.append(`existing_images[${i}]`, img.id));
     imageFiles.forEach((file, i) => formData.append(`images[${i}]`, file));
@@ -596,6 +605,24 @@ const Products = () => {
                   <button type="button" onClick={addSpecification} className="w-full border-2 border-dashed border-secondary-300 dark:border-secondary-700 hover:border-primary-500 rounded-xl py-3 flex items-center justify-center gap-2 text-secondary-500 dark:text-secondary-400 hover:text-primary-500 transition-colors text-sm font-semibold">
                     <Plus className="w-4 h-4" /> Add Specification
                   </button>
+
+                  <div className="pt-6 border-t border-secondary-200 dark:border-secondary-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <div>
+                        <h4 className="font-bold text-secondary-900 dark:text-white">Key Features</h4>
+                        <p className="text-xs text-secondary-500">Add highlight bullet points (e.g. "Long battery life").</p>
+                      </div>
+                    </div>
+                    {keyFeatures.map((feature, fIdx) => (
+                      <div key={fIdx} className="flex items-center gap-2 mb-2">
+                        <input type="text" placeholder="e.g. 5G Enabled" value={feature} onChange={e => updateKeyFeature(fIdx, e.target.value)} className="flex-1 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-700 rounded-lg px-3 py-2 text-sm text-secondary-900 dark:text-white" />
+                        <button type="button" onClick={() => removeKeyFeature(fIdx)} className="p-2 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-900/20 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={addKeyFeature} className="w-full border-2 border-dashed border-secondary-300 dark:border-secondary-700 hover:border-primary-500 rounded-xl py-3 mt-2 flex items-center justify-center gap-2 text-secondary-500 dark:text-secondary-400 hover:text-primary-500 transition-colors text-sm font-semibold">
+                      <Plus className="w-4 h-4" /> Add Key Feature
+                    </button>
+                  </div>
                 </div>
               )}
 

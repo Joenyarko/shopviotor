@@ -438,16 +438,20 @@ const ProductDetails = () => {
               <div className="flex-1">
                 <h3 className="font-bold text-secondary-900 dark:text-white mb-4 uppercase text-sm tracking-wide">Key Features</h3>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-secondary-700 dark:text-secondary-300">
-                  {product.available_for_trade && (
-                    <li>Eligible for direct Trade by Barter</li>
-                  )}
-                  {product.available_for_hire_purchase && (
-                    <li>Available for Pay-in-Installments (Hire Purchase)</li>
-                  )}
-                  {product.condition && <li className="capitalize">Condition: {product.condition.replace('_', ' ')}</li>}
-                  {product.is_negotiable && <li>Price is negotiable upon contact</li>}
-                  {(!product.available_for_trade && !product.available_for_hire_purchase && !product.condition && !product.is_negotiable) && (
-                    <li>See technical specs below for details</li>
+                  {product.key_features && product.key_features.length > 0 ? (
+                    product.key_features.map((feature, idx) => (
+                      <li key={idx}>{feature}</li>
+                    ))
+                  ) : (
+                    <>
+                      {product.available_for_trade && <li>Eligible for direct Trade by Barter</li>}
+                      {product.available_for_hire_purchase && <li>Available for Pay-in-Installments (Hire Purchase)</li>}
+                      {product.condition && <li className="capitalize">Condition: {product.condition.replace('_', ' ')}</li>}
+                      {product.is_negotiable && <li>Price is negotiable upon contact</li>}
+                      {(!product.available_for_trade && !product.available_for_hire_purchase && !product.condition && !product.is_negotiable) && (
+                        <li>See technical specs below for details</li>
+                      )}
+                    </>
                   )}
                 </ul>
               </div>

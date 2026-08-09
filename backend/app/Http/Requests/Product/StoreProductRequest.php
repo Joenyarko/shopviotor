@@ -37,6 +37,10 @@ class StoreProductRequest extends FormRequest
             $merge['specifications'] = json_decode($this->specifications, true);
         }
 
+        if ($this->has('key_features') && is_string($this->key_features)) {
+            $merge['key_features'] = json_decode($this->key_features, true);
+        }
+
         if (!empty($merge)) {
             $this->merge($merge);
         }
@@ -88,6 +92,8 @@ class StoreProductRequest extends FormRequest
             'city'                        => ['nullable', 'string', 'max:100'],
             'region'                      => ['nullable', 'string', 'max:100'],
             'specifications'              => ['nullable', 'array'],
+            'key_features'                => ['nullable', 'array'],
+            'key_features.*'              => ['nullable', 'string'],
             'tags'                        => ['nullable', 'array'],
             'meta_title'                  => ['nullable', 'string', 'max:255'],
             'meta_description'            => ['nullable', 'string', 'max:500'],
