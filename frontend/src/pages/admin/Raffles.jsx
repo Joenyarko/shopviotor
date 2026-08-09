@@ -22,6 +22,7 @@ const AdminRaffles = () => {
   const [editingRaffle, setEditingRaffle] = useState(null);
   const [holdersRaffle, setHoldersRaffle] = useState(null);
   const [holders, setHolders] = useState([]);
+  const [expandedUser, setExpandedUser] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -565,34 +566,62 @@ const AdminRaffles = () => {
               {holders.length === 0 ? (
                 <p className="text-center text-secondary-400 text-sm py-8">No ticket holders yet.</p>
               ) : (
-                holders.map((h, i) => (
-                  <div key={h.id || i} className="flex items-center justify-between p-3 bg-secondary-50 dark:bg-secondary-800 rounded-xl">
-                    <div>
-                      <p className="font-semibold text-secondary-900 dark:text-white text-sm">{h.user_name || h.user?.name || 'Anonymous'}</p>
-                      <p className="text-xxs font-mono text-secondary-400">{h.ticket_number}</p>
-                    </div>
-                    <div className="text-right flex items-center gap-3">
+                Object.values(holders.reduce((acc, h) => {
+                  const name = h.user_name || h.user?.name || 'Anonymous';
+                  const id = h.user_id || h.user?.id || name;
+                  if (!acc[id]) acc[id] = { id, name, amount: 0, tickets: [], isWinner: false };
+                  acc[id].amount += parseFloat(h.amount_paid || 0);
+                  acc[id].tickets.push(h);
+                  if (h.is_winner) acc[id].isWinner = true;
+                  return acc;
+                }, {})).map((group, i) => (
+                  <div key={group.id || i} className="bg-secondary-50 dark:bg-secondary-800 rounded-xl overflow-hidden border border-secondary-100 dark:border-secondary-700">
+                    <div 
+                      onClick={() => setExpandedUser(expandedUser === group.id ? null : group.id)}
+                      className="flex items-center justify-between p-3 cursor-pointer hover:bg-secondary-100 dark:hover:bg-secondary-700/60 transition-colors"
+                    >
                       <div>
-                        <p className="text-xxs text-secondary-500 dark:text-secondary-400">GHS {parseFloat(h.amount_paid || 0).toFixed(2)}</p>
+                        <p className="font-semibold text-secondary-900 dark:text-white text-sm flex items-center gap-2">
+                          {group.name}
+                          <span className="px-2 py-0.5 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-400 text-xs font-bold">
+                            {group.tickets.length} Ticket{group.tickets.length > 1 ? 's' : ''}
+                          </span>
+                        </p>
                       </div>
-                      
-                      {(holdersRaffle.status === 'closed' || holdersRaffle.status === 'active') && !h.is_winner && (
-                        <button 
-                          onClick={() => handleDraw(holdersRaffle.uuid, h.id, h.user_name || h.user?.name || 'Anonymous')}
-                          disabled={drawing === h.id}
-                          className="px-3 py-1.5 text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800/40 rounded-lg flex items-center gap-1 transition-colors"
-                        >
-                          {drawing === h.id ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Trophy className="w-3 h-3" />}
-                          Winner
-                        </button>
-                      )}
-                      {h.is_winner && (
-                        <span className="px-3 py-1.5 text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg flex items-center gap-1">
-                          <CheckCircle className="w-3 h-3" />
-                          Selected
-                        </span>
-                      )}
+                      <div className="text-right flex items-center gap-3">
+                        <p className="text-xs font-semibold text-secondary-700 dark:text-secondary-300">GHS {group.amount.toFixed(2)}</p>
+                        {group.isWinner && (
+                          <Trophy className="w-4 h-4 text-amber-500" />
+                        )}
+                        <ChevronRight className={`w-4 h-4 text-secondary-400 transition-transform ${expandedUser === group.id ? 'rotate-90' : ''}`} />
+                      </div>
                     </div>
+                    
+                    {expandedUser === group.id && (
+                      <div className="p-3 pt-0 border-t border-secondary-200 dark:border-secondary-700/50 space-y-2 mt-2">
+                        {group.tickets.map(h => (
+                          <div key={h.id} className="flex items-center justify-between py-1.5 px-2 bg-white dark:bg-secondary-900/50 rounded-lg">
+                            <p className="text-xs font-mono text-secondary-500 dark:text-secondary-400">{h.ticket_number}</p>
+                            <div className="flex items-center gap-2">
+                              {(holdersRaffle.status === 'closed' || holdersRaffle.status === 'active') && !h.is_winner && (
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); handleDraw(holdersRaffle.uuid, h.id, group.name); }}
+                                  disabled={drawing === h.id}
+                                  className="px-2 py-1 text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800/40 rounded flex items-center gap-1 transition-colors"
+                                >
+                                  {drawing === h.id ? <RefreshCw className="w-3 h-3 animate-spin" /> : 'Select'}
+                                </button>
+                              )}
+                              {h.is_winner && (
+                                <span className="px-2 py-1 text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded flex items-center gap-1">
+                                  <CheckCircle className="w-3 h-3" /> Winner
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))
               )}
