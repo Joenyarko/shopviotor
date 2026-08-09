@@ -68,7 +68,19 @@ const Orders = () => {
     }
   };
 
-  const handleDeleteOrder = (order) => {
+  const handleDeleteOrder = async (order) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You are about to delete this order. You'll have 10 seconds to undo.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!result.isConfirmed) return;
+
     // Optimistically remove from state
     setOrders(prev => prev.filter(o => o.id !== order.id));
     
