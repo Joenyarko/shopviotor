@@ -78,7 +78,7 @@ const VendorStores = () => {
     setProcessing(true);
     try {
       const res = await vendorService.adminVerifyStore(uuid);
-      setSelectedStore(prev => prev ? { ...prev, is_verified: res.data.is_verified } : null);
+      setSelectedStore(prev => prev ? { ...prev, is_verified: res?.is_verified } : null);
       loadStores();
     } catch (e) { Swal.fire({ text: String(e.message || 'Failed to verify.') }); }
     finally { setProcessing(false); }
