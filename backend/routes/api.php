@@ -162,6 +162,13 @@ Route::prefix('v1')->group(function () {
         Route::post('/layaways/{uuid}/pay', [LayawayController::class, 'pay']);
         Route::get('/layaways/settings/terms', [LayawayController::class, 'terms']);
 
+        Route::get('/settings/public', function () {
+            return response()->json([
+                'tax_rate' => (float) \App\Models\Setting::getValue('tax_rate', 0),
+                'default_shipping_fee' => (float) \App\Models\Setting::getValue('default_shipping_fee', 30),
+            ]);
+        });
+
         // Pre-Orders
         Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\PreOrderController::class, 'index']);
         Route::post('/pre-orders', [\App\Http\Controllers\Api\V1\PreOrderController::class, 'store']);

@@ -31,7 +31,8 @@ class OrderService
             }
 
             $shipping = collect($items)->sum('shipping');
-            $tax      = $data['tax_amount'] ?? 0;
+            $taxRate  = (float) \App\Models\Setting::getValue('tax_rate', 0) / 100;
+            $tax      = ($subtotal - $discount) * $taxRate;
             $total    = $subtotal - $discount + $shipping + $tax;
 
             $order = $this->orderRepo->create([

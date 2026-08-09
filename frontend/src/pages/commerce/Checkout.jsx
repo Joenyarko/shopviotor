@@ -51,16 +51,32 @@ const Checkout = () => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(null);
+  
+  const [taxRate, setTaxRate] = useState(0.05); // Default 5% until fetched
+  const [defaultShipping, setDefaultShipping] = useState(30.00);
 
   // Fees
-  const shippingFee = cart.length > 0 ? 30.00 : 0.00;
-  const taxRate = 0.05;
+  const shippingFee = cart.reduce((total, item) => {
+    const p = item.product || item;
+    if (p.shipping_type === 'free') return total;
+    if (p.shipping_type === 'custom') return total + (parseFloat(p.custom_shipping_fee || 0) * item.quantity);
+    if (p.shipping_type === 'default') return total + (defaultShipping * item.quantity); // Fallback to settings
+    return total;
+  }, 0);
+  
   const taxFee = cartSubtotal * taxRate;
   const orderTotal = cartSubtotal + shippingFee + taxFee;
 
-  const fetchAddresses = useCallback(async () => {
+  const fetchCheckoutData = useCallback(async () => {
     setLoadingAddresses(true);
     try {
+      // Fetch public settings for tax/shipping
+      apiClient.get('/settings/public').then(res => {
+        setTaxRate((res.data?.tax_rate || 0) / 100);
+        setDefaultShipping(res.data?.default_shipping_fee || 30.00);
+      }).catch(console.error);
+
+      // Fetch addresses
       const res = await addressService.getAddresses();
       const data = res.data || res;
       setAddresses(Array.isArray(data) ? data : data.data || []);
@@ -73,7 +89,7 @@ const Checkout = () => {
     }
   }, []);
 
-  useEffect(() => { fetchAddresses(); }, [fetchAddresses]);
+  useEffect(() => { fetchCheckoutData(); }, [fetchCheckoutData]);
 
   const handleAddAddress = async () => {
     if (!newAddress.address_line_1.trim() || !newAddress.city.trim() || !newAddress.region.trim() || !newAddress.phone.trim() || !newAddress.full_name.trim()) {
@@ -85,7 +101,7 @@ const Checkout = () => {
     setErrorMsg('');
     try {
       const res = await addressService.createAddress(newAddress);
-      await fetchAddresses();
+      await fetchCheckoutData();
       setSelectedAddressId(String(res.data?.id || res.id));
       setAddingAddress(false);
       setNewAddress({ label: '', full_name: user?.first_name ? `${user.first_name} ${user.last_name}` : '', phone: user?.phone || '', address_line_1: '', city: '', region: '', country: 'Ghana', is_default: false });
@@ -335,8 +351,8 @@ const Checkout = () => {
               <div className="space-y-3">
                 {[
                   { value: 'paystack', label: 'Card / Paystack', icon: <CreditCard className="w-5 h-5" />, desc: 'Pay securely with debit/credit card' },
-                  { value: 'mobile_money', label: 'Mobile Money', icon: <Phone className="w-5 h-5" />, desc: 'MTN, Vodafone, or AirtelTigo' },
-                  { value: 'bank_transfer', label: 'Bank Transfer', icon: <Building2 className="w-5 h-5" />, desc: 'Pay via direct bank transfer' },
+                  // { value: 'mobile_money', label: 'Mobile Money', icon: <Phone className="w-5 h-5" />, desc: 'MTN, Vodafone, or AirtelTigo' },
+                  // { value: 'bank_transfer', label: 'Bank Transfer', icon: <Building2 className="w-5 h-5" />, desc: 'Pay via direct bank transfer' },
                 ].map(pm => (
                   <label key={pm.value} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                     paymentMethod === pm.value
