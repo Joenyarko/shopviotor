@@ -83,7 +83,7 @@ class ProductService
     {
         return DB::transaction(function () use ($product, $data) {
             if (isset($data['name']) && $data['name'] !== $product->name) {
-                $data['slug'] = $this->generateSlug($data['name']);
+                $data['slug'] = $this->generateSlug($data['name'], $product->id);
             }
 
             $images = $data['images'] ?? [];
@@ -237,10 +237,17 @@ class ProductService
         return $path;
     }
 
-    private function generateSlug(string $name): string
+    private function generateSlug(string $name, ?int $ignoreId = null): string
     {
         $slug = Str::slug($name);
-        $count = Product::where('slug', 'like', "{$slug}%")->count();
-        return $count ? "{$slug}-{$count}" : $slug;
+        $originalSlug = $slug;
+        $count = 1;
+
+        while (Product::withTrashed()->where('slug', $slug)->where('id', '!=', $ignoreId)->exists()) {
+            $slug = "{$originalSlug}-{$count}";
+            $count++;
+        }
+
+        return $slug;
     }
 }
