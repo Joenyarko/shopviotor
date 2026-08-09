@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import vendorService from '../../services/vendorService';
-import { Store, MapPin, Package, RefreshCw, Search, ArrowRight } from 'lucide-react';
+import { Store, MapPin, Package, RefreshCw, Search, ArrowRight, BadgeCheck } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
 const StoreList = () => {
@@ -115,7 +115,10 @@ const StoreList = () => {
                     )}
                   </div>
 
-                  <h3 className="font-bold text-secondary-900 dark:text-white group-hover:text-primary-600 transition-colors">{store.name}</h3>
+                  <h3 className="font-bold text-secondary-900 dark:text-white group-hover:text-primary-600 transition-colors flex items-center gap-1">
+                    {store.name}
+                    {store.is_verified && <BadgeCheck className="w-4 h-4 text-primary-500" title="Verified Store" />}
+                  </h3>
                   <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1 line-clamp-2">{store.description || 'No description available.'}</p>
 
                   <div className="flex items-center justify-between mt-4">

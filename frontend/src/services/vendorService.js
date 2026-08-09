@@ -33,6 +33,7 @@ const vendorService = {
   adminApproveStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/approve`),
   adminSuspendStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/suspend`),
   adminRestoreStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/restore`),
+  adminVerifyStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/verify`),
   adminUpdateCommission: (uuid, rate) => apiClient.post(`/admin/stores/${uuid}/commission`, { commission_rate: rate }),
   adminUpdatePermissions: (uuid, permissions) => apiClient.post(`/admin/stores/${uuid}/permissions`, permissions),
   

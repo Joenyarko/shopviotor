@@ -109,6 +109,9 @@ class ProductRepository extends BaseRepository
         }
 
         $sort = $filters['sort'] ?? 'latest';
+        
+        // Prioritize verified vendors
+        $query->orderByRaw('(SELECT is_verified FROM stores WHERE stores.id = products.store_id) DESC');
         if (!empty($filters['boost_category_id']) && $sort === 'latest') {
             $query->orderByRaw('CASE WHEN category_id = ? THEN 0 ELSE 1 END', [$filters['boost_category_id']]);
         }

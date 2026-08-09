@@ -191,22 +191,26 @@ const StoreFront = () => {
                   )}
                 </div>
                 {/* Verified badge */}
-                <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md"
-                  style={{ background: '#f5c000' }}>
-                  <ShieldCheck className="w-4 h-4 text-black" />
-                </div>
+                {store.is_verified && (
+                  <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md"
+                    style={{ background: '#f5c000' }}>
+                    <ShieldCheck className="w-4 h-4 text-black" />
+                  </div>
+                )}
               </div>
 
               {/* Store details */}
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-bold px-2 py-0.5 rounded-full text-black"
-                        style={{ background: '#f5c000' }}>
-                        Official Store
-                      </span>
-                    </div>
+                    {store.is_verified && (
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full text-black"
+                          style={{ background: '#f5c000' }}>
+                          Verified Vendor
+                        </span>
+                      </div>
+                    )}
                     <h1 className="text-xl md:text-2xl lg:text-3xl font-black text-secondary-900 dark:text-white leading-tight">
                       {store.name}
                     </h1>

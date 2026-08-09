@@ -288,9 +288,11 @@ const ProductDetails = () => {
                           </div>
                         )}
                         <div>
-                          <span className="text-xxs font-bold text-secondary-500 uppercase tracking-wider flex items-center gap-1">
-                            <ShieldCheck className="w-3.5 h-3.5 text-primary-500" /> Verified Seller Store
-                          </span>
+                          {product.store.is_verified && (
+                            <span className="text-xxs font-bold text-secondary-500 uppercase tracking-wider flex items-center gap-1">
+                              <ShieldCheck className="w-3.5 h-3.5 text-primary-500" /> Verified Seller Store
+                            </span>
+                          )}
                           <Link to={`/shops/${product.store.slug || product.store.id}`} className="font-extrabold text-secondary-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 text-sm md:text-base block">
                             {product.store.name}
                           </Link>

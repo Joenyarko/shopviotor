@@ -27,6 +27,7 @@ class AdminStoreController extends Controller
             'name'             => $s->name,
             'slug'             => $s->slug,
             'status'           => $s->status,
+            'is_verified'      => (bool) $s->is_verified,
             'commission_rate'         => (float) $s->commission_rate,
             'can_offer_layaway'       => (bool) $s->can_offer_layaway,
             'can_offer_hire_purchase' => (bool) $s->can_offer_hire_purchase,
@@ -108,6 +109,21 @@ class AdminStoreController extends Controller
         ]);
 
         return response()->json(['message' => 'Store restored and reactivated.']);
+    }
+
+    /**
+     * Toggle verification status for a store.
+     */
+    public function verify(string $uuid): JsonResponse
+    {
+        $store = Store::where('uuid', $uuid)->firstOrFail();
+        $store->update(['is_verified' => !$store->is_verified]);
+
+        $status = $store->is_verified ? 'verified' : 'unverified';
+        return response()->json([
+            'message'     => "Store marked as {$status}.",
+            'is_verified' => $store->is_verified,
+        ]);
     }
 
     /**

@@ -214,6 +214,7 @@ class StoreController extends Controller
             'banner_url'      => $store->banner_url,
             'banners_urls'    => $store->banners_urls,
             'status'                  => $store->status,
+            'is_verified'             => (bool) $store->is_verified,
             'commission_rate'         => (float) $store->commission_rate,
             'can_offer_layaway'       => (bool) $store->can_offer_layaway,
             'can_offer_hire_purchase' => (bool) $store->can_offer_hire_purchase,

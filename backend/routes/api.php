@@ -290,6 +290,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/stores/{uuid}/approve', [AdminStoreController::class, 'approve']);
             Route::post('/stores/{uuid}/suspend', [AdminStoreController::class, 'suspend']);
             Route::post('/stores/{uuid}/restore', [AdminStoreController::class, 'restore']);
+            Route::post('/stores/{uuid}/verify', [AdminStoreController::class, 'verify']);
             Route::post('/stores/{uuid}/commission', [AdminStoreController::class, 'updateCommission']);
             Route::post('/stores/{uuid}/permissions', [AdminStoreController::class, 'updatePermissions']);
 

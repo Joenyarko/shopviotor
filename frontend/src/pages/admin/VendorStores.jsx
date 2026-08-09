@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import React, { useState, useEffect } from 'react';
 import vendorService from '../../services/vendorService';
-import { Store, RefreshCw, Eye, Check, Ban, RotateCcw, Edit2, Search } from 'lucide-react';
+import { Store, RefreshCw, Eye, Check, Ban, RotateCcw, Edit2, Search, BadgeCheck } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
 const VendorStores = () => {
@@ -71,6 +71,16 @@ const VendorStores = () => {
       setSelectedStore(null);
       loadStores();
     } catch (e) { Swal.fire({ text: String(e.message || 'Failed.') }); }
+    finally { setProcessing(false); }
+  };
+
+  const handleVerify = async (uuid) => {
+    setProcessing(true);
+    try {
+      const res = await vendorService.adminVerifyStore(uuid);
+      setSelectedStore(prev => prev ? { ...prev, is_verified: res.data.is_verified } : null);
+      loadStores();
+    } catch (e) { Swal.fire({ text: String(e.message || 'Failed to verify.') }); }
     finally { setProcessing(false); }
   };
 
@@ -168,7 +178,10 @@ const VendorStores = () => {
                   {paginatedStores.map(store => (
                     <tr key={store.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                       <td className="p-4">
-                        <p className="font-bold text-secondary-900 dark:text-white">{store.name}</p>
+                        <p className="font-bold text-secondary-900 dark:text-white flex items-center gap-1">
+                          {store.name}
+                          {store.is_verified && <BadgeCheck className="w-4 h-4 text-primary-500" />}
+                        </p>
                         <p className="text-xs text-secondary-500">{store.location || '—'}</p>
                       </td>
                       <td className="p-4">
@@ -221,7 +234,10 @@ const VendorStores = () => {
                   )}
                 </div>
                 <div>
-                  <h3 className="font-bold text-secondary-900 dark:text-white">{selectedStore.name}</h3>
+                  <h3 className="font-bold text-secondary-900 dark:text-white flex items-center gap-1">
+                    {selectedStore.name}
+                    {selectedStore.is_verified && <BadgeCheck className="w-5 h-5 text-primary-500" />}
+                  </h3>
                   <span className={`text-xxs font-bold px-2 py-0.5 rounded-full ${statusBadge(selectedStore.status)}`}>{selectedStore.status}</span>
                 </div>
               </div>
@@ -312,13 +328,22 @@ const VendorStores = () => {
                   </button>
                 )}
                 {selectedStore.status === 'active' && (
-                  <button
-                    onClick={() => handleSuspend(selectedStore.uuid)}
-                    disabled={processing}
-                    className="w-full py-2.5 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
-                  >
-                    <Ban className="w-4 h-4" /> Suspend Store
-                  </button>
+                  <>
+                    <button
+                      onClick={() => handleVerify(selectedStore.uuid)}
+                      disabled={processing}
+                      className={`w-full py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 ${selectedStore.is_verified ? 'bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300 hover:bg-secondary-200 dark:hover:bg-secondary-700' : 'bg-primary-50 dark:bg-primary-950/20 hover:bg-primary-100 text-primary-700 dark:text-primary-400'}`}
+                    >
+                      <BadgeCheck className="w-4 h-4" /> {selectedStore.is_verified ? 'Remove Verification' : 'Verify Vendor'}
+                    </button>
+                    <button
+                      onClick={() => handleSuspend(selectedStore.uuid)}
+                      disabled={processing}
+                      className="w-full py-2.5 bg-red-50 dark:bg-red-950/20 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold flex items-center justify-center gap-2"
+                    >
+                      <Ban className="w-4 h-4" /> Suspend Store
+                    </button>
+                  </>
                 )}
                 {selectedStore.status === 'suspended' && (
                   <button

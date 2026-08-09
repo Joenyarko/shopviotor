@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Scale, Percent, ShieldCheck } from 'lucide-react';
+import { Heart, Scale, Percent, ShieldCheck, Store, BadgeCheck } from 'lucide-react';
 import { useWishlist } from '../contexts/WishlistContext';
 
 const ProductCard = ({ product, onWishlistToggle }) => {
@@ -77,8 +77,8 @@ const ProductCard = ({ product, onWishlistToggle }) => {
       <div className="p-3 flex flex-col flex-grow">
         <div className="mb-1">
           {product.store && (
-            <Link to={`/shops/${product.store.slug || product.store.id}`} className="inline-flex items-center gap-1 text-[10px] text-primary-600 dark:text-primary-400 font-bold mb-1 hover:underline">
-              <ShieldCheck className="w-3 h-3" /> Sold by {product.store.name}
+            <Link to={`/shops/${product.store.slug || product.store.id}`} className={`inline-flex items-center gap-1 text-[10px] font-bold mb-1 hover:underline ${product.store.is_verified ? 'text-primary-600 dark:text-primary-400' : 'text-secondary-500'}`}>
+              {product.store.is_verified ? <BadgeCheck className="w-3 h-3 text-primary-500" /> : <Store className="w-3 h-3" />} Sold by {product.store.name}
             </Link>
           )}
           <Link to={`/products/${product.id || product.uuid}`} className="hover:text-primary-600 dark:hover:text-primary-400">
