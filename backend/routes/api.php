@@ -318,5 +318,8 @@ Route::prefix('v1')->group(function () {
     });
     });
 });
-
-
+Route::get('/debug-version', function() {
+    return response()->json([
+        'order_service_updated' => str_contains(file_get_contents(app_path('Services/OrderService.php')), '->first()')
+    ]);
+});
