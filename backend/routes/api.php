@@ -197,7 +197,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/dashboard/comprehensive-stats', [AdminDashboardController::class, 'comprehensiveStats']);
             Route::get('/orders/stats', [AdminOrderController::class, 'stats']);
             Route::get('/analytics/app-installs', [\App\Http\Controllers\Api\V1\AnalyticsController::class, 'installStats']);
-
+            // Audit Logs
+            Route::get('/audit-logs', [\App\Http\Controllers\Api\V1\Admin\AuditLogController::class, 'index']);
             // Users
             Route::get('/users/student-verifications/pending', [AdminUserController::class, 'pendingStudentVerifications']);
             Route::post('/users/{uuid}/approve-student-verification', [AdminUserController::class, 'approveStudentVerification']);
