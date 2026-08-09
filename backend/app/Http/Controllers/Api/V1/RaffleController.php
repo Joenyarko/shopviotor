@@ -99,6 +99,8 @@ class RaffleController extends Controller
         });
 
         // ─── Payment ──────────────────────────────────────────────────────────
+        $totalPrice = $quantity * $raffle->ticket_price;
+
         // In TESTING MODE: tickets are issued with a mock payment reference.
         // When PAYSTACK_SECRET_KEY is set in .env, replace this block with
         // PaymentService::initiate() and only issue tickets after webhook confirms payment.
