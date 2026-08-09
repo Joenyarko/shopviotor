@@ -132,6 +132,34 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
             <Package className="w-8 h-8" /> Box Payment Tracking
           </h1>
         </div>
+        {isAdmin && (
+          <button
+            onClick={async () => {
+              const { value: boxes } = await Swal.fire({
+                title: 'Add Extra Boxes',
+                input: 'number',
+                inputLabel: 'Number of extra boxes to add (e.g. for price inflation)',
+                inputPlaceholder: 'e.g. 2',
+                showCancelButton: true,
+                inputValidator: (value) => {
+                  if (!value || parseInt(value) < 1) return 'You need to write a valid number!';
+                }
+              });
+              if (boxes) {
+                try {
+                  const res = await layawayService.adminAddBoxes(card.uuid, { boxes_to_add: parseInt(boxes) });
+                  toast.success(res.data?.message || 'Boxes added successfully');
+                  if (onPaymentSuccess) onPaymentSuccess();
+                } catch (e) {
+                  toast.error(e.response?.data?.message || 'Failed to add boxes');
+                }
+              }
+            }}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors font-bold shadow-lg"
+          >
+            + Add Extra Boxes
+          </button>
+        )}
       </div>
 
       {/* Top Cards Section */}

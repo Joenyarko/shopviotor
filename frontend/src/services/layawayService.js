@@ -17,6 +17,7 @@ const layawayService = {
   adminGetLayaway: (uuid) => apiClient.get(`/admin/layaways/${uuid}`),
   adminStorePayment: (uuid, data) => apiClient.post(`/admin/layaways/${uuid}/payments`, data),
   adminReversePayment: (uuid, paymentUuid) => apiClient.post(`/admin/layaways/${uuid}/payments/${paymentUuid}/reverse`),
+  adminAddBoxes: (uuid, data) => apiClient.post(`/admin/layaways/${uuid}/add-boxes`, data),
   adminRelease: (uuid) => apiClient.post(`/admin/layaways/${uuid}/release`),
   adminCancel: (uuid, reason) => apiClient.post(`/admin/layaways/${uuid}/cancel`, { reason }),
 

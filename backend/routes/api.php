@@ -267,6 +267,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/layaways/{uuid}', [AdminLayawayController::class, 'show']);
             Route::post('/layaways/{uuid}/payments', [AdminLayawayController::class, 'storePayment']);
             Route::post('/layaways/{uuid}/payments/{payment}/reverse', [AdminLayawayController::class, 'reversePayment']);
+            Route::post('/layaways/{uuid}/add-boxes', [AdminLayawayController::class, 'addBoxes']);
 
             // Pre-Orders (Admin)
             Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\Admin\PreOrderController::class, 'index']);

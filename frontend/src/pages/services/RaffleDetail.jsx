@@ -261,6 +261,21 @@ const RaffleDetail = () => {
                     Buy More Tickets
                   </button>
                 </div>
+              ) : raffle.status !== 'active' ? (
+                <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-8 text-center shadow-xl flex flex-col items-center">
+                  <div className="w-16 h-16 bg-[#ff0050]/10 rounded-full flex items-center justify-center mb-4 border border-[#ff0050]/20">
+                    <svg className="w-8 h-8 text-[#ff0050]" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 15.71a6.34 6.34 0 0 0 6.3 6.29 6.37 6.37 0 0 0 6.36-6.17V9.75a8.27 8.27 0 0 0 4.29 1.25V7.55a4.77 4.77 0 0 1-2.36-.86z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-extrabold text-secondary-900 dark:text-white mb-2">Raffle Closed</h3>
+                  <p className="text-secondary-500 dark:text-secondary-400 text-sm mb-6 leading-relaxed">
+                    Ticket sales have ended! The live draw is happening on our official TikTok page.
+                  </p>
+                  <a href="https://tiktok.com/@shopviotor" target="_blank" rel="noopener noreferrer" className="block w-full bg-[#000000] dark:bg-white text-white dark:text-black hover:bg-[#222] dark:hover:bg-slate-200 font-bold py-3.5 rounded-xl transition-colors text-sm shadow-[4px_4px_0_0_#ff0050]">
+                    Find winner on live TikTok
+                  </a>
+                </div>
               ) : (
                 <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-2xl">
                   {/* Card Header */}

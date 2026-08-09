@@ -165,24 +165,25 @@ const AdminRaffles = () => {
     } catch (e) { Swal.fire('Error', e.response?.data?.message || e.message || 'Failed to delete.', 'error'); }
   };
 
-  const handleDraw = async (uuid) => {
+  const handleDraw = async (uuid, ticketId, userName) => {
     const result = await Swal.fire({
-      title: 'Execute Draw?',
-      text: "A winner will be selected randomly from ticket holders.",
-      icon: 'info',
+      title: 'Select as Winner?',
+      text: `Are you sure you want to select ${userName} as the winner for this raffle?`,
+      icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#3b82f6',
       cancelButtonColor: '#64748b',
-      confirmButtonText: 'Draw Winner'
+      confirmButtonText: 'Yes, select winner'
     });
     if (!result.isConfirmed) return;
-    setDrawing(uuid);
+    setDrawing(ticketId);
     try {
-      const res = await raffleService.adminDrawWinner(uuid);
-      Swal.fire('Winner Drawn!', res.data?.message || 'A winner has been successfully drawn.', 'success');
+      const res = await raffleService.adminDrawWinner(uuid, { ticket_id: ticketId });
+      Swal.fire('Winner Selected!', res.data?.message || 'The winner has been successfully recorded.', 'success');
+      setHoldersRaffle(null);
       loadRaffles();
       if (tab === 'winners') loadWinners();
-    } catch (e) { Swal.fire('Draw Failed', e.response?.data?.message || e.message || 'Draw failed.', 'error'); } finally { setDrawing(null); }
+    } catch (e) { Swal.fire('Action Failed', e.response?.data?.message || e.message || 'Action failed.', 'error'); } finally { setDrawing(null); }
   };
 
   const handleViewHolders = async (raffle) => {
@@ -347,27 +348,17 @@ const AdminRaffles = () => {
                           <span className={`text-xxs px-2.5 py-0.5 rounded-full font-bold uppercase ${getStatusColor(r.status)}`}>{r.status}</span>
                         </td>
                         <td className="p-4 text-right">
-                          <div className="flex justify-end gap-1.5 flex-wrap">
-                            <button onClick={() => handleViewHolders(r)} title="View ticket holders" className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg">
-                              <Users className="w-4 h-4" />
-                            </button>
-                            <button onClick={() => handleOpenEdit(r)} className="p-1.5 text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-lg">
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            {(r.status === 'closed' || r.status === 'active') && r.tickets_sold > 0 && (
-                              <button
-                                onClick={() => handleDraw(r.uuid)}
-                                disabled={drawing === r.uuid}
-                                title="Draw winner"
-                                className="p-1.5 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/20 rounded-lg"
-                              >
-                                {drawing === r.uuid ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4 fill-current" />}
+                            <div className="flex justify-end gap-1.5 flex-wrap">
+                              <button onClick={() => handleViewHolders(r)} title="View ticket holders" className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg">
+                                <Users className="w-4 h-4" />
                               </button>
-                            )}
-                            <button onClick={() => handleDelete(r.uuid)} className="p-1.5 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20 rounded-lg">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                              <button onClick={() => handleOpenEdit(r)} className="p-1.5 text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-lg">
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button onClick={() => handleDelete(r.uuid)} className="p-1.5 text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20 rounded-lg">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                         </td>
                       </tr>
                     );
@@ -579,9 +570,27 @@ const AdminRaffles = () => {
                       <p className="font-semibold text-secondary-900 dark:text-white text-sm">{h.user_name || h.user?.name || 'Anonymous'}</p>
                       <p className="text-xxs font-mono text-secondary-400">{h.ticket_number}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs font-bold text-secondary-900 dark:text-white">{h.quantity}× ticket{h.quantity > 1 ? 's' : ''}</p>
-                      <p className="text-xxs text-secondary-500 dark:text-secondary-400">GHS {parseFloat(h.amount_paid || 0).toFixed(2)}</p>
+                    <div className="text-right flex items-center gap-3">
+                      <div>
+                        <p className="text-xxs text-secondary-500 dark:text-secondary-400">GHS {parseFloat(h.amount_paid || 0).toFixed(2)}</p>
+                      </div>
+                      
+                      {(holdersRaffle.status === 'closed' || holdersRaffle.status === 'active') && !h.is_winner && (
+                        <button 
+                          onClick={() => handleDraw(holdersRaffle.uuid, h.id, h.user_name || h.user?.name || 'Anonymous')}
+                          disabled={drawing === h.id}
+                          className="px-3 py-1.5 text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-800/40 rounded-lg flex items-center gap-1 transition-colors"
+                        >
+                          {drawing === h.id ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Trophy className="w-3 h-3" />}
+                          Winner
+                        </button>
+                      )}
+                      {h.is_winner && (
+                        <span className="px-3 py-1.5 text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-lg flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3" />
+                          Selected
+                        </span>
+                      )}
                     </div>
                   </div>
                 ))

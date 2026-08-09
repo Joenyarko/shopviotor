@@ -91,7 +91,7 @@ class RaffleController extends Controller
         ]);
     }
 
-    public function draw(string $uuid): JsonResponse
+    public function draw(Request $request, string $uuid): JsonResponse
     {
         $raffle = Raffle::where('uuid', $uuid)->firstOrFail();
 
@@ -107,37 +107,17 @@ class RaffleController extends Controller
             ], 422);
         }
 
-        // 1. Get all ticket IDs for the raffle
-        $ticketIds = $raffle->tickets()->orderBy('id')->pluck('id')->toArray();
-        $totalTickets = count($ticketIds);
+        $request->validate([
+            'ticket_id' => 'required|exists:raffle_tickets,id'
+        ]);
 
-        if ($totalTickets === 0) {
-            return response()->json([
-                'message' => 'No tickets sold for this raffle.',
-            ], 422);
-        }
-
-        // 2. Cryptographic Lottery Algorithm
-        // Generate a highly unpredictable seed using current microtime, total tickets, and a random cryptographic string.
-        $serverTime = microtime(true);
-        $cryptoString = bin2hex(random_bytes(16));
-        $seedString = "{$uuid}-{$totalTickets}-{$serverTime}-{$cryptoString}";
-
-        // Hash the seed using SHA-256
-        $hash = hash('sha256', $seedString);
-
-        // Take the first 15 characters of the hash and convert it to a large integer
-        $hashSubset = substr($hash, 0, 15);
-        $largeInt = hexdec($hashSubset);
-
-        // Modulo the total tickets to get a deterministic fair index
-        $winningIndex = $largeInt % $totalTickets;
-        $winningTicketId = $ticketIds[$winningIndex];
-
-        $winningTicket = \App\Models\RaffleTicket::find($winningTicketId);
+        $winningTicket = \App\Models\RaffleTicket::where('id', $request->ticket_id)
+            ->where('raffle_id', $raffle->id)
+            ->firstOrFail();
 
         $raffle->update([
             'status'    => \App\Enums\RaffleStatus::Completed,
+            'drawn_at'  => now(),
         ]);
 
         $winningTicket->update(['is_winner' => true]);

@@ -440,4 +440,32 @@ class LayawayController extends Controller
 
         return response()->json(['message' => 'Payment reversed successfully.']);
     }
+
+    public function addBoxes(Request $request, string $uuid): JsonResponse
+    {
+        $request->validate([
+            'boxes_to_add' => 'required|integer|min:1',
+            'reason' => 'nullable|string'
+        ]);
+
+        $card = LayawayCard::where('uuid', $uuid)->firstOrFail();
+
+        DB::transaction(function () use ($card, $request) {
+            $card->total_boxes += $request->boxes_to_add;
+            
+            // If they were completed, adding boxes means they are now back to active
+            if ($card->status === 'completed') {
+                $card->status = 'active';
+            }
+            
+            $card->save();
+
+            // We can log the reason if we had an audit table, but for now we just extend it.
+        });
+
+        return response()->json([
+            'message' => "Successfully added {$request->boxes_to_add} extra boxes to the layaway card.",
+            'total_boxes' => $card->total_boxes
+        ]);
+    }
 }
