@@ -4,7 +4,7 @@ import {
   Database, Clock, Eye, AlertCircle 
 } from 'lucide-react';
 import { auditService } from '../../services/auditService';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-toastify';
 
 export default function AuditLogs() {
   const [logs, setLogs] = useState([]);
