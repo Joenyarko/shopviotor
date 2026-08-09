@@ -117,7 +117,7 @@ const StoreList = () => {
 
                   <h3 className="font-bold text-secondary-900 dark:text-white group-hover:text-primary-600 transition-colors flex items-center gap-1">
                     {store.name}
-                    {store.is_verified && <BadgeCheck className="w-4 h-4 text-primary-500" title="Verified Store" />}
+                    {store.is_verified && <BadgeCheck className="w-4 h-4 text-blue-500" title="Verified Store" />}
                   </h3>
                   <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1 line-clamp-2">{store.description || 'No description available.'}</p>
 

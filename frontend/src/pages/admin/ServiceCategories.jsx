@@ -111,7 +111,7 @@ const ServiceCategories = () => {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-x-auto">
         <table className="w-full min-w-[500px] text-left text-sm whitespace-nowrap">
             <thead className="bg-secondary-50 dark:bg-secondary-800 text-secondary-500 dark:text-secondary-400 font-bold uppercase tracking-wider">
               <tr>

@@ -133,7 +133,7 @@ const AdminCategories = () => {
       {loading ? (
         <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
       ) : (
-        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm">
           {categories.length === 0 ? (
             <div className="p-12 text-center flex flex-col items-center text-secondary-400">
               <Tag className="w-12 h-12 mb-3 opacity-40" />

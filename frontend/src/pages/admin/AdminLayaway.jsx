@@ -628,7 +628,7 @@ const AdminLayaway = () => {
               <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
             ) : (
               <>
-                <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
                   <table className="w-full min-w-[650px] text-left text-sm text-gray-700">
                     <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 uppercase tracking-wider text-xs">
                       <tr>
@@ -722,7 +722,7 @@ const AdminLayaway = () => {
               <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
             ) : (
               <>
-                <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
                   <table className="w-full min-w-[650px] text-left text-sm text-gray-700">
                     <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 uppercase tracking-wider text-xs">
                       <tr>
@@ -920,7 +920,7 @@ const AdminLayaway = () => {
               </div>
             </div>
 
-            <div className="overflow-x-auto border border-gray-200 rounded-lg bg-white shadow-inner [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="overflow-x-auto border border-gray-200 rounded-lg bg-white shadow-inner">
               <table className="w-full min-w-[650px] text-left text-sm text-gray-700 border-collapse">
                 <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 uppercase tracking-wider text-xs sticky top-0 z-10">
                   <tr>

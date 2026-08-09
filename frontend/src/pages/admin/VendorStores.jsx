@@ -163,7 +163,7 @@ const VendorStores = () => {
               No stores found.
             </div>
           ) : (
-            <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm">
               <table className="w-full min-w-[700px] text-sm border-collapse">
                 <thead>
                   <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xxs">
@@ -180,7 +180,7 @@ const VendorStores = () => {
                       <td className="p-4">
                         <p className="font-bold text-secondary-900 dark:text-white flex items-center gap-1">
                           {store.name}
-                          {store.is_verified && <BadgeCheck className="w-4 h-4 text-primary-500" />}
+                          {store.is_verified && <BadgeCheck className="w-4 h-4 text-blue-500" />}
                         </p>
                         <p className="text-xs text-secondary-500">{store.location || '—'}</p>
                       </td>
@@ -236,7 +236,7 @@ const VendorStores = () => {
                 <div>
                   <h3 className="font-bold text-secondary-900 dark:text-white flex items-center gap-1">
                     {selectedStore.name}
-                    {selectedStore.is_verified && <BadgeCheck className="w-5 h-5 text-primary-500" />}
+                    {selectedStore.is_verified && <BadgeCheck className="w-5 h-5 text-blue-500" />}
                   </h3>
                   <span className={`text-xxs font-bold px-2 py-0.5 rounded-full ${statusBadge(selectedStore.status)}`}>{selectedStore.status}</span>
                 </div>

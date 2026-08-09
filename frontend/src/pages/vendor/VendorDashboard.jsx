@@ -40,10 +40,10 @@ const VendorDashboard = () => {
           </p>
         </div>
         <Link
-          to="/vendor/products/new"
+          to="/vendor/products"
           className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary-500/20 transition-colors"
         >
-          <Plus className="w-4 h-4" /> Add Product
+          <Plus className="w-4 h-4" /> Go to Products
         </Link>
       </div>
 

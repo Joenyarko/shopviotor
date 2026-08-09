@@ -117,7 +117,8 @@ class AdminStoreController extends Controller
     public function verify(string $uuid): JsonResponse
     {
         $store = Store::where('uuid', $uuid)->firstOrFail();
-        $store->update(['is_verified' => !$store->is_verified]);
+        $store->is_verified = !$store->is_verified;
+        $store->save();
 
         $status = $store->is_verified ? 'verified' : 'unverified';
         return response()->json([
