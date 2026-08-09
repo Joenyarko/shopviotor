@@ -5,6 +5,7 @@ import { useCart } from '../../contexts/CartContext';
 import { useAuth } from '../../contexts/AuthContext';
 import addressService from '../../services/addressService';
 import orderService from '../../services/orderService';
+import apiClient from '../../api/client';
 import {
   MapPin, CreditCard, Package, ChevronRight, RefreshCw,
   CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag
