@@ -14,10 +14,10 @@ const Settings = () => {
     const fetchSettings = async () => {
       try {
         const res = await api.get('/admin/settings');
-        const data = res.data.data;
-        if (data.site_name) setSiteName(data.site_name);
-        if (data.tax_rate !== undefined) setTaxRate(data.tax_rate);
-        if (data.default_shipping_fee !== undefined) setDefaultShippingFee(data.default_shipping_fee);
+        const data = res?.data;
+        if (data && data.site_name) setSiteName(data.site_name);
+        if (data && data.tax_rate !== undefined) setTaxRate(data.tax_rate);
+        if (data && data.default_shipping_fee !== undefined) setDefaultShippingFee(data.default_shipping_fee);
       } catch (err) {
         console.error(err);
       } finally {

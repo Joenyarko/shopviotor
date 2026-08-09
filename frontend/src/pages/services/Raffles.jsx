@@ -289,10 +289,13 @@ const Raffles = () => {
         <div className="bg-secondary-900 px-6 py-14">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-secondary-900 dark:text-white">Recent Winners</h2>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-white">Recent Winners</h2>
               <p className="text-secondary-400 text-sm mt-2 max-w-lg mx-auto">
                 Real people, real prizes, real joy. See who's been lucky recently and get inspired to play your next winning ticket.
               </p>
+              <Link to="/raffles/winners" className="inline-block mt-4 text-primary-500 hover:text-primary-400 font-bold hover:underline transition-colors">
+                View Complete Winner History →
+              </Link>
             </div>
 
             {/* Horizontal scroll strip */}

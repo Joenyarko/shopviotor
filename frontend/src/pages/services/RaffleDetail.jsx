@@ -39,7 +39,7 @@ const RaffleDetail = () => {
   // Purchase form states
   const [quantity, setQuantity] = useState(1);
   const [customQty, setCustomQty] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('momo');
+  const [paymentMethod, setPaymentMethod] = useState('paystack');
   const [buyerName, setBuyerName] = useState('');
   const [phone, setPhone] = useState('');
   const [promoCode, setPromoCode] = useState('');
@@ -209,7 +209,7 @@ const RaffleDetail = () => {
               </div>
               <div className="bg-white rounded-xl p-4 text-center text-slate-900 shadow-md">
                 <Trophy className="w-6 h-6 text-amber-500 mx-auto mb-2" />
-                <p className="text-2xl font-extrabold">1</p>
+                <p className="text-2xl font-extrabold">{raffle.winner ? '1' : '0'}</p>
                 <p className="text-xs font-bold text-secondary-400 dark:text-secondary-500 uppercase tracking-wide">Winner</p>
               </div>
               <div className="bg-white rounded-xl p-4 text-center text-slate-900 shadow-md">
@@ -386,19 +386,12 @@ const RaffleDetail = () => {
                     {/* Payment Method Selector */}
                     <div>
                        <label className="block text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest mb-2 mt-2">Choose Payment Method</label>
-                       <div className="grid grid-cols-2 gap-2">
-                         <div 
-                           onClick={() => setPaymentMethod('momo')} 
-                           className={`cursor-pointer border rounded-lg p-2.5 flex items-center justify-between transition-colors ${paymentMethod === 'momo' ? 'border-primary-500 bg-primary-500/10 text-primary-600 dark:text-primary-400' : 'border-secondary-300 dark:border-secondary-700 text-secondary-500 dark:text-secondary-400 hover:border-slate-500'}`}
-                         >
-                           <span className="text-xs font-bold uppercase tracking-wider">Mobile Money</span>
-                           {paymentMethod === 'momo' && <CheckCircle className="w-4 h-4" />}
-                         </div>
+                       <div className="grid grid-cols-1 gap-2">
                          <div 
                            onClick={() => setPaymentMethod('paystack')} 
                            className={`cursor-pointer border rounded-lg p-2.5 flex items-center justify-between transition-colors ${paymentMethod === 'paystack' ? 'border-primary-500 bg-primary-500/10 text-primary-600 dark:text-primary-400' : 'border-secondary-300 dark:border-secondary-700 text-secondary-500 dark:text-secondary-400 hover:border-slate-500'}`}
                          >
-                           <span className="text-xs font-bold uppercase tracking-wider">Card / Paystack</span>
+                           <span className="text-xs font-bold uppercase tracking-wider">Card / Mobile Money (via Paystack)</span>
                            {paymentMethod === 'paystack' && <CheckCircle className="w-4 h-4" />}
                          </div>
                        </div>
@@ -409,7 +402,7 @@ const RaffleDetail = () => {
                       type="submit" disabled={purchasing || isFull}
                       className="w-full bg-gradient-to-r from-primary-500 to-primary-400 hover:from-primary-400 hover:to-primary-300 text-secondary-950 font-extrabold text-sm py-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,184,0,0.3)] disabled:opacity-60 disabled:shadow-none transition-all mt-2"
                     >
-                      {purchasing ? <RefreshCw className="w-5 h-5 animate-spin" /> : isFull ? 'Raffle Full' : <>Pay via {paymentMethod === 'momo' ? 'Mobile Money' : 'Paystack'}</>}
+                      {purchasing ? <RefreshCw className="w-5 h-5 animate-spin" /> : isFull ? 'Raffle Full' : <>Pay via Paystack</>}
                     </button>
                     <p className="text-center text-[10px] text-secondary-400 dark:text-secondary-500 font-semibold flex items-center justify-center gap-1 mt-3">
                        <Shield className="w-3 h-3" /> Secure and Encrypted Checkout
