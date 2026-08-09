@@ -11,9 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Traits\LogsActivity;
+
 class HirePurchase extends Model
 {
-    use HasFactory, SoftDeletes, HasUuid;
+    use HasFactory, SoftDeletes, HasUuid, LogsActivity;
 
     protected $fillable = [
         'uuid', 'user_id', 'product_id', 'order_id', 'status',

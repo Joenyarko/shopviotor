@@ -4,8 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Traits\LogsActivity;
+
 class LayawayCard extends Model
 {
+    use LogsActivity;
     protected $fillable = [
         'uuid', 'user_id', 'product_id', 'total_boxes', 'box_price', 'status'
     ];

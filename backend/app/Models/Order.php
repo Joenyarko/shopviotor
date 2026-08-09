@@ -13,9 +13,11 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
+use App\Traits\LogsActivity;
+
 class Order extends Model
 {
-    use HasFactory, SoftDeletes, HasUuid;
+    use HasFactory, SoftDeletes, HasUuid, LogsActivity;
 
     protected $fillable = [
         'uuid', 'order_number', 'user_id', 'address_id', 'coupon_id',

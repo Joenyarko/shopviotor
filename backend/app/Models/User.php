@@ -14,9 +14,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
+use App\Traits\LogsActivity;
+
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles, HasUuid;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles, HasUuid, LogsActivity;
 
     protected $fillable = [
         'uuid',

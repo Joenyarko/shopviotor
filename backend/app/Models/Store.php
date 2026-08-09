@@ -10,9 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Traits\LogsActivity;
+
 class Store extends Model
 {
-    use HasFactory, SoftDeletes, HasUuid;
+    use HasFactory, SoftDeletes, HasUuid, LogsActivity;
 
     protected $fillable = [
         'uuid', 'user_id', 'name', 'slug', 'logo', 'banner', 'banners',
