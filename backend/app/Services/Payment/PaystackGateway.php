@@ -23,11 +23,33 @@ class PaystackGateway implements PaymentGatewayInterface
 
     public function initiate(array $data): array
     {
-        // Placeholder for testing
+        $payload = [
+            'amount' => (int) ($data['amount'] * 100), // convert to pesewas/kobo
+            'email' => $data['email'],
+            'reference' => $data['reference'],
+            'currency' => $data['currency'] ?? 'GHS',
+            'metadata' => $data['metadata'] ?? [],
+        ];
+
+        // Paystack callback URL - point to our frontend verification endpoint
+        $payload['callback_url'] = config('app.frontend_url') . '/payment/verify?reference=' . $data['reference'];
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->secretKey,
+            'Content-Type'  => 'application/json',
+            'Cache-Control' => 'no-cache',
+        ])->post("{$this->baseUrl}/transaction/initialize", $payload);
+
+        $result = $response->json();
+
+        if (!$result || !isset($result['status']) || !$result['status']) {
+            throw new \RuntimeException('Paystack initiation failed: ' . ($result['message'] ?? 'Unknown error'));
+        }
+
         return [
-            'authorization_url' => config('app.url') . '/payment/placeholder-success?reference=' . $data['reference'],
-            'access_code'       => 'test_access_code',
-            'reference'         => $data['reference'],
+            'authorization_url' => $result['data']['authorization_url'],
+            'access_code'       => $result['data']['access_code'],
+            'reference'         => $result['data']['reference'],
             'gateway'           => $this->getName(),
         ];
     }

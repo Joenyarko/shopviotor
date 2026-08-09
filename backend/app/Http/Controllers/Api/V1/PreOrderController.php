@@ -67,19 +67,22 @@ class PreOrderController extends Controller
         });
 
         // ─── Payment for deposit ───────────────────────────────────────────────
-        // TESTING MODE: deposit is tracked but no real payment taken.
-        // In production: initiate Paystack payment here and mark deposit_paid
-        // only after webhook confirms the payment.
         $isMockMode = empty(config('services.paystack.secret_key'));
+        $paymentData = null;
 
         if ($deposit > 0 && !$isMockMode) {
-            // TODO: initiate payment via PaymentService when Paystack is configured
-            // $paymentData = app(PaymentService::class)->initiate([...]);
+            $paymentData = app(\App\Services\PaymentService::class)->initiate([
+                'payable_type' => PreOrder::class,
+                'payable_id'   => $preOrder->id,
+                'user_id'      => $request->user()->id,
+                'email'        => $request->user()->email,
+                'amount'       => $deposit,
+                'method'       => \App\Enums\PaymentMethod::Paystack,
+            ]);
         }
 
-        // In testing mode: auto-record the deposit as "mock paid" so the flow works
+        // In testing mode without keys: auto-record the deposit as "mock paid" so the flow works locally
         if ($deposit > 0 && $isMockMode) {
-            $mockRef = 'MOCK-PREORDER-' . strtoupper(Str::random(10));
             $preOrder->update([
                 'deposit_paid'      => $deposit,
                 'balance_remaining' => $balance,
@@ -90,6 +93,7 @@ class PreOrderController extends Controller
             'message'    => 'Pre-order placed successfully.' . ($isMockMode && $deposit > 0 ? ' (Testing Mode — deposit auto-credited)' : ''),
             'data'       => $preOrder->fresh()->load('product'),
             'deposit'    => $deposit,
+            'payment'    => $paymentData,
             'mode'       => $isMockMode ? 'testing' : 'live',
         ], 201);
     }

@@ -132,39 +132,13 @@ class LayawayController extends Controller
     public function pay(Request $request, string $uuid): JsonResponse
     {
         $request->validate([
-            'amount'    => 'required|numeric|min:1',
-            'reference' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:1',
         ]);
 
         $card = LayawayCard::where('uuid', $uuid)
             ->where('user_id', auth()->id())
             ->where('status', 'active')
             ->firstOrFail();
-
-        // ─── Prevent reference replay attacks ─────────────────────────────────
-        $refAlreadyUsed = $card->payments()->where('reference', $request->reference)->exists();
-        if ($refAlreadyUsed) {
-            return response()->json([
-                'message' => 'This payment reference has already been used.',
-            ], 422);
-        }
-
-        // ─── Verify payment with gateway ───────────────────────────────────────
-        // TESTING MODE: accept any reference (mock mode).
-        // In production: verify with Paystack before recording payment.
-        $isMockMode = empty(config('services.paystack.secret_key'));
-
-        if (!$isMockMode) {
-            // TODO: Uncomment when Paystack is configured
-            // try {
-            //     $result = app(PaymentService::class)->verifyReference($request->reference);
-            //     if (!$result['success'] || abs($result['amount'] - $request->amount) > 0.01) {
-            //         return response()->json(['message' => 'Payment verification failed.'], 422);
-            //     }
-            // } catch (\Exception $e) {
-            //     return response()->json(['message' => 'Could not verify payment: ' . $e->getMessage()], 502);
-            // }
-        }
 
         $amount   = (float) $request->amount;
         $boxPrice = (float) $card->box_price;
@@ -188,31 +162,20 @@ class LayawayController extends Controller
             ], 422);
         }
 
-        // Alternating yellow/black color per payment
-        $paymentCount = $card->payments()->count();
-        $colorCode    = ($paymentCount % 2 === 0) ? '#eab308' : '#000000';
-
-        DB::transaction(function () use ($card, $amount, $boxesCovered, $request, $colorCode, $currentBoxes) {
-            $card->payments()->create([
-                'uuid'           => Str::uuid()->toString(),
-                'amount'         => $amount,
-                'boxes_covered'  => $boxesCovered,
-                'payment_method' => 'Paystack',
-                'reference'      => $request->reference,
-                'notes'          => 'Online payment',
-                'color_code'     => $colorCode,
-            ]);
-
-            if (($currentBoxes + $boxesCovered) >= $card->total_boxes) {
-                $card->update(['status' => 'completed']);
-            }
-        });
+        $paymentData = app(\App\Services\PaymentService::class)->initiate([
+            'payable_type' => LayawayCard::class,
+            'payable_id'   => $card->id,
+            'user_id'      => $request->user()->id,
+            'email'        => $request->user()->email,
+            'amount'       => $amount,
+            'method'       => \App\Enums\PaymentMethod::Paystack,
+        ]);
 
         return response()->json([
-            'message' => 'Payment recorded successfully.' . (empty(config('services.paystack.secret_key')) ? ' (Testing Mode)' : ''),
+            'message' => 'Payment initiated successfully.',
+            'payment' => $paymentData,
         ]);
     }
-
 
     public function terms(): JsonResponse
     {

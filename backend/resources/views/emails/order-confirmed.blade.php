@@ -21,15 +21,24 @@
                 <td>GHS {{ number_format($item->total, 2) }}</td>
             </tr>
             @endforeach
+            
+            @if($order->shipping_amount > 0)
+            <tr>
+                <td colspan="2">Shipping</td>
+                <td>GHS {{ number_format($order->shipping_amount, 2) }}</td>
+            </tr>
+            @endif
+            
             @if($order->discount_amount > 0)
             <tr>
                 <td colspan="2">Discount</td>
                 <td style="color:#ff6b6b;">- GHS {{ number_format($order->discount_amount, 2) }}</td>
             </tr>
             @endif
+            
             <tr class="total-row">
-                <td colspan="2">Total</td>
-                <td>GHS {{ number_format($order->total_amount, 2) }}</td>
+                <td colspan="2">Total Paid</td>
+                <td>GHS {{ number_format($order->total, 2) }}</td>
             </tr>
         </tbody>
     </table>

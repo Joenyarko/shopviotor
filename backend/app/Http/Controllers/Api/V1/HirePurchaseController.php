@@ -41,9 +41,22 @@ class HirePurchaseController extends Controller
 
         $hp = $this->hpService->create($request->user()->id, $data);
 
+        $paymentData = null;
+        if ($data['deposit_amount'] > 0) {
+            $paymentData = $this->paymentService->initiate([
+                'payable_type' => HirePurchase::class,
+                'payable_id'   => $hp->id,
+                'user_id'      => $request->user()->id,
+                'email'        => $request->user()->email,
+                'amount'       => $data['deposit_amount'],
+                'method'       => \App\Enums\PaymentMethod::Paystack,
+            ]);
+        }
+
         return response()->json([
             'message' => 'Hire purchase agreement created successfully.',
             'data'    => new HirePurchaseResource($hp),
+            'payment' => $paymentData,
         ], 201);
     }
 

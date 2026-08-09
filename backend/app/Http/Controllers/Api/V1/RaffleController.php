@@ -119,10 +119,21 @@ class RaffleController extends Controller
             ]);
         }
 
-        // Production: initiate Paystack payment (tickets issued via webhook)
-        // TODO: Implement when Paystack keys are available
+        $paymentData = null;
+        if (!$isMockMode) {
+            $paymentData = app(\App\Services\PaymentService::class)->initiate([
+                'payable_type' => Raffle::class,
+                'payable_id'   => $raffle->id,
+                'user_id'      => $user->id,
+                'email'        => $user->email,
+                'amount'       => $totalPrice,
+                'method'       => \App\Enums\PaymentMethod::Paystack,
+            ]);
+        }
+
         return response()->json([
-            'message' => 'Payment gateway not configured. Please contact support.',
-        ], 503);
+            'message' => 'Payment initiated successfully.',
+            'payment' => $paymentData,
+        ]);
     }
 }
