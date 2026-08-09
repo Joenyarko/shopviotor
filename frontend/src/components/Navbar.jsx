@@ -321,7 +321,16 @@ const Navbar = () => {
                       <LayoutDashboard className="w-4 h-4" /> Admin Portal
                     </Link>
                   )}
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Profile</Link>
+                  {isVendor() ? (
+                    <Link to="/vendor" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-100 dark:border-emerald-900/30 rounded-xl font-bold transition-colors flex items-center gap-2">
+                      <Store className="w-4 h-4 text-emerald-500" /> Vendor Hub (My Store)
+                    </Link>
+                  ) : (
+                    <Link to="/become-a-vendor" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-amber-600 dark:text-amber-400 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-xl font-bold transition-colors flex items-center gap-2">
+                      <Store className="w-4 h-4" /> My Store / Become Vendor
+                    </Link>
+                  )}
+                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors flex items-center gap-2"><User className="w-4 h-4" /> My Profile</Link>
                   <Link to="/my-service-profile" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Service Profile</Link>
                   <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Wishlist</Link>
                   <Link to="/my-tickets" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Tickets</Link>
