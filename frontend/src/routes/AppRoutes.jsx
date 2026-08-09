@@ -57,6 +57,7 @@ const AdminSellRequests = React.lazy(() => import('../pages/admin/SellRequests')
 const AdminRaffles = React.lazy(() => import('../pages/admin/Raffles'));
 const Banners = React.lazy(() => import('../pages/admin/Banners'));
 const AdminReports = React.lazy(() => import('../pages/admin/Reports'));
+const AuditLogs = React.lazy(() => import('../pages/admin/AuditLogs'));
 const AdminSettings = React.lazy(() => import('../pages/admin/Settings'));
 const AdminPopups = React.lazy(() => import('../pages/admin/AdminPopups'));
 // const AdsManager = React.lazy(() => import('../pages/admin/AdsManager'));
@@ -211,6 +212,7 @@ const AppRoutes = () => {
         <Route path="/admin/flash-sales" element={<AdminFlashSales />} />
         <Route path="/admin/collections" element={<AdminCollections />} />
         <Route path="/admin/reports" element={<AdminReports />} />
+        <Route path="/admin/audit-logs" element={<AuditLogs />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
         <Route path="/admin/payouts" element={<AdminPayouts />} />
       </Route>

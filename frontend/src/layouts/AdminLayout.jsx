@@ -27,7 +27,8 @@ import {
   Layers3,
   Image,
   ImageIcon,
-  Wallet
+  Wallet,
+  ClipboardList
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -59,6 +60,7 @@ const AdminLayout = () => {
     { name: 'Flash Sales', path: '/admin/flash-sales', icon: Tag },
     { name: 'Collections', path: '/admin/collections', icon: Package },
     { name: 'Reports', path: '/admin/reports', icon: BarChart },
+    { name: 'Audit Logs', path: '/admin/audit-logs', icon: ClipboardList },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
