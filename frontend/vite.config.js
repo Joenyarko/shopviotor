@@ -32,6 +32,9 @@ export default defineConfig({
             type: 'image/jpeg'
           }
         ]
+      },
+      workbox: {
+        navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/],
       }
     })
   ],
