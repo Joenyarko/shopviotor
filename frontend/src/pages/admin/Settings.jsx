@@ -6,7 +6,6 @@ import api from '../../api/client';
 const Settings = () => {
   const [siteName, setSiteName] = useState('Shop Viotor');
   const [taxRate, setTaxRate] = useState('5.0');
-  const [momoTax, setMomoTax] = useState('1.0');
   const [defaultShippingFee, setDefaultShippingFee] = useState('0');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -18,7 +17,6 @@ const Settings = () => {
         const data = res.data.data;
         if (data.site_name) setSiteName(data.site_name);
         if (data.tax_rate !== undefined) setTaxRate(data.tax_rate);
-        if (data.momo_tax !== undefined) setMomoTax(data.momo_tax);
         if (data.default_shipping_fee !== undefined) setDefaultShippingFee(data.default_shipping_fee);
       } catch (err) {
         console.error(err);
@@ -36,7 +34,6 @@ const Settings = () => {
       await api.post('/admin/settings', {
         site_name: siteName,
         tax_rate: taxRate,
-        momo_tax: momoTax,
         default_shipping_fee: defaultShippingFee,
       });
       Swal.fire({ title: 'Success', text: 'Global settings saved successfully.', icon: 'success' });
@@ -85,18 +82,6 @@ const Settings = () => {
                 required
                 value={taxRate}
                 onChange={(e) => setTaxRate(e.target.value)}
-                className="w-full mt-1.5 p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase">Momo Service Surcharge (%)</label>
-              <input
-                type="number"
-                step="0.1"
-                required
-                value={momoTax}
-                onChange={(e) => setMomoTax(e.target.value)}
                 className="w-full mt-1.5 p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
             </div>
