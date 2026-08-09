@@ -10,6 +10,7 @@ import {
   MapPin, CreditCard, Package, ChevronRight, RefreshCw,
   CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const STEPS = ['Address', 'Review', 'Payment'];
 
@@ -121,6 +122,19 @@ const Checkout = () => {
     }
   };
 
+  const handleDeleteAddress = async (id) => {
+    const __confirmResult = await Swal.fire({ title: 'Delete Address?', text: 'Are you sure you want to delete this address?', icon: 'warning', showCancelButton: true });
+    if (!__confirmResult.isConfirmed) return;
+    try {
+      await addressService.deleteAddress(id);
+      await fetchCheckoutData();
+      if (selectedAddressId === String(id)) setSelectedAddressId('');
+      toast.success('Address deleted successfully');
+    } catch (e) {
+      toast.error('Failed to delete address');
+    }
+  };
+
   const startEditAddress = (e, addr) => {
     e.preventDefault();
     e.stopPropagation();
@@ -158,12 +172,6 @@ const Checkout = () => {
 
       const res = await orderService.checkout(payload, idempotencyKey);
 
-      if (paymentMethod === 'paystack' && res.data?.payment?.authorization_url) {
-        // Redirect flow (fallback)
-        window.location.href = res.data.payment.authorization_url;
-        return;
-      }
-
       if (paymentMethod === 'paystack' && res.data?.payment?.reference) {
         // Popup flow
         openPaystack({
@@ -182,6 +190,12 @@ const Checkout = () => {
             setSubmitting(false);
           },
         });
+        return;
+      }
+
+      if (paymentMethod === 'paystack' && res.data?.payment?.authorization_url) {
+        // Redirect flow (fallback)
+        window.location.href = res.data.payment.authorization_url;
         return;
       }
 
@@ -294,13 +308,26 @@ const Checkout = () => {
                           <p className="text-secondary-500 dark:text-secondary-400 text-sm mt-0.5">{addr.address_line_1}, {addr.city}, {addr.region}, {addr.country}</p>
                         </div>
                       </div>
-                      <button 
-                        type="button" 
-                        onClick={(e) => startEditAddress(e, addr)}
-                        className="text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline px-2 py-1"
-                      >
-                        Edit
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          type="button" 
+                          onClick={(e) => startEditAddress(e, addr)}
+                          className="text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline px-2 py-1"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleDeleteAddress(addr.id);
+                          }}
+                          className="text-xs font-bold text-red-600 dark:text-red-400 hover:underline px-2 py-1"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </label>
                   ))}
 

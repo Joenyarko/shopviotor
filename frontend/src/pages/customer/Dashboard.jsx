@@ -257,8 +257,8 @@ const Dashboard = () => {
           ) : orders.length === 0 ? (
             <p className="text-xs text-secondary-500 dark:text-secondary-400">No recent transactions recorded.</p>
           ) : (
-            <div className="space-y-3">
-              {orders.slice(0, 3).map(order => (
+            <div className="space-y-3 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+              {orders.map(order => (
                 <div key={order.id || order.uuid} className="flex justify-between items-center text-sm p-3 border border-secondary-100 dark:border-secondary-800 rounded-lg">
                   <div>
                     <span className="font-bold text-secondary-900 dark:text-white">Order {order.order_number}</span>
