@@ -6,6 +6,7 @@ import preorderService from '../../services/preorderService';
 import { Package, RefreshCw, AlertCircle, ArrowLeft, Truck, MapPin, RotateCcw, ShieldCheck, Store as StoreIcon, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { openPaystack } from '../../utils/paystack';
+import apiClient from '../../api/client';
 
 const DeliveryInfoCard = () => (
   <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden mt-6">
@@ -127,7 +128,14 @@ const PreOrderDetail = () => {
           email: user.email,
           amountGHS: res.deposit,
           reference: res.payment.reference,
-          onSuccess: () => handleSuccess(),
+          onSuccess: async () => {
+            try {
+              await apiClient.get(`/payments/verify/${res.payment.reference}`);
+            } catch (err) {
+              console.error('Payment verification failed', err);
+            }
+            handleSuccess();
+          },
           onClose: () => {
             Swal.fire({ text: 'Payment window closed. Your pre-order was created and awaits deposit payment.' });
             navigate('/my-pre-orders');

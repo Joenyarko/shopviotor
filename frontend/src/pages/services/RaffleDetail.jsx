@@ -8,6 +8,7 @@ import {
   CheckCircle, AlertCircle, Phone, Tag, CreditCard, Gift, Percent, Shield
 } from 'lucide-react';
 import { openPaystack } from '../../utils/paystack';
+import apiClient from '../../api/client';
 
 function useCountdown(targetDate) {
   const calc = () => {
@@ -110,7 +111,11 @@ const RaffleDetail = () => {
           amountGHS: effectiveQty * raffle.ticket_price,
           reference: res.payment.reference,
           onSuccess: async () => {
-            // Can optionally call verify endpoint, but skipping for simplicity
+            try {
+              await apiClient.get(`/payments/verify/${res.payment.reference}`);
+            } catch (err) {
+              console.error('Payment verification failed', err);
+            }
             await handleSuccess();
             setPurchasing(false);
           },

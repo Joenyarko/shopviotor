@@ -111,7 +111,14 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
           email: user?.email,
           amountGHS: parseFloat(payAmount),
           reference: res.data.payment.reference,
-          onSuccess: () => handleSuccess(),
+          onSuccess: async () => {
+            try {
+              await apiClient.get(`/payments/verify/${res.data.payment.reference}`);
+            } catch (err) {
+              console.error('Payment verification failed', err);
+            }
+            handleSuccess();
+          },
           onClose: () => {
             toast.error('Payment window closed before completion.');
           }
@@ -121,7 +128,14 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
           email: user?.email,
           amountGHS: parseFloat(payAmount),
           reference: res.payment.reference,
-          onSuccess: () => handleSuccess(),
+          onSuccess: async () => {
+            try {
+              await apiClient.get(`/payments/verify/${res.payment.reference}`);
+            } catch (err) {
+              console.error('Payment verification failed', err);
+            }
+            handleSuccess();
+          },
           onClose: () => {
             toast.error('Payment window closed before completion.');
           }

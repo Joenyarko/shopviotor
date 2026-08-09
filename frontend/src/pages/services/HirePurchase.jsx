@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { openPaystack } from '../../utils/paystack';
 import { useAuth } from '../../contexts/AuthContext';
+import apiClient from '../../api/client';
 import HeroBanner from '../../components/marketing/HeroBanner';
 
 const HirePurchase = () => {
@@ -74,7 +75,14 @@ const HirePurchase = () => {
           email: user.email,
           amountGHS: deposit,
           reference: res.payment.reference,
-          onSuccess: () => handleSuccess(),
+          onSuccess: async () => {
+            try {
+              await apiClient.get(`/payments/verify/${res.payment.reference}`);
+            } catch (err) {
+              console.error('Payment verification failed', err);
+            }
+            handleSuccess();
+          },
           onClose: () => {
             setErrorMsg('Payment window closed. Your agreement was created but awaits deposit payment.');
           }
