@@ -261,7 +261,31 @@ const RaffleDetail = () => {
                     Buy More Tickets
                   </button>
                 </div>
-              ) : raffle.status !== 'active' ? (
+              ) : raffle.status === 'completed' ? (
+                <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-8 text-center shadow-xl flex flex-col items-center">
+                  <div className="w-16 h-16 bg-amber-500/20 rounded-full flex items-center justify-center mb-4 border border-amber-500/30">
+                    <Trophy className="w-8 h-8 text-amber-500" />
+                  </div>
+                  <h3 className="text-xl font-extrabold text-secondary-900 dark:text-white mb-2">Winner Selected! 🎉</h3>
+                  {raffle.winner ? (
+                    <>
+                      <p className="text-secondary-500 dark:text-secondary-400 text-sm mb-2 leading-relaxed">
+                        Congratulations to our lucky winner!
+                      </p>
+                      <div className="bg-secondary-50 dark:bg-secondary-950 px-6 py-4 rounded-xl border border-secondary-200 dark:border-secondary-800 text-left w-full mt-2">
+                         <p className="text-xs font-bold text-secondary-400 uppercase mb-1 tracking-wider">Winner Name</p>
+                         <p className="text-lg font-bold text-secondary-900 dark:text-white mb-3">{raffle.winner.user_name}</p>
+                         <p className="text-xs font-bold text-secondary-400 uppercase mb-1 tracking-wider">Winning Ticket</p>
+                         <p className="text-md font-mono text-secondary-700 dark:text-secondary-300">{raffle.winner.ticket_number}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-secondary-500 dark:text-secondary-400 text-sm mb-6 leading-relaxed">
+                      A winner has been successfully drawn for this raffle.
+                    </p>
+                  )}
+                </div>
+              ) : raffle.status === 'closed' ? (
                 <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-8 text-center shadow-xl flex flex-col items-center">
                   <div className="w-16 h-16 bg-[#ff0050]/10 rounded-full flex items-center justify-center mb-4 border border-[#ff0050]/20">
                     <svg className="w-8 h-8 text-[#ff0050]" viewBox="0 0 24 24" fill="currentColor">

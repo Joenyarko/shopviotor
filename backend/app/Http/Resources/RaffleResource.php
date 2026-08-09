@@ -25,6 +25,16 @@ class RaffleResource extends JsonResource
             'starts_at'         => $this->starts_at,
             'ends_at'           => $this->ends_at,
             'drawn_at'          => $this->drawn_at,
+            'winner'            => $this->when($this->status->value === 'completed', function () {
+                $winningTicket = \App\Models\RaffleTicket::where('raffle_id', $this->id)->where('is_winner', true)->with('user')->first();
+                if ($winningTicket) {
+                    return [
+                        'user_name' => $winningTicket->user->name ?? 'Anonymous',
+                        'ticket_number' => $winningTicket->ticket_number,
+                    ];
+                }
+                return null;
+            }),
             'product'           => new ProductResource($this->whenLoaded('product')),
         ];
     }
