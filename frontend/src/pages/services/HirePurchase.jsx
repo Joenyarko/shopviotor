@@ -148,7 +148,7 @@ const HirePurchase = () => {
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
         
         {/* Hero Banner */}
-        <HeroBanner position="hirepurchase_hero" fallbackContent={fallbackHero} />
+        <HeroBanner position="hire_purchase_hero" fallbackContent={fallbackHero} />
 
         {loadingProducts ? (
           <div className="flex justify-center py-20"><RefreshCw className="w-10 h-10 text-primary-500 animate-spin" /></div>
