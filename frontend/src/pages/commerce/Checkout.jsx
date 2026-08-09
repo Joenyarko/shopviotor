@@ -8,7 +8,7 @@ import orderService from '../../services/orderService';
 import apiClient from '../../api/client';
 import {
   MapPin, CreditCard, Package, ChevronRight, RefreshCw,
-  CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag
+  CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag, Trash2
 } from 'lucide-react';
 import { openPaystack } from '../../utils/paystack';
 
@@ -16,7 +16,7 @@ const STEPS = ['Address', 'Review', 'Payment'];
 
 
 const Checkout = () => {
-  const { cart, cartSubtotal, clearCart } = useCart();
+  const { cart, cartSubtotal, clearCart, removeFromCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -468,8 +468,17 @@ const Checkout = () => {
             <h2 className="text-lg font-bold mb-4">Order Summary</h2>
             <div className="space-y-2 text-sm">
               {cart.map(item => (
-                <div key={item.product_id || item.id} className="flex justify-between text-secondary-600 dark:text-secondary-400">
-                  <span className="truncate max-w-[160px]">{item.name} × {item.quantity}</span>
+                <div key={item.product_id || item.id} className="flex justify-between items-center text-secondary-600 dark:text-secondary-400">
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => removeFromCart(item.product_id || item.id)}
+                      className="text-red-500 hover:text-red-700 transition-colors p-1"
+                      title="Remove item"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <span className="truncate max-w-[140px]">{item.name} × {item.quantity}</span>
+                  </div>
                   <span className="font-medium text-secondary-900 dark:text-white ml-2">GHS {(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
@@ -484,7 +493,7 @@ const Checkout = () => {
                 <span>GHS {shippingFee.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-secondary-500 dark:text-secondary-400">
-                <span>Tax (5%)</span>
+                <span>Tax ({taxRate * 100}%)</span>
                 <span>GHS {taxFee.toFixed(2)}</span>
               </div>
             </div>
