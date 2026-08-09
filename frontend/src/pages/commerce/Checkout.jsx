@@ -172,18 +172,18 @@ const Checkout = () => {
 
       const res = await orderService.checkout(payload, idempotencyKey);
 
-      if (paymentMethod === 'paystack' && res.data?.payment?.reference) {
+      if (paymentMethod === 'paystack' && res?.payment?.reference) {
         // Popup flow
         openPaystack({
           email: user.email,
           amountGHS: orderTotal,
-          reference: res.data.payment.reference,
+          reference: res.payment.reference,
           onSuccess: async (response) => {
             try {
               await orderService.verifyPayment(response.reference);
             } catch {}
             clearCart();
-            setOrderSuccess(res.data?.order);
+            setOrderSuccess(res.order || res.data?.order);
           },
           onClose: () => {
             setErrorMsg('Payment window closed. Your order was created — you can pay later from your Orders page.');
@@ -193,14 +193,14 @@ const Checkout = () => {
         return;
       }
 
-      if (paymentMethod === 'paystack' && res.data?.payment?.authorization_url) {
+      if (paymentMethod === 'paystack' && res?.payment?.authorization_url) {
         // Redirect flow (fallback)
-        window.location.href = res.data.payment.authorization_url;
+        window.location.href = res.payment.authorization_url;
         return;
       }
 
       clearCart();
-      setOrderSuccess(res.data?.order);
+      setOrderSuccess(res?.order || res.data?.order);
     } catch (err) {
       const data = err.response?.data;
       const firstError = data?.errors ? Object.values(data.errors)[0][0] : null;

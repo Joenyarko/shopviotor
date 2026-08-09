@@ -96,8 +96,8 @@ const RaffleDetail = () => {
       };
       
       const res = await raffleService.buyTickets(uuid, payload);
-      if (res.data?.authorization_url || res.authorization_url) {
-        window.location.href = res.data?.authorization_url || res.authorization_url;
+      if (res?.payment?.authorization_url || res.data?.authorization_url || res.authorization_url) {
+        window.location.href = res?.payment?.authorization_url || res.data?.authorization_url || res.authorization_url;
       } else {
         setPurchaseSuccess(true);
         // refresh stats
