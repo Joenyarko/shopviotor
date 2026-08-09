@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import orderService from '../../services/orderService';
 import { ShoppingBag, RefreshCw, Clock, Package, Truck, CheckCircle } from 'lucide-react';
+import DotPagination from '../../components/DotPagination';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -19,6 +22,9 @@ const Orders = () => {
     };
     fetchOrders();
   }, []);
+
+  const totalPages = Math.ceil(orders.length / itemsPerPage);
+  const currentOrders = orders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="space-y-6">
@@ -39,7 +45,7 @@ const Orders = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {orders.map((order) => (
+          {currentOrders.map((order) => (
             <div key={order.id || order.uuid} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 transition-colors shadow-sm">
               
               <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4 border-b border-secondary-100 dark:border-secondary-800 pb-4">
@@ -125,6 +131,11 @@ const Orders = () => {
 
             </div>
           ))}
+          {totalPages > 1 && (
+            <div className="flex justify-center pt-4">
+              <DotPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
+          )}
         </div>
       )}
     </div>
