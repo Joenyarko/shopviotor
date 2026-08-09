@@ -125,7 +125,7 @@ const RaffleWinners = () => {
                         </span>
                       </div>
                       {winner.draw_date && (
-                        <p className="text-secondary-500 dark:text-secondary-400 text-xxs mt-1">
+                        <p className="text-white/80 font-medium text-xxs mt-1">
                           📅 {new Date(winner.draw_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </p>
                       )}

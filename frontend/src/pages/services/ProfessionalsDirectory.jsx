@@ -66,7 +66,7 @@ const ProfessionalsDirectory = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="What service do you need?" 
-                className="w-full pl-12 pr-4 py-4 rounded-xl text-gray-900 focus:outline-none focus:ring-4 focus:ring-secondary-900/50 text-lg shadow-xl"
+                className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-900 focus:outline-none focus:ring-4 focus:ring-secondary-900/50 text-lg shadow-xl"
               />
             </div>
             <button type="submit" className="px-8 py-4 bg-secondary-900 hover:bg-black text-white font-bold rounded-xl transition-colors shadow-xl">
