@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import tradeService from '../../services/tradeService';
 import productService from '../../services/productService';
 import { Upload, X, AlertCircle, RefreshCw, CheckCircle2, Scale, Search, ArrowRight } from 'lucide-react';
+import HeroBanner from '../../components/marketing/HeroBanner';
 
 const BarterRequest = () => {
   const { state } = useLocation();
@@ -89,21 +90,23 @@ const BarterRequest = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
       {/* Header */}
-      <div className="bg-primary-900 rounded-3xl p-8 md:p-12 text-white overflow-hidden relative shadow-2xl">
-        <div className="relative z-10 max-w-2xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
-            <Scale className="w-4 h-4 text-primary-300" />
-            <span className="text-xs font-semibold tracking-wider uppercase text-primary-200">Trade Hub</span>
+      <HeroBanner position="trade_hero" fallbackContent={
+        <div className="bg-primary-900 rounded-3xl p-8 md:p-12 text-white overflow-hidden relative shadow-2xl">
+          <div className="relative z-10 max-w-2xl space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-sm">
+              <Scale className="w-4 h-4 text-primary-300" />
+              <span className="text-xs font-semibold tracking-wider uppercase text-primary-200">Trade Hub</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black leading-tight">
+              Exchange What You Have <br className="hidden md:block"/> For What You Need
+            </h1>
+            <p className="text-primary-100 text-lg leading-relaxed max-w-xl">
+              Propose a direct swap for any of our eligible products, or submit an open trade request and let us make you an offer!
+            </p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black leading-tight">
-            Exchange What You Have <br className="hidden md:block"/> For What You Need
-          </h1>
-          <p className="text-primary-100 text-lg leading-relaxed max-w-xl">
-            Propose a direct swap for any of our eligible products, or submit an open trade request and let us make you an offer!
-          </p>
+          <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-primary-500 rounded-full blur-[100px] opacity-50" />
         </div>
-        <div className="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-primary-500 rounded-full blur-[100px] opacity-50" />
-      </div>
+      } />
 
       <div className="grid lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Form */}

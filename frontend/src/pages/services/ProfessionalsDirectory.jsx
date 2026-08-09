@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, Briefcase, Star, Filter } from 'lucide-react';
 import apiClient from '../../api/client';
+import HeroBanner from '../../components/marketing/HeroBanner';
 
 const ProfessionalsDirectory = () => {
   const [professionals, setProfessionals] = useState([]);
@@ -50,31 +51,33 @@ const ProfessionalsDirectory = () => {
   return (
     <div className="space-y-8">
       {/* Hero Section */}
-      <div className="bg-primary-500 py-16 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
-        <div className="absolute top-0 left-0 w-64 h-64 bg-secondary-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        
-        <div className="relative z-10 max-w-2xl mx-auto space-y-4">
-          <h1 className="text-4xl md:text-5xl font-black text-secondary-900 tracking-tight">Hire Local Professionals</h1>
-          <p className="text-secondary-800 text-lg font-medium">Find the best services and skilled experts in your area. From beauty to home repair, we've got you covered.</p>
+      <HeroBanner position="atu_hero" fallbackContent={
+        <div className="bg-primary-500 py-16 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
+          <div className="absolute top-0 left-0 w-64 h-64 bg-secondary-900 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
           
-          <form onSubmit={handleSearch} className="mt-8 flex gap-2 max-w-xl mx-auto">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <input 
-                type="text" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="What service do you need?" 
-                className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-900 focus:outline-none focus:ring-4 focus:ring-secondary-900/50 text-lg shadow-xl"
-              />
-            </div>
-            <button type="submit" className="px-8 py-4 bg-secondary-900 hover:bg-black text-white font-bold rounded-xl transition-colors shadow-xl">
-              Search
-            </button>
-          </form>
+          <div className="relative z-10 max-w-2xl mx-auto space-y-4">
+            <h1 className="text-4xl md:text-5xl font-black text-secondary-900 tracking-tight">Hire Local Professionals</h1>
+            <p className="text-secondary-800 text-lg font-medium">Find the best services and skilled experts in your area. From beauty to home repair, we've got you covered.</p>
+            
+            <form onSubmit={handleSearch} className="mt-8 flex gap-2 max-w-xl mx-auto">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input 
+                  type="text" 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="What service do you need?" 
+                  className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-900 focus:outline-none focus:ring-4 focus:ring-secondary-900/50 text-lg shadow-xl"
+                />
+              </div>
+              <button type="submit" className="px-8 py-4 bg-secondary-900 hover:bg-black text-white font-bold rounded-xl transition-colors shadow-xl">
+                Search
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
+      } />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

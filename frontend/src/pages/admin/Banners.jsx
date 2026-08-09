@@ -10,6 +10,8 @@ const POSITIONS = [
   { id: "hire_purchase_hero", label: "Hire Purchase Hero" },
   { id: "raffle_hero", label: "Raffles Hero" },
   { id: "trade_hero", label: "Trade & Sell Hero" },
+  { id: "vendor_hero", label: "Become a Vendor Hero" },
+  { id: "atu_hero", label: "Buy ATU Hero" },
   { id: "storefront_top_ad", label: "Storefront Top (Ad Board)" },
   { id: "storefront_middle", label: "Storefront Middle (Ad Board)" }
 ];

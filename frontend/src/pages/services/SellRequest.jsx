@@ -5,6 +5,7 @@ import sellRequestService from '../../services/sellRequestService';
 import productService from '../../services/productService';
 import { Upload, X, AlertCircle, RefreshCw, CheckCircle2, Package, Search, Eye, Send, Phone, Edit, Trash2 } from 'lucide-react';
 import CategorySelector from '../../components/CategorySelector';
+import HeroBanner from '../../components/marketing/HeroBanner';
 
 const SellRequest = () => {
   const [activeTab, setActiveTab] = useState('submit'); // 'submit' or 'my-requests'
@@ -195,10 +196,12 @@ const SellRequest = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 py-8">
-      <div>
-        <h1 className="text-3xl font-extrabold text-secondary-900 dark:text-white">Sell to Viotor</h1>
-        <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Request a corporate buyout for your devices.</p>
-      </div>
+      <HeroBanner position="trade_hero" fallbackContent={
+        <div>
+          <h1 className="text-3xl font-extrabold text-secondary-900 dark:text-white">Sell to Viotor</h1>
+          <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Request a corporate buyout for your devices.</p>
+        </div>
+      } />
 
       <div className="flex border-b border-secondary-200 dark:border-secondary-800 gap-6">
         <button

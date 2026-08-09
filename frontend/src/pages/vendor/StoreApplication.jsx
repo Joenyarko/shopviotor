@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import vendorService from '../../services/vendorService';
 import { Store, Upload, AlertCircle, RefreshCw, CheckCircle2, Phone, MapPin, X, ArrowRight } from 'lucide-react';
+import HeroBanner from '../../components/marketing/HeroBanner';
 
 const StoreApplication = () => {
   const navigate = useNavigate();
@@ -176,19 +177,21 @@ const StoreApplication = () => {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
       {/* Hero */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-500 to-primary-700 text-secondary-900 p-10 md:p-12 shadow-2xl">
-        <div className="relative z-10 max-w-2xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-sm w-fit">
-            <Store className="w-4 h-4 text-secondary-900" />
-            <span className="text-xs font-bold tracking-wider uppercase text-secondary-900">Become a Vendor</span>
+      <HeroBanner position="vendor_hero" fallbackContent={
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-500 to-primary-700 text-secondary-900 p-10 md:p-12 shadow-2xl">
+          <div className="relative z-10 max-w-2xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 border border-white/30 backdrop-blur-sm w-fit">
+              <Store className="w-4 h-4 text-secondary-900" />
+              <span className="text-xs font-bold tracking-wider uppercase text-secondary-900">Become a Vendor</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black">Open Your Store on Viotor</h1>
+            <p className="text-secondary-800 font-medium text-lg leading-relaxed max-w-xl">
+              Reach thousands of customers. List your products, manage orders, and grow your business — all from one powerful dashboard.
+            </p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black">Open Your Store on Viotor</h1>
-          <p className="text-secondary-800 font-medium text-lg leading-relaxed max-w-xl">
-            Reach thousands of customers. List your products, manage orders, and grow your business — all from one powerful dashboard.
-          </p>
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-white rounded-full blur-[120px] opacity-40" />
         </div>
-        <div className="absolute -top-20 -right-20 w-96 h-96 bg-white rounded-full blur-[120px] opacity-40" />
-      </div>
+      } />
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Form */}

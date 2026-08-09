@@ -182,50 +182,52 @@ const Raffles = () => {
   return (
     <div className="-mx-4 md:-mx-8 -mt-6">
       {/* ── HERO BANNER ── */}
-      <div className="relative bg-gradient-to-br from-secondary-950 via-[#0a1628] to-secondary-900 px-6 py-16 md:py-24 overflow-hidden">
-        {/* decorative orbs */}
-        <div className="absolute top-10 left-10 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-10 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+      <HeroBanner position="raffle_hero" fallbackContent={
+        <div className="relative bg-gradient-to-br from-secondary-950 via-[#0a1628] to-secondary-900 px-6 py-16 md:py-24 overflow-hidden">
+          {/* decorative orbs */}
+          <div className="absolute top-10 left-10 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 right-10 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-4xl mx-auto text-center space-y-6">
-          <span className="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 text-primary-400 text-xs font-bold uppercase px-4 py-1.5 rounded-full tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" /> Live Raffles — Play & Win
-          </span>
-          <h1 className="text-4xl md:text-6xl font-extrabold text-secondary-900 dark:text-white leading-tight">
-            Win <span className="text-primary-400">Premium</span> Prizes<br />
-            for Just a Few Cedis!
-          </h1>
-          <p className="text-secondary-400 text-base md:text-lg max-w-xl mx-auto">
-            Buy low-cost tickets and stand a chance to win high-value tech gadgets, appliances, and more every week.
-          </p>
+          <div className="relative max-w-4xl mx-auto text-center space-y-6">
+            <span className="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 text-primary-400 text-xs font-bold uppercase px-4 py-1.5 rounded-full tracking-wider">
+              <Sparkles className="w-3.5 h-3.5" /> Live Raffles — Play & Win
+            </span>
+            <h1 className="text-4xl md:text-6xl font-extrabold text-secondary-900 dark:text-white leading-tight">
+              Win <span className="text-primary-400">Premium</span> Prizes<br />
+              for Just a Few Cedis!
+            </h1>
+            <p className="text-secondary-400 text-base md:text-lg max-w-xl mx-auto">
+              Buy low-cost tickets and stand a chance to win high-value tech gadgets, appliances, and more every week.
+            </p>
 
-          <div className="flex flex-wrap justify-center gap-4 pt-2">
-            <Link to="#active-raffles" className="bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold px-8 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm shadow-lg shadow-primary-500/30">
-              <Ticket className="w-5 h-5" /> Browse Active Raffles
-            </Link>
-            <Link to="/raffles/winners" className="border border-white/20 text-secondary-900 dark:text-white hover:bg-white/10 font-semibold px-6 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm">
-              <Trophy className="w-5 h-5" /> View All Winners
-            </Link>
-          </div>
+            <div className="flex flex-wrap justify-center gap-4 pt-2">
+              <Link to="#active-raffles" className="bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold px-8 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm shadow-lg shadow-primary-500/30">
+                <Ticket className="w-5 h-5" /> Browse Active Raffles
+              </Link>
+              <Link to="/raffles/winners" className="border border-white/20 text-secondary-900 dark:text-white hover:bg-white/10 font-semibold px-6 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm">
+                <Trophy className="w-5 h-5" /> View All Winners
+              </Link>
+            </div>
 
-          {/* Stats strip */}
-          <div className="flex flex-wrap justify-center gap-6 mt-8">
-            {[
-              { icon: Zap, label: 'Active Raffles', val: stats.active },
-              { icon: Trophy, label: 'Total Winners', val: stats.winners },
-              { icon: Star, label: 'Tickets From', val: `GHS ${stats.minPrice.toFixed(2)}` },
-            ].map(({ icon: Icon, label, val }) => (
-              <div key={label} className="text-center">
-                <div className="flex items-center justify-center gap-1.5 text-primary-400 mb-1">
-                  <Icon className="w-4 h-4" />
-                  <span className="text-2xl font-extrabold text-secondary-900 dark:text-white">{val}</span>
+            {/* Stats strip */}
+            <div className="flex flex-wrap justify-center gap-6 mt-8">
+              {[
+                { icon: Zap, label: 'Active Raffles', val: stats.active },
+                { icon: Trophy, label: 'Total Winners', val: stats.winners },
+                { icon: Star, label: 'Tickets From', val: `GHS ${stats.minPrice.toFixed(2)}` },
+              ].map(({ icon: Icon, label, val }) => (
+                <div key={label} className="text-center">
+                  <div className="flex items-center justify-center gap-1.5 text-primary-400 mb-1">
+                    <Icon className="w-4 h-4" />
+                    <span className="text-2xl font-extrabold text-secondary-900 dark:text-white">{val}</span>
+                  </div>
+                  <p className="text-secondary-500 dark:text-secondary-400 text-xs">{label}</p>
                 </div>
-                <p className="text-secondary-500 dark:text-secondary-400 text-xs">{label}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      } />
 
       {/* ── HOW IT WORKS ── */}
       <div className="bg-white dark:bg-secondary-950 px-6 py-14">
