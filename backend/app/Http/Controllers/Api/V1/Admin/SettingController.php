@@ -51,6 +51,9 @@ class SettingController extends Controller
     {
         $data = $request->validate([
             'default_shipping_fee' => ['nullable', 'numeric', 'min:0'],
+            'tax_rate' => ['nullable', 'numeric', 'min:0'],
+            'momo_tax' => ['nullable', 'numeric', 'min:0'],
+            'site_name' => ['nullable', 'string', 'max:255'],
         ]);
 
         foreach ($data as $key => $value) {

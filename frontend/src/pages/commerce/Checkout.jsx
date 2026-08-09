@@ -92,6 +92,8 @@ const Checkout = () => {
 
   useEffect(() => { fetchCheckoutData(); }, [fetchCheckoutData]);
 
+  const [editingAddressId, setEditingAddressId] = useState(null);
+
   const handleAddAddress = async () => {
     if (!newAddress.address_line_1.trim() || !newAddress.city.trim() || !newAddress.region.trim() || !newAddress.phone.trim() || !newAddress.full_name.trim()) {
       setErrorMsg('Please fill in all mandatory address fields (Name, Phone, Address, City, Region).');
@@ -101,16 +103,39 @@ const Checkout = () => {
     setSubmitting(true);
     setErrorMsg('');
     try {
-      const res = await addressService.createAddress(newAddress);
+      let res;
+      if (editingAddressId) {
+        res = await addressService.updateAddress(editingAddressId, newAddress);
+      } else {
+        res = await addressService.createAddress(newAddress);
+      }
       await fetchCheckoutData();
-      setSelectedAddressId(String(res.data?.id || res.id));
+      setSelectedAddressId(String(editingAddressId || res.data?.id || res.id));
       setAddingAddress(false);
+      setEditingAddressId(null);
       setNewAddress({ label: '', full_name: user?.first_name ? `${user.first_name} ${user.last_name}` : '', phone: user?.phone || '', address_line_1: '', city: '', region: '', country: 'Ghana', is_default: false });
     } catch (e) {
       setErrorMsg(e.response?.data?.message || 'Failed to save address.');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const startEditAddress = (e, addr) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingAddressId(addr.id);
+    setNewAddress({
+      label: addr.label || '',
+      full_name: addr.full_name || '',
+      phone: addr.phone || '',
+      address_line_1: addr.address_line_1 || '',
+      city: addr.city || '',
+      region: addr.region || '',
+      country: addr.country || 'Ghana',
+      is_default: addr.is_default || false
+    });
+    setAddingAddress(true);
   };
 
   const handlePlaceOrder = async () => {
@@ -253,27 +278,36 @@ const Checkout = () => {
               ) : (
                 <div className="space-y-3">
                   {addresses.map(addr => (
-                    <label key={addr.id} className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                    <label key={addr.id} className={`flex items-start justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${
                       selectedAddressId === String(addr.id)
                         ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20'
                         : 'border-secondary-200 dark:border-secondary-700 hover:border-secondary-400'
                     }`}>
-                      <input type="radio" name="address" value={addr.id}
-                        checked={selectedAddressId === String(addr.id)}
-                        onChange={() => setSelectedAddressId(String(addr.id))}
-                        className="mt-1 accent-primary-500"
-                      />
-                      <div>
-                        <p className="font-semibold text-sm">{addr.label || 'Address'} {addr.is_default && <span className="text-xs bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded ml-1">Default</span>}</p>
-                        <p className="text-secondary-500 dark:text-secondary-400 text-sm mt-0.5">{addr.address_line_1}, {addr.city}, {addr.region}, {addr.country}</p>
+                      <div className="flex items-start gap-3">
+                        <input type="radio" name="address" value={addr.id}
+                          checked={selectedAddressId === String(addr.id)}
+                          onChange={() => setSelectedAddressId(String(addr.id))}
+                          className="mt-1 accent-primary-500"
+                        />
+                        <div>
+                          <p className="font-semibold text-sm">{addr.label || 'Address'} {addr.is_default && <span className="text-xs bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded ml-1">Default</span>}</p>
+                          <p className="text-secondary-500 dark:text-secondary-400 text-sm mt-0.5">{addr.address_line_1}, {addr.city}, {addr.region}, {addr.country}</p>
+                        </div>
                       </div>
+                      <button 
+                        type="button" 
+                        onClick={(e) => startEditAddress(e, addr)}
+                        className="text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline px-2 py-1"
+                      >
+                        Edit
+                      </button>
                     </label>
                   ))}
 
                   {/* Add new address inline */}
                   {addingAddress ? (
                     <div className="border-2 border-dashed border-primary-300 dark:border-primary-700 rounded-xl p-5 space-y-3">
-                      <h3 className="font-semibold text-sm">New Address</h3>
+                      <h3 className="font-semibold text-sm">{editingAddressId ? 'Edit Address' : 'New Address'}</h3>
                       <div className="grid grid-cols-2 gap-3">
                         {[
                           { key: 'label', placeholder: 'Label (e.g. Home)', full: true },
@@ -296,7 +330,7 @@ const Checkout = () => {
                           className="premium-button-primary px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-1.5">
                           {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Save Address'}
                         </button>
-                        <button onClick={() => setAddingAddress(false)} className="px-5 py-2 rounded-lg text-sm font-semibold border border-secondary-300 dark:border-secondary-700">Cancel</button>
+                        <button onClick={() => { setAddingAddress(false); setEditingAddressId(null); setNewAddress({ label: '', full_name: user?.first_name ? `${user.first_name} ${user.last_name}` : '', phone: user?.phone || '', address_line_1: '', city: '', region: '', country: 'Ghana', is_default: false }); }} className="px-5 py-2 rounded-lg text-sm font-semibold border border-secondary-300 dark:border-secondary-700">Cancel</button>
                       </div>
                     </div>
                   ) : (
