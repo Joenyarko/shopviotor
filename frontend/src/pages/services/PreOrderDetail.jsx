@@ -5,6 +5,7 @@ import productService from '../../services/productService';
 import preorderService from '../../services/preorderService';
 import { Package, RefreshCw, AlertCircle, ArrowLeft, Truck, MapPin, RotateCcw, ShieldCheck, Store as StoreIcon, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { openPaystack } from '../../utils/paystack';
 
 const DeliveryInfoCard = () => (
   <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden mt-6">
@@ -111,12 +112,30 @@ const PreOrderDetail = () => {
     e.preventDefault();
     setProcessing(true);
     try {
-      await preorderService.storePreOrder({
+      const res = await preorderService.storePreOrder({
         product_id: product.id,
         customer_details: { name, phone, address }
       });
-      Swal.fire({ text: String('Pre-order reserved successfully! You will be redirected to your dashboard.') });
-      navigate('/my-pre-orders');
+
+      const handleSuccess = () => {
+        Swal.fire({ text: String('Pre-order reserved successfully! You will be redirected to your dashboard.') });
+        navigate('/my-pre-orders');
+      };
+
+      if (res?.payment?.reference) {
+        openPaystack({
+          email: user.email,
+          amountGHS: res.deposit,
+          reference: res.payment.reference,
+          onSuccess: () => handleSuccess(),
+          onClose: () => {
+            Swal.fire({ text: 'Payment window closed. Your pre-order was created and awaits deposit payment.' });
+            navigate('/my-pre-orders');
+          }
+        });
+      } else {
+        handleSuccess();
+      }
     } catch (e) {
       Swal.fire({ text: String(e.response?.data?.message || 'Failed to process pre-order.') });
     } finally {

@@ -7,6 +7,7 @@ import { toast } from 'react-toastify';
 import {
   Package, CheckCircle, ArrowLeft, HelpCircle
 } from 'lucide-react';
+import { openPaystack } from '../utils/paystack';
 
 export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAdmin = false }) {
   const [payAmount, setPayAmount] = useState('');
@@ -75,6 +76,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
     }
   };
 
+  const { user } = useAuth();
   const handleRecordPayment = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -90,23 +92,42 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
       if (isAdmin) {
         endpoint = `/admin/layaways/${card.uuid}/payments`;
       } else {
-        // For customer online payment via Paystack, they'd use Paystack checkout first.
-        // For simplicity right now, assuming they submit the form and it mocks Paystack reference.
         payload.amount = parseFloat(payAmount);
-        payload.reference = 'MOCK-PAYSTACK-' + Date.now();
         endpoint = `/layaways/${card.uuid}/pay`;
       }
 
       const res = await apiClient.post(endpoint, payload);
-      toast.success(res.data?.message || 'Payment recorded successfully!');
       
-      // Reset form
-      setPayAmount('');
-      setPayBoxes('');
-      setPayNotes('');
+      const handleSuccess = () => {
+        toast.success(res.data?.message || 'Payment recorded successfully!');
+        setPayAmount('');
+        setPayBoxes('');
+        setPayNotes('');
+        if (onPaymentSuccess) onPaymentSuccess();
+      };
 
-      if (onPaymentSuccess) {
-        onPaymentSuccess();
+      if (!isAdmin && res?.data?.payment?.reference) {
+        openPaystack({
+          email: user?.email,
+          amountGHS: parseFloat(payAmount),
+          reference: res.data.payment.reference,
+          onSuccess: () => handleSuccess(),
+          onClose: () => {
+            toast.error('Payment window closed before completion.');
+          }
+        });
+      } else if (!isAdmin && res?.payment?.reference) {
+        openPaystack({
+          email: user?.email,
+          amountGHS: parseFloat(payAmount),
+          reference: res.payment.reference,
+          onSuccess: () => handleSuccess(),
+          onClose: () => {
+            toast.error('Payment window closed before completion.');
+          }
+        });
+      } else {
+        handleSuccess();
       }
     } catch (err) {
       console.error(err);

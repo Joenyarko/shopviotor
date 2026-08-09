@@ -7,6 +7,7 @@ import {
   Ticket, ArrowLeft, Users, RefreshCw, Trophy,
   CheckCircle, AlertCircle, Phone, Tag, CreditCard, Gift, Percent, Shield
 } from 'lucide-react';
+import { openPaystack } from '../../utils/paystack';
 
 function useCountdown(targetDate) {
   const calc = () => {
@@ -96,13 +97,31 @@ const RaffleDetail = () => {
       };
       
       const res = await raffleService.buyTickets(uuid, payload);
-      if (res?.payment?.authorization_url || res.data?.authorization_url || res.authorization_url) {
-        window.location.href = res?.payment?.authorization_url || res.data?.authorization_url || res.authorization_url;
-      } else {
+      
+      const handleSuccess = async () => {
         setPurchaseSuccess(true);
-        // refresh stats
         const updated = await raffleService.getRaffle(uuid);
         setRaffle(updated.data?.data || updated.data);
+      };
+
+      if (res?.payment?.reference) {
+        openPaystack({
+          email: user.email,
+          amountGHS: effectiveQty * raffle.ticket_price,
+          reference: res.payment.reference,
+          onSuccess: async () => {
+            // Can optionally call verify endpoint, but skipping for simplicity
+            await handleSuccess();
+            setPurchasing(false);
+          },
+          onClose: () => {
+            setPurchaseError('Payment window closed before completion.');
+            setPurchasing(false);
+          }
+        });
+        return; // wait for popup
+      } else {
+        await handleSuccess();
       }
     } catch (err) {
       const errorMsg = err.message || err.response?.data?.message || 'Failed to initialize payment.';

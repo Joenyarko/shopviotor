@@ -10,27 +10,10 @@ import {
   MapPin, CreditCard, Package, ChevronRight, RefreshCw,
   CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag
 } from 'lucide-react';
+import { openPaystack } from '../../utils/paystack';
 
 const STEPS = ['Address', 'Review', 'Payment'];
 
-// ─── Paystack popup initialiser ────────────────────────────────────────────────
-const openPaystack = ({ email, amountGHS, reference, onSuccess, onClose }) => {
-  if (!window.PaystackPop) {
-    Swal.fire({ text: String('Paystack could not be loaded. Please check your internet connection and try again.') });
-    return;
-  }
-  const handler = window.PaystackPop.setup({
-    key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_REPLACE_WITH_YOUR_KEY',
-    email,
-    amount: Math.round(amountGHS * 100), // convert GHS to pesewas
-    currency: 'GHS',
-    ref: reference,
-    metadata: { custom_fields: [{ display_name: 'Platform', variable_name: 'platform', value: 'VIOTOR' }] },
-    callback: (response) => onSuccess(response),
-    onClose,
-  });
-  handler.openIframe();
-};
 
 const Checkout = () => {
   const { cart, cartSubtotal, clearCart } = useCart();

@@ -2,12 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import hpService from '../../services/hpService';
 import productService from '../../services/productService';
-import { Percent, AlertCircle, RefreshCw, CheckCircle2, ArrowRight } from 'lucide-react';
+import {
+  Percent, ArrowRight, ShieldCheck, Clock, HelpCircle,
+  FileText, AlertCircle, ArrowLeft, RefreshCw, CheckCircle2
+} from 'lucide-react';
+import { openPaystack } from '../../utils/paystack';
+import { useAuth } from '../../contexts/AuthContext';
 import HeroBanner from '../../components/marketing/HeroBanner';
 
 const HirePurchase = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const targetProduct = state?.targetProduct;
 
   const [deposit, setDeposit] = useState(0);
@@ -57,8 +63,25 @@ const HirePurchase = () => {
         interest_rate: hpInterestRate,
       };
 
-      await hpService.createAgreement(payload);
-      setSuccess(true);
+      const res = await hpService.createAgreement(payload);
+      
+      const handleSuccess = () => {
+        setSuccess(true);
+      };
+
+      if (res?.payment?.reference) {
+        openPaystack({
+          email: user.email,
+          amountGHS: deposit,
+          reference: res.payment.reference,
+          onSuccess: () => handleSuccess(),
+          onClose: () => {
+            setErrorMsg('Payment window closed. Your agreement was created but awaits deposit payment.');
+          }
+        });
+      } else {
+        handleSuccess();
+      }
     } catch (err) {
       console.error(err);
       setErrorMsg(err.message || 'Failed to initialize hire purchase agreement.');
