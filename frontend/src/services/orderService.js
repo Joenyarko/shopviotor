@@ -15,6 +15,8 @@ const orderService = {
   adminGetOrder: (uuid) => apiClient.get(`/admin/orders/${uuid}`),
   adminUpdateStatus: (uuid, status, note = '') => apiClient.put(`/admin/orders/${uuid}/status`, { status, note }),
   adminGetStats: () => apiClient.get('/admin/orders/stats'),
+  adminDeleteOrder: (uuid) => apiClient.delete(`/admin/orders/${uuid}`),
+  adminRestoreOrder: (uuid) => apiClient.post(`/admin/orders/${uuid}/restore`),
 };
 
 export default orderService;

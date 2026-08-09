@@ -60,4 +60,20 @@ class OrderController extends Controller
 
         return response()->json(['data' => $stats]);
     }
+
+    public function destroy(string $uuid): JsonResponse
+    {
+        $order = \App\Models\Order::where('uuid', $uuid)->firstOrFail();
+        $order->delete();
+        
+        return response()->json(['message' => 'Order deleted successfully.']);
+    }
+
+    public function restore(string $uuid): JsonResponse
+    {
+        $order = \App\Models\Order::withTrashed()->where('uuid', $uuid)->firstOrFail();
+        $order->restore();
+        
+        return response()->json(['message' => 'Order restored successfully.']);
+    }
 }

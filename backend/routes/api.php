@@ -235,6 +235,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/orders', [AdminOrderController::class, 'index']);
             Route::get('/orders/{uuid}', [AdminOrderController::class, 'show']);
             Route::put('/orders/{uuid}/status', [AdminOrderController::class, 'updateStatus']);
+            Route::delete('/orders/{uuid}', [AdminOrderController::class, 'destroy']);
+            Route::post('/orders/{uuid}/restore', [AdminOrderController::class, 'restore']);
 
             // Raffles (Admin)
             Route::get('/raffles/winners', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'winners']);

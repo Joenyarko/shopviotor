@@ -14,6 +14,37 @@ class AuditLogController extends Controller
         $query = ActivityLog::with('user:id,first_name,last_name,email')
             ->latest();
 
+        // Search Filter
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhere('action', 'like', "%{$search}%")
+                  ->orWhere('subject_type', 'like', "%{$search}%");
+            });
+        }
+
+        // Period Filter
+        if ($request->has('period') && $request->input('period') !== 'all') {
+            $period = $request->input('period');
+            $now = now();
+            
+            switch ($period) {
+                case 'day':
+                    $query->whereDate('created_at', $now->toDateString());
+                    break;
+                case 'week':
+                    $query->whereBetween('created_at', [$now->startOfWeek(), $now->endOfWeek()]);
+                    break;
+                case 'month':
+                    $query->whereMonth('created_at', $now->month)->whereYear('created_at', $now->year);
+                    break;
+                case 'year':
+                    $query->whereYear('created_at', $now->year);
+                    break;
+            }
+        }
+
         // Optional filtering
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);

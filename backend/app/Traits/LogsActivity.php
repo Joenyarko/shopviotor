@@ -21,6 +21,12 @@ trait LogsActivity
         static::deleted(function ($model) {
             $model->logActivity('deleted', $model->toArray(), null);
         });
+
+        if (method_exists(static::class, 'restored')) {
+            static::restored(function ($model) {
+                $model->logActivity('restored', null, $model->toArray());
+            });
+        }
     }
 
     protected function logActivity(string $action, ?array $oldValues, ?array $newValues): void

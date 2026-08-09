@@ -5,11 +5,13 @@ import {
 } from 'lucide-react';
 import { auditService } from '../../services/auditService';
 import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 export default function AuditLogs() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [period, setPeriod] = useState('all');
   
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,12 +23,12 @@ export default function AuditLogs() {
 
   useEffect(() => {
     fetchLogs(currentPage);
-  }, [currentPage]);
+  }, [currentPage, period]);
 
   const fetchLogs = async (page) => {
     try {
       setLoading(true);
-      const res = await auditService.getLogs({ per_page: 20, page });
+      const res = await auditService.getLogs({ per_page: 20, page, search: searchTerm, period });
       setLogs(res.data);
       setMeta(res.meta);
     } catch (error) {
@@ -37,13 +39,32 @@ export default function AuditLogs() {
     }
   };
 
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (currentPage !== 1) setCurrentPage(1);
+      else fetchLogs(1);
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
   const openDetails = (log) => {
     setSelectedLog(log);
     setIsModalOpen(true);
   };
 
   const handleClearAll = async () => {
-    if (!window.confirm('Are you sure you want to clear ALL audit logs? This action cannot be undone.')) return;
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You are about to clear ALL audit logs. This action cannot be undone!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, clear all!'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       setLoading(true);
       await auditService.clearAll();
@@ -102,9 +123,19 @@ export default function AuditLogs() {
             className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:text-white"
           />
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium">
-          <Filter className="w-4 h-4" /> Filter
-        </button>
+        
+        <select
+          value={period}
+          onChange={(e) => setPeriod(e.target.value)}
+          className="px-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all dark:text-white font-medium text-slate-700 dark:text-slate-200"
+        >
+          <option value="all">All Time</option>
+          <option value="day">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="year">This Year</option>
+        </select>
+
         <button 
           onClick={handleClearAll}
           className="flex items-center gap-2 px-4 py-2 bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-500/30 rounded-lg transition-colors font-medium"

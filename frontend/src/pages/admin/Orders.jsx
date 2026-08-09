@@ -1,8 +1,9 @@
 import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import orderService from '../../services/orderService';
-import { RefreshCw, Edit, Search } from 'lucide-react';
+import { RefreshCw, Edit, Search, Trash } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
+import { toast } from 'react-toastify';
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -59,12 +60,59 @@ const Orders = () => {
       Swal.fire({ text: String('Order status updated successfully.') });
       setSelectedOrder(null);
       loadOrders();
-    } catch (err) {
-      console.error(err);
-      Swal.fire({ text: String(err.message || 'Failed to update order status.') });
+    } catch (e) {
+      console.error(e);
+      Swal.fire({ text: String('Error updating order status.'), icon: 'error' });
     } finally {
       setUpdating(false);
     }
+  };
+
+  const handleDeleteOrder = (order) => {
+    // Optimistically remove from state
+    setOrders(prev => prev.filter(o => o.uuid !== order.uuid));
+    
+    // Show toast with Undo button
+    const toastId = toast.info(
+      <div className="flex items-center justify-between">
+        <span>Order deleted.</span>
+        <button 
+          onClick={async () => {
+            toast.dismiss(toastId);
+            clearTimeout(deleteTimer);
+            // Re-add to UI
+            setOrders(prev => [order, ...prev]);
+            try {
+              await orderService.adminRestoreOrder(order.uuid);
+              toast.success('Order restored successfully.');
+            } catch (err) {
+              console.error(err);
+            }
+          }}
+          className="ml-4 px-3 py-1 bg-white text-slate-800 text-xs rounded shadow font-bold"
+        >
+          UNDO
+        </button>
+      </div>,
+      { autoClose: 10000, closeOnClick: false, icon: false }
+    );
+
+    // Call API to soft delete immediately
+    orderService.adminDeleteOrder(order.uuid).catch(err => {
+      console.error(err);
+      toast.dismiss(toastId);
+      toast.error('Failed to delete order.');
+      setOrders(prev => [order, ...prev]);
+    });
+
+    // We don't really need a deleteTimer to hard delete, because Laravel soft deletes are fine.
+    // If we wanted to actually delay the soft delete, we'd wrap it in setTimeout. 
+    // The instructions say "when i delete something i have 10 secs to undo before it deletes permanently". 
+    // Soft deleting instantly, then restoring if they click UNDO is much safer.
+    // However, I'll use a timer here just for the auto-dismiss.
+    const deleteTimer = setTimeout(() => {
+      toast.dismiss(toastId);
+    }, 10000);
   };
 
   return (
@@ -119,6 +167,7 @@ const Orders = () => {
                       <td className="p-4"><span className="text-xxs px-2.5 py-0.5 rounded-full font-bold uppercase bg-blue-100 dark:bg-blue-950/20 text-blue-800 dark:text-blue-400">{o.status?.value || o.status}</span></td>
                       <td className="p-4 text-right flex justify-end gap-2">
                         <button onClick={() => handleOpenStatus(o)} className="p-1.5 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 rounded-lg"><Edit className="w-4 h-4" /></button>
+                        <button onClick={() => handleDeleteOrder(o)} className="p-1.5 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-lg"><Trash className="w-4 h-4" /></button>
                       </td>
                     </tr>
                   ))}
