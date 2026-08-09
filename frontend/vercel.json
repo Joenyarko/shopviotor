@@ -1,6 +1,5 @@
 {
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "https://api.shopviotor.com/sitemap.xml" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
