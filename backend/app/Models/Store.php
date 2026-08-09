@@ -22,7 +22,7 @@ class Store extends Model
         'status', 'subscription_plan', 'commission_rate',
         'can_offer_layaway', 'can_offer_hire_purchase',
         'can_offer_preorders', 'can_offer_trades',
-        'approved_at', 'suspended_at',
+        'is_verified', 'approved_at', 'suspended_at',
     ];
 
     protected function casts(): array
@@ -34,6 +34,7 @@ class Store extends Model
             'can_offer_hire_purchase' => 'boolean',
             'can_offer_preorders'     => 'boolean',
             'can_offer_trades'        => 'boolean',
+            'is_verified'             => 'boolean',
             'approved_at'             => 'datetime',
             'suspended_at'            => 'datetime',
         ];
