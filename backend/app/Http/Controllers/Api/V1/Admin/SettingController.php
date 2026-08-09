@@ -41,7 +41,9 @@ class SettingController extends Controller
 
     public function getSettings()
     {
-        $settings = Setting::where('group', 'general')->pluck('value', 'key');
+        // Fetch all known settings by key and return as a flat map
+        $keys = ['site_name', 'tax_rate', 'default_shipping_fee', 'momo_tax'];
+        $settings = Setting::whereIn('key', $keys)->pluck('value', 'key');
         return response()->json([
             'data' => $settings
         ]);
@@ -51,19 +53,16 @@ class SettingController extends Controller
     {
         $data = $request->validate([
             'default_shipping_fee' => ['nullable', 'numeric', 'min:0'],
-            'tax_rate' => ['nullable', 'numeric', 'min:0'],
-            'momo_tax' => ['nullable', 'numeric', 'min:0'],
-            'site_name' => ['nullable', 'string', 'max:255'],
+            'tax_rate'             => ['nullable', 'numeric', 'min:0'],
+            'site_name'            => ['nullable', 'string', 'max:255'],
         ]);
 
         foreach ($data as $key => $value) {
+            if ($value === null) continue;
+            // Use only key/value columns which are guaranteed to exist
             Setting::updateOrCreate(
                 ['key' => $key],
-                [
-                    'value' => $value,
-                    'type' => is_numeric($value) ? 'decimal' : 'string',
-                    'group' => 'general'
-                ]
+                ['value' => $value]
             );
         }
 
