@@ -10,7 +10,6 @@ import {
   MapPin, CreditCard, Package, ChevronRight, RefreshCw,
   CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag
 } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 const STEPS = ['Address', 'Review', 'Payment'];
 
@@ -129,9 +128,9 @@ const Checkout = () => {
       await addressService.deleteAddress(id);
       await fetchCheckoutData();
       if (selectedAddressId === String(id)) setSelectedAddressId('');
-      toast.success('Address deleted successfully');
+      Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Address removed.', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
     } catch (e) {
-      toast.error('Failed to delete address');
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to delete address.', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
     }
   };
 
