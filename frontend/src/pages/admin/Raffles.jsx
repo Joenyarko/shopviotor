@@ -5,7 +5,7 @@ import productService from '../../services/productService';
 import {
   Plus, Edit2, Trash2, RefreshCw, X, Play, Trophy,
   Ticket, Users, Eye, AlertCircle, Image as ImageIcon,
-  Calendar, ChevronDown, CheckCircle, Upload, Search
+  Calendar, ChevronDown, CheckCircle, Upload, Search, ChevronRight
 } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
