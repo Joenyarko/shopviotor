@@ -188,6 +188,13 @@ const Navbar = () => {
                       <User className="w-4 h-4" /> Profile Dashboard
                     </Link>
                     <Link
+                      to="/orders"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
+                    >
+                      <Package className="w-4 h-4" /> My Orders
+                    </Link>
+                    <Link
                       to="/my-service-profile"
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
