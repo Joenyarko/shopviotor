@@ -15,7 +15,7 @@ class CheckoutRequest extends FormRequest
     {
         return [
             'items'                  => ['required', 'array', 'min:1'],
-            'items.*.product_id'     => ['required', 'exists:products,uuid'],
+            'items.*.product_id'     => ['required'],
             'items.*.quantity'       => ['required', 'integer', 'min:1'],
             'address_id'             => ['required', 'exists:addresses,id'],
             'coupon_code'            => ['nullable', 'string', 'exists:coupons,code'],

@@ -67,9 +67,18 @@ class OrderService
             // lockForUpdate prevents race conditions on concurrent checkouts
             $product = Product::active()
                 ->inStock()
-                ->where('uuid', $item['product_id'])
+                ->where(function ($q) use ($item) {
+                    $q->where('uuid', $item['product_id'])
+                      ->orWhere('id', $item['product_id']);
+                })
                 ->lockForUpdate()
-                ->firstOrFail();
+                ->first();
+
+            if (!$product) {
+                throw ValidationException::withMessages([
+                    "items.{$item['product_id']}" => ["Product not found or unavailable."],
+                ]);
+            }
 
             if ($product->stock_quantity < $item['quantity']) {
                 throw ValidationException::withMessages([

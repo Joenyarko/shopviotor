@@ -14,10 +14,10 @@ export const CartProvider = ({ children }) => {
 
   const addToCart = (product, quantity = 1) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.product_id === product.id || item.id === product.id);
+      const existingItem = prevCart.find((item) => item.product_id === (product.uuid || product.id) || item.id === (product.uuid || product.id));
       if (existingItem) {
         return prevCart.map((item) =>
-          (item.product_id === product.id || item.id === product.id)
+          (item.product_id === (product.uuid || product.id) || item.id === (product.uuid || product.id))
             ? { ...item, quantity: Math.min(item.quantity + quantity, product.stock_quantity || 100) }
             : item
         );
@@ -25,8 +25,9 @@ export const CartProvider = ({ children }) => {
       return [
         ...prevCart,
         {
-          product_id: product.id,
-          id: product.id, // compatibility fallback
+          product_id: product.uuid || product.id,
+          id: product.uuid || product.id, // compatibility fallback
+          uuid: product.uuid,
           name: product.name,
           price: parseFloat(product.price),
           sku: product.sku,
