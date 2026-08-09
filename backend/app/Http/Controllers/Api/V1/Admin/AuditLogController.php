@@ -45,4 +45,10 @@ class AuditLogController extends Controller
             ]
         ]);
     }
+
+    public function clearAll(): JsonResponse
+    {
+        ActivityLog::truncate();
+        return response()->json(['message' => 'All audit logs have been successfully cleared.']);
+    }
 }

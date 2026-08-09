@@ -5,4 +5,8 @@ export const auditService = {
     const response = await apiClient.get('/admin/audit-logs', { params });
     return response;
   },
+  clearAll: async () => {
+    const response = await apiClient.delete('/admin/audit-logs/clear');
+    return response;
+  }
 };

@@ -42,6 +42,22 @@ export default function AuditLogs() {
     setIsModalOpen(true);
   };
 
+  const handleClearAll = async () => {
+    if (!window.confirm('Are you sure you want to clear ALL audit logs? This action cannot be undone.')) return;
+    try {
+      setLoading(true);
+      await auditService.clearAll();
+      toast.success('All audit logs have been successfully cleared.');
+      setLogs([]);
+      setMeta(null);
+    } catch (error) {
+      toast.error('Failed to clear audit logs.');
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getActionColor = (action) => {
     switch (action) {
       case 'created': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400';
@@ -88,6 +104,12 @@ export default function AuditLogs() {
         </div>
         <button className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors font-medium">
           <Filter className="w-4 h-4" /> Filter
+        </button>
+        <button 
+          onClick={handleClearAll}
+          className="flex items-center gap-2 px-4 py-2 bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 hover:bg-rose-200 dark:hover:bg-rose-500/30 rounded-lg transition-colors font-medium"
+        >
+          <AlertCircle className="w-4 h-4" /> Clear Logs
         </button>
       </div>
 

@@ -198,6 +198,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/orders/stats', [AdminOrderController::class, 'stats']);
             Route::get('/analytics/app-installs', [\App\Http\Controllers\Api\V1\AnalyticsController::class, 'installStats']);
             // Audit Logs
+            Route::delete('/audit-logs/clear', [\App\Http\Controllers\Api\V1\Admin\AuditLogController::class, 'clearAll']);
             Route::get('/audit-logs', [\App\Http\Controllers\Api\V1\Admin\AuditLogController::class, 'index']);
             // Users
             Route::get('/users/student-verifications/pending', [AdminUserController::class, 'pendingStudentVerifications']);

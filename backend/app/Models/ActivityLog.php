@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ActivityLog extends Model
 {
-    public $timestamps = false;
-
     protected $fillable = [
         'user_id', 'action', 'subject_type', 'subject_id',
         'description', 'old_values', 'new_values', 'ip_address', 'user_agent',
@@ -22,8 +20,6 @@ class ActivityLog extends Model
             'created_at' => 'datetime',
         ];
     }
-
-    const UPDATED_AT = null;
 
     public function user(): BelongsTo
     {
