@@ -150,6 +150,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('hire-purchases', HirePurchaseController::class)->only(['index', 'store', 'show']);
         Route::post('/hire-purchases/{uuid}/installments/{id}/pay', [HirePurchaseController::class, 'payInstallment']);
 
+        Route::get('/raffles/my-tickets', [RaffleController::class, 'myTickets']);
         Route::post('/raffles/{uuid}/purchase-ticket', [RaffleController::class, 'purchaseTicket']);
 
         // Customer Support Chat
@@ -295,6 +296,10 @@ Route::prefix('v1')->group(function () {
             // Payouts (Admin)
             Route::get('/payouts', [\App\Http\Controllers\Api\V1\Admin\AdminPayoutController::class, 'index']);
             Route::post('/payouts/{uuid}/process', [\App\Http\Controllers\Api\V1\Admin\AdminPayoutController::class, 'process']);
+
+            // Settings (Admin)
+            Route::get('/settings', [\App\Http\Controllers\Api\V1\Admin\SettingController::class, 'getSettings']);
+            Route::post('/settings', [\App\Http\Controllers\Api\V1\Admin\SettingController::class, 'updateSettings']);
 
 
             // Payments (Admin)
