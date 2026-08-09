@@ -73,8 +73,9 @@ const Checkout = () => {
     try {
       // Fetch public settings for tax/shipping
       apiClient.get('/settings/public').then(res => {
-        setTaxRate((res.data?.tax_rate || 0) / 100);
-        setDefaultShipping(res.data?.default_shipping_fee || 30.00);
+        const data = res?.data || res;
+        setTaxRate((parseFloat(data.tax_rate) || 0) / 100);
+        setDefaultShipping(data.default_shipping_fee !== undefined ? parseFloat(data.default_shipping_fee) : 30.00);
       }).catch(console.error);
 
       // Fetch addresses
