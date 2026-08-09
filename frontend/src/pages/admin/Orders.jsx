@@ -70,7 +70,7 @@ const Orders = () => {
 
   const handleDeleteOrder = (order) => {
     // Optimistically remove from state
-    setOrders(prev => prev.filter(o => o.uuid !== order.uuid));
+    setOrders(prev => prev.filter(o => o.id !== order.id));
     
     // Show toast with Undo button
     const toastId = toast.info(
@@ -83,7 +83,7 @@ const Orders = () => {
             // Re-add to UI
             setOrders(prev => [order, ...prev]);
             try {
-              await orderService.adminRestoreOrder(order.uuid);
+              await orderService.adminRestoreOrder(order.id);
               toast.success('Order restored successfully.');
             } catch (err) {
               console.error(err);
@@ -98,7 +98,7 @@ const Orders = () => {
     );
 
     // Call API to soft delete immediately
-    orderService.adminDeleteOrder(order.uuid).catch(err => {
+    orderService.adminDeleteOrder(order.id).catch(err => {
       console.error(err);
       toast.dismiss(toastId);
       toast.error('Failed to delete order.');
