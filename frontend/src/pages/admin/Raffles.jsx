@@ -345,7 +345,7 @@ const AdminRaffles = () => {
                           <div className="flex items-center gap-3">
                             <div className="w-12 h-12 rounded-xl overflow-hidden bg-secondary-100 dark:bg-secondary-800 flex-shrink-0">
                               {r.image
-                                ? <img src={r.image} alt={r.title} className="w-full h-full object-cover" />
+                                ? <img src={r.image.startsWith('http') ? r.image : `${import.meta.env.VITE_STORAGE_URL}/${r.image}`} alt={r.title} className="w-full h-full object-cover" />
                                 : <ImageIcon className="w-6 h-6 text-secondary-400 m-3" />}
                             </div>
                             <div className="min-w-0">

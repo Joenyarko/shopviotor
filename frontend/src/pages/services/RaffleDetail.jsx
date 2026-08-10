@@ -183,7 +183,7 @@ const RaffleDetail = () => {
                 <Trophy className="w-3.5 h-3.5" /> Sponsored
               </div>
               <img
-                src={raffle.image || 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=60'}
+                src={raffle.image ? (raffle.image.startsWith('http') ? raffle.image : `${import.meta.env.VITE_STORAGE_URL}/${raffle.image}`) : 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=60'}
                 alt={raffle.title}
                 className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-500"
                 onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&auto=format&fit=crop&q=60'; }}
