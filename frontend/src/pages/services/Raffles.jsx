@@ -5,6 +5,7 @@ import {
   Ticket, Sparkles, RefreshCw, Trophy, ChevronRight,
   Zap, Star, Clock, Users, ArrowRight, Gift
 } from 'lucide-react';
+import HeroBanner from '../../components/marketing/HeroBanner';
 
 // ──────────────────────────────────────────────
 // Countdown Timer hook
