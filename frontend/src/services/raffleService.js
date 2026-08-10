@@ -13,7 +13,7 @@ const raffleService = {
   // ── ADMIN ──
   adminGetRaffles: (params = {}) => apiClient.get('/admin/raffles', { params }),
   adminCreateRaffle: (data) => apiClient.post('/admin/raffles', data),
-  adminUpdateRaffle: (uuid, data) => apiClient.put(`/admin/raffles/${uuid}`, data),
+  adminUpdateRaffle: (uuid, data) => apiClient.post(`/admin/raffles/${uuid}`, data),
   adminDeleteRaffle: (uuid) => apiClient.delete(`/admin/raffles/${uuid}`),
   adminDrawWinner: (uuid, data) => apiClient.post(`/admin/raffles/${uuid}/draw`, data),
   adminGetWinners: (params = {}) => apiClient.get('/admin/raffles/winners', { params }),

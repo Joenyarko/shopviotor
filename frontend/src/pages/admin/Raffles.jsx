@@ -249,6 +249,7 @@ const AdminRaffles = () => {
 
     try {
       if (editingRaffle) {
+        payload.append('_method', 'PUT');
         await raffleService.adminUpdateRaffle(editingRaffle.uuid, payload);
         Swal.fire({ icon: 'success', title: 'Updated!', text: 'Raffle has been updated successfully.', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
       } else {

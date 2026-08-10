@@ -33,7 +33,7 @@ class RaffleController extends Controller
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->storeOnCloudinary('raffles')->getSecurePath();
-            $data['image'] = url('storage/' . $path);
+            $data['image'] = $path;
         } elseif (isset($data['image']) && is_string($data['image'])) {
             // Keep the string URL if passed directly
         } else {
@@ -59,7 +59,7 @@ class RaffleController extends Controller
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->storeOnCloudinary('raffles')->getSecurePath();
-            $data['image'] = url('storage/' . $path);
+            $data['image'] = $path;
         } elseif (isset($data['image']) && is_string($data['image'])) {
             // Keep the string URL
         } else {
