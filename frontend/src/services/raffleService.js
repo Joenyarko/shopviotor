@@ -12,8 +12,8 @@ const raffleService = {
 
   // ── ADMIN ──
   adminGetRaffles: (params = {}) => apiClient.get('/admin/raffles', { params }),
-  adminCreateRaffle: (data) => apiClient.post('/admin/raffles', data),
-  adminUpdateRaffle: (uuid, data) => apiClient.post(`/admin/raffles/${uuid}`, data),
+  adminCreateRaffle: (data) => apiClient.post('/admin/raffles', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  adminUpdateRaffle: (uuid, data) => apiClient.post(`/admin/raffles/${uuid}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   adminDeleteRaffle: (uuid) => apiClient.delete(`/admin/raffles/${uuid}`),
   adminDrawWinner: (uuid, data) => apiClient.post(`/admin/raffles/${uuid}/draw`, data),
   adminGetWinners: (params = {}) => apiClient.get('/admin/raffles/winners', { params }),
