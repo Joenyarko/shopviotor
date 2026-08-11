@@ -162,8 +162,8 @@ const SellRequests = () => {
           <div className="bg-white dark:bg-secondary-900 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
             
             {/* Request Details & Action */}
-            <div className="w-full flex flex-col bg-white dark:bg-secondary-900">
-              <div className="p-4 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center bg-secondary-50 dark:bg-secondary-850/50">
+            <div className="w-full h-full flex flex-col bg-white dark:bg-secondary-900 overflow-hidden">
+              <div className="p-4 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center bg-secondary-50 dark:bg-secondary-850/50 flex-shrink-0">
                 <h3 className="font-bold text-lg text-secondary-900 dark:text-white">Review Request</h3>
                 <button onClick={() => setShowDetailModal(false)} className="p-1 text-secondary-400 hover:text-secondary-600"><X className="w-5 h-5" /></button>
               </div>
@@ -217,11 +217,14 @@ const SellRequests = () => {
                   <div>
                     <span className="text-xs text-secondary-500 uppercase font-bold block mb-2">Attached Images</span>
                     <div className="grid grid-cols-4 gap-2">
-                      {selectedSell.images.map((img, idx) => (
-                        <a key={idx} href={img} target="_blank" rel="noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-secondary-200">
-                          <img src={img} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform" />
-                        </a>
-                      ))}
+                      {selectedSell.images.map((img, idx) => {
+                        const imgUrl = img.startsWith('http') ? img : `${import.meta.env.VITE_STORAGE_URL}/${img}`;
+                        return (
+                          <a key={idx} href={imgUrl} target="_blank" rel="noreferrer" className="block aspect-square rounded-lg overflow-hidden border border-secondary-200">
+                            <img src={imgUrl} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform" />
+                          </a>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
