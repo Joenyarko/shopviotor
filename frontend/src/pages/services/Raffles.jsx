@@ -94,9 +94,14 @@ function RaffleCard({ raffle }) {
       </div>
 
       {/* Footer */}
-      <div className="bg-secondary-50 dark:bg-secondary-950 px-5 py-3 border-t border-secondary-200 dark:border-secondary-800">
-        <p className="text-[10px] text-secondary-400 dark:text-secondary-500 font-bold uppercase tracking-widest mb-0.5">Ticket Price</p>
-        <p className="text-amber-400 font-extrabold text-lg">GHS {parseFloat(raffle.ticket_price || 0).toFixed(2)}</p>
+      <div className="bg-secondary-50 dark:bg-secondary-950 px-5 py-4 border-t border-secondary-200 dark:border-secondary-800 flex items-center justify-between">
+        <div>
+          <p className="text-[10px] text-secondary-400 dark:text-secondary-500 font-bold uppercase tracking-widest mb-0.5">Ticket Price</p>
+          <p className="text-amber-500 dark:text-amber-400 font-extrabold text-lg leading-none">GHS {parseFloat(raffle.ticket_price || 0).toFixed(2)}</p>
+        </div>
+        <div className="bg-primary-500 hover:bg-primary-600 text-secondary-900 font-extrabold text-xs px-4 py-2 rounded-lg transition-colors shadow-sm">
+          Buy Ticket
+        </div>
       </div>
     </Link>
   );
@@ -207,9 +212,9 @@ const Raffles = () => {
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 pt-2">
-              <Link to="#active-raffles" className="bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold px-8 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm shadow-lg shadow-primary-500/30">
+              <button onClick={() => document.getElementById('active-raffles')?.scrollIntoView({ behavior: 'smooth' })} className="bg-primary-500 hover:bg-primary-600 text-secondary-900 font-bold px-8 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm shadow-lg shadow-primary-500/30">
                 <Ticket className="w-5 h-5" /> Browse Active Raffles
-              </Link>
+              </button>
               <Link to="/raffles/winners" className="border border-white/20 text-secondary-900 dark:text-white hover:bg-white/10 font-semibold px-6 py-3.5 rounded-2xl transition-colors flex items-center gap-2 text-sm">
                 <Trophy className="w-5 h-5" /> View All Winners
               </Link>
@@ -291,8 +296,7 @@ const Raffles = () => {
               </div>
               <div className="mt-10 flex justify-center">
                 <DotPagination
-                  totalItems={raffles.length}
-                  itemsPerPage={limit}
+                  totalPages={Math.ceil(raffles.length / limit)}
                   currentPage={currentPage}
                   onPageChange={setCurrentPage}
                 />
