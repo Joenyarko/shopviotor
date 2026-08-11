@@ -9,7 +9,7 @@ class PromoPopupController extends Controller
 {
     public function active()
     {
-        $popups = PromoPopup::where('is_active', true)->get();
+        $popups = PromoPopup::active()->with('campaign')->get();
         return response()->json(['data' => $popups]);
     }
 }

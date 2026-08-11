@@ -19,7 +19,7 @@ const PromoPopup = () => {
           
           if (popupCampaign) {
             // Check localStorage
-            const hasSeen = localStorage.getItem(`promo_seen_${popupCampaign.id}`);
+            const hasSeen = localStorage.getItem(`promo_seen_${popupCampaign.uuid}`);
             if (!hasSeen) {
               setCampaign(popupCampaign);
               // 3 second delay
@@ -58,11 +58,11 @@ const PromoPopup = () => {
           <X className="w-5 h-5" />
         </button>
 
-        {campaign.target_url ? (
-          <Link to={campaign.target_url} onClick={handleClose} className="block relative aspect-video w-full group overflow-hidden">
+        {campaign.link_url ? (
+          <Link to={campaign.link_url} onClick={handleClose} className="block relative aspect-video w-full group overflow-hidden">
             <img 
-              src={campaign.image_path} 
-              alt={campaign.title}
+              src={campaign.image_url} 
+              alt={campaign.campaign?.title || 'Special Promotion'}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
@@ -72,8 +72,8 @@ const PromoPopup = () => {
         ) : (
           <div className="relative aspect-video w-full">
             <img 
-              src={campaign.image_path} 
-              alt={campaign.title}
+              src={campaign.image_url} 
+              alt={campaign.campaign?.title || 'Special Promotion'}
               className="w-full h-full object-cover"
             />
           </div>
@@ -81,7 +81,7 @@ const PromoPopup = () => {
         
         <div className="p-5 text-center">
           <h3 className="text-lg sm:text-xl font-bold text-secondary-900 dark:text-white mb-2">
-            {campaign.title}
+            {campaign.campaign?.title || 'Special Promotion'}
           </h3>
           <p className="text-secondary-500 dark:text-secondary-400 text-xs sm:text-sm mb-4">
             Don't miss out on our exclusive deals. Limited time only!
