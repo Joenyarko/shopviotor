@@ -13,7 +13,7 @@ const Reports = () => {
     const fetchAnalytics = async () => {
       try {
         const response = await apiClient.get('/admin/dashboard/comprehensive-stats');
-        setData(response.data?.data);
+        setData(response?.data || response);
       } catch (error) {
         console.error('Failed to load analytics', error);
       } finally {
