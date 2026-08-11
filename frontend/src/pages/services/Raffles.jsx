@@ -6,6 +6,7 @@ import {
   Zap, Star, Clock, Users, ArrowRight, Gift
 } from 'lucide-react';
 import HeroBanner from '../../components/marketing/HeroBanner';
+import DotPagination from '../../components/DotPagination';
 
 // ──────────────────────────────────────────────
 // Countdown Timer hook
@@ -146,6 +147,9 @@ const Raffles = () => {
   const [winners, setWinners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ active: 0, winners: 0, minPrice: 0 });
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 9;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -278,11 +282,21 @@ const Raffles = () => {
               <p className="font-semibold">No active raffles at the moment. Check back soon!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {raffles.map(raffle => (
-                <RaffleCard key={raffle.uuid || raffle.id} raffle={raffle} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {raffles.slice((currentPage - 1) * limit, currentPage * limit).map(raffle => (
+                  <RaffleCard key={raffle.uuid || raffle.id} raffle={raffle} />
+                ))}
+              </div>
+              <div className="mt-10 flex justify-center">
+                <DotPagination
+                  totalItems={raffles.length}
+                  itemsPerPage={limit}
+                  currentPage={currentPage}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            </>
           )}
         </div>
       </div>
