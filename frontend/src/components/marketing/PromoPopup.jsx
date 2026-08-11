@@ -10,25 +10,25 @@ const PromoPopup = () => {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const response = await apiClient.get('/marketing/campaigns/active');
+        const response = await apiClient.get('/promo-popups/active');
         const activeCampaigns = response?.data?.data || response?.data || (Array.isArray(response) ? response : []);
         
         if (activeCampaigns.length > 0) {
           // Get the first active popup campaign
-          const popupCampaign = activeCampaigns.find(c => c.display_location === 'homepage_popup');
+          const popupCampaign = activeCampaigns[0]; // Promo popups are inherently popups
           
           if (popupCampaign) {
             // Check localStorage
-            const hasSeen = localStorage.getItem(`promo_seen_${popupCampaign.uuid}`);
+            const hasSeen = localStorage.getItem(`promo_seen_${popupCampaign.id}`);
             if (!hasSeen) {
               setCampaign(popupCampaign);
-              // Small delay so it doesn't pop up INSTANTLY on load
-              setTimeout(() => setIsOpen(true), 1500);
+              // 3 second delay
+              setTimeout(() => setIsOpen(true), 3000);
             }
           }
         }
       } catch (error) {
-        console.error('Failed to fetch promo campaigns:', error);
+        console.error('Failed to fetch promo popups:', error);
       }
     };
 

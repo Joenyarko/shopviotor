@@ -3,6 +3,7 @@ import apiClient from '../api/client';
 const productService = {
   getProducts: (params = {}) => apiClient.get('/products', { params }),
   getProduct: (uuid) => apiClient.get(`/products/${uuid}`),
+  getRelatedProducts: (uuid) => apiClient.get(`/products/${uuid}/related`),
   searchProducts: (q, params = {}) => apiClient.get('/products/search', { params: { q, ...params } }),
   getFeaturedProducts: () => apiClient.get('/products/featured'),
   getCategories: () => apiClient.get('/categories'),

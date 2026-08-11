@@ -138,6 +138,21 @@ class ProductRepository extends BaseRepository
         return $query->where('uuid', $uuid)->firstOrFail();
     }
 
+    public function getRelated(Product $product, int $limit = 6)
+    {
+        return $this->model->active()
+            ->where('id', '!=', $product->id)
+            ->where('stock_quantity', '>', 0)
+            ->where(function ($query) use ($product) {
+                $query->where('category_id', $product->category_id)
+                      ->orWhere('brand_id', $product->brand_id);
+            })
+            ->with(['category', 'brand', 'primaryImage', 'store'])
+            ->inRandomOrder()
+            ->limit($limit)
+            ->get();
+    }
+
     public function search(string $term, int $perPage = 15, array $filters = [])
     {
         $query = $this->model->active()

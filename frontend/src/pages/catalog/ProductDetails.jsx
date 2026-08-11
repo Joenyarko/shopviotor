@@ -22,6 +22,7 @@ import {
   ThumbsUp,
   Clock
 } from 'lucide-react';
+import ProductCard from '../../components/catalog/ProductCard';
 
 const DeliveryInfoCard = () => (
   <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
@@ -133,15 +134,23 @@ const ProductDetails = () => {
   const [selectedVariations, setSelectedVariations] = useState({});
   const [layawayModalOpen, setLayawayModalOpen] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     const loadProduct = async () => {
       try {
         const response = await productService.getProduct(uuid);
-        const data = response.data;
-        setProduct(data);
-        const firstImg = data.primary_image || data.images?.[0]?.url || null;
-        setActiveImage(firstImg);
+        const prodData = response.data?.data || response.data;
+        setProduct(prodData);
+        if (prodData.images && prodData.images.length > 0) {
+          setActiveImage(prodData.images[0].image_path);
+        }
+        
+        try {
+          const relatedRes = await productService.getRelatedProducts(uuid);
+          setRelatedProducts(relatedRes.data?.data || relatedRes.data || []);
+        } catch (e) { console.error('Failed to load related', e); }
+        
       } catch (error) {
         console.error('Failed to load product details:', error);
       } finally {
@@ -549,6 +558,23 @@ const ProductDetails = () => {
         </div>
 
       </div>
+
+      {/* You Might Also Like Section (Recommendations) */}
+      {relatedProducts.length > 0 && (
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-extrabold text-secondary-900 dark:text-white flex items-center gap-2">
+              <Package className="w-6 h-6 text-primary-500" />
+              You Might Also Like
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+            {relatedProducts.map(relProduct => (
+              <ProductCard key={relProduct.uuid} product={relProduct} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Layaway Registration Modal */}
       {layawayModalOpen && product && (

@@ -63,6 +63,16 @@ class ProductController extends Controller
         ]);
     }
 
+    public function related(string $uuid): JsonResponse
+    {
+        $product = $this->productRepo->findByUuid($uuid);
+        $relatedProducts = $this->productRepo->getRelated($product);
+
+        return response()->json([
+            'data' => ProductResource::collection($relatedProducts),
+        ]);
+    }
+
     public function search(Request $request): JsonResponse
     {
         $term = $request->input('q');
