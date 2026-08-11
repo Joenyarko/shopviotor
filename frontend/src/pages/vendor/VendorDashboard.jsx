@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import vendorService from '../../services/vendorService';
-import { BarChart2, Package, ShoppingCart, DollarSign, RefreshCw, ArrowRight, Plus, TrendingUp, Clock, Percent, Scale, ShieldCheck, Lock, CheckCircle2 } from 'lucide-react';
+import { BarChart2, Package, ShoppingCart, DollarSign, RefreshCw, ArrowRight, Plus, TrendingUp, Clock, Percent, Scale, ShieldCheck, Lock, CheckCircle2, Share2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 const VendorDashboard = () => {
   const [data, setData] = useState(null);
@@ -39,12 +40,26 @@ const VendorDashboard = () => {
             Store is <span className="font-semibold capitalize">{store.status}</span>
           </p>
         </div>
-        <Link
-          to="/vendor/products"
-          className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary-500/20 transition-colors"
-        >
-          <Plus className="w-4 h-4" /> Go to Products
-        </Link>
+        <div className="flex gap-2">
+          {store.slug && (
+            <button
+              onClick={() => {
+                const url = `${window.location.origin}/shops/${store.slug}`;
+                navigator.clipboard.writeText(url);
+                Swal.fire({ title: 'Link Copied!', text: 'Your store link has been copied to your clipboard.', icon: 'success', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
+              }}
+              className="flex items-center gap-2 bg-secondary-100 dark:bg-secondary-800 hover:bg-secondary-200 dark:hover:bg-secondary-700 text-secondary-900 dark:text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg transition-colors"
+            >
+              <Share2 className="w-4 h-4" /> Share My Shop
+            </button>
+          )}
+          <Link
+            to="/vendor/products"
+            className="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary-500/20 transition-colors"
+          >
+            <Plus className="w-4 h-4" /> Go to Products
+          </Link>
+        </div>
       </div>
 
       {/* Stats Grid */}
