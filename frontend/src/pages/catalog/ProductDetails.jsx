@@ -22,7 +22,7 @@ import {
   ThumbsUp,
   Clock
 } from 'lucide-react';
-import ProductCard from '../../components/catalog/ProductCard';
+import ProductCard from '../../components/ProductCard';
 
 const DeliveryInfoCard = () => (
   <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
