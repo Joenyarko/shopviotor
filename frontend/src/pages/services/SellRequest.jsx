@@ -377,46 +377,48 @@ const SellRequest = () => {
               You haven't submitted any items yet.
             </div>
           ) : (
-            <table className="w-full text-left border-collapse text-sm">
-              <thead>
-                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase text-xxs">
-                  <th className="p-4">Item Name</th>
-                  <th className="p-4">Date</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Offer</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                {myRequests.map((req) => (
-                  <tr key={req.id || req.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
-                    <td className="p-4 font-semibold text-secondary-900 dark:text-white">
-                      <div className="flex items-center gap-3">
-                        {req.images && req.images.length > 0 ? (
-                          <img src={req.images[0]} alt="" className="w-10 h-10 object-cover rounded-lg" />
-                        ) : (
-                          <div className="w-10 h-10 bg-secondary-100 rounded-lg flex items-center justify-center"><Package className="w-5 h-5 text-secondary-400" /></div>
-                        )}
-                        {req.item_name}
-                      </div>
-                    </td>
-                    <td className="p-4 text-secondary-600 dark:text-secondary-400">{new Date(req.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</td>
-                    <td className="p-4">
-                      <span className={`text-xxs px-2 py-0.5 rounded-full font-bold uppercase ${req.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-primary-100 text-primary-800'}`}>
-                        {req.status}
-                      </span>
-                    </td>
-                    <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400">
-                      {req.offered_price ? `GHS ${parseFloat(req.offered_price).toLocaleString()}` : '-'}
-                    </td>
-                    <td className="p-4 text-right flex items-center justify-end gap-1">
-                      <button onClick={() => openRequest(req)} className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg" title="View details"><Eye className="w-4 h-4" /></button>
-                      <button onClick={() => handleDelete(req.id || req.uuid)} className="p-1.5 text-accent-600 hover:bg-accent-50 rounded-lg" title="Delete request"><Trash2 className="w-4 h-4" /></button>
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-sm min-w-[650px]">
+                <thead>
+                  <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase text-xxs whitespace-nowrap">
+                    <th className="p-4 min-w-[250px]">Item Name</th>
+                    <th className="p-4">Date</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4">Offer</th>
+                    <th className="p-4 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
+                  {myRequests.map((req) => (
+                    <tr key={req.id || req.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
+                      <td className="p-4 font-semibold text-secondary-900 dark:text-white">
+                        <div className="flex items-center gap-3">
+                          {req.images && req.images.length > 0 ? (
+                            <img src={req.images[0]} alt="" className="w-10 h-10 min-w-[40px] object-cover rounded-lg" />
+                          ) : (
+                            <div className="w-10 h-10 min-w-[40px] bg-secondary-100 rounded-lg flex items-center justify-center"><Package className="w-5 h-5 text-secondary-400" /></div>
+                          )}
+                          <span className="line-clamp-2">{req.item_name}</span>
+                        </div>
+                      </td>
+                      <td className="p-4 text-secondary-600 dark:text-secondary-400 whitespace-nowrap">{new Date(req.created_at).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</td>
+                      <td className="p-4 whitespace-nowrap">
+                        <span className={`text-xxs px-2 py-0.5 rounded-full font-bold uppercase ${req.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-primary-100 text-primary-800'}`}>
+                          {req.status}
+                        </span>
+                      </td>
+                      <td className="p-4 font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
+                        {req.offered_price ? `GHS ${parseFloat(req.offered_price).toLocaleString()}` : '-'}
+                      </td>
+                      <td className="p-4 text-right flex items-center justify-end gap-1 whitespace-nowrap">
+                        <button onClick={() => openRequest(req)} className="p-1.5 text-primary-600 hover:bg-primary-50 rounded-lg" title="View details"><Eye className="w-4 h-4" /></button>
+                        <button onClick={() => handleDelete(req.id || req.uuid)} className="p-1.5 text-accent-600 hover:bg-accent-50 rounded-lg" title="Delete request"><Trash2 className="w-4 h-4" /></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       )}
