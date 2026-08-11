@@ -157,6 +157,11 @@ const Raffles = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 9;
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    document.getElementById('active-raffles')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -298,7 +303,7 @@ const Raffles = () => {
                 <DotPagination
                   totalPages={Math.ceil(raffles.length / limit)}
                   currentPage={currentPage}
-                  onPageChange={setCurrentPage}
+                  onPageChange={handlePageChange}
                 />
               </div>
             </>
