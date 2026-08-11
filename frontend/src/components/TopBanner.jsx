@@ -38,7 +38,7 @@ const TopBanner = () => {
             <InstagramIcon className="w-4 h-4" />
             <span className="text-xs hidden sm:inline-block">Instagram</span>
           </a>
-          <a href="#" className="hover:text-white transition-colors flex items-center gap-1.5">
+          <a href="https://www.tiktok.com/@viotor.trading.en?_r=1&_t=ZS-98kSSXidknM" target="_blank" rel="noreferrer" className="hover:text-white transition-colors flex items-center gap-1.5">
             <TiktokIcon className="w-4 h-4" />
             <span className="text-xs hidden sm:inline-block">TikTok</span>
           </a>
