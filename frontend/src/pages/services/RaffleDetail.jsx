@@ -158,7 +158,8 @@ const RaffleDetail = () => {
     );
   }
 
-  const progress = raffle.max_tickets ? Math.min(((raffle.tickets_sold || 0) / raffle.max_tickets) * 100, 100) : 0;
+  const maxLimit = raffle.max_tickets || raffle.max_participants;
+  const progress = maxLimit ? Math.min(((raffle.tickets_sold || 0) / maxLimit) * 100, 100) : 0;
   const isFull = progress >= 100;
 
   return (
@@ -247,7 +248,7 @@ const RaffleDetail = () => {
             <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 p-4 space-y-3">
               <div className="flex justify-between text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider">
                 <span>Tickets Remaining</span>
-                <span>{raffle.max_tickets ? raffle.max_tickets - (raffle.tickets_sold || 0) : 'Unlimited'}</span>
+                <span>{maxLimit ? maxLimit - (raffle.tickets_sold || 0) : 'Unlimited'}</span>
               </div>
               <div className="w-full bg-secondary-100 dark:bg-secondary-800 h-3.5 overflow-hidden p-0.5">
                 <div

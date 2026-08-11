@@ -34,8 +34,9 @@ function useCountdown(targetDate) {
 // Raffle Card
 // ──────────────────────────────────────────────
 function RaffleCard({ raffle }) {
-  const progress = raffle.max_tickets
-    ? Math.min(((raffle.tickets_sold || 0) / raffle.max_tickets) * 100, 100)
+  const maxLimit = raffle.max_tickets || raffle.max_participants;
+  const progress = maxLimit
+    ? Math.min(((raffle.tickets_sold || 0) / maxLimit) * 100, 100)
     : 0;
   const isFull = progress >= 100;
 
@@ -76,7 +77,7 @@ function RaffleCard({ raffle }) {
         <div className="mt-auto space-y-2">
           <div className="flex justify-between text-[11px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider mb-2">
             <span>Tickets Sold</span>
-            <span>{raffle.tickets_sold || 0}/{raffle.max_tickets || '∞'}</span>
+            <span>{raffle.tickets_sold || 0}/{maxLimit || '∞'}</span>
           </div>
           <div className="w-full bg-secondary-100 dark:bg-secondary-800 h-1.5 overflow-hidden">
             <div
