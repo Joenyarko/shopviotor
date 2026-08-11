@@ -9,10 +9,13 @@ const Reports = () => {
   const [data, setData] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
 
+  const [filter, setFilter] = useState('all');
+
   useEffect(() => {
     const fetchAnalytics = async () => {
+      setLoading(true);
       try {
-        const response = await apiClient.get('/admin/dashboard/comprehensive-stats');
+        const response = await apiClient.get(`/admin/dashboard/comprehensive-stats?filter=${filter}`);
         setData(response?.data || response);
       } catch (error) {
         console.error('Failed to load analytics', error);
@@ -21,7 +24,7 @@ const Reports = () => {
       }
     };
     fetchAnalytics();
-  }, []);
+  }, [filter]);
 
   const handleExport = () => {
     Swal.fire({ text: 'Report generation scheduled. It will download shortly.', icon: 'success' });
@@ -33,7 +36,7 @@ const Reports = () => {
 
   if (!data) return <div>Failed to load data.</div>;
 
-  const { summary, models, monthly_trends } = data;
+  const { summary, models, trends } = data;
 
   const COLORS = ['#0ea5e9', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#f43f5e'];
 
@@ -54,9 +57,25 @@ const Reports = () => {
           </h2>
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Deep insights into sales, customers, and marketplace models.</p>
         </div>
-        <button onClick={handleExport} className="premium-button-primary px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 text-sm shadow-sm">
-          <Download className="w-4 h-4" /> Export Report
-        </button>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <select 
+            value={filter} 
+            onChange={(e) => setFilter(e.target.value)}
+            disabled={loading}
+            className="px-4 py-2.5 bg-white dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 text-secondary-800 dark:text-white rounded-xl text-xs font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none min-w-[140px]"
+          >
+            <option value="day">Today</option>
+            <option value="week">This Week</option>
+            <option value="1month">Last 30 Days</option>
+            <option value="3months">Last 3 Months</option>
+            <option value="6months">Last 6 Months</option>
+            <option value="1year">Last 12 Months</option>
+            <option value="all">All Time</option>
+          </select>
+          <button onClick={handleExport} className="premium-button-primary px-5 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 text-sm shadow-sm flex-1 sm:flex-none">
+            <Download className="w-4 h-4" /> Export Report
+          </button>
+        </div>
       </div>
 
       {/* Analytics Tabs */}
@@ -110,28 +129,31 @@ const Reports = () => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 shadow-sm">
-              <h3 className="font-bold text-secondary-900 dark:text-white mb-6">6-Month Revenue Trend</h3>
-              <div className="h-[350px] w-full">
+            <div className="bg-white dark:bg-secondary-900 rounded-2xl p-6 border border-secondary-200 dark:border-secondary-800 shadow-sm col-span-2 lg:col-span-4 h-96 mt-4 relative">
+                {loading && (
+                  <div className="absolute inset-0 bg-white/50 dark:bg-secondary-900/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-2xl">
+                    <RefreshCw className="w-8 h-8 text-primary-500 animate-spin" />
+                  </div>
+                )}
+                <h3 className="font-bold text-secondary-900 dark:text-white mb-6">Revenue Trend</h3>
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={monthly_trends} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <AreaChart data={trends} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.8}/>
+                        <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
                         <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                    <XAxis dataKey="month" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `GH₵${value}`} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
-                      itemStyle={{ color: '#fff' }}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
+                    <XAxis dataKey="label" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dx={-10} tickFormatter={(val) => `₵${val}`} />
+                    <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }} />
+                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }}/>
                     <Area type="monotone" dataKey="Total" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorTotal)" />
+                    <Area type="monotone" dataKey="E-Commerce" stroke="#10b981" strokeWidth={2} fillOpacity={0} />
+                    <Area type="monotone" dataKey="HirePurchase" stroke="#f59e0b" strokeWidth={2} fillOpacity={0} />
                   </AreaChart>
                 </ResponsiveContainer>
-              </div>
             </div>
           </div>
         )}
@@ -186,20 +208,25 @@ const Reports = () => {
 
         {/* CUSTOMERS & SALES TAB */}
         {(activeTab === 'customers' || activeTab === 'sales') && (
-          <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 shadow-sm">
-            <h3 className="font-bold text-secondary-900 dark:text-white mb-6">Model Revenue Breakdown (6 Months)</h3>
-            <div className="h-[400px] w-full">
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-secondary-900 rounded-2xl p-6 border border-secondary-200 dark:border-secondary-800 shadow-sm h-96 relative">
+              {loading && (
+                <div className="absolute inset-0 bg-white/50 dark:bg-secondary-900/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-2xl">
+                  <RefreshCw className="w-8 h-8 text-primary-500 animate-spin" />
+                </div>
+              )}
+              <h3 className="font-bold text-secondary-900 dark:text-white mb-6">Stacked Revenue Analysis</h3>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthly_trends} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                  <XAxis dataKey="month" stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#64748b" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ backgroundColor: '#1e293b', borderRadius: '8px', color: '#fff' }}/>
-                  <Legend />
+                <BarChart data={trends} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#334155" opacity={0.2} />
+                  <XAxis dataKey="label" axisLine={false} tickLine={false} />
+                  <YAxis axisLine={false} tickLine={false} tickFormatter={(val) => `₵${val}`} />
+                  <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '12px', border: 'none' }} />
+                  <Legend iconType="circle" />
                   <Bar dataKey="E-Commerce" stackId="a" fill="#0ea5e9" radius={[0, 0, 4, 4]} />
                   <Bar dataKey="HirePurchase" stackId="a" fill="#10b981" />
-                  <Bar dataKey="Layaway" stackId="a" fill="#f59e0b" />
-                  <Bar dataKey="Raffles" stackId="a" fill="#ec4899" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="PreOrders" stackId="a" fill="#8b5cf6" />
+                  <Bar dataKey="Layaway" stackId="a" fill="#ec4899" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

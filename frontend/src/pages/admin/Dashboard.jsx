@@ -35,31 +35,30 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [appInstalls, setAppInstalls] = useState({ total: 0, android: 0, ios: 0, desktop: 0 });
+  const [filter, setFilter] = useState('all');
+
+  const fetchDashboardData = async (currentFilter) => {
+    setLoading(true);
+    try {
+      const res = await dashboardService.getComprehensiveStats(currentFilter);
+      setData(res?.data || res);
+    } catch (e) {
+      console.error('Failed to load comprehensive stats:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadComprehensiveData = async () => {
-      try {
-        const res = await dashboardService.getComprehensiveStats();
-        if (res.data?.data) {
-          setData(res.data.data);
-        } else if (res.data) {
-          setData(res.data);
-        }
-      } catch (e) {
-        console.error('Failed to load comprehensive stats:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadComprehensiveData();
+    fetchDashboardData(filter);
 
-    // Load app install analytics
+    // Load app install analytics only once
     apiClient.get('/admin/analytics/app-installs')
       .then(r => setAppInstalls(r || { total: 0, android: 0, ios: 0, desktop: 0 }))
       .catch(() => {}); // fail silently
-  }, []);
+  }, [filter]);
 
-  const { summary, models, monthly_trends } = data;
+  const { summary, models, trends } = data; // Note: using 'trends' instead of 'monthly_trends'
 
   return (
     <div className="space-y-8 pb-12">
@@ -78,14 +77,30 @@ const Dashboard = () => {
             Real-time synchronization across all 7 business models with zero simulated metrics.
           </p>
         </div>
-        <button 
-          onClick={() => { setLoading(true); dashboardService.getComprehensiveStats().then(r => { setData(r.data?.data || r.data); setLoading(false); }); }}
-          disabled={loading}
-          className="px-4 py-2.5 bg-secondary-100 dark:bg-secondary-800 hover:bg-secondary-200 dark:hover:bg-secondary-700 text-secondary-800 dark:text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-sm"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-primary-500' : ''}`} />
-          Refresh Live Data
-        </button>
+        <div className="flex items-center gap-3">
+          <select 
+            value={filter} 
+            onChange={(e) => setFilter(e.target.value)}
+            disabled={loading}
+            className="px-4 py-2.5 bg-white dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 text-secondary-800 dark:text-white rounded-xl text-xs font-bold shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none min-w-[140px]"
+          >
+            <option value="day">Today</option>
+            <option value="week">This Week</option>
+            <option value="1month">Last 30 Days</option>
+            <option value="3months">Last 3 Months</option>
+            <option value="6months">Last 6 Months</option>
+            <option value="1year">Last 12 Months</option>
+            <option value="all">All Time</option>
+          </select>
+          <button 
+            onClick={() => fetchDashboardData(filter)}
+            disabled={loading}
+            className="px-4 py-2.5 bg-secondary-100 dark:bg-secondary-800 hover:bg-secondary-200 dark:hover:bg-secondary-700 text-secondary-800 dark:text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-sm"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-primary-500' : ''}`} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {loading ? (
