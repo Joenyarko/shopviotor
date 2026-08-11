@@ -16,7 +16,9 @@ class TradeItemResource extends JsonResource
             'condition'       => $this->condition,
             'estimated_value' => $this->estimated_value,
             'admin_valued_at' => $this->admin_valued_at,
-            'images'          => array_map(fn($path) => asset('storage/' . $path), $this->images ?? []),
+            'images'          => array_map(function($path) {
+                return str_starts_with($path, 'http') ? $path : asset('storage/' . $path);
+            }, $this->images ?? []),
         ];
     }
 }

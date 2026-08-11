@@ -20,7 +20,9 @@ class SellRequestResource extends JsonResource
             'counter_offer_price' => $this->counter_offer_price,
             'status'              => $this->status->value,
             'status_label'        => $this->status->label(),
-            'images'              => array_map(fn($path) => asset('storage/' . $path), $this->images ?? []),
+            'images'              => array_map(function($path) {
+                return str_starts_with($path, 'http') ? $path : asset('storage/' . $path);
+            }, $this->images ?? []),
             'rejection_reason'    => $this->rejection_reason,
             'pickup_scheduled_at' => $this->pickup_scheduled_at,
             'pickup_address'      => $this->pickup_address,
