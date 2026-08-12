@@ -8,8 +8,9 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const StoreFront = () => {
-  const { slug } = useParams();
+const StoreFront = ({ overrideSlug }) => {
+  const params = useParams();
+  const slug = overrideSlug || params.slug;
   const [store, setStore] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

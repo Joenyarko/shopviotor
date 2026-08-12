@@ -114,13 +114,27 @@ const AdminRoute = ({ children }) => {
 };
 
 const AppRoutes = () => {
+  // --- SUBDOMAIN DETECTION LOGIC ---
+  const hostname = window.location.hostname;
+  const parts = hostname.split('.');
+  let subdomain = null;
+  
+  // If we have a structure like [slug].shopviotor.com or [slug].localhost
+  if (parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'api' && parts[0] !== 'admin') {
+    subdomain = parts[0];
+  }
+
   return (
     <React.Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div></div>}>
       <Routes>
       
       {/* ─── PUBLIC STOREFRONT FLOW ────────────────────────────────────────── */}
       <Route element={<MainLayout />}>
-        <Route path="/" element={<Landing />} />
+        {subdomain ? (
+          <Route path="/" element={<StoreFront overrideSlug={subdomain} />} />
+        ) : (
+          <Route path="/" element={<Landing />} />
+        )}
         <Route path="/products" element={<ProductList />} />
         <Route path="/products/:uuid" element={<ProductDetails />} />
         <Route path="/categories" element={<Categories />} />
