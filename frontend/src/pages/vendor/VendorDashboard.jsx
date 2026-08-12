@@ -44,7 +44,7 @@ const VendorDashboard = () => {
           {store.slug && (
             <button
               onClick={() => {
-                const url = `${window.location.origin}/shops/${store.slug}`;
+                const url = `${window.location.protocol}//${store.slug}.${window.location.host.replace('www.', '')}`;
                 navigator.clipboard.writeText(url);
                 Swal.fire({ title: 'Link Copied!', text: 'Your store link has been copied to your clipboard.', icon: 'success', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
               }}
