@@ -65,12 +65,39 @@ const Navbar = () => {
           
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="flex items-center gap-2">
-              <img src="/shopviotorlogo2.png" alt="SHOP VIOTOR Logo" className="h-14 sm:h-16 w-auto object-contain rounded-md dark:bg-white dark:p-1" />
-              <span className="text-xl font-bold text-primary-500 tracking-tight hidden sm:block">
-                SHOP VIOTOR
-              </span>
-            </Link>
+            {(() => {
+              const hostname = window.location.hostname;
+              const parts = hostname.split('.');
+              const isSubdomain = parts.length >= 3 && parts[0] !== 'www' && parts[0] !== 'api' && parts[0] !== 'admin' && parts[0] !== 'localhost';
+              
+              if (isSubdomain) {
+                // Return to main domain
+                const rootDomainUrl = `${window.location.protocol}//${parts.slice(1).join('.')}${window.location.port ? ':' + window.location.port : ''}`;
+                return (
+                  <a href={rootDomainUrl} className="flex items-center gap-2 group">
+                    <img src="/shopviotorlogo2.png" alt="SHOP VIOTOR Logo" className="h-14 sm:h-16 w-auto object-contain rounded-md dark:bg-white dark:p-1 group-hover:opacity-80 transition-opacity" />
+                    <div className="hidden sm:flex flex-col">
+                      <span className="text-xl font-bold text-primary-500 tracking-tight leading-tight">
+                        SHOP VIOTOR
+                      </span>
+                      <span className="text-xs text-secondary-500 font-medium">
+                        &larr; Back to Marketplace
+                      </span>
+                    </div>
+                  </a>
+                );
+              }
+              
+              // Standard Link for main domain
+              return (
+                <Link to="/" className="flex items-center gap-2">
+                  <img src="/shopviotorlogo2.png" alt="SHOP VIOTOR Logo" className="h-14 sm:h-16 w-auto object-contain rounded-md dark:bg-white dark:p-1" />
+                  <span className="text-xl font-bold text-primary-500 tracking-tight hidden sm:block">
+                    SHOP VIOTOR
+                  </span>
+                </Link>
+              );
+            })()}
           </div>
 
           {/* Mobile centered text */}
