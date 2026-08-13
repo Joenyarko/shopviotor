@@ -21,4 +21,14 @@ class LayawayPlanCard extends Model
             'number_of_boxes' => 'integer',
         ];
     }
+
+    public function getImageUrlAttribute($value)
+    {
+        if ($value && str_starts_with($value, '/storage/')) {
+            // Strip the leading slash before passing to asset() for robust handling, 
+            // though asset('/storage/...') often works too.
+            return asset(ltrim($value, '/'));
+        }
+        return $value;
+    }
 }

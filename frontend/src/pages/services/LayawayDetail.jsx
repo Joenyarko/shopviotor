@@ -145,7 +145,7 @@ const LayawayDetail = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-800 pb-2">
                   <span className="text-secondary-500 dark:text-secondary-400 text-sm">Target Amount</span>
-                  <span className="font-bold text-secondary-900 dark:text-white">GH₵ {productPrice.toFixed(2)}</span>
+                  <span className="font-bold text-secondary-900 dark:text-white">GH₵ {totalPrice.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-800 pb-2">
                   <span className="text-secondary-500 dark:text-secondary-400 text-sm">Total Boxes (Duration)</span>
