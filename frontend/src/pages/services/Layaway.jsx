@@ -15,6 +15,7 @@ const Layaway = () => {
   const [loadingCards, setLoadingCards] = useState(true);
   const [cardSearch, setCardSearch] = useState('');
   const [cardPage, setCardPage] = useState(1);
+  const [viewMode, setViewMode] = useState('all');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -123,8 +124,33 @@ const Layaway = () => {
         ))}
       </div>
 
+      {/* Filter Tabs */}
+      <div className="flex justify-center border-b border-secondary-200 dark:border-secondary-800 !mb-8 !mt-8">
+        <div className="flex space-x-6 sm:space-x-12">
+          <button
+            onClick={() => setViewMode('all')}
+            className={`pb-3 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'all' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
+          >
+            All Items
+          </button>
+          <button
+            onClick={() => setViewMode('cards')}
+            className={`pb-3 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'cards' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
+          >
+            Plan Cards
+          </button>
+          <button
+            onClick={() => setViewMode('products')}
+            className={`pb-3 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'products' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
+          >
+            Physical Products
+          </button>
+        </div>
+      </div>
+
       {/* Layaway Plan Cards */}
-      <div className="mb-12">
+      {(viewMode === 'all' || viewMode === 'cards') && (
+        <div className="mb-12">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
             <CreditCard className="w-6 h-6 text-primary-500" />
@@ -211,10 +237,12 @@ const Layaway = () => {
             onPageChange={setCardPage}
           />
         )}
-      </div>
+        </div>
+      )}
 
       {/* Products */}
-      <div>
+      {(viewMode === 'all' || viewMode === 'products') && (
+        <div>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
             <Package className="w-6 h-6 text-primary-500" />
@@ -279,6 +307,7 @@ const Layaway = () => {
           </div>
         )}
       </div>
+      )}
     </div>
   );
 };
