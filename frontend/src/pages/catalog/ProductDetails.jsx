@@ -20,9 +20,18 @@ import {
   ShieldCheck,
   Store as StoreIcon,
   ThumbsUp,
-  Clock
+  Clock,
+  ArrowLeft,
+  Share2,
+  Heart,
+  MessageCircle,
+  AlertCircle,
+  RefreshCw
 } from 'lucide-react';
 import ProductCard from '../../components/ProductCard';
+import DotPagination from '../../components/DotPagination';
+import ReviewList from '../../components/reviews/ReviewList';
+import ReviewForm from '../../components/reviews/ReviewForm';
 
 const DeliveryInfoCard = () => (
   <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
@@ -102,12 +111,12 @@ const SellerInfoCard = ({ store, navigate, product }) => {
         
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-lg text-center">
-            <span className="block font-bold text-sm text-secondary-900 dark:text-white">95%</span>
+            <span className="block font-bold text-sm text-secondary-900 dark:text-white">{store.average_rating ? parseFloat(store.average_rating).toFixed(1) : 'N/A'}</span>
             <span className="block text-[10px] text-secondary-500 uppercase tracking-wider mt-0.5">Seller Score</span>
           </div>
           <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-lg text-center">
-            <span className="block font-bold text-sm text-secondary-900 dark:text-white">10K+</span>
-            <span className="block text-[10px] text-secondary-500 uppercase tracking-wider mt-0.5">Followers</span>
+            <span className="block font-bold text-sm text-secondary-900 dark:text-white">{store.total_reviews || 0}</span>
+            <span className="block text-[10px] text-secondary-500 uppercase tracking-wider mt-0.5">Reviews</span>
           </div>
         </div>
 
@@ -500,53 +509,37 @@ const ProductDetails = () => {
               <h2 className="text-lg font-bold text-secondary-900 dark:text-white uppercase">Verified Customer Feedback</h2>
             </div>
             <div className="p-6">
-              {(!product.reviews || product.reviews.length === 0) ? (
-                <div className="text-center py-10">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary-100 dark:bg-secondary-800 mb-4">
-                    <ThumbsUp className="w-8 h-8 text-secondary-400" />
+              <div className="flex flex-col md:flex-row gap-12">
+                <div className="w-full md:w-64 flex-shrink-0">
+                  <h3 className="font-bold text-secondary-900 dark:text-white uppercase text-sm tracking-wide mb-4">Verification Score</h3>
+                  <div className="flex items-center gap-4 mb-2">
+                    <span className="text-5xl font-extrabold text-secondary-900 dark:text-white">{parseFloat(product.average_rating || 0).toFixed(1)}</span>
+                    <span className="text-xl text-secondary-500">/ 5</span>
                   </div>
-                  <h3 className="font-bold text-secondary-900 dark:text-white">No Reviews Yet</h3>
-                  <p className="text-secondary-500 dark:text-secondary-400 text-sm mt-1">Be the first to review this product after purchase!</p>
-                </div>
-              ) : (
-                <div className="flex flex-col md:flex-row gap-12">
-                  <div className="w-full md:w-64 flex-shrink-0">
-                    <h3 className="font-bold text-secondary-900 dark:text-white uppercase text-sm tracking-wide mb-4">Verification Score</h3>
-                    <div className="flex items-center gap-4 mb-2">
-                      <span className="text-5xl font-extrabold text-secondary-900 dark:text-white">{parseFloat(product.average_rating).toFixed(1)}</span>
-                      <span className="text-xl text-secondary-500">/ 5</span>
-                    </div>
-                    <div className="flex items-center text-amber-400 mb-2">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <Star key={star} className={`w-5 h-5 ${star <= parseFloat(product.average_rating) ? 'fill-current' : 'text-secondary-300 dark:text-secondary-700'}`} />
-                      ))}
-                    </div>
-                    <p className="text-sm text-secondary-600 dark:text-secondary-400">{product.reviews_count} verified ratings</p>
-                  </div>
-                  <div className="flex-1 space-y-6">
-                    {product.reviews.map(review => (
-                      <div key={review.id} className="border-b border-secondary-200 dark:border-secondary-800 pb-6 last:border-0 last:pb-0">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center text-amber-400">
-                            {[1, 2, 3, 4, 5].map(star => (
-                              <Star key={star} className={`w-3.5 h-3.5 ${star <= review.rating ? 'fill-current' : 'text-secondary-300 dark:text-secondary-700'}`} />
-                            ))}
-                          </div>
-                          <span className="text-xs text-secondary-500">{new Date(review.created_at).toLocaleDateString()}</span>
-                        </div>
-                        <h4 className="font-bold text-sm text-secondary-900 dark:text-white">{review.title || 'Review'}</h4>
-                        <p className="text-sm text-secondary-700 dark:text-secondary-300 mt-1">{review.comment}</p>
-                        <div className="flex items-center gap-2 mt-3">
-                          <span className="text-xs text-secondary-500">by {review.user?.first_name || 'Anonymous'}</span>
-                          <span className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 px-1.5 py-0.5 rounded font-bold flex items-center gap-1">
-                            <ShieldCheck className="w-3 h-3" /> Verified Purchase
-                          </span>
-                        </div>
-                      </div>
+                  <div className="flex items-center text-amber-400 mb-2">
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <Star key={star} className={`w-5 h-5 ${star <= parseFloat(product.average_rating || 0) ? 'fill-current' : 'text-secondary-300 dark:text-secondary-700'}`} />
                     ))}
                   </div>
+                  <p className="text-sm text-secondary-600 dark:text-secondary-400 mb-6">{product.reviews_count || 0} verified ratings</p>
+
+                  {isAuthenticated ? (
+                    <ReviewForm productUuid={product.uuid || product.id} onSuccess={(newReview) => {
+                      // Optionally refetch product to update ratings immediately
+                      window.location.reload();
+                    }} />
+                  ) : (
+                    <div className="p-4 bg-secondary-50 dark:bg-secondary-800 rounded-xl text-center">
+                      <p className="text-sm text-secondary-600 dark:text-secondary-400 mb-3">Please log in to leave a review.</p>
+                      <button onClick={() => navigate('/login')} className="premium-button w-full">Log In</button>
+                    </div>
+                  )}
                 </div>
-              )}
+                
+                <div className="flex-1">
+                  <ReviewList productUuid={product.uuid || product.id} />
+                </div>
+              </div>
             </div>
           </div>
         </div>

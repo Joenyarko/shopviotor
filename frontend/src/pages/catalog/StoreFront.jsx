@@ -270,16 +270,16 @@ const StoreFront = ({ overrideSlug }) => {
               <div className="text-center border-x border-secondary-100 dark:border-secondary-800">
                 <p className="text-2xl font-black text-secondary-900 dark:text-white flex items-center justify-center gap-1">
                   <Star className="w-5 h-5" style={{ color: '#f5c000' }} />
-                  <span>4.9</span>
+                  <span>{store.average_rating ? parseFloat(store.average_rating).toFixed(1) : 'N/A'}</span>
                 </p>
                 <p className="text-xs text-secondary-500 dark:text-secondary-400 font-medium mt-0.5">Seller Score</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-black text-secondary-900 dark:text-white flex items-center justify-center gap-1">
-                  <Users className="w-4 h-4 text-primary-500" />
-                  <span>10K+</span>
+                  <MessageCircle className="w-4 h-4 text-primary-500" />
+                  <span>{store.total_reviews || 0}</span>
                 </p>
-                <p className="text-xs text-secondary-500 dark:text-secondary-400 font-medium mt-0.5">Followers</p>
+                <p className="text-xs text-secondary-500 dark:text-secondary-400 font-medium mt-0.5">Reviews</p>
               </div>
             </div>
           </div>

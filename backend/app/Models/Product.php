@@ -168,4 +168,16 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    public function updateRatingStats()
+    {
+        $stats = $this->reviews()
+            ->selectRaw('count(*) as count, avg(rating) as average')
+            ->first();
+
+        $this->update([
+            'reviews_count' => $stats->count ?? 0,
+            'average_rating' => $stats->average ? round($stats->average, 1) : 0,
+        ]);
+    }
 }

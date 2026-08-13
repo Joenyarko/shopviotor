@@ -109,4 +109,19 @@ class Store extends Model
     {
         return $this->hasMany(PayoutRequest::class);
     }
+
+    public function getAverageRatingAttribute(): float
+    {
+        // Average rating of all active products belonging to the store
+        $avg = $this->products()->active()->avg('average_rating');
+        return $avg ? round($avg, 1) : 0;
+    }
+
+    public function getTotalReviewsAttribute(): int
+    {
+        // Total sum of reviews_count across all active products
+        return (int) $this->products()->active()->sum('reviews_count');
+    }
+
+    protected $appends = ['average_rating', 'total_reviews'];
 }

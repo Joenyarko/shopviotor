@@ -73,6 +73,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/products/featured', [ProductController::class, 'featured']);
     Route::get('/products/{uuid}/related', [ProductController::class, 'related']);
     Route::get('/products/{uuid}', [ProductController::class, 'show']);
+    Route::get('/products/{uuid}/reviews', [\App\Http\Controllers\Api\V1\ReviewController::class, 'index']);
 
     // Public Stores
     Route::get('/stores', [StoreController::class, 'index']);
@@ -136,6 +137,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/payments/verify/{reference}', [PaymentController::class, 'verify']);
 
         // Reviews & Wishlist
+        Route::post('/products/{uuid}/reviews', [\App\Http\Controllers\Api\V1\ReviewController::class, 'store']);
         Route::post('/reviews', [UserReviewController::class, 'store']);
         Route::get('/wishlist', [WishlistController::class, 'index']);
         Route::post('/wishlist/toggle/{productId}', [WishlistController::class, 'toggle']);
