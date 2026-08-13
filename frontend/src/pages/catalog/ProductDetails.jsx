@@ -152,7 +152,7 @@ const ProductDetails = () => {
         const prodData = response.data?.data || response.data;
         setProduct(prodData);
         if (prodData.images && prodData.images.length > 0) {
-          setActiveImage(prodData.images[0].image_path);
+          setActiveImage(prodData.images[0].url);
         }
         
         try {
@@ -244,10 +244,10 @@ const ProductDetails = () => {
               <div className="space-y-4">
                 <div className="aspect-[4/5] bg-secondary-50 dark:bg-secondary-800 rounded-xl overflow-hidden relative group">
                   <img
-                    src={activeImage || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=60'}
+                    src={activeImage || 'https://placehold.co/600x800?text=No+Image'}
                     alt={product.name}
                     className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 group-hover:scale-110"
-                    onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=60'; }}
+                    onError={(e) => { e.target.src = 'https://placehold.co/600x800?text=No+Image'; }}
                   />
                   {/* Badges Overlay */}
                   <div className="absolute top-4 left-4 flex flex-col gap-2">
