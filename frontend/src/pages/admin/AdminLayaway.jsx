@@ -8,7 +8,13 @@ import { toast } from 'react-toastify';
 import DotPagination from '../../components/DotPagination';
 
 const AdminLayaway = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    return sessionStorage.getItem('adminLayawayActiveTab') || 'dashboard';
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('adminLayawayActiveTab', activeTab);
+  }, [activeTab]);
 
   // Dashboard
   const [dashboard, setDashboard] = useState(null);
