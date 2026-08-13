@@ -13,8 +13,8 @@ const ReviewList = ({ productUuid }) => {
     try {
       setLoading(true);
       const res = await apiClient.get(`/products/${productUuid}/reviews?page=${page}`);
-      setReviews(res.data.data);
-      setMeta(res.data.meta);
+      setReviews(res.data?.data || []);
+      setMeta(res.data?.meta || null);
     } catch (err) {
       console.error('Failed to fetch reviews:', err);
     } finally {
