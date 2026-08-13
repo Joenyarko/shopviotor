@@ -39,8 +39,8 @@ const LayawayDetail = () => {
   const isCard = !!planCard;
   const itemName = isCard ? planCard.name : product.name;
   const itemImage = isCard ? planCard.image_url : (product.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&auto=format');
-  const boxes = isCard ? planCard.number_of_boxes : (product.layaway_boxes || product.layaway_total_boxes || 1);
-  const boxPrice = isCard ? planCard.price_per_box : (product.layaway_box_price || (parseFloat(product.price) / boxes));
+  const boxes = isCard ? parseInt(planCard.number_of_boxes) : parseInt(product.layaway_boxes || product.layaway_total_boxes || 1);
+  const boxPrice = isCard ? parseFloat(planCard.price_per_box) : (parseFloat(product.layaway_box_price) || (parseFloat(product.price) / boxes));
   const totalPrice = isCard ? (boxes * boxPrice) : parseFloat(product.price);
 
   const handleSubmit = async (e) => {
