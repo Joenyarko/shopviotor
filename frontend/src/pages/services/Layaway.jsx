@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import productService from '../../services/productService';
-import { Package, ArrowRight, Clock, Lock, CheckCircle2, TrendingUp } from 'lucide-react';
+import { Package, ArrowRight, Clock, Lock, CheckCircle2, TrendingUp, CreditCard, Search } from 'lucide-react';
+import layawayService from '../../services/layawayService';
+import DotPagination from '../../components/DotPagination';
 
 import HeroBanner from '../../components/marketing/HeroBanner';
 
 const Layaway = () => {
   const [products, setProducts] = useState([]);
+  const [cards, setCards] = useState([]);
+  const [cardsMeta, setCardsMeta] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loadingCards, setLoadingCards] = useState(true);
+  const [cardSearch, setCardSearch] = useState('');
+  const [cardPage, setCardPage] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchLayawayProducts();
   }, []);
+
+  useEffect(() => {
+    fetchLayawayCards();
+  }, [cardPage]);
 
   const fetchLayawayProducts = async () => {
     try {
@@ -26,8 +37,34 @@ const Layaway = () => {
     }
   };
 
+  const fetchLayawayCards = async () => {
+    try {
+      setLoadingCards(true);
+      const res = await layawayService.getCards({ page: cardPage, search: cardSearch, per_page: 8 });
+      setCards(res.data?.data || res.data || []);
+      setCardsMeta(res.data?.meta || res.meta || null);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingCards(false);
+    }
+  };
+
+  const handleCardSearch = (e) => {
+    e.preventDefault();
+    if (cardPage !== 1) {
+      setCardPage(1);
+    } else {
+      fetchLayawayCards();
+    }
+  };
+
   const handleStartLayaway = (product) => {
     navigate('/layaway/start', { state: { product } });
+  };
+
+  const handleStartLayawayFromCard = (card) => {
+    navigate('/layaway/start', { state: { plan_card: card } });
   };
 
   const fallbackHero = (
@@ -46,7 +83,7 @@ const Layaway = () => {
         <p className="text-secondary-400 text-base md:text-lg max-w-xl mx-auto">
           Just like a daily susu — make small, consistent payments toward a product. Once fully paid, we deliver it straight to your door!
         </p>
-        
+
         <div className="flex flex-wrap justify-center gap-6 pt-6">
           {[
             { icon: Lock, label: 'Item Reserved for You' },
@@ -84,6 +121,96 @@ const Layaway = () => {
             <p className="text-sm text-secondary-500 dark:text-secondary-400 leading-relaxed">{desc}</p>
           </div>
         ))}
+      </div>
+
+      {/* Layaway Plan Cards */}
+      <div className="mb-12">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+          <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
+            <CreditCard className="w-6 h-6 text-primary-500" />
+            Layaway Plan Cards
+          </h2>
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <form onSubmit={handleCardSearch} className="relative flex-1 md:w-72">
+              <input
+                type="text"
+                value={cardSearch}
+                onChange={(e) => setCardSearch(e.target.value)}
+                placeholder="Search plans..."
+                className="w-full pl-10 pr-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white"
+              />
+              <Search className="w-5 h-5 text-secondary-400 absolute left-3 top-2.5" />
+            </form>
+            <Link to="/my-layaways" className="text-sm font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1 hidden lg:flex whitespace-nowrap">
+              My Plans <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+
+        {loadingCards ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-secondary-200 dark:bg-secondary-800 aspect-[4/3] rounded-2xl mb-4" />
+                <div className="h-4 bg-secondary-200 dark:bg-secondary-800 rounded w-2/3 mb-2" />
+                <div className="h-4 bg-secondary-200 dark:bg-secondary-800 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {cards.map(card => (
+              <div key={card.uuid} className="group flex flex-col bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
+                <div className="aspect-[4/3] relative bg-secondary-100 dark:bg-secondary-800 overflow-hidden">
+                  {card.image_url ? (
+                    <img src={card.image_url} alt={card.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <CreditCard className="w-12 h-12 text-secondary-300 dark:text-secondary-600" />
+                    </div>
+                  )}
+                  <div className="absolute top-2 right-2 bg-white/90 dark:bg-secondary-900/90 backdrop-blur px-2.5 py-1 rounded-full border border-secondary-200 dark:border-secondary-700">
+                    <p className="text-xs font-bold text-secondary-900 dark:text-white whitespace-nowrap">
+                      GHS {Number(card.number_of_boxes * card.price_per_box).toFixed(2)} Total
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 flex flex-col flex-1">
+                  <h3 className="font-bold text-secondary-900 dark:text-white text-lg mb-1">{card.name}</h3>
+                  <p className="text-xs text-secondary-500 dark:text-secondary-400 line-clamp-2 mb-4 h-8">{card.description}</p>
+
+                  <div className="grid grid-cols-2 gap-2 mb-4 mt-auto">
+                    <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-lg">
+                      <p className="text-xxs text-secondary-500 dark:text-secondary-400 font-medium uppercase tracking-wider mb-0.5">Steps</p>
+                      <p className="font-bold text-secondary-900 dark:text-white">{card.number_of_boxes}</p>
+                    </div>
+                    <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-lg">
+                      <p className="text-xxs text-secondary-500 dark:text-secondary-400 font-medium uppercase tracking-wider mb-0.5">Price/Step</p>
+                      <p className="font-bold text-primary-600 dark:text-primary-400">GHS {Number(card.price_per_box).toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleStartLayawayFromCard(card)}
+                    className="w-full py-2.5 px-4 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-xl transition-colors text-sm"
+                  >
+                    Start This Plan
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!loadingCards && cards.length > 0 && (
+          <DotPagination
+            currentPage={cardPage}
+            totalPages={cardsMeta?.last_page || 1}
+            onPageChange={setCardPage}
+          />
+        )}
       </div>
 
       {/* Products */}

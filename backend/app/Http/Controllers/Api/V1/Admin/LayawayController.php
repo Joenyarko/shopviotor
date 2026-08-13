@@ -92,7 +92,8 @@ class LayawayController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'product_uuid' => 'required|exists:products,uuid',
+            'product_uuid' => 'nullable|exists:products,uuid',
+            'plan_card_uuid' => 'nullable|exists:layaway_plan_cards,uuid',
             'user_id' => 'nullable|exists:users,id',
             'first_name' => 'required_without:user_id|string|nullable',
             'last_name' => 'required_without:user_id|string|nullable',
@@ -103,7 +104,27 @@ class LayawayController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $product = Product::where('uuid', $request->product_uuid)->firstOrFail();
+        if (!$request->product_uuid && !$request->plan_card_uuid) {
+            return response()->json(['message' => 'You must select a product or a layaway card.'], 422);
+        }
+
+        $productId = null;
+        $planCardId = null;
+        $boxes = 10;
+        $boxPrice = 0;
+
+        if ($request->product_uuid) {
+            $product = Product::where('uuid', $request->product_uuid)->firstOrFail();
+            $productId = $product->id;
+            $boxes = $product->layaway_boxes ?? $product->layaway_total_boxes;
+            if (!$boxes || $boxes <= 0) $boxes = 10;
+            $boxPrice = $product->layaway_box_price ?? ($product->price / $boxes);
+        } else {
+            $planCard = \App\Models\LayawayPlanCard::where('uuid', $request->plan_card_uuid)->firstOrFail();
+            $planCardId = $planCard->id;
+            $boxes = $planCard->number_of_boxes;
+            $boxPrice = $planCard->price_per_box;
+        }
 
         $userId = $request->user_id;
         if (!$userId) {
@@ -129,18 +150,12 @@ class LayawayController extends Controller
             $userId = $user->id;
         }
 
-        $boxes = $product->layaway_boxes ?? $product->layaway_total_boxes;
-        if (!$boxes || $boxes <= 0) {
-            $boxes = 10;
-        }
-
-        $boxPrice = $product->layaway_box_price ?? ($product->price / $boxes);
-
-        $card = DB::transaction(function () use ($userId, $product, $boxes, $boxPrice, $request) {
+        $card = DB::transaction(function () use ($userId, $productId, $planCardId, $boxes, $boxPrice, $request) {
             $card = LayawayCard::create([
                 'uuid' => \Illuminate\Support\Str::uuid()->toString(),
                 'user_id' => $userId,
-                'product_id' => $product->id,
+                'product_id' => $productId,
+                'layaway_plan_card_id' => $planCardId,
                 'total_boxes' => $boxes,
                 'box_price' => $boxPrice,
                 'status' => 'active',

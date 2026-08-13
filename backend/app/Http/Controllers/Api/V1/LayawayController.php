@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\LayawayCard;
+use App\Models\LayawayPlanCard;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class LayawayController extends Controller
         $cards = LayawayCard::where('user_id', auth()->id())
             ->with(['product:id,uuid,name,price,slug', 'product.images' => function($query) {
                 $query->where('is_primary', true)->orWhere('sort_order', 0);
-            }])
+            }, 'layawayPlanCard'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -25,10 +26,13 @@ class LayawayController extends Controller
             $totalPaid = $card->payments()->sum('amount');
             $boxesChecked = $card->payments()->sum('boxes_covered');
             
+            $productName = $card->product ? $card->product->name : ($card->layawayPlanCard ? $card->layawayPlanCard->name : 'Unknown');
+            $productImage = $card->product ? $card->product->images->first()?->path : ($card->layawayPlanCard ? $card->layawayPlanCard->image_url : null);
+            
             return [
                 'uuid' => $card->uuid,
-                'product_name' => $card->product->name,
-                'product_image' => $card->product->images->first()?->path,
+                'product_name' => $productName,
+                'product_image' => $productImage,
                 'total_boxes' => $card->total_boxes,
                 'box_price' => (float) $card->box_price,
                 'status' => $card->status,
@@ -36,10 +40,32 @@ class LayawayController extends Controller
                 'amount_paid' => (float) $totalPaid,
                 'amount_remaining' => (float) ($card->total_boxes * $card->box_price) - $totalPaid,
                 'created_at' => $card->created_at->toISOString(),
+                'is_plan_card' => $card->layaway_plan_card_id !== null,
             ];
         });
 
         return response()->json(['data' => $formatted]);
+    }
+
+    public function cards(Request $request): JsonResponse
+    {
+        $query = LayawayPlanCard::where('status', 'active');
+        
+        if ($request->search) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        
+        $perPage = $request->input('per_page', 12);
+        $cards = $query->latest()->paginate($perPage);
+        
+        return response()->json([
+            'data' => $cards->items(),
+            'meta' => [
+                'current_page' => $cards->currentPage(),
+                'last_page' => $cards->lastPage(),
+                'total' => $cards->total(),
+            ]
+        ]);
     }
 
     public function store(Request $request): JsonResponse
@@ -53,28 +79,51 @@ class LayawayController extends Controller
         }
 
         $request->validate([
-            'product_uuid' => 'required|exists:products,uuid',
+            'product_uuid' => 'nullable|exists:products,uuid',
+            'plan_card_uuid' => 'nullable|exists:layaway_plan_cards,uuid',
         ]);
 
-        $product = Product::where('uuid', $request->product_uuid)
-            ->where(function ($query) {
-                $query->where('is_layaway', true)
-                      ->orWhere('available_for_layaway', true);
-            })
-            ->firstOrFail();
+        if (!$request->product_uuid && !$request->plan_card_uuid) {
+            return response()->json(['message' => 'You must select a product or a layaway card.'], 422);
+        }
 
-        $boxes = $product->layaway_boxes ?? $product->layaway_total_boxes;
+        $productId = null;
+        $planCardId = null;
+        $boxes = 0;
+        $boxPrice = 0;
 
-        if (!$boxes || $boxes <= 0) {
-            return response()->json(['message' => 'This product is missing layaway box configuration.'], 400);
+        if ($request->product_uuid) {
+            $product = Product::where('uuid', $request->product_uuid)
+                ->where(function ($query) {
+                    $query->where('is_layaway', true)
+                          ->orWhere('available_for_layaway', true);
+                })
+                ->firstOrFail();
+
+            $productId = $product->id;
+            $boxes = $product->layaway_boxes ?? $product->layaway_total_boxes;
+            $boxPrice = $product->layaway_box_price ?? ($product->price / $boxes);
+
+            if (!$boxes || $boxes <= 0) {
+                return response()->json(['message' => 'This product is missing layaway box configuration.'], 400);
+            }
+        } else {
+            $planCard = LayawayPlanCard::where('uuid', $request->plan_card_uuid)
+                ->where('status', 'active')
+                ->firstOrFail();
+                
+            $planCardId = $planCard->id;
+            $boxes = $planCard->number_of_boxes;
+            $boxPrice = $planCard->price_per_box;
         }
 
         $card = LayawayCard::create([
             'uuid' => Str::uuid()->toString(),
             'user_id' => auth()->id(),
-            'product_id' => $product->id,
+            'product_id' => $productId,
+            'layaway_plan_card_id' => $planCardId,
             'total_boxes' => $boxes,
-            'box_price' => $product->layaway_box_price ?? ($product->price / $boxes),
+            'box_price' => $boxPrice,
             'status' => 'active',
         ]);
 
@@ -88,7 +137,7 @@ class LayawayController extends Controller
     {
         $card = LayawayCard::where('uuid', $uuid)
             ->where('user_id', auth()->id())
-            ->with(['product:id,uuid,name', 'product.images', 'payments' => function($q) {
+            ->with(['product:id,uuid,name', 'product.images', 'layawayPlanCard', 'payments' => function($q) {
                 $q->orderBy('created_at', 'asc');
             }])
             ->firstOrFail();
@@ -97,10 +146,12 @@ class LayawayController extends Controller
         $boxesChecked = $card->payments->sum('boxes_covered');
         $totalAmount = $card->total_boxes * $card->box_price;
 
+        $productName = $card->product ? $card->product->name : ($card->layawayPlanCard ? $card->layawayPlanCard->name : 'Unknown');
+
         return response()->json([
             'data' => [
                 'uuid' => $card->uuid,
-                'product_name' => $card->product->name,
+                'product_name' => $productName,
                 'customer_name' => auth()->user()->name,
                 'customer_phone' => auth()->user()->phone ?? 'N/A',
                 'customer_city' => auth()->user()->city ?? 'N/A',

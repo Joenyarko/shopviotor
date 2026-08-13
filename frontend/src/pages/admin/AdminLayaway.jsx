@@ -41,6 +41,19 @@ const AdminLayaway = () => {
   const [inventorySearch, setInventorySearch] = useState('');
   const [inventoryPage, setInventoryPage] = useState(1);
 
+  // Cards
+  const [cards, setCards] = useState([]);
+  const [cardsMeta, setCardsMeta] = useState(null);
+  const [loadingCards, setLoadingCards] = useState(false);
+  const [cardSearch, setCardSearch] = useState('');
+  const [cardPage, setCardPage] = useState(1);
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [editingCard, setEditingCard] = useState(null);
+  const [cardForm, setCardForm] = useState({ name: '', number_of_boxes: 10, price_per_box: '', description: '', status: 'active', image: null });
+  const [cardImagePreview, setCardImagePreview] = useState(null);
+  const cardFileInputRef = useRef(null);
+  const [savingCard, setSavingCard] = useState(false);
+
   // Settings
   const [termsText, setTermsText] = useState('');
   const [savingTerms, setSavingTerms] = useState(false);
@@ -90,8 +103,9 @@ const AdminLayaway = () => {
     if (activeTab === 'customers') loadCustomers();
     if (activeTab === 'sales') loadSales();
     if (activeTab === 'inventory') loadInventory();
+    if (activeTab === 'cards') loadCards();
     if (activeTab === 'settings') loadTerms();
-  }, [activeTab, customerPage, salesPage, inventoryPage, selectedCardId]);
+  }, [activeTab, customerPage, salesPage, inventoryPage, cardPage, selectedCardId]);
 
   useEffect(() => {
     productService.getCategories().then(r => setCategories(r.data?.data || r.data || [])).catch(console.error);
@@ -158,8 +172,20 @@ const AdminLayaway = () => {
       const res = await layawayService.adminGetInventory({ page: inventoryPage, search: inventorySearch, per_page: 15 });
       setInventory(res.data || []);
       setInventoryMeta(res.meta || null);
-    } catch (e) { console.error(e); }
-    finally { setLoadingInventory(false); }
+    } catch (e) {
+      toast.error('Failed to load inventory');
+    } finally { setLoadingInventory(false); }
+  };
+
+  const loadCards = async () => {
+    setLoadingCards(true);
+    try {
+      const res = await layawayService.adminGetCards({ page: cardPage, search: cardSearch, per_page: 12 });
+      setCards(res.data?.data || res.data || []);
+      setCardsMeta(res.data?.meta || res.meta || null);
+    } catch (e) {
+      toast.error('Failed to load cards');
+    } finally { setLoadingCards(false); }
   };
 
   const loadTerms = async () => {
@@ -184,6 +210,12 @@ const AdminLayaway = () => {
     loadInventory();
   };
 
+  const handleCardSearch = (e) => {
+    e.preventDefault();
+    setCardPage(1);
+    loadCards();
+  };
+
   const saveTerms = async () => {
     setSavingTerms(true);
     try {
@@ -206,9 +238,14 @@ const AdminLayaway = () => {
     setShowAddCustomerModal(true);
     setLoadingLayawayProducts(true);
     try {
+      // Load layaway products
       const res = await layawayService.adminGetInventory({ status: 'layaway', per_page: 100 });
-      const items = res.data || [];
-      setLayawayProducts(items);
+      setLayawayProducts(res.data || []);
+      
+      // Load active cards if cards array is empty (or we can just use the existing cards state if loaded)
+      // Actually let's just fetch them to be safe or use loadCards
+      const cardRes = await layawayService.adminGetCards();
+      setCards(cardRes.data?.data || cardRes.data || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -219,27 +256,40 @@ const AdminLayaway = () => {
   const handleCreateCustomerPlan = async (e) => {
     e.preventDefault();
     if (!newCustProductUuid) {
-      toast.error('Please select a product.');
+      toast.error('Please select a product or plan card.');
       return;
     }
     setCreatingCustomerPlan(true);
+    
+    // Determine if it's a product or card based on prefix
+    const isCard = newCustProductUuid.startsWith('card_');
+    const actualUuid = newCustProductUuid.replace(/^(card_|product_)/, '');
+    
+    const payload = {
+      user_id: '',
+      first_name: newCustFirstName,
+      last_name: newCustLastName,
+      phone: newCustPhone,
+      email: newCustEmail,
+      initial_payment: newCustInitialPayment ? parseFloat(newCustInitialPayment) : 0,
+      payment_method: newCustPaymentMethod,
+      notes: newCustNotes
+    };
+
+    if (isCard) {
+      payload.plan_card_uuid = actualUuid;
+    } else {
+      payload.product_uuid = actualUuid;
+    }
+
     try {
-      await layawayService.adminCreateLayaway({
-        product_uuid: newCustProductUuid,
-        first_name: newCustFirstName,
-        last_name: newCustLastName,
-        phone: newCustPhone,
-        email: newCustEmail,
-        initial_payment: newCustInitialPayment ? parseFloat(newCustInitialPayment) : 0,
-        payment_method: newCustPaymentMethod,
-        notes: newCustNotes,
-      });
+      await layawayService.adminCreateLayaway(payload);
       toast.success('Customer layaway plan created successfully!');
       setShowAddCustomerModal(false);
       loadCustomers();
       loadDashboard();
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create layaway plan.');
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Failed to create plan.');
     } finally {
       setCreatingCustomerPlan(false);
     }
@@ -341,6 +391,82 @@ const AdminLayaway = () => {
     }
   };
 
+  const resetCardForm = () => {
+    setCardForm({ name: '', number_of_boxes: 10, price_per_box: '', description: '', status: 'active', image: null });
+    setCardImagePreview(null);
+    setEditingCard(null);
+  };
+
+  const openAddCardModal = () => {
+    resetCardForm();
+    setShowCardModal(true);
+  };
+
+  const openEditCardModal = (card) => {
+    setEditingCard(card);
+    setCardForm({
+      name: card.name,
+      number_of_boxes: card.number_of_boxes,
+      price_per_box: card.price_per_box,
+      description: card.description || '',
+      status: card.status,
+      image: null
+    });
+    setCardImagePreview(card.image_url);
+    setShowCardModal(true);
+  };
+
+  const handleSaveCard = async (e) => {
+    e.preventDefault();
+    setSavingCard(true);
+    try {
+      const formData = new FormData();
+      formData.append('name', cardForm.name);
+      formData.append('number_of_boxes', cardForm.number_of_boxes);
+      formData.append('price_per_box', cardForm.price_per_box);
+      formData.append('description', cardForm.description);
+      formData.append('status', cardForm.status);
+      if (cardForm.image) {
+        formData.append('image', cardForm.image);
+      }
+
+      if (editingCard) {
+        await layawayService.adminUpdateCard(editingCard.uuid, formData);
+        toast.success('Card updated successfully');
+      } else {
+        await layawayService.adminCreateCard(formData);
+        toast.success('Card created successfully');
+      }
+      setShowCardModal(false);
+      resetCardForm();
+      loadCards();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to save card');
+    } finally {
+      setSavingCard(false);
+    }
+  };
+
+  const handleDeleteCard = async (uuid) => {
+    const __confirmResult = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Delete this layaway card?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#eab308',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+    if (!__confirmResult.isConfirmed) return;
+    try {
+      await layawayService.adminDeleteCard(uuid);
+      toast.success('Card deleted successfully.');
+      loadCards();
+    } catch (e) {
+      toast.error('Failed to delete card.');
+    }
+  };
+
   const handleSelectLayaway = async (uuid) => {
     setSelectedCardId(uuid);
     setLoadingDetails(true);
@@ -394,6 +520,7 @@ const AdminLayaway = () => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: 'inventory', label: 'Layaway Products', icon: <Box className="w-5 h-5" /> },
+    { id: 'cards', label: 'Cards', icon: <CreditCard className="w-5 h-5" /> },
     { id: 'customers', label: 'Customers', icon: <Users className="w-5 h-5" /> },
     { id: 'sales', label: 'Sales', icon: <CreditCard className="w-5 h-5" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-5 h-5" /> },
@@ -782,9 +909,102 @@ const AdminLayaway = () => {
                 <DotPagination
                   currentPage={inventoryPage}
                   totalPages={inventoryMeta?.last_page || 1}
-                  onPageChange={setInventoryPage}
+                  onPageChange={inventoryPage}
                 />
               </>
+            )}
+          </div>
+        )}
+
+        {/* CARDS TAB */}
+        {activeTab === 'cards' && (
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h1 className="text-3xl font-bold text-yellow-600">Layaway Cards</h1>
+              <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <form onSubmit={handleCardSearch} className="relative w-full sm:w-72">
+                  <input
+                    type="text"
+                    value={cardSearch}
+                    onChange={(e) => setCardSearch(e.target.value)}
+                    placeholder="Search cards..."
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white"
+                  />
+                  <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                </form>
+                <button
+                  onClick={openAddCardModal}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors shadow-sm whitespace-nowrap"
+                >
+                  <Plus className="w-4 h-4" /> Create Card
+                </button>
+              </div>
+            </div>
+
+            {loadingCards ? (
+              <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {cards.map(card => (
+                  <div key={card.uuid} className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden group">
+                    <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+                      {card.image_url ? (
+                        <img src={card.image_url} alt={card.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <CreditCard className="w-12 h-12" />
+                        </div>
+                      )}
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        <button onClick={() => openEditCardModal(card)} className="p-2 bg-white/90 rounded-lg text-blue-600 hover:bg-blue-50 shadow-sm backdrop-blur">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDeleteCard(card.uuid)} className="p-2 bg-white/90 rounded-lg text-red-600 hover:bg-red-50 shadow-sm backdrop-blur">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold text-gray-900 truncate">{card.name}</h3>
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${card.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {card.status}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 line-clamp-2 mb-4 h-10">{card.description}</p>
+                      
+                      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                        <div>
+                          <p className="text-xs text-gray-500">Total Boxes</p>
+                          <p className="font-bold text-gray-900">{card.number_of_boxes}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">Box Price</p>
+                          <p className="font-bold text-gray-900">GHS {Number(card.price_per_box).toFixed(2)}</p>
+                        </div>
+                        <div className="col-span-2">
+                          <p className="text-xs text-gray-500">Total Value</p>
+                          <p className="font-bold text-yellow-600 text-lg">GHS {(card.number_of_boxes * card.price_per_box).toFixed(2)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {cards.length === 0 && (
+                  <div className="col-span-full py-12 text-center text-gray-500 bg-white border border-dashed rounded-xl">
+                    No cards found. Create your first card above.
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Pagination */}
+            {!loadingCards && cards.length > 0 && (
+              <DotPagination
+                currentPage={cardPage}
+                totalPages={cardsMeta?.last_page || 1}
+                onPageChange={setCardPage}
+              />
             )}
           </div>
         )}
@@ -1036,10 +1256,10 @@ const AdminLayaway = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Select Layaway Product *</label>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Select Layaway Plan/Product *</label>
                 {loadingLayawayProducts ? (
                   <div className="p-3 border rounded-lg text-center text-gray-500 flex items-center justify-center gap-2">
-                    <RefreshCw className="w-4 h-4 animate-spin text-yellow-500" /> Loading layaway products...
+                    <RefreshCw className="w-4 h-4 animate-spin text-yellow-500" /> Loading layaway options...
                   </div>
                 ) : (
                   <select
@@ -1048,12 +1268,27 @@ const AdminLayaway = () => {
                     onChange={e => setNewCustProductUuid(e.target.value)}
                     className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-white"
                   >
-                    <option value="">-- Select Product --</option>
-                    {layawayProducts.map(p => (
-                      <option key={p.uuid || p.id} value={p.uuid}>
-                        {p.name} - GHS {parseFloat(p.price || 0).toFixed(2)}
-                      </option>
-                    ))}
+                    <option value="">-- Select Plan or Product --</option>
+                    
+                    {cards.length > 0 && (
+                      <optgroup label="Predefined Plan Cards">
+                        {cards.filter(c => c.status === 'active').map(c => (
+                          <option key={c.uuid} value={`card_${c.uuid}`}>
+                            [CARD] {c.name} - GHS {parseFloat(c.price_per_box * c.number_of_boxes).toFixed(2)} Total ({c.number_of_boxes} steps)
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+
+                    {layawayProducts.length > 0 && (
+                      <optgroup label="Physical Products">
+                        {layawayProducts.map(p => (
+                          <option key={p.uuid || p.id} value={`product_${p.uuid}`}>
+                            [PRODUCT] {p.name} - GHS {parseFloat(p.price || 0).toFixed(2)}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
                   </select>
                 )}
               </div>
@@ -1256,6 +1491,131 @@ const AdminLayaway = () => {
                   className="w-2/3 bg-yellow-500 hover:bg-yellow-600 text-white py-2.5 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 shadow-md"
                 >
                   {savingProduct ? <RefreshCw className="w-5 h-5 animate-spin" /> : (editingProductId ? 'Update Layaway Product' : 'Create Layaway Product')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* ADD / EDIT CARD MODAL */}
+      {showCardModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative my-8">
+            <button
+              onClick={() => { setShowCardModal(false); resetCardForm(); }}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-yellow-500" /> {editingCard ? 'Edit Layaway Card' : 'Create Layaway Card'}
+            </h3>
+            <p className="text-xs text-gray-500 mb-6">Create predefined layaway cards (e.g., Bronze, Silver, Gold).</p>
+
+            <form onSubmit={handleSaveCard} className="space-y-4 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Card Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={cardForm.name}
+                    onChange={e => setCardForm({...cardForm, name: e.target.value})}
+                    placeholder="e.g. Gold Tier Plan"
+                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Total Boxes / Steps *</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={cardForm.number_of_boxes}
+                    onChange={e => setCardForm({...cardForm, number_of_boxes: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Price Per Box (GHS) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    value={cardForm.price_per_box}
+                    onChange={e => setCardForm({...cardForm, price_per_box: e.target.value})}
+                    placeholder="0.00"
+                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Status</label>
+                  <select
+                    value={cardForm.status}
+                    onChange={e => setCardForm({...cardForm, status: e.target.value})}
+                    className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-yellow-500 focus:outline-none bg-white"
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Card Image</label>
+                  <input
+                    type="file"
+                    ref={cardFileInputRef}
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setCardForm({...cardForm, image: file});
+                        setCardImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => cardFileInputRef.current?.click()}
+                    className="w-full border border-dashed border-gray-300 hover:border-yellow-500 rounded-lg p-2 flex items-center justify-center gap-2 text-gray-600 hover:text-yellow-600 transition-colors bg-gray-50/50"
+                  >
+                    <Upload className="w-4 h-4" /> {cardForm.image ? 'Change Image' : 'Upload Image'}
+                  </button>
+                </div>
+              </div>
+
+              {cardImagePreview && (
+                <div className="mt-2 relative w-24 h-16 rounded-lg border overflow-hidden">
+                  <img src={cardImagePreview} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Description</label>
+                <textarea
+                  rows={2}
+                  value={cardForm.description}
+                  onChange={e => setCardForm({...cardForm, description: e.target.value})}
+                  placeholder="Enter card details..."
+                  className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setShowCardModal(false); resetCardForm(); }}
+                  className="w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 rounded-xl font-bold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingCard}
+                  className="w-2/3 bg-yellow-500 hover:bg-yellow-600 text-white py-2.5 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 shadow-md"
+                >
+                  {savingCard ? <RefreshCw className="w-5 h-5 animate-spin" /> : (editingCard ? 'Update Card' : 'Create Card')}
                 </button>
               </div>
             </form>

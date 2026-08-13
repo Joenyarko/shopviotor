@@ -40,6 +40,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminFlashSaleController;
 use App\Http\Controllers\Api\V1\Admin\AdminCollectionController;
 use App\Http\Controllers\Api\V1\Admin\AdminHirePurchaseController;
 use App\Http\Controllers\Api\V1\Admin\LayawayController as AdminLayawayController;
+use App\Http\Controllers\Api\V1\Admin\LayawayPlanCardController;
 use App\Http\Controllers\Api\V1\Admin\AdminStoreController;
 use App\Http\Controllers\Api\V1\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Api\V1\Admin\BannerController as AdminBannerController;
@@ -163,6 +164,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/layaways/{uuid}', [LayawayController::class, 'show']);
         Route::post('/layaways/{uuid}/pay', [LayawayController::class, 'pay']);
         Route::get('/layaways/settings/terms', [LayawayController::class, 'terms']);
+        Route::get('/layaway-cards', [LayawayController::class, 'cards']);
 
         Route::get('/settings/public', function () {
             return response()->json([
@@ -282,6 +284,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/layaways/{uuid}/payments', [AdminLayawayController::class, 'storePayment']);
             Route::post('/layaways/{uuid}/payments/{payment}/reverse', [AdminLayawayController::class, 'reversePayment']);
             Route::post('/layaways/{uuid}/add-boxes', [AdminLayawayController::class, 'addBoxes']);
+
+            // Layaway Plan Cards (Admin)
+            Route::get('/layaway-cards', [LayawayPlanCardController::class, 'index']);
+            Route::post('/layaway-cards', [LayawayPlanCardController::class, 'store']);
+            Route::post('/layaway-cards/{uuid}', [LayawayPlanCardController::class, 'update']); // using POST to handle form-data with images
+            Route::delete('/layaway-cards/{uuid}', [LayawayPlanCardController::class, 'destroy']);
 
             // Pre-Orders (Admin)
             Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\Admin\PreOrderController::class, 'index']);

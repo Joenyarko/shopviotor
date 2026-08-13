@@ -7,6 +7,7 @@ const LayawayDetail = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const product = state?.product;
+  const planCard = state?.plan_card;
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -22,22 +23,25 @@ const LayawayDetail = () => {
     });
   }, []);
 
-  if (!product) {
+  if (!product && !planCard) {
     return (
       <div className="max-w-md mx-auto text-center py-20 dark:text-white space-y-4">
         <Lock className="w-16 h-16 text-primary-500 mx-auto" />
-        <h2 className="text-xl font-bold">No Product Selected</h2>
-        <p className="text-sm text-secondary-500 dark:text-secondary-400">Please browse our layaway products and select one.</p>
+        <h2 className="text-xl font-bold">No Item Selected</h2>
+        <p className="text-sm text-secondary-500 dark:text-secondary-400">Please browse our layaway options and select one.</p>
         <Link to="/layaway" className="inline-block bg-primary-600 hover:bg-primary-700 text-white px-6 py-2.5 rounded-lg text-sm font-bold">
-          Browse Layaway Products
+          Browse Layaway Options
         </Link>
       </div>
     );
   }
 
-  const productPrice = parseFloat(product.price);
-  const boxes = product.layaway_boxes || product.layaway_total_boxes || 1;
-  const boxPrice = productPrice / boxes;
+  const isCard = !!planCard;
+  const itemName = isCard ? planCard.name : product.name;
+  const itemImage = isCard ? planCard.image_url : (product.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&auto=format');
+  const boxes = isCard ? planCard.number_of_boxes : (product.layaway_boxes || product.layaway_total_boxes || 1);
+  const boxPrice = isCard ? planCard.price_per_box : (product.layaway_box_price || (parseFloat(product.price) / boxes));
+  const totalPrice = isCard ? (boxes * boxPrice) : parseFloat(product.price);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,9 +53,11 @@ const LayawayDetail = () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      const res = await apiClient.post('/layaways', {
-        product_uuid: product.uuid || product.id,
-      });
+      const payload = isCard 
+        ? { plan_card_uuid: planCard.uuid || planCard.id }
+        : { product_uuid: product.uuid || product.id };
+        
+      const res = await apiClient.post('/layaways', payload);
       setCreatedLayaway(res.data?.data);
       setSuccess(true);
     } catch (err) {
@@ -74,35 +80,35 @@ const LayawayDetail = () => {
       <div className="grid lg:grid-cols-5 gap-8">
         {/* Left: Form */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Product Card */}
+          {/* Product/Card Summary */}
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-4 flex gap-4 items-center">
             <img
-              src={product.primary_image || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&auto=format'}
-              alt={product.name}
+              src={itemImage}
+              alt={itemName}
               className="w-20 h-20 object-cover rounded-xl bg-secondary-100"
             />
             <div className="flex-1">
-              <span className="text-xxs font-bold text-primary-600 bg-primary-50 dark:bg-primary-950/20 px-2 py-0.5 rounded uppercase tracking-wide">Item to Reserve</span>
-              <h3 className="font-bold text-secondary-900 dark:text-white mt-1">{product.name}</h3>
-              <p className="text-primary-600 dark:text-primary-400 font-black text-lg">GHS {productPrice.toLocaleString()}</p>
+              <span className="text-xxs font-bold text-primary-600 bg-primary-50 dark:bg-primary-950/20 px-2 py-0.5 rounded uppercase tracking-wide">
+                {isCard ? 'Plan Card to Start' : 'Item to Reserve'}
+              </span>
+              <h3 className="font-bold text-secondary-900 dark:text-white mt-1">{itemName}</h3>
+              <p className="text-primary-600 dark:text-primary-400 font-black text-lg">GHS {totalPrice.toLocaleString()}</p>
             </div>
           </div>
 
-          {product.layaway_total_boxes && (
-            <div className="bg-accent-50 dark:bg-accent-950/20 border border-accent-200 dark:border-accent-800 rounded-2xl p-6 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold text-accent-700 dark:text-accent-400 uppercase tracking-wider">Susu Plan / Box Pricing</p>
-                <div className="mt-1 flex items-baseline gap-2">
-                  <p className="font-black text-secondary-900 dark:text-white text-3xl">GHS {product.layaway_box_price?.toLocaleString()}</p>
-                  <p className="text-secondary-500 font-bold">per box</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-secondary-500 text-sm font-bold">Total Boxes</p>
-                <p className="font-black text-secondary-900 dark:text-white text-2xl">{boxes}</p>
+          <div className="bg-accent-50 dark:bg-accent-950/20 border border-accent-200 dark:border-accent-800 rounded-2xl p-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div>
+              <p className="text-sm font-bold text-accent-700 dark:text-accent-400 uppercase tracking-wider">Plan Details / Box Pricing</p>
+              <div className="mt-1 flex items-baseline gap-2">
+                <p className="font-black text-secondary-900 dark:text-white text-3xl">GHS {Number(boxPrice).toLocaleString()}</p>
+                <p className="text-secondary-500 font-bold">per step</p>
               </div>
             </div>
-          )}
+            <div className="text-left sm:text-right">
+              <p className="text-sm font-bold text-accent-700 dark:text-accent-400 uppercase tracking-wider">Total Steps</p>
+              <p className="font-black text-secondary-900 dark:text-white text-2xl">{boxes} steps</p>
+            </div>
+          </div>
 
           {success ? (
             <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-8 text-center space-y-4 shadow-xl">

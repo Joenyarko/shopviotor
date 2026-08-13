@@ -10,7 +10,7 @@ class LayawayCard extends Model
 {
     use LogsActivity;
     protected $fillable = [
-        'uuid', 'user_id', 'product_id', 'total_boxes', 'box_price', 'status'
+        'uuid', 'user_id', 'product_id', 'layaway_plan_card_id', 'total_boxes', 'box_price', 'status'
     ];
 
     public function user()
@@ -21,6 +21,11 @@ class LayawayCard extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function layawayPlanCard()
+    {
+        return $this->belongsTo(LayawayPlanCard::class);
     }
 
     public function payments()

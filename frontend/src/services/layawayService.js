@@ -6,6 +6,7 @@ const layawayService = {
   getLayaway: (uuid) => apiClient.get(`/layaways/${uuid}`),
   createLayaway: (data) => apiClient.post('/layaways', data),
   makePayment: (uuid, data) => apiClient.post(`/layaways/${uuid}/pay`, data),
+  getCards: (params = {}) => apiClient.get('/layaway-cards', { params }),
 
   // Admin
   adminGetDashboard: () => apiClient.get('/admin/layaways/dashboard/stats'),
@@ -20,6 +21,12 @@ const layawayService = {
   adminAddBoxes: (uuid, data) => apiClient.post(`/admin/layaways/${uuid}/add-boxes`, data),
   adminRelease: (uuid) => apiClient.post(`/admin/layaways/${uuid}/release`),
   adminCancel: (uuid, reason) => apiClient.post(`/admin/layaways/${uuid}/cancel`, { reason }),
+
+  // Cards
+  adminGetCards: (params) => apiClient.get('/admin/layaway-cards', { params }),
+  adminCreateCard: (data) => apiClient.post('/admin/layaway-cards', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  adminUpdateCard: (uuid, data) => apiClient.post(`/admin/layaway-cards/${uuid}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  adminDeleteCard: (uuid) => apiClient.delete(`/admin/layaway-cards/${uuid}`),
 
   // Settings
   getTerms: () => apiClient.get('/layaways/settings/terms'),
