@@ -302,12 +302,12 @@ const StoreFront = ({ overrideSlug }) => {
               <p className="text-sm text-secondary-500 dark:text-secondary-400">Check back soon for new listings.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
               {products.map(p => (
                 <Link
                   key={p.id}
                   to={`/products/${p.id}`}
-                  className="group bg-white dark:bg-secondary-900 rounded-2xl overflow-hidden border border-secondary-100 dark:border-secondary-800 hover:border-primary-300 dark:hover:border-primary-700 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col"
+                  className="group bg-white dark:bg-secondary-900 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"
                 >
                   {/* Product image */}
                   <div className="relative h-40 sm:h-48 bg-secondary-50 dark:bg-secondary-800 overflow-hidden">

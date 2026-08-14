@@ -251,9 +251,9 @@ const Landing = () => {
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No featured products currently listed.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
             {featured.slice(0, 6).map(product => (
-              <div key={product.id || product.uuid} className="bg-white dark:bg-secondary-900 rounded-2xl overflow-hidden shadow-sm border border-secondary-200 dark:border-secondary-800">
+              <div key={product.id || product.uuid}>
                 <ProductCard product={product} />
               </div>
             ))}
@@ -306,9 +306,9 @@ const Landing = () => {
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No new products currently listed.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
             {latest.slice(0, 12).map(product => (
-              <div key={product.id || product.uuid} className="bg-white dark:bg-secondary-900 rounded-2xl overflow-hidden shadow-sm border border-secondary-200 dark:border-secondary-800">
+              <div key={product.id || product.uuid}>
                 <ProductCard product={product} />
               </div>
             ))}
