@@ -66,10 +66,11 @@ class ProductResource extends JsonResource
             'reviews'                     => ReviewResource::collection($this->whenLoaded('reviews')),
             'store'                       => $this->whenLoaded('store', function () {
                 return [
-                    'id'   => $this->store->uuid ?? $this->store->id,
-                    'name' => $this->store->name,
-                    'slug' => $this->store->slug,
-                    'logo' => $this->store->logo_url,
+                    'id'          => $this->store->uuid ?? $this->store->id,
+                    'name'        => $this->store->name,
+                    'slug'        => $this->store->slug,
+                    'logo'        => $this->store->logo_url,
+                    'is_verified' => $this->store->is_verified,
                 ];
             }),
             'created_at'                  => $this->created_at,

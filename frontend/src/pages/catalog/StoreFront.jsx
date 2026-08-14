@@ -193,9 +193,8 @@ const StoreFront = ({ overrideSlug }) => {
                 </div>
                 {/* Verified badge */}
                 {store.is_verified && (
-                  <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md"
-                    style={{ background: '#f5c000' }}>
-                    <ShieldCheck className="w-4 h-4 text-black" />
+                  <div className="absolute -bottom-2 -right-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md bg-blue-500">
+                    <ShieldCheck className="w-4 h-4 text-white" />
                   </div>
                 )}
               </div>
@@ -206,8 +205,7 @@ const StoreFront = ({ overrideSlug }) => {
                   <div>
                     {store.is_verified && (
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full text-black"
-                          style={{ background: '#f5c000' }}>
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full text-white bg-blue-500">
                           Verified Vendor
                         </span>
                       </div>
