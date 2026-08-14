@@ -251,9 +251,9 @@ const Landing = () => {
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No featured products currently listed.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
+          <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar md:grid md:grid-cols-4 lg:grid-cols-6 gap-3 pb-2 -mx-4 px-4 md:mx-0 md:px-0">
             {featured.slice(0, 6).map(product => (
-              <div key={product.id || product.uuid}>
+              <div key={product.id || product.uuid} className="min-w-[160px] w-[45%] flex-none snap-start md:w-auto md:min-w-0">
                 <ProductCard product={product} />
               </div>
             ))}
@@ -306,9 +306,9 @@ const Landing = () => {
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No new products currently listed.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
+          <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar md:grid md:grid-cols-4 lg:grid-cols-6 gap-3 pb-2 -mx-4 px-4 md:mx-0 md:px-0">
             {latest.slice(0, 12).map(product => (
-              <div key={product.id || product.uuid}>
+              <div key={product.id || product.uuid} className="min-w-[160px] w-[45%] flex-none snap-start md:w-auto md:min-w-0">
                 <ProductCard product={product} />
               </div>
             ))}
