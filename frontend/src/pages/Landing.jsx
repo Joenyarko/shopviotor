@@ -251,9 +251,9 @@ const Landing = () => {
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No featured products currently listed.</p>
           </div>
         ) : (
-          <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar md:grid md:grid-cols-4 lg:grid-cols-6 gap-3 pb-2 -mx-4 px-4 md:mx-0 md:px-0">
-            {featured.slice(0, 6).map(product => (
-              <div key={product.id || product.uuid} className="min-w-[160px] w-[45%] flex-none snap-start md:w-auto md:min-w-0">
+          <div className="grid grid-rows-2 md:grid-rows-[none] grid-flow-col md:grid-flow-row auto-cols-[45%] sm:auto-cols-[30%] md:auto-cols-auto overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-2 sm:gap-3 pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:grid-cols-4 lg:grid-cols-6">
+            {featured.slice(0, 10).map(product => (
+              <div key={product.id || product.uuid} className="snap-start h-full">
                 <ProductCard product={product} />
               </div>
             ))}
@@ -306,9 +306,9 @@ const Landing = () => {
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No new products currently listed.</p>
           </div>
         ) : (
-          <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar md:grid md:grid-cols-4 lg:grid-cols-6 gap-3 pb-2 -mx-4 px-4 md:mx-0 md:px-0">
-            {latest.slice(0, 12).map(product => (
-              <div key={product.id || product.uuid} className="min-w-[160px] w-[45%] flex-none snap-start md:w-auto md:min-w-0">
+          <div className="grid grid-rows-2 md:grid-rows-[none] grid-flow-col md:grid-flow-row auto-cols-[45%] sm:auto-cols-[30%] md:auto-cols-auto overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-2 sm:gap-3 pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:grid-cols-4 lg:grid-cols-6">
+            {latest.slice(0, 16).map(product => (
+              <div key={product.id || product.uuid} className="snap-start h-full">
                 <ProductCard product={product} />
               </div>
             ))}
