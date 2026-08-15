@@ -55,8 +55,20 @@ class LayawayController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
         
+        if ($request->sort) {
+            if ($request->sort === 'name_asc') {
+                $query->orderBy('name', 'asc');
+            } elseif ($request->sort === 'name_desc') {
+                $query->orderBy('name', 'desc');
+            } else {
+                $query->latest();
+            }
+        } else {
+            $query->latest();
+        }
+        
         $perPage = $request->input('per_page', 12);
-        $cards = $query->latest()->paginate($perPage);
+        $cards = $query->paginate($perPage);
         
         return response()->json([
             'data' => $cards->items(),
