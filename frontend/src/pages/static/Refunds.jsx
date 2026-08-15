@@ -24,7 +24,7 @@ const Refunds = () => {
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white">2. Dispute Resolution</h2>
           <p>
-            Viotor acts as a neutral mediator in disputes between buyers and vendors. If a buyer is dissatisfied with a purchase, they must open a dispute via the Viotor dashboard within 48 hours of delivery. 
+            Viotor acts as a neutral mediator in disputes between buyers and vendors. If a buyer is dissatisfied with a purchase, they must open a dispute by contacting us directly via WhatsApp or Email within 48 hours of delivery. 
           </p>
           <p>
             During a dispute:
@@ -43,7 +43,7 @@ const Refunds = () => {
             To initiate a return:
           </p>
           <ol className="list-decimal pl-5 space-y-2">
-            <li>Contact Viotor Support via the chat interface within 48 hours of receiving the item.</li>
+            <li>Contact Viotor Support via WhatsApp or Email within 48 hours of receiving the item.</li>
             <li>Provide your order/transaction ID and clear evidence of the issue (photos/videos).</li>
             <li>Once approved, you will receive instructions on how to return the item to the vendor or a Viotor hub.</li>
             <li>Refunds will be processed to the original payment method (Mobile Money or Card) within 3-5 business days after the return is confirmed.</li>
