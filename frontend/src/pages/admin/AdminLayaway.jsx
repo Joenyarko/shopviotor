@@ -223,7 +223,18 @@ const AdminLayaway = () => {
   };
 
   const handleTransferToCard = async (product) => {
-    if (!window.confirm(`Are you sure you want to transfer "${product.name}" to a Layaway Plan Card? This will delete the product.`)) return;
+    const result = await Swal.fire({
+      title: 'Transfer to Card?',
+      text: `Are you sure you want to transfer "${product.name}" to a Layaway Plan Card? This will delete the product.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#eab308',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, transfer it!'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await layawayService.adminTransferToCard(product.uuid);
       toast.success('Successfully transferred to Card!');
@@ -235,7 +246,18 @@ const AdminLayaway = () => {
   };
 
   const handleTransferToProduct = async (card) => {
-    if (!window.confirm(`Are you sure you want to transfer "${card.name}" to a Layaway Physical Product? This will delete the card.`)) return;
+    const result = await Swal.fire({
+      title: 'Transfer to Product?',
+      text: `Are you sure you want to transfer "${card.name}" to a Layaway Physical Product? This will delete the card.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#eab308',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, transfer it!'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await layawayService.adminTransferToProduct(card.uuid);
       toast.success('Successfully transferred to Product!');
