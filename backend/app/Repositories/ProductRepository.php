@@ -124,6 +124,8 @@ class ProductRepository extends BaseRepository
             'price_desc' => $query->orderBy('price', 'desc'),
             'popular'    => $query->orderByDesc('views_count'),
             'rating'     => $query->orderByDesc('average_rating'),
+            'name_asc'   => $query->orderBy('name', 'asc'),
+            'name_desc'  => $query->orderBy('name', 'desc'),
             default      => $query->latest(),
         };
 

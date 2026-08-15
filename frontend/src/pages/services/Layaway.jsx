@@ -15,6 +15,7 @@ const Layaway = () => {
   const [productsMeta, setProductsMeta] = useState(null);
   const [loadingCards, setLoadingCards] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortQuery, setSortQuery] = useState('name_asc');
   const [cardPage, setCardPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
   const [viewMode, setViewMode] = useState('all');
@@ -26,16 +27,16 @@ const Layaway = () => {
 
   useEffect(() => {
     fetchLayawayCards();
-  }, [cardPage, searchQuery]);
+  }, [cardPage, searchQuery, sortQuery]);
 
   useEffect(() => {
     fetchLayawayProducts();
-  }, [productPage, searchQuery]);
+  }, [productPage, searchQuery, sortQuery]);
 
   const fetchLayawayProducts = async () => {
     try {
       setLoading(true);
-      const res = await productService.getProducts({ available_for_layaway: 1, per_page: 12, page: productPage, search: searchQuery });
+      const res = await productService.getProducts({ available_for_layaway: 1, per_page: 12, page: productPage, search: searchQuery, sort: sortQuery });
       setProducts(res.data?.data || res.data || []);
       setProductsMeta(res.data?.meta || res.meta || null);
     } catch (e) {
@@ -48,7 +49,7 @@ const Layaway = () => {
   const fetchLayawayCards = async () => {
     try {
       setLoadingCards(true);
-      const res = await layawayService.getCards({ page: cardPage, search: searchQuery, per_page: 12 });
+      const res = await layawayService.getCards({ page: cardPage, search: searchQuery, sort: sortQuery, per_page: 12 });
       setCards(res.data?.data || res.data || []);
       setCardsMeta(res.data?.meta || res.meta || null);
     } catch (e) {
@@ -153,15 +154,29 @@ const Layaway = () => {
           </button>
         </div>
         
-        <form onSubmit={handleGlobalSearch} className="relative w-full md:w-72">
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search all layaway items..."
-            className="w-full pl-10 pr-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white"
-          />
-          <Search className="w-5 h-5 text-secondary-400 absolute left-3 top-2.5" />
+        <form onSubmit={handleGlobalSearch} className="flex gap-2 w-full md:w-auto">
+          <select
+            value={sortQuery}
+            onChange={(e) => {
+              setSortQuery(e.target.value);
+              setCardPage(1);
+              setProductPage(1);
+            }}
+            className="bg-white dark:bg-secondary-900 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm h-[42px]"
+          >
+            <option value="name_asc">A - Z</option>
+            <option value="name_desc">Z - A</option>
+          </select>
+          <div className="relative flex-1 md:w-72">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search all layaway items..."
+              className="w-full pl-10 pr-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white h-[42px]"
+            />
+            <Search className="w-5 h-5 text-secondary-400 absolute left-3 top-3" />
+          </div>
         </form>
       </div>
 

@@ -46,6 +46,7 @@ const AdminLayaway = () => {
   const [loadingInventory, setLoadingInventory] = useState(false);
   const [inventorySearch, setInventorySearch] = useState('');
   const [inventoryPage, setInventoryPage] = useState(1);
+  const [inventorySort, setInventorySort] = useState('name_asc');
 
   // Cards
   const [cards, setCards] = useState([]);
@@ -53,6 +54,7 @@ const AdminLayaway = () => {
   const [loadingCards, setLoadingCards] = useState(false);
   const [cardSearch, setCardSearch] = useState('');
   const [cardPage, setCardPage] = useState(1);
+  const [cardSort, setCardSort] = useState('name_asc');
   const [showCardModal, setShowCardModal] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
   const [cardForm, setCardForm] = useState({ name: '', number_of_boxes: 10, price_per_box: '', description: '', status: 'active', image: null });
@@ -111,7 +113,7 @@ const AdminLayaway = () => {
     if (activeTab === 'inventory') loadInventory();
     if (activeTab === 'cards') loadCards();
     if (activeTab === 'settings') loadTerms();
-  }, [activeTab, customerPage, salesPage, inventoryPage, cardPage, selectedCardId]);
+  }, [activeTab, customerPage, salesPage, inventoryPage, cardPage, selectedCardId, inventorySort, cardSort]);
 
   useEffect(() => {
     productService.getCategories().then(r => setCategories(r.data?.data || r.data || [])).catch(console.error);
@@ -175,7 +177,7 @@ const AdminLayaway = () => {
   const loadInventory = async () => {
     setLoadingInventory(true);
     try {
-      const res = await layawayService.adminGetInventory({ page: inventoryPage, search: inventorySearch, per_page: 15 });
+      const res = await layawayService.adminGetInventory({ page: inventoryPage, search: inventorySearch, sort: inventorySort, per_page: 15 });
       setInventory(res.data || []);
       setInventoryMeta(res.meta || null);
     } catch (e) {
@@ -186,7 +188,7 @@ const AdminLayaway = () => {
   const loadCards = async () => {
     setLoadingCards(true);
     try {
-      const res = await layawayService.adminGetCards({ page: cardPage, search: cardSearch, per_page: 12 });
+      const res = await layawayService.adminGetCards({ page: cardPage, search: cardSearch, sort: cardSort, per_page: 12 });
       setCards(res.data?.data || res.data || []);
       setCardsMeta(res.data?.meta || res.meta || null);
     } catch (e) {
@@ -877,6 +879,17 @@ const AdminLayaway = () => {
               <h1 className="text-3xl font-bold text-yellow-600">Layaway Products</h1>
               <div className="flex gap-3 w-full md:w-auto items-center">
                 <form onSubmit={handleInventorySearch} className="flex gap-2 flex-1 md:flex-initial">
+                  <select
+                    value={inventorySort}
+                    onChange={(e) => {
+                      setInventorySort(e.target.value);
+                      setInventoryPage(1);
+                    }}
+                    className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 text-sm h-[42px]"
+                  >
+                    <option value="name_asc">A - Z</option>
+                    <option value="name_desc">Z - A</option>
+                  </select>
                   <input
                     type="text"
                     value={inventorySearch}
@@ -980,15 +993,28 @@ const AdminLayaway = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h1 className="text-3xl font-bold text-yellow-600">Layaway Cards</h1>
               <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-                <form onSubmit={handleCardSearch} className="relative w-full sm:w-72">
-                  <input
-                    type="text"
-                    value={cardSearch}
-                    onChange={(e) => setCardSearch(e.target.value)}
-                    placeholder="Search cards..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white"
-                  />
-                  <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" />
+                <form onSubmit={handleCardSearch} className="flex gap-2 flex-1 md:flex-initial w-full sm:w-auto">
+                  <select
+                    value={cardSort}
+                    onChange={(e) => {
+                      setCardSort(e.target.value);
+                      setCardPage(1);
+                    }}
+                    className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 text-sm h-[42px]"
+                  >
+                    <option value="name_asc">A - Z</option>
+                    <option value="name_desc">Z - A</option>
+                  </select>
+                  <div className="relative flex-1 sm:w-72">
+                    <input
+                      type="text"
+                      value={cardSearch}
+                      onChange={(e) => setCardSearch(e.target.value)}
+                      placeholder="Search cards..."
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 bg-white h-[42px]"
+                    />
+                    <Search className="w-5 h-5 text-gray-400 absolute left-3 top-3" />
+                  </div>
                 </form>
                 <button
                   onClick={openAddCardModal}
@@ -1004,8 +1030,8 @@ const AdminLayaway = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {cards.map(card => (
-                  <div key={card.uuid} className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden group">
-                    <div className="aspect-[4/3] bg-gray-100 relative overflow-hidden">
+                  <div key={card.uuid} className="bg-white shadow border border-gray-200 overflow-hidden group">
+                    <div className="aspect-video bg-gray-100 relative overflow-hidden">
                       {card.image_url ? (
                         <img src={card.image_url} alt={card.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
@@ -1029,7 +1055,7 @@ const AdminLayaway = () => {
                           {card.status}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-500 line-clamp-2 mb-4 h-10">{card.description}</p>
+                      <p className="text-sm text-gray-500 line-clamp-1 mb-4">{card.description}</p>
                       
                       <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
                         <div>
