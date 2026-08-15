@@ -95,8 +95,11 @@ const Footer = () => {
             &copy; {new Date().getFullYear()} All Rights Reserved &middot; Design and Developed by SHOP VIOTOR
           </p>
           <div className="flex space-x-6">
+            <Link to="/delivery" className="text-xs text-white/60 hover:text-white transition-colors">Delivery</Link>
+            <Link to="/refunds" className="text-xs text-white/60 hover:text-white transition-colors">Refunds</Link>
+            <Link to="/acceptable-use" className="text-xs text-white/60 hover:text-white transition-colors">Acceptable Use</Link>
             <Link to="/privacy" className="text-xs text-white/60 hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="text-xs text-white/60 hover:text-white transition-colors">Terms</Link>
+            <Link to="/terms" className="text-xs text-white/60 hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>

@@ -17,6 +17,9 @@ const Contact = React.lazy(() => import('../pages/static/Contact'));
 const FAQ = React.lazy(() => import('../pages/static/FAQ'));
 const Privacy = React.lazy(() => import('../pages/static/Privacy'));
 const Terms = React.lazy(() => import('../pages/static/Terms'));
+const Delivery = React.lazy(() => import('../pages/static/Delivery'));
+const Refunds = React.lazy(() => import('../pages/static/Refunds'));
+const AcceptableUse = React.lazy(() => import('../pages/static/AcceptableUse'));
 const NotFound = React.lazy(() => import('../pages/static/NotFound'));
 
 // Auth Pages (Static import to prevent iOS Safari blank screen chunk loading glitches)
@@ -143,6 +146,9 @@ const AppRoutes = () => {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/delivery" element={<Delivery />} />
+        <Route path="/refunds" element={<Refunds />} />
+        <Route path="/acceptable-use" element={<AcceptableUse />} />
         <Route path="/cart" element={<Cart />} />
         {/* Vendor Storefronts (public) */}
         <Route path="/shops" element={<StoreList />} />
