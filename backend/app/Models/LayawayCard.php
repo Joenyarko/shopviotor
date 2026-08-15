@@ -10,7 +10,7 @@ class LayawayCard extends Model
 {
     use LogsActivity;
     protected $fillable = [
-        'uuid', 'user_id', 'product_id', 'layaway_plan_card_id', 'total_boxes', 'box_price', 'status'
+        'uuid', 'user_id', 'product_id', 'layaway_plan_card_id', 'total_boxes', 'box_price', 'status', 'pickup_point'
     ];
 
     public function user()

@@ -155,11 +155,21 @@ class AuthController extends Controller
     {
         $request->validate([
             'student_id' => 'required|string|max:255|unique:users,student_id,' . $request->user()->id,
+            'student_name' => 'required|string|max:255',
+            'student_course' => 'required|string|max:255',
+            'student_level' => 'required|string|max:255',
+            'student_id_picture' => 'required|image|max:5120',
         ]);
 
         $user = $request->user();
+        $path = $request->file('student_id_picture')->store('student-ids', 'public');
+
         $user->update([
             'student_id'                   => $request->student_id,
+            'student_name'                 => $request->student_name,
+            'student_course'               => $request->student_course,
+            'student_level'                => $request->student_level,
+            'student_id_picture_url'       => '/storage/' . $path,
             'student_verification_status'  => 'pending',
         ]);
 

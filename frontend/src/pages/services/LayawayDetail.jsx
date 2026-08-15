@@ -15,12 +15,24 @@ const LayawayDetail = () => {
   const [createdLayaway, setCreatedLayaway] = useState(null);
 
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [pickupPoint, setPickupPoint] = useState('');
+  const [locations, setLocations] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(false);
   const [apiClient, setApiClient] = useState(null);
 
   React.useEffect(() => {
     import('../../api/client').then(module => {
       setApiClient(() => module.default);
     });
+    
+    // Fetch dynamic pickup locations
+    setLoadingLocations(true);
+    layawayService.getPickupLocations()
+      .then(res => {
+        setLocations(res.data?.data || res.data || []);
+      })
+      .catch(console.error)
+      .finally(() => setLoadingLocations(false));
   }, []);
 
   if (!product && !planCard) {
@@ -49,13 +61,17 @@ const LayawayDetail = () => {
       setErrorMsg('You must accept the terms and conditions.');
       return;
     }
+    if (!pickupPoint) {
+      setErrorMsg('Please select a pickup point for your item.');
+      return;
+    }
     if (!apiClient) return;
     setLoading(true);
     setErrorMsg('');
     try {
       const payload = isCard 
-        ? { plan_card_uuid: planCard.uuid || planCard.id }
-        : { product_uuid: product.uuid || product.id };
+        ? { plan_card_uuid: planCard.uuid || planCard.id, pickup_point: pickupPoint }
+        : { product_uuid: product.uuid || product.id, pickup_point: pickupPoint };
         
       const res = await apiClient.post('/layaways', payload);
       setCreatedLayaway(res.data?.data);
@@ -154,6 +170,28 @@ const LayawayDetail = () => {
                 <div className="flex justify-between items-center border-b border-secondary-100 dark:border-secondary-800 pb-2">
                   <span className="text-secondary-500 dark:text-secondary-400 text-sm">Payment Per Box</span>
                   <span className="font-extrabold text-blue-600 dark:text-blue-400">GH₵ {boxPrice.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="space-y-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
+                <h3 className="font-bold text-secondary-900 dark:text-white">Delivery / Pickup Option</h3>
+                <div>
+                  <label className="block text-sm font-semibold text-secondary-700 dark:text-secondary-300 mb-2">
+                    Select Pickup Point <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={pickupPoint}
+                    onChange={(e) => setPickupPoint(e.target.value)}
+                    disabled={loadingLocations}
+                    className="w-full px-4 py-3 bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 rounded-xl text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="" disabled>
+                      {loadingLocations ? 'Loading locations...' : 'Select a pickup location'}
+                    </option>
+                    {locations.map(loc => (
+                      <option key={loc.id} value={loc.name}>{loc.name}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

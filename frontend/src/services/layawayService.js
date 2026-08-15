@@ -32,6 +32,13 @@ const layawayService = {
   adminUpdateCard: (uuid, data) => apiClient.post(`/admin/layaway-cards/${uuid}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   adminDeleteCard: (uuid) => apiClient.delete(`/admin/layaway-cards/${uuid}`),
 
+  // Pickup Locations
+  getPickupLocations: () => apiClient.get('/pickup-locations?active_only=true'),
+  adminGetPickupLocations: () => apiClient.get('/admin/pickup-locations'),
+  adminCreatePickupLocation: (data) => apiClient.post('/admin/pickup-locations', data),
+  adminUpdatePickupLocation: (id, data) => apiClient.put(`/admin/pickup-locations/${id}`, data),
+  adminDeletePickupLocation: (id) => apiClient.delete(`/admin/pickup-locations/${id}`),
+
   // Settings
   getTerms: () => apiClient.get('/layaways/settings/terms'),
   adminGetTerms: () => apiClient.get('/admin/settings/layaway-terms'),

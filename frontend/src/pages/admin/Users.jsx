@@ -255,18 +255,36 @@ const Users = () => {
             <table className="w-full min-w-[650px] text-left border-collapse text-sm">
               <thead>
                 <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xxs">
-                  <th className="p-4">Name</th>
-                  <th className="p-4">Email</th>
+                  <th className="p-4">Account</th>
+                  <th className="p-4">Student Name</th>
                   <th className="p-4">Student ID</th>
+                  <th className="p-4">Course & Level</th>
+                  <th className="p-4">ID Picture</th>
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
                 {paginatedStudents.map((u) => (
                   <tr key={u.id || u.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
-                    <td className="p-4 font-semibold text-secondary-900 dark:text-white">{u.first_name} {u.last_name}</td>
-                    <td className="p-4 text-secondary-600 dark:text-secondary-300">{u.email}</td>
+                    <td className="p-4 text-secondary-600 dark:text-secondary-300">
+                      <div className="font-semibold text-secondary-900 dark:text-white">{u.first_name} {u.last_name}</div>
+                      <div className="text-xs">{u.email}</div>
+                    </td>
+                    <td className="p-4 font-semibold text-secondary-900 dark:text-white">{u.student_name || 'N/A'}</td>
                     <td className="p-4 font-mono font-bold text-secondary-700 dark:text-secondary-300">{u.student_id}</td>
+                    <td className="p-4 text-sm">
+                      <div className="font-semibold text-secondary-900 dark:text-white">{u.student_course || 'N/A'}</div>
+                      <div className="text-xs text-secondary-500">{u.student_level || 'N/A'}</div>
+                    </td>
+                    <td className="p-4">
+                      {u.student_id_picture_url ? (
+                        <a href={`http://localhost:8000${u.student_id_picture_url}`} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline text-xs font-bold flex items-center gap-1">
+                          View Image
+                        </a>
+                      ) : (
+                        <span className="text-xs text-secondary-500">No Image</span>
+                      )}
+                    </td>
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button

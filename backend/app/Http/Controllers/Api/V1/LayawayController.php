@@ -83,16 +83,16 @@ class LayawayController extends Controller
     public function store(Request $request): JsonResponse
     {
         $user = $request->user();
-        if (!$user || $user->student_verification_status !== 'approved') {
+        if (!$user) {
             return response()->json([
-                'message' => 'You must have an approved student ID to request a layaway.',
-                'errors' => ['student_id' => ['You must have an approved student ID to request a layaway.']]
-            ], 422);
+                'message' => 'You must be logged in to request a layaway.',
+            ], 401);
         }
 
         $request->validate([
             'product_uuid' => 'nullable|exists:products,uuid',
             'plan_card_uuid' => 'nullable|exists:layaway_plan_cards,uuid',
+            'pickup_point' => 'required|string|max:255',
         ]);
 
         if (!$request->product_uuid && !$request->plan_card_uuid) {
@@ -137,6 +137,7 @@ class LayawayController extends Controller
             'total_boxes' => $boxes,
             'box_price' => $boxPrice,
             'status' => 'active',
+            'pickup_point' => $request->pickup_point,
         ]);
 
         return response()->json([

@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\MarketingController;
 use App\Http\Controllers\Api\V1\LayawayController;
 use App\Http\Controllers\Api\V1\StoreController;
 use App\Http\Controllers\Api\V1\BannerController;
+use App\Http\Controllers\Api\V1\PickupLocationController;
 use App\Http\Controllers\Api\V1\Vendor\VendorProductController;
 use App\Http\Controllers\Api\V1\Vendor\VendorDashboardController;
 use App\Http\Controllers\Api\V1\Vendor\VendorOrderController;
@@ -95,6 +96,7 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/banners', [BannerController::class, 'index']);
     Route::get('/promo-popups/active', [PromoPopupController::class, 'active']);
+    Route::get('/pickup-locations', [PickupLocationController::class, 'index']);
 
     Route::get('/raffles', [RaffleController::class, 'index']);
     Route::get('/raffles/winners', [RaffleController::class, 'winners']);
@@ -287,6 +289,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/layaways/{uuid}/payments', [AdminLayawayController::class, 'storePayment']);
             Route::post('/layaways/{uuid}/payments/{payment}/reverse', [AdminLayawayController::class, 'reversePayment']);
             Route::post('/layaways/{uuid}/add-boxes', [AdminLayawayController::class, 'addBoxes']);
+
+            // Pickup Locations (Admin)
+            Route::apiResource('pickup-locations', PickupLocationController::class)->except(['create', 'edit', 'show']);
 
             // Layaway Plan Cards (Admin)
             Route::get('/layaway-cards', [LayawayPlanCardController::class, 'index']);

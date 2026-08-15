@@ -11,7 +11,9 @@ const authService = {
   login: (data) => apiClient.post('/auth/login', data),
   logout: () => apiClient.post('/auth/logout'),
   me: () => apiClient.get('/auth/me'),
-  submitStudentVerification: (data) => apiClient.post('/auth/submit-student-verification', data),
+  submitStudentVerification: (data) => apiClient.post('/auth/submit-student-verification', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   verify2Fa: (data) => apiClient.post('/auth/verify-2fa', data),
 };
 

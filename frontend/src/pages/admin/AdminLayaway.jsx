@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import layawayService from '../../services/layawayService';
 import productService from '../../services/productService';
 import Swal from 'sweetalert2';
-import { Package, RefreshCw, LayoutDashboard, Users, CreditCard, Box, Settings, Search, CheckCircle, AlertTriangle, ArrowLeft, History, Eye, X, Filter, Calendar, RotateCcw, Plus, Edit, Trash2, Upload } from 'lucide-react';
+import { Package, RefreshCw, LayoutDashboard, Users, CreditCard, Box, Settings, Search, CheckCircle, AlertTriangle, ArrowLeft, History, Eye, X, Filter, Calendar, RotateCcw, Plus, Edit, Trash2, Upload, MapPin } from 'lucide-react';
 import LayawayBoxTracker from '../../components/LayawayBoxTracker';
 import { toast } from 'react-toastify';
 import DotPagination from '../../components/DotPagination';
@@ -67,6 +67,14 @@ const AdminLayaway = () => {
   const [savingTerms, setSavingTerms] = useState(false);
   const [loadingTerms, setLoadingTerms] = useState(false);
 
+  // Pickup Locations
+  const [locations, setLocations] = useState([]);
+  const [loadingLocations, setLoadingLocations] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [editingLocation, setEditingLocation] = useState(null);
+  const [locationForm, setLocationForm] = useState({ name: '', is_active: true });
+  const [savingLocation, setSavingLocation] = useState(false);
+
   const [customerModalOpen, setCustomerModalOpen] = useState(false);
   const [selectedCustomerPlans, setSelectedCustomerPlans] = useState([]);
 
@@ -112,6 +120,7 @@ const AdminLayaway = () => {
     if (activeTab === 'sales') loadSales();
     if (activeTab === 'inventory') loadInventory();
     if (activeTab === 'cards') loadCards();
+    if (activeTab === 'locations') loadLocations();
     if (activeTab === 'settings') loadTerms();
   }, [activeTab, customerPage, salesPage, inventoryPage, cardPage, selectedCardId, inventorySort, cardSort]);
 
@@ -200,9 +209,18 @@ const AdminLayaway = () => {
     setLoadingTerms(true);
     try {
       const res = await layawayService.adminGetTerms();
-      setTermsText(res.data?.layaway_terms || '');
+      setTermsText(res.data?.terms || res.terms || '');
     } catch (e) { console.error(e); }
     finally { setLoadingTerms(false); }
+  };
+
+  const loadLocations = async () => {
+    setLoadingLocations(true);
+    try {
+      const res = await layawayService.adminGetPickupLocations();
+      setLocations(res.data?.data || res.data || []);
+    } catch (e) { console.error(e); }
+    finally { setLoadingLocations(false); }
   };
 
   // Actions
@@ -521,6 +539,49 @@ const AdminLayaway = () => {
     }
   };
 
+  const handleSaveLocation = async (e) => {
+    e.preventDefault();
+    if (!locationForm.name.trim()) return toast.error('Location name is required');
+    setSavingLocation(true);
+    try {
+      if (editingLocation) {
+        await layawayService.adminUpdatePickupLocation(editingLocation.id, locationForm);
+        toast.success('Location updated successfully');
+      } else {
+        await layawayService.adminCreatePickupLocation(locationForm);
+        toast.success('Location created successfully');
+      }
+      setShowLocationModal(false);
+      setEditingLocation(null);
+      setLocationForm({ name: '', is_active: true });
+      loadLocations();
+    } catch (err) {
+      toast.error('Failed to save location');
+    } finally {
+      setSavingLocation(false);
+    }
+  };
+
+  const handleDeleteLocation = async (id) => {
+    const __confirmResult = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Delete this pickup location permanently?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#eab308',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    });
+    if (!__confirmResult.isConfirmed) return;
+    try {
+      await layawayService.adminDeletePickupLocation(id);
+      toast.success('Location deleted successfully.');
+      loadLocations();
+    } catch (e) {
+      toast.error('Failed to delete location.');
+    }
+  };
+
   const handleSelectLayaway = async (uuid) => {
     setSelectedCardId(uuid);
     setLoadingDetails(true);
@@ -575,6 +636,7 @@ const AdminLayaway = () => {
     { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" /> },
     { id: 'inventory', label: 'Layaway Products', icon: <Box className="w-5 h-5" /> },
     { id: 'cards', label: 'Cards', icon: <CreditCard className="w-5 h-5" /> },
+    { id: 'locations', label: 'Locations', icon: <MapPin className="w-5 h-5" /> },
     { id: 'customers', label: 'Customers', icon: <Users className="w-5 h-5" /> },
     { id: 'sales', label: 'Sales', icon: <CreditCard className="w-5 h-5" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-5 h-5" /> },
@@ -649,6 +711,77 @@ const AdminLayaway = () => {
                 </div>
               </div>
             ) : null}
+          </div>
+        )}
+
+        {/* LOCATIONS TAB */}
+        {activeTab === 'locations' && (
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h1 className="text-3xl font-bold text-yellow-600">Pickup Locations</h1>
+              <button
+                onClick={() => {
+                  setEditingLocation(null);
+                  setLocationForm({ name: '', is_active: true });
+                  setShowLocationModal(true);
+                }}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors whitespace-nowrap shadow-sm"
+              >
+                <Plus className="w-4 h-4" /> Add Location
+              </button>
+            </div>
+
+            {loadingLocations ? (
+              <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
+            ) : (
+              <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
+                <table className="w-full min-w-[650px] text-left text-sm text-gray-700 border-collapse">
+                  <thead className="bg-gray-50 text-gray-600 border-b border-gray-200 uppercase tracking-wider text-xs">
+                    <tr>
+                      <th className="p-4">Location Name</th>
+                      <th className="p-4">Status</th>
+                      <th className="p-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {locations.length === 0 ? (
+                      <tr><td colSpan="3" className="p-8 text-center text-gray-500">No pickup locations configured.</td></tr>
+                    ) : (
+                      locations.map(loc => (
+                        <tr key={loc.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="p-4 font-bold text-gray-900">{loc.name}</td>
+                          <td className="p-4">
+                            <span className={`px-2 py-1 rounded-full text-xs font-bold uppercase ${loc.is_active ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+                              {loc.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => {
+                                  setEditingLocation(loc);
+                                  setLocationForm({ name: loc.name, is_active: loc.is_active });
+                                  setShowLocationModal(true);
+                                }}
+                                className="px-3 py-1.5 rounded-lg border text-xs font-semibold bg-gray-50 hover:bg-gray-100 text-gray-700 transition-colors"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteLocation(loc.id)}
+                                className="px-3 py-1.5 rounded-lg border text-xs font-semibold bg-red-50 hover:bg-red-100 text-red-600 border-red-200 transition-colors"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
@@ -1711,6 +1844,29 @@ const AdminLayaway = () => {
           </div>
         </div>
       )}
+      {/* LOCATION MODAL */}
+      {showLocationModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative my-8">
+            <button onClick={() => setShowLocationModal(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"><X className="w-5 h-5" /></button>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">{editingLocation ? 'Edit Location' : 'Add Location'}</h3>
+            <form onSubmit={handleSaveLocation} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Name</label>
+                <input type="text" required value={locationForm.name} onChange={e => setLocationForm({...locationForm, name: e.target.value})} placeholder="e.g. Tema Office" className="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-yellow-500 focus:outline-none" />
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={locationForm.is_active} onChange={e => setLocationForm({...locationForm, is_active: e.target.checked})} className="w-4 h-4 text-yellow-500 rounded focus:ring-yellow-500" />
+                <span className="text-sm font-semibold text-gray-700">Is Active</span>
+              </label>
+              <button type="submit" disabled={savingLocation} className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2.5 rounded-xl font-bold shadow-md mt-2 transition-colors">
+                {savingLocation ? 'Saving...' : 'Save Location'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

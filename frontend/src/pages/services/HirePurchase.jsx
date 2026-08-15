@@ -22,6 +22,12 @@ const HirePurchase = () => {
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [studentName, setStudentName] = useState('');
+  const [studentCourse, setStudentCourse] = useState('');
+  const [studentLevel, setStudentLevel] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [studentImage, setStudentImage] = useState(null);
+  const [submittingStudent, setSubmittingStudent] = useState(false);
 
   // Fetch dynamic HP configurations from the product object
   const hpInterestRate = targetProduct?.hp_interest_rate ? parseFloat(targetProduct.hp_interest_rate) : 0;
@@ -45,6 +51,28 @@ const HirePurchase = () => {
       }
     }
   }, [targetProduct, minDeposit, hpMaxDuration, duration]);
+
+  const handleStudentSubmit = async (e) => {
+    e.preventDefault();
+    setSubmittingStudent(true);
+    setErrorMsg('');
+    try {
+      const formData = new FormData();
+      formData.append('student_name', studentName);
+      formData.append('student_course', studentCourse);
+      formData.append('student_level', studentLevel);
+      formData.append('student_id', studentId);
+      if (studentImage) formData.append('student_id_picture', studentImage);
+
+      const { default: authService } = await import('../../services/authService');
+      await authService.submitStudentVerification(formData);
+      window.location.reload();
+    } catch (err) {
+      setErrorMsg(err.response?.data?.message || 'Failed to submit student verification.');
+    } finally {
+      setSubmittingStudent(false);
+    }
+  };
 
   const handleSubmitAgreement = async (e) => {
     e.preventDefault();
@@ -232,6 +260,48 @@ const HirePurchase = () => {
                 <Link to="/products" className="premium-button-secondary px-6 rounded-lg text-sm">Return Catalog</Link>
               </div>
             </div>
+          ) : user?.student_verification_status === 'pending' ? (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-2xl p-8 text-center space-y-4">
+              <RefreshCw className="w-16 h-16 text-yellow-500 mx-auto animate-spin" />
+              <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Verification Pending</h2>
+              <p className="text-sm text-secondary-500 max-w-sm mx-auto">
+                Your student ID is currently being reviewed by our team. You can proceed with Hire Purchase once approved.
+              </p>
+            </div>
+          ) : user?.student_verification_status !== 'approved' ? (
+            <form onSubmit={handleStudentSubmit} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-4">
+              <h2 className="text-xl font-bold text-secondary-900 dark:text-white">Student Verification Required</h2>
+              <p className="text-sm text-secondary-500">Please provide your student details to qualify for Hire Purchase.</p>
+              
+              {errorMsg && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">{errorMsg}</div>}
+              
+              <div>
+                <label className="block text-sm font-semibold mb-1">Full Name</label>
+                <input required type="text" value={studentName} onChange={e => setStudentName(e.target.value)} className="w-full px-4 py-2 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Course of Study</label>
+                  <input required type="text" value={studentCourse} onChange={e => setStudentCourse(e.target.value)} className="w-full px-4 py-2 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Level / Year</label>
+                  <input required type="text" value={studentLevel} onChange={e => setStudentLevel(e.target.value)} className="w-full px-4 py-2 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Student ID Number</label>
+                <input required type="text" value={studentId} onChange={e => setStudentId(e.target.value)} className="w-full px-4 py-2 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-1">Upload Student ID Picture</label>
+                <input required type="file" accept="image/*" onChange={e => setStudentImage(e.target.files[0])} className="w-full px-4 py-2 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700" />
+              </div>
+
+              <button type="submit" disabled={submittingStudent} className="w-full premium-button-primary py-3 rounded-xl font-bold">
+                {submittingStudent ? 'Submitting...' : 'Submit for Verification'}
+              </button>
+            </form>
           ) : (
             <form onSubmit={handleSubmitAgreement} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-6 transition-colors">
               

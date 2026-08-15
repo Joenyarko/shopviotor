@@ -33,6 +33,10 @@ const Layaway = () => {
     fetchLayawayProducts();
   }, [productPage, searchQuery, sortQuery]);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [cardPage, productPage]);
+
   const fetchLayawayProducts = async () => {
     try {
       setLoading(true);
@@ -208,7 +212,7 @@ const Layaway = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
             {cards.map(card => (
-              <div key={card.uuid} className="group flex flex-col bg-white dark:bg-secondary-900 overflow-hidden hover:shadow-xl transition-all duration-300">
+              <div key={card.uuid} className="group flex flex-col bg-white dark:bg-secondary-900 overflow-hidden hover:shadow-xl transition-all duration-300 rounded-none border border-secondary-100 dark:border-secondary-800">
                 <div className="aspect-[4/3] relative bg-secondary-100 dark:bg-secondary-800 overflow-hidden">
                   {card.image_url ? (
                     <img src={card.image_url} alt={card.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -241,7 +245,7 @@ const Layaway = () => {
 
                   <button
                     onClick={() => handleStartLayawayFromCard(card)}
-                    className="w-full py-2.5 px-4 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-xl transition-colors text-sm"
+                    className="w-full py-2.5 px-4 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-none transition-colors text-sm"
                   >
                     Start This Plan
                   </button>
@@ -292,7 +296,7 @@ const Layaway = () => {
             {products.map(product => (
               <div
                 key={product.id}
-                className="bg-white dark:bg-secondary-900 overflow-hidden shadow-sm group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                className="bg-white dark:bg-secondary-900 overflow-hidden shadow-sm border border-secondary-100 dark:border-secondary-800 rounded-none group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
               >
                 <div className="relative h-48 overflow-hidden bg-secondary-100 dark:bg-secondary-800">
                   <img
@@ -319,7 +323,7 @@ const Layaway = () => {
                   </p>
                   <button
                     onClick={() => handleStartLayaway(product)}
-                    className="w-full py-2.5 rounded-xl text-sm font-bold bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+                    className="w-full py-2.5 rounded-none text-sm font-bold bg-primary-600 hover:bg-primary-700 text-white transition-colors"
                   >
                     Register / Purchase Layaway
                   </button>
