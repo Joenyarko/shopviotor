@@ -238,7 +238,7 @@ const Layaway = () => {
                       <p className="text-xs sm:text-base font-bold text-secondary-900 dark:text-white">{card.number_of_boxes}</p>
                     </div>
                     <div className="bg-secondary-50 dark:bg-secondary-800/50 p-1.5 sm:p-2 rounded-lg">
-                      <p className="text-[9px] sm:text-xxs text-secondary-500 dark:text-secondary-400 font-medium uppercase tracking-wider mb-0.5">Price/Step</p>
+                      <p className="text-[9px] sm:text-xxs text-secondary-500 dark:text-secondary-400 font-medium uppercase tracking-wider mb-0.5">Price</p>
                       <p className="text-xs sm:text-base font-bold text-primary-600 dark:text-primary-400">GHS {Number(card.price_per_box).toFixed(2)}</p>
                     </div>
                   </div>
