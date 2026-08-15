@@ -103,4 +103,8 @@ const Contact = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+export default Contact;
 export { Contact };
