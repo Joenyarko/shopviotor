@@ -222,30 +222,30 @@ const Layaway = () => {
                     </div>
                   )}
                   <div className="absolute top-2 right-2 bg-white/90 dark:bg-secondary-900/90 backdrop-blur px-2.5 py-1 rounded-full border border-secondary-200 dark:border-secondary-700">
-                    <p className="text-xs font-bold text-secondary-900 dark:text-white whitespace-nowrap">
+                    <p className="text-[10px] sm:text-xs font-bold text-yellow-500 whitespace-nowrap">
                       GHS {Number(card.number_of_boxes * card.price_per_box).toFixed(2)} Total
                     </p>
                   </div>
                 </div>
 
                 <div className="p-4 flex flex-col flex-1">
-                  <h3 className="font-bold text-secondary-900 dark:text-white text-lg mb-1">{card.name}</h3>
-                  <p className="text-xs text-secondary-500 dark:text-secondary-400 line-clamp-2 mb-4 h-8">{card.description}</p>
+                  <h3 className="font-bold text-secondary-900 dark:text-white text-sm sm:text-lg mb-1">{card.name}</h3>
+                  <p className="text-[10px] sm:text-xs text-secondary-500 dark:text-secondary-400 line-clamp-2 mb-3 sm:mb-4 h-8">{card.description}</p>
 
-                  <div className="grid grid-cols-2 gap-2 mb-4 mt-auto">
-                    <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-lg">
-                      <p className="text-xxs text-secondary-500 dark:text-secondary-400 font-medium uppercase tracking-wider mb-0.5">Steps</p>
-                      <p className="font-bold text-secondary-900 dark:text-white">{card.number_of_boxes}</p>
+                  <div className="grid grid-cols-2 gap-1 sm:gap-2 mb-3 sm:mb-4 mt-auto">
+                    <div className="bg-secondary-50 dark:bg-secondary-800/50 p-1.5 sm:p-2 rounded-lg">
+                      <p className="text-[9px] sm:text-xxs text-secondary-500 dark:text-secondary-400 font-medium uppercase tracking-wider mb-0.5">Steps</p>
+                      <p className="text-xs sm:text-base font-bold text-secondary-900 dark:text-white">{card.number_of_boxes}</p>
                     </div>
-                    <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-lg">
-                      <p className="text-xxs text-secondary-500 dark:text-secondary-400 font-medium uppercase tracking-wider mb-0.5">Price/Step</p>
-                      <p className="font-bold text-primary-600 dark:text-primary-400">GHS {Number(card.price_per_box).toFixed(2)}</p>
+                    <div className="bg-secondary-50 dark:bg-secondary-800/50 p-1.5 sm:p-2 rounded-lg">
+                      <p className="text-[9px] sm:text-xxs text-secondary-500 dark:text-secondary-400 font-medium uppercase tracking-wider mb-0.5">Price/Step</p>
+                      <p className="text-xs sm:text-base font-bold text-primary-600 dark:text-primary-400">GHS {Number(card.price_per_box).toFixed(2)}</p>
                     </div>
                   </div>
 
                   <button
                     onClick={() => handleStartLayawayFromCard(card)}
-                    className="w-full py-2.5 px-4 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-none transition-colors text-sm"
+                    className="w-full py-1.5 sm:py-2.5 px-2 sm:px-4 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-none transition-colors text-[10px] sm:text-sm"
                   >
                     Start This Plan
                   </button>
@@ -309,21 +309,21 @@ const Layaway = () => {
                   </div>
                 </div>
                 <div className="p-4 flex flex-col flex-1">
-                  <h3 className="font-bold text-sm text-secondary-900 dark:text-white line-clamp-2 mb-1">{product.name}</h3>
+                  <h3 className="font-bold text-xs sm:text-sm text-secondary-900 dark:text-white line-clamp-2 mb-1">{product.name}</h3>
                   {product.layaway_box_price && product.layaway_total_boxes ? (
-                    <div className="mb-3">
-                      <p className="text-primary-600 dark:text-primary-400 font-bold text-base">GHS {parseFloat(product.layaway_box_price).toLocaleString()} <span className="text-xs text-secondary-500 font-semibold uppercase tracking-wider">/ box</span></p>
-                      <p className="text-xs text-secondary-500 font-semibold">{product.layaway_total_boxes} boxes total</p>
+                    <div className="mb-2 sm:mb-3">
+                      <p className="text-primary-600 dark:text-primary-400 font-bold text-sm sm:text-base">GHS {parseFloat(product.layaway_box_price).toLocaleString()} <span className="text-[9px] sm:text-xs text-secondary-500 font-semibold uppercase tracking-wider">/ box</span></p>
+                      <p className="text-[9px] sm:text-xs text-secondary-500 font-semibold">{product.layaway_total_boxes} boxes total</p>
                     </div>
                   ) : (
-                    <p className="text-primary-600 dark:text-primary-400 font-bold text-base mb-3">GHS {parseFloat(product.price).toLocaleString()}</p>
+                    <p className="text-primary-600 dark:text-primary-400 font-bold text-sm sm:text-base mb-2 sm:mb-3">GHS {parseFloat(product.price).toLocaleString()}</p>
                   )}
-                  <p className="text-xs text-secondary-500 dark:text-secondary-400 mb-4 flex-1">
+                  <p className="text-[9px] sm:text-xs text-secondary-500 dark:text-secondary-400 mb-3 sm:mb-4 flex-1">
                     Start paying in contributions. Receive when fully paid!
                   </p>
                   <button
                     onClick={() => handleStartLayaway(product)}
-                    className="w-full py-2.5 rounded-none text-sm font-bold bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+                    className="w-full py-1.5 sm:py-2.5 rounded-none text-[10px] sm:text-sm font-bold bg-primary-600 hover:bg-primary-700 text-white transition-colors"
                   >
                     Register / Purchase Layaway
                   </button>
