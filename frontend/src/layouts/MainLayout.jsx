@@ -16,14 +16,15 @@ const MainLayout = () => {
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 flex justify-center items-center space-x-3 md:space-x-4 lg:space-x-6 text-xs font-semibold whitespace-nowrap">
           <NavLink 
             to="/products" 
-            className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
+            end
+            className={({ isActive }) => (isActive && !window.location.search.includes('condition=used')) ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
           >
             All Products
           </NavLink>
           <span className="text-white/30">|</span>
           <NavLink 
             to="/products?condition=used" 
-            className={({ isActive }) => isActive ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
+            className={() => window.location.search.includes('condition=used') ? "text-primary-500 underline decoration-2 underline-offset-4 font-bold" : "text-white/80 hover:text-white transition-colors"}
           >
             Second Hand
           </NavLink>

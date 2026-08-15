@@ -90,11 +90,11 @@ const Footer = () => {
 
       {/* Bottom Legal / Copyright Bar */}
       <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-white/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
+          <p className="text-xs text-white/60 text-center md:text-left">
             &copy; {new Date().getFullYear()} All Rights Reserved &middot; Design and Developed by SHOP VIOTOR
           </p>
-          <div className="flex space-x-6">
+          <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-3">
             <Link to="/delivery" className="text-xs text-white/60 hover:text-white transition-colors">Delivery</Link>
             <Link to="/refunds" className="text-xs text-white/60 hover:text-white transition-colors">Refunds</Link>
             <Link to="/acceptable-use" className="text-xs text-white/60 hover:text-white transition-colors">Acceptable Use</Link>

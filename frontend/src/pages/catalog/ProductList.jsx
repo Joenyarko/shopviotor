@@ -87,6 +87,7 @@ const ProductList = () => {
     if (minPrice) params.min_price = minPrice;
     if (maxPrice) params.max_price = maxPrice;
     if (sort) params.sort = sort;
+    if (searchParams.get('hire_purchase') === 'true') params.hire_purchase = 'true';
     setSearchParams(params);
   };
 
@@ -97,7 +98,10 @@ const ProductList = () => {
     setMinPrice('');
     setMaxPrice('');
     setSort('latest');
-    setSearchParams(queryTerm ? { q: queryTerm } : {});
+    const params = {};
+    if (queryTerm) params.q = queryTerm;
+    if (searchParams.get('hire_purchase') === 'true') params.hire_purchase = 'true';
+    setSearchParams(params);
   };
 
   return (
@@ -199,7 +203,7 @@ const ProductList = () => {
         <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
           <div>
             <h1 className="text-xl font-extrabold text-secondary-900 dark:text-white">
-              {queryTerm ? `Search Results for "${queryTerm}"` : condition === 'used' ? 'Second Hand Products' : 'Browse Catalog'}
+              {queryTerm ? `Search Results for "${queryTerm}"` : searchParams.get('hire_purchase') === 'true' ? 'Hire Purchase Products' : condition === 'used' ? 'Second Hand Products' : 'Browse Catalog'}
             </h1>
             <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">{products.length} products found</p>
           </div>
