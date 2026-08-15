@@ -222,6 +222,30 @@ const AdminLayaway = () => {
     loadCards();
   };
 
+  const handleTransferToCard = async (product) => {
+    if (!window.confirm(`Are you sure you want to transfer "${product.name}" to a Layaway Plan Card? This will delete the product.`)) return;
+    try {
+      await layawayService.adminTransferToCard(product.uuid);
+      toast.success('Successfully transferred to Card!');
+      loadInventory();
+      loadCards();
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Failed to transfer to card.');
+    }
+  };
+
+  const handleTransferToProduct = async (card) => {
+    if (!window.confirm(`Are you sure you want to transfer "${card.name}" to a Layaway Physical Product? This will delete the card.`)) return;
+    try {
+      await layawayService.adminTransferToProduct(card.uuid);
+      toast.success('Successfully transferred to Product!');
+      loadCards();
+      loadInventory();
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Failed to transfer to product.');
+    }
+  };
+
   const saveTerms = async () => {
     setSavingTerms(true);
     try {
@@ -863,6 +887,7 @@ const AdminLayaway = () => {
                         <th className="p-4">Price (GHS)</th>
                         <th className="p-4">Stock</th>
                         <th className="p-4 text-center">Layaway Eligible</th>
+                        <th className="p-4 text-center">Transfer</th>
                         <th className="p-4 text-right">Actions</th>
                       </tr>
                     </thead>
@@ -885,6 +910,11 @@ const AdminLayaway = () => {
                                 />
                                 <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
                               </label>
+                            </td>
+                            <td className="p-4 text-center whitespace-nowrap">
+                              <button onClick={() => handleTransferToCard(prod)} className="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-xs font-bold transition-colors">
+                                Transfer to Card
+                              </button>
                             </td>
                             <td className="p-4 text-right whitespace-nowrap">
                               <div className="flex justify-end gap-2">
@@ -991,6 +1021,11 @@ const AdminLayaway = () => {
                         <div className="col-span-2">
                           <p className="text-xs text-gray-500">Total Value</p>
                           <p className="font-bold text-yellow-600 text-lg">GHS {(card.number_of_boxes * card.price_per_box).toFixed(2)}</p>
+                        </div>
+                        <div className="col-span-2 mt-1">
+                          <button onClick={() => handleTransferToProduct(card)} className="w-full py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-sm font-bold transition-colors border border-blue-200">
+                            Transfer to Product
+                          </button>
                         </div>
                       </div>
                     </div>

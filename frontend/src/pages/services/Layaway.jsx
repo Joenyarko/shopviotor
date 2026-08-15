@@ -12,9 +12,11 @@ const Layaway = () => {
   const [cards, setCards] = useState([]);
   const [cardsMeta, setCardsMeta] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [productsMeta, setProductsMeta] = useState(null);
   const [loadingCards, setLoadingCards] = useState(true);
-  const [cardSearch, setCardSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [cardPage, setCardPage] = useState(1);
+  const [productPage, setProductPage] = useState(1);
   const [viewMode, setViewMode] = useState('all');
   const navigate = useNavigate();
 
@@ -24,13 +26,18 @@ const Layaway = () => {
 
   useEffect(() => {
     fetchLayawayCards();
-  }, [cardPage]);
+  }, [cardPage, searchQuery]);
+
+  useEffect(() => {
+    fetchLayawayProducts();
+  }, [productPage, searchQuery]);
 
   const fetchLayawayProducts = async () => {
     try {
       setLoading(true);
-      const res = await productService.getProducts({ available_for_layaway: 1, per_page: 24 });
+      const res = await productService.getProducts({ available_for_layaway: 1, per_page: 12, page: productPage, search: searchQuery });
       setProducts(res.data?.data || res.data || []);
+      setProductsMeta(res.data?.meta || res.meta || null);
     } catch (e) {
       console.error(e);
     } finally {
@@ -41,7 +48,7 @@ const Layaway = () => {
   const fetchLayawayCards = async () => {
     try {
       setLoadingCards(true);
-      const res = await layawayService.getCards({ page: cardPage, search: cardSearch, per_page: 8 });
+      const res = await layawayService.getCards({ page: cardPage, search: searchQuery, per_page: 12 });
       setCards(res.data?.data || res.data || []);
       setCardsMeta(res.data?.meta || res.meta || null);
     } catch (e) {
@@ -51,13 +58,12 @@ const Layaway = () => {
     }
   };
 
-  const handleCardSearch = (e) => {
+  const handleGlobalSearch = (e) => {
     e.preventDefault();
-    if (cardPage !== 1) {
-      setCardPage(1);
-    } else {
-      fetchLayawayCards();
-    }
+    setCardPage(1);
+    setProductPage(1);
+    fetchLayawayCards();
+    fetchLayawayProducts();
   };
 
   const handleStartLayaway = (product) => {
@@ -125,27 +131,38 @@ const Layaway = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex justify-center border-b border-secondary-200 dark:border-secondary-800 !mb-8 !mt-8">
-        <div className="flex space-x-6 sm:space-x-12">
+      <div className="flex flex-col md:flex-row items-center justify-between border-b border-secondary-200 dark:border-secondary-800 !mb-8 !mt-8 pb-4 gap-4">
+        <div className="flex space-x-6 sm:space-x-12 overflow-x-auto w-full md:w-auto hide-scrollbar">
           <button
             onClick={() => setViewMode('all')}
-            className={`pb-3 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'all' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
+            className={`pb-1 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'all' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
           >
             All Items
           </button>
           <button
             onClick={() => setViewMode('cards')}
-            className={`pb-3 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'cards' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
+            className={`pb-1 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'cards' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
           >
             Plan Cards
           </button>
           <button
             onClick={() => setViewMode('products')}
-            className={`pb-3 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'products' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
+            className={`pb-1 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'products' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
           >
             Physical Products
           </button>
         </div>
+        
+        <form onSubmit={handleGlobalSearch} className="relative w-full md:w-72">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search all layaway items..."
+            className="w-full pl-10 pr-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white"
+          />
+          <Search className="w-5 h-5 text-secondary-400 absolute left-3 top-2.5" />
+        </form>
       </div>
 
       {/* Layaway Plan Cards */}
@@ -157,16 +174,6 @@ const Layaway = () => {
             Layaway Plan Cards
           </h2>
           <div className="flex items-center gap-4 w-full md:w-auto">
-            <form onSubmit={handleCardSearch} className="relative flex-1 md:w-72">
-              <input
-                type="text"
-                value={cardSearch}
-                onChange={(e) => setCardSearch(e.target.value)}
-                placeholder="Search plans..."
-                className="w-full pl-10 pr-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white"
-              />
-              <Search className="w-5 h-5 text-secondary-400 absolute left-3 top-2.5" />
-            </form>
             <Link to="/my-layaways" className="text-sm font-semibold text-primary-600 hover:text-primary-700 flex items-center gap-1 hidden lg:flex whitespace-nowrap">
               My Plans <ArrowRight className="w-4 h-4" />
             </Link>
@@ -174,19 +181,19 @@ const Layaway = () => {
         </div>
 
         {loadingCards ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
             {[1, 2, 3, 4].map(i => (
               <div key={i} className="animate-pulse">
-                <div className="bg-secondary-200 dark:bg-secondary-800 aspect-[4/3] rounded-2xl mb-4" />
+                <div className="bg-secondary-200 dark:bg-secondary-800 aspect-[4/3] mb-4" />
                 <div className="h-4 bg-secondary-200 dark:bg-secondary-800 rounded w-2/3 mb-2" />
                 <div className="h-4 bg-secondary-200 dark:bg-secondary-800 rounded w-1/2" />
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
             {cards.map(card => (
-              <div key={card.uuid} className="group flex flex-col bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300">
+              <div key={card.uuid} className="group flex flex-col bg-white dark:bg-secondary-900 overflow-hidden hover:shadow-xl transition-all duration-300">
                 <div className="aspect-[4/3] relative bg-secondary-100 dark:bg-secondary-800 overflow-hidden">
                   {card.image_url ? (
                     <img src={card.image_url} alt={card.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -254,23 +261,23 @@ const Layaway = () => {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="animate-pulse bg-secondary-100 dark:bg-secondary-800 rounded-2xl h-72" />
+              <div key={i} className="animate-pulse bg-secondary-100 dark:bg-secondary-800 h-72" />
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 space-y-4 bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800">
+          <div className="flex flex-col items-center justify-center py-20 space-y-4 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800">
             <Package className="w-16 h-16 text-secondary-300" />
             <p className="text-secondary-500 dark:text-secondary-400 font-semibold">No products are currently available for layaway.</p>
             <p className="text-sm text-secondary-400">Check back soon!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
             {products.map(product => (
               <div
                 key={product.id}
-                className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                className="bg-white dark:bg-secondary-900 overflow-hidden shadow-sm group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col"
               >
                 <div className="relative h-48 overflow-hidden bg-secondary-100 dark:bg-secondary-800">
                   <img
@@ -305,6 +312,15 @@ const Layaway = () => {
               </div>
             ))}
           </div>
+        )}
+
+        {/* Products Pagination */}
+        {!loading && products.length > 0 && (
+          <DotPagination
+            currentPage={productPage}
+            totalPages={productsMeta?.last_page || 1}
+            onPageChange={setProductPage}
+          />
         )}
       </div>
       )}

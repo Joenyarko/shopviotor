@@ -41,6 +41,7 @@ use App\Http\Controllers\Api\V1\Admin\AdminCollectionController;
 use App\Http\Controllers\Api\V1\Admin\AdminHirePurchaseController;
 use App\Http\Controllers\Api\V1\Admin\LayawayController as AdminLayawayController;
 use App\Http\Controllers\Api\V1\Admin\LayawayPlanCardController;
+use App\Http\Controllers\Api\V1\Admin\LayawayTransferController;
 use App\Http\Controllers\Api\V1\Admin\AdminStoreController;
 use App\Http\Controllers\Api\V1\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Api\V1\Admin\BannerController as AdminBannerController;
@@ -292,6 +293,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/layaway-cards', [LayawayPlanCardController::class, 'store']);
             Route::post('/layaway-cards/{uuid}', [LayawayPlanCardController::class, 'update']); // using POST to handle form-data with images
             Route::delete('/layaway-cards/{uuid}', [LayawayPlanCardController::class, 'destroy']);
+
+            // Layaway Transfers (Admin)
+            Route::post('/layaway-cards/transfer-from-product/{uuid}', [LayawayTransferController::class, 'productToCard']);
+            Route::post('/products/transfer-from-card/{uuid}', [LayawayTransferController::class, 'cardToProduct']);
 
             // Pre-Orders (Admin)
             Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\Admin\PreOrderController::class, 'index']);

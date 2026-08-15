@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import apiClient from '../../api/client';
-import { Package, RefreshCw, PlusCircle } from 'lucide-react';
+import { Package, RefreshCw, PlusCircle, ArrowLeft } from 'lucide-react';
 import LayawayBoxTracker from '../../components/LayawayBoxTracker';
 import { toast } from 'react-toastify';
 
@@ -83,13 +83,18 @@ const MyLayaways = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <div className="mb-4">
+            <Link to="/layaway" className="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary-500 hover:text-secondary-900 dark:text-secondary-400 dark:hover:text-white transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Back to Layaways
+            </Link>
+          </div>
           <h1 className="text-3xl font-extrabold text-secondary-900 dark:text-white flex items-center gap-3">
             <Package className="w-8 h-8 text-primary-500" />
             My Registered Cards
           </h1>
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Track your layaway box progress and make payments.</p>
         </div>
-        <Link to="/products" className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary-500/20 transition-colors">
+        <Link to="/layaway" className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary-500/20 transition-colors">
           <PlusCircle className="w-4 h-4" /> Start New Plan
         </Link>
       </div>
@@ -103,8 +108,8 @@ const MyLayaways = () => {
             <p className="font-bold text-secondary-900 dark:text-white text-lg">No Layaway Plans Yet</p>
             <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1 max-w-sm">Browse our products and start saving toward something you love!</p>
           </div>
-          <Link to="/products" className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold">
-            Browse Products
+          <Link to="/layaway" className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold">
+            Browse Layaways
           </Link>
         </div>
       ) : (

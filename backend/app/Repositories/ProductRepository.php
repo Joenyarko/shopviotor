@@ -87,6 +87,9 @@ class ProductRepository extends BaseRepository
         if (!empty($filters['city'])) {
             $query->where('city', $filters['city']);
         }
+        if (!empty($filters['search'])) {
+            $query->where('name', 'like', '%' . $filters['search'] . '%');
+        }
         if (isset($filters['available_for_preorder'])) {
             $query->where('available_for_preorder', filter_var($filters['available_for_preorder'], FILTER_VALIDATE_BOOLEAN));
         }

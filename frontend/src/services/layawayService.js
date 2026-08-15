@@ -22,6 +22,10 @@ const layawayService = {
   adminRelease: (uuid) => apiClient.post(`/admin/layaways/${uuid}/release`),
   adminCancel: (uuid, reason) => apiClient.post(`/admin/layaways/${uuid}/cancel`, { reason }),
 
+  // Transfers
+  adminTransferToCard: (uuid) => apiClient.post(`/admin/layaway-cards/transfer-from-product/${uuid}`),
+  adminTransferToProduct: (uuid) => apiClient.post(`/admin/products/transfer-from-card/${uuid}`),
+
   // Cards
   adminGetCards: (params) => apiClient.get('/admin/layaway-cards', { params }),
   adminCreateCard: (data) => apiClient.post('/admin/layaway-cards', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
