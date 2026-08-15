@@ -33,13 +33,13 @@ const FAQ = () => {
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
-            Yes. To protect both buyers and sellers, Viotor receives all payments and holds them in secure escrow. Funds are only released to the vendor's internal balance after the buyer has received the item and the 48-hour dispute window has closed without issue.
+            Yes. To protect both buyers and sellers, Shop Viotor receives all payments and holds them in secure escrow. Funds are only released to the vendor's internal balance after the buyer has received the item and the 48-hour dispute window has closed without issue.
           </p>
         </details>
 
         <details className="group bg-secondary-50 dark:bg-secondary-900/50 p-4 rounded-xl cursor-pointer">
           <summary className="font-bold text-secondary-900 dark:text-white list-none flex justify-between items-center">
-            Can users transfer money to each other on Viotor?
+            Can users transfer money to each other on Shop Viotor?
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
@@ -53,7 +53,7 @@ const FAQ = () => {
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
-            If an item arrives damaged or not as described, the buyer can open a dispute within 48 hours of delivery. Viotor mediates the dispute. If the vendor is at fault, the buyer returns the item and receives a full refund. Please read our Refunds Policy for more details.
+            If an item arrives damaged or not as described, the buyer can open a dispute within 48 hours of delivery. Shop Viotor mediates the dispute. If the vendor is at fault, the buyer returns the item and receives a full refund. Please read our Refunds Policy for more details.
           </p>
         </details>
       </div>

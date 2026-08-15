@@ -12,7 +12,7 @@ const Privacy = () => {
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white">1. Information We Collect</h2>
           <p>
-            When you register on Viotor, we collect personal information such as your name, email address, phone number, and physical address. For vendors and users requesting hire purchase, we also collect KYC (Know Your Customer) documents, such as valid government IDs and student ID cards, to verify identity and prevent fraud.
+            When you register on Shop Viotor, we collect personal information such as your name, email address, phone number, and physical address. For vendors and users requesting hire purchase, we also collect KYC (Know Your Customer) documents, such as valid government IDs and student ID cards, to verify identity and prevent fraud.
           </p>
         </section>
 

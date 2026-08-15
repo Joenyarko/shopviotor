@@ -23,7 +23,7 @@ const About = () => {
             Redefining <span className="text-primary-400">Commerce</span> in Ghana
           </h1>
           <p className="text-secondary-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            Viotor is an enterprise-scale online classifieds and marketplace application designed specifically for direct-to-consumer trades and specialized services.
+            Shop Viotor is an enterprise-scale online classifieds and marketplace application designed specifically for direct-to-consumer trades and specialized services.
           </p>
         </div>
       </div>
@@ -57,7 +57,7 @@ const About = () => {
           <div className="space-y-4 flex-1 text-center md:text-left">
             <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">How We Operate Safely</h2>
             <p className="text-secondary-600 dark:text-secondary-400 leading-relaxed max-w-3xl">
-              Viotor serves as a trusted intermediary. We process payments securely via our payment partners and hold funds in escrow until goods are delivered or services are rendered. This protects both the buyer and the vendor, ensuring a consistently safe trading environment for all Ghanaians.
+              Shop Viotor serves as a trusted intermediary. We process payments securely via our payment partners and hold funds in escrow until goods are delivered or services are rendered. This protects both the buyer and the vendor, ensuring a consistently safe trading environment for all Ghanaians.
             </p>
           </div>
         </div>

@@ -21,14 +21,14 @@ const Terms = () => {
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white">2. Marketplace Rules</h2>
           <p>
-            Viotor provides a platform for users to buy, sell, and barter goods. We are not the seller of items listed by third-party vendors. However, we hold funds in escrow to ensure successful completion of transactions.
+            Shop Viotor provides a platform for users to buy, sell, and barter goods. We are not the seller of items listed by third-party vendors. However, we hold funds in escrow to ensure successful completion of transactions.
           </p>
         </section>
 
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white">3. Payments and Escrow</h2>
           <p>
-            All payments are processed securely. When you pay for an item, the funds are held by Viotor. Only after delivery is confirmed or the dispute period (48 hours) expires without issue do we release the funds to the vendor.
+            All payments are processed securely. When you pay for an item, the funds are held by Shop Viotor. Only after delivery is confirmed or the dispute period (48 hours) expires without issue do we release the funds to the vendor.
           </p>
         </section>
 

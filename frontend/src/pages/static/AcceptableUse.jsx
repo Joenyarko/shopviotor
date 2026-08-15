@@ -12,12 +12,12 @@ const AcceptableUse = () => {
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white">1. Vendor Conduct</h2>
           <p>
-            Viotor is committed to providing a safe and reliable marketplace. All vendors must adhere to the following rules:
+            Shop Viotor is committed to providing a safe and reliable marketplace. All vendors must adhere to the following rules:
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Prohibited Items:</strong> You may not sell illegal goods, weapons, stolen property, counterfeits, or hazardous materials.</li>
             <li><strong>Accurate Descriptions:</strong> All product listings, especially for barter and secondhand items, must accurately describe the condition of the item. Any flaws or defects must be explicitly stated.</li>
-            <li><strong>KYC Verification:</strong> Vendors may be subject to Know Your Customer (KYC) identity verification by submitting valid government ID documents before withdrawing funds from their Viotor balance.</li>
+            <li><strong>KYC Verification:</strong> Vendors may be subject to Know Your Customer (KYC) identity verification by submitting valid government ID documents before withdrawing funds from their Shop Viotor balance.</li>
           </ul>
         </section>
 
@@ -35,12 +35,12 @@ const AcceptableUse = () => {
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white">3. Wallet & Fund Management</h2>
           <p>
-            Viotor operates an internal ledger (balance) system for vendors to track their earnings from successful sales.
+            Shop Viotor operates an internal ledger (balance) system for vendors to track their earnings from successful sales.
           </p>
           <ul className="list-disc pl-5 space-y-2">
-            <li>Funds in a vendor's balance are strictly the proceeds of their sales minus Viotor's commission fees.</li>
+            <li>Funds in a vendor's balance are strictly the proceeds of their sales minus Shop Viotor's commission fees.</li>
             <li>Vendors cannot deposit external funds directly into this balance.</li>
-            <li><strong>No Peer-to-Peer Transfers:</strong> Users and vendors cannot transfer funds from their Viotor balance to another user's balance. The balance can only be withdrawn to the vendor's verified bank account or mobile money wallet.</li>
+            <li><strong>No Peer-to-Peer Transfers:</strong> Users and vendors cannot transfer funds from their Shop Viotor balance to another user's balance. The balance can only be withdrawn to the vendor's verified bank account or mobile money wallet.</li>
           </ul>
         </section>
       </div>
