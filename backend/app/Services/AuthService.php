@@ -133,15 +133,30 @@ class AuthService
 
     public function verify2Fa(int $userId, string $code, string $ip = null, string $userAgent = null): array
     {
+        // SECURITY: Track failed 2FA attempts to prevent brute-force
+        $attemptKey  = '2fa_attempts_' . $userId;
+        $attempts    = \Illuminate\Support\Facades\Cache::get($attemptKey, 0);
+
+        if ($attempts >= 5) {
+            // Invalidate the 2FA code entirely on lockout
+            \Illuminate\Support\Facades\Cache::forget('2fa_code_' . $userId);
+            throw ValidationException::withMessages([
+                'code' => ['Too many failed attempts. Your session has been invalidated. Please log in again.'],
+            ]);
+        }
+
         $cachedCode = \Illuminate\Support\Facades\Cache::get('2fa_code_' . $userId);
 
         if (!$cachedCode || $cachedCode !== $code) {
+            \Illuminate\Support\Facades\Cache::put($attemptKey, $attempts + 1, now()->addMinutes(10));
             throw ValidationException::withMessages([
                 'code' => ['The verification code is invalid or has expired.'],
             ]);
         }
 
+        // Success: clean up attempt counter and code
         \Illuminate\Support\Facades\Cache::forget('2fa_code_' . $userId);
+        \Illuminate\Support\Facades\Cache::forget($attemptKey);
 
         $user = $this->userRepo->findById($userId);
 

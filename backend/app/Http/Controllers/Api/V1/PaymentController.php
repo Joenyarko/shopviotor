@@ -45,6 +45,12 @@ class PaymentController extends Controller
     public function verify(Request $request, string $reference): JsonResponse
     {
         try {
+            // SECURITY: Ensure this payment belongs to the requesting user
+            $payment = $this->paymentRepo->findByReference($reference);
+            if ($payment->user_id !== $request->user()->id && !$request->user()->isAdmin()) {
+                abort(403, 'You are not authorized to verify this payment.');
+            }
+
             $payment = $this->paymentService->verify($reference);
 
             return response()->json([
@@ -59,8 +65,22 @@ class PaymentController extends Controller
 
     public function webhook(Request $request, string $gateway): JsonResponse
     {
-        // Example for Paystack webhook
         if ($gateway === 'paystack') {
+            // SECURITY: Verify Paystack webhook signature to prevent spoofed events
+            $paystackSignature = $request->header('x-paystack-signature');
+            $computedSignature = hash_hmac(
+                'sha512',
+                $request->getContent(),
+                config('services.paystack.secret_key')
+            );
+
+            if (!$paystackSignature || !hash_equals($computedSignature, $paystackSignature)) {
+                Log::warning('SECURITY: Invalid Paystack webhook signature received.', [
+                    'ip' => $request->ip(),
+                ]);
+                return response()->json(['status' => 'invalid signature'], 401);
+            }
+
             $event = $request->input('event');
             $data  = $request->input('data');
 
@@ -89,14 +109,11 @@ class PaymentController extends Controller
     public function adminConfirm(Request $request, string $uuid): JsonResponse
     {
         $payment = \App\Models\Payment::where('uuid', $uuid)->firstOrFail();
-        $payment->update([
-            'status' => \App\Enums\PaymentStatus::Completed,
-            'paid_at' => now(),
-        ]);
+        $payment = $this->paymentService->adminConfirm($payment, $request->user()->id);
 
         return response()->json([
             'message' => 'Payment marked as completed.',
-            'data' => new PaymentResource($payment),
+            'data'    => new PaymentResource($payment),
         ]);
     }
 }

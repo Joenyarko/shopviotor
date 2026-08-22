@@ -54,10 +54,10 @@ Route::prefix('v1')->group(function () {
     
     // ─── PUBLIC ROUTES ────────────────────────────────────────────────────────
     
-    Route::post('/auth/register', [AuthController::class, 'register']);
-    Route::post('/auth/register/verify', [AuthController::class, 'verifyRegistration']);
-    Route::post('/auth/login', [AuthController::class, 'login']);
-    Route::post('/auth/verify-2fa', [AuthController::class, 'verify2Fa']);
+    Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+    Route::post('/auth/register/verify', [AuthController::class, 'verifyRegistration'])->middleware('throttle:10,1');
+    Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('/auth/verify-2fa', [AuthController::class, 'verify2Fa'])->middleware('throttle:5,1');
     
     // Google Authentication
     Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
@@ -106,7 +106,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/payments/webhook/{gateway}', [PaymentController::class, 'webhook']);
 
     // AI Chat — public (no auth required so guests can also use it)
-    Route::post('/ai/chat', [AiChatController::class, 'chat'])->middleware('throttle:30,1');
+    Route::post('/ai/chat', [AiChatController::class, 'chat'])->middleware(['auth:sanctum', 'throttle:30,1']);
 
     // Marketing (Public)
     Route::get('/marketing/campaigns/active', [MarketingController::class, 'activeCampaigns']);
@@ -341,8 +341,4 @@ Route::prefix('v1')->group(function () {
     });
     });
 });
-Route::get('/debug-version', function() {
-    return response()->json([
-        'order_service_updated' => str_contains(file_get_contents(app_path('Services/OrderService.php')), '->first()')
-    ]);
-});
+// Debug route removed for security. Do not re-add in production.

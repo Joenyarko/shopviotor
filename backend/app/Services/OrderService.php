@@ -109,7 +109,10 @@ class OrderService
 
     private function applyCoupon(string $code, int $userId): Coupon
     {
-        $coupon = Coupon::where('code', $code)->valid()->first();
+        $coupon = Coupon::where('code', $code)
+            ->valid()
+            ->lockForUpdate() // SECURITY: Prevent concurrent coupon redemption race condition
+            ->first();
 
         if (!$coupon) {
             throw ValidationException::withMessages([

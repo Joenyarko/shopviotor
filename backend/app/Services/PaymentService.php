@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Repositories\PaymentRepository;
 use App\Services\Payment\PaymentGatewayFactory;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class PaymentService
@@ -53,9 +54,34 @@ class PaymentService
     public function verify(string $reference): Payment
     {
         return DB::transaction(function () use ($reference) {
-            $payment = $this->paymentRepo->findByReference($reference);
+            // SECURITY: Lock the row to prevent race conditions / double-processing
+            $payment = Payment::where('reference', $reference)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            // SECURITY: Idempotency guard — if already completed, return early without re-firing events
+            if ($payment->status === 'completed') {
+                Log::info('Payment already verified, skipping re-processing.', ['reference' => $reference]);
+                return $payment->load(['payable', 'transactions']);
+            }
+
             $gateway = PaymentGatewayFactory::make($payment->method->value);
             $result  = $gateway->verify($reference);
+
+            // SECURITY: Verify the gateway amount matches the expected payment amount
+            if ($result['success']) {
+                $amountDiff = abs((float) $result['amount'] - (float) $payment->amount);
+                if ($amountDiff > 0.01) { // Allow 1 pesewa tolerance for floating point
+                    Log::error('SECURITY: Payment amount mismatch detected!', [
+                        'reference'       => $reference,
+                        'expected_amount' => $payment->amount,
+                        'received_amount' => $result['amount'],
+                    ]);
+                    throw new \RuntimeException(
+                        "Payment amount mismatch: expected GHS {$payment->amount}, gateway returned GHS {$result['amount']}."
+                    );
+                }
+            }
 
             $payment->update([
                 'gateway_reference' => $result['gateway_reference'] ?? null,
@@ -66,12 +92,12 @@ class PaymentService
             ]);
 
             $payment->transactions()->create([
-                'type'    => 'charge',
-                'status'  => $result['success'] ? 'success' : 'failed',
-                'amount'  => $payment->amount,
-                'currency' => $payment->currency,
+                'type'                   => 'charge',
+                'status'                 => $result['success'] ? 'success' : 'failed',
+                'amount'                 => $payment->amount,
+                'currency'              => $payment->currency,
                 'gateway_transaction_id' => $result['gateway_reference'] ?? null,
-                'response' => $result['raw'] ?? null,
+                'response'               => $result['raw'] ?? null,
             ]);
 
             if ($result['success']) {
@@ -101,13 +127,28 @@ class PaymentService
         return $result;
     }
 
-    public function adminConfirm(Payment $payment): Payment
+    public function adminConfirm(Payment $payment, int $adminId): Payment
     {
+        // SECURITY: Idempotency guard
+        if ($payment->status === 'completed') {
+            return $payment->fresh();
+        }
+
         $payment->update([
-            'status'  => 'completed',
-            'paid_at' => now(),
+            'status'         => 'completed',
+            'paid_at'        => now(),
             'gateway_status' => 'manually_confirmed',
         ]);
+
+        // Audit trail using Spatie Activity Log (already installed)
+        activity('payment')
+            ->performedOn($payment)
+            ->withProperties([
+                'admin_id'     => $adminId,
+                'confirmed_at' => now()->toISOString(),
+                'action'       => 'manual_admin_confirmation',
+            ])
+            ->log('Admin manually confirmed payment');
 
         event(new PaymentReceived($payment));
 
