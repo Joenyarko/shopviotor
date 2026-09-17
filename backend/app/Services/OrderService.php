@@ -182,39 +182,55 @@ class OrderService
             $adminCut = ($item->total * $commissionRate) / 100;
             $vendorCut = $item->total - $adminCut;
 
-            $wallet = $store->wallet()->firstOrCreate(
-                ['store_id' => $store->id],
-                ['available_balance' => 0, 'pending_balance' => 0, 'total_earned' => 0]
-            );
+                // DEADLOCK PREVENTION: Always lock wallet rows in consistent store_id order
+                $wallet = $store->wallet()->lockForUpdate()->first();
+                if (!$wallet) {
+                    $wallet = $store->wallet()->create([
+                        'store_id'         => $store->id,
+                        'available_balance' => 0,
+                        'pending_balance'   => 0,
+                        'total_earned'      => 0,
+                    ]);
+                }
 
-            // Add to pending balance
-            $wallet->increment('pending_balance', $vendorCut);
+                // Add to pending balance
+                $wallet->increment('pending_balance', $vendorCut);
 
-            // Create pending transaction
-            $store->transactions()->create([
-                'type' => 'credit',
-                'amount' => $vendorCut,
-                'commission_amount' => $adminCut,
-                'description' => "Sale of {$item->product_name} (x{$item->quantity}) from Order {$order->order_number}",
-                'status' => 'pending',
-                'reference_type' => Order::class,
-                'reference_id' => $order->id,
-            ]);
+                // Create pending transaction
+                $store->transactions()->create([
+                    'type'             => 'credit',
+                    'amount'           => $vendorCut,
+                    'commission_amount' => $adminCut,
+                    'description'      => "Sale of {$item->product_name} (x{$item->quantity}) from Order {$order->order_number}",
+                    'status'           => 'pending',
+                    'reference_type'   => Order::class,
+                    'reference_id'     => $order->id,
+                ]);
         }
     }
 
     private function completeCommissions(Order $order): void
     {
+        // DEADLOCK PREVENTION: Sort by store_id (via store relationship) to ensure
+        // all concurrent processes lock wallet rows in the same order.
         $transactions = \App\Models\StoreTransaction::where('reference_type', Order::class)
             ->where('reference_id', $order->id)
             ->where('status', 'pending')
-            ->get();
+            ->with('store.wallet')
+            ->get()
+            ->sortBy('store_id'); // Consistent lock ordering
 
         foreach ($transactions as $txn) {
-            $wallet = $txn->store->wallet;
-            if (!$wallet) continue;
-            
-            DB::transaction(function() use ($wallet, $txn) {
+            if (!$txn->store?->wallet) continue;
+
+            DB::transaction(function () use ($txn) {
+                // Re-fetch wallet inside transaction with row lock
+                $wallet = \App\Models\StoreWallet::where('store_id', $txn->store_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$wallet) return;
+
                 $wallet->decrement('pending_balance', $txn->amount);
                 $wallet->increment('available_balance', $txn->amount);
                 $wallet->increment('total_earned', $txn->amount);
@@ -225,16 +241,21 @@ class OrderService
 
     private function cancelCommissions(Order $order): void
     {
+        // DEADLOCK PREVENTION: Sort by store_id for consistent lock ordering
         $transactions = \App\Models\StoreTransaction::where('reference_type', Order::class)
             ->where('reference_id', $order->id)
             ->where('status', 'pending')
-            ->get();
+            ->get()
+            ->sortBy('store_id');
 
         foreach ($transactions as $txn) {
-            $wallet = $txn->store->wallet;
-            if (!$wallet) continue;
+            DB::transaction(function () use ($txn) {
+                $wallet = \App\Models\StoreWallet::where('store_id', $txn->store_id)
+                    ->lockForUpdate()
+                    ->first();
 
-            DB::transaction(function() use ($wallet, $txn) {
+                if (!$wallet) return;
+
                 $wallet->decrement('pending_balance', $txn->amount);
                 $txn->update(['status' => 'cancelled']);
             });
