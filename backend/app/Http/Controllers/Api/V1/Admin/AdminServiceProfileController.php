@@ -43,9 +43,9 @@ class AdminServiceProfileController extends Controller
             }
         }
 
-        $profiles = $query->paginate($request->input('per_page', 20));
+        $paginated = $query->paginate($request->input('per_page', 20));
 
-        $data = $profiles->map(fn($p) => [
+        $data = $paginated->getCollection()->map(fn($p) => [
             'id'            => $p->id,
             'uuid'          => $p->uuid,
             'business_name' => $p->business_name,
@@ -62,14 +62,14 @@ class AdminServiceProfileController extends Controller
                 'name'  => trim(($p->user?->first_name ?? '') . ' ' . ($p->user?->last_name ?? '')),
                 'email' => $p->user?->email,
             ],
-        ]);
+        ])->values();
 
         return response()->json([
             'data' => $data,
             'meta' => [
-                'current_page' => $profiles->currentPage(),
-                'last_page'    => $profiles->lastPage(),
-                'total'        => $profiles->total(),
+                'current_page' => $paginated->currentPage(),
+                'last_page'    => $paginated->lastPage(),
+                'total'        => $paginated->total(),
             ],
         ]);
     }
