@@ -85,8 +85,13 @@ Route::prefix('v1')->group(function () {
         Route::post('/stores/my-store/update', [StoreController::class, 'update']);
         Route::post('/stores/apply', [StoreController::class, 'apply']);
         
-        Route::get('/services/my-profile', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'myProfile']);
-        Route::post('/services/my-profile', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'update']);
+        // Service Profiles (Buy ATU) — supports multiple profiles per user
+        Route::get('/services/my-profiles', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'myProfiles']);
+        Route::get('/services/my-profile', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'myProfile']); // legacy
+        Route::post('/services', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'store']);
+        Route::post('/services/my-profile', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'update']); // legacy
+        Route::post('/services/{uuid}', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'update']);
+        Route::delete('/services/{uuid}', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'destroy']);
     });
     Route::get('/stores/{slug}', [StoreController::class, 'show']);
 
@@ -229,6 +234,12 @@ Route::prefix('v1')->group(function () {
 
             // Service Categories
             Route::apiResource('service-categories', \App\Http\Controllers\Api\V1\Admin\ServiceCategoryController::class)->except(['show']);
+
+            // Service Profiles / Buy ATU (Admin)
+            Route::get('/service-profiles', [\App\Http\Controllers\Api\V1\Admin\AdminServiceProfileController::class, 'index']);
+            Route::delete('/service-profiles/{uuid}', [\App\Http\Controllers\Api\V1\Admin\AdminServiceProfileController::class, 'destroy']);
+            Route::post('/service-profiles/{uuid}/restore', [\App\Http\Controllers\Api\V1\Admin\AdminServiceProfileController::class, 'restore']);
+            Route::post('/service-profiles/{uuid}/toggle-status', [\App\Http\Controllers\Api\V1\Admin\AdminServiceProfileController::class, 'toggleStatus']);
 
             // Categories
             Route::apiResource('categories', AdminCategoryController::class);

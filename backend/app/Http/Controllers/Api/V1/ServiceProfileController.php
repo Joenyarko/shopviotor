@@ -18,6 +18,7 @@ class ServiceProfileController extends Controller
         $categories = ServiceCategory::where('is_active', true)->orderBy('name')->pluck('name');
         return response()->json(['data' => $categories]);
     }
+
     public function index(Request $request)
     {
         $query = ServiceProfile::where('is_active', true)->with('images');
@@ -49,30 +50,88 @@ class ServiceProfileController extends Controller
         return response()->json(['data' => $profile]);
     }
 
+    /**
+     * Get all service profiles for the authenticated user.
+     */
+    public function myProfiles(Request $request)
+    {
+        $profiles = ServiceProfile::where('user_id', $request->user()->id)
+            ->with('images')
+            ->latest()
+            ->get();
+
+        return response()->json(['data' => $profiles]);
+    }
+
+    /**
+     * @deprecated — use myProfiles() for multiple profiles.
+     * Kept for backward compatibility with existing frontend code.
+     */
     public function myProfile(Request $request)
     {
         $profile = ServiceProfile::where('user_id', $request->user()->id)
             ->with('images')
+            ->latest()
             ->first();
-            
+
         return response()->json(['data' => $profile]);
     }
 
-    public function update(Request $request)
+    /**
+     * Create a new service profile (allows multiple per user).
+     */
+    public function store(Request $request)
     {
         $data = $request->validate([
-            'business_name' => 'required|string|max:255',
-            'bio' => 'nullable|string',
-            'category' => 'required|string|max:100',
-            'location' => 'nullable|string|max:255',
-            'city' => 'nullable|string|max:100',
-            'region' => 'nullable|string|max:100',
+            'business_name'  => 'required|string|max:255',
+            'bio'            => 'nullable|string',
+            'category'       => 'required|string|max:100',
+            'location'       => 'nullable|string|max:255',
+            'city'           => 'nullable|string|max:100',
+            'region'         => 'nullable|string|max:100',
             'contact_number' => 'nullable|string|max:20',
-            'whatsapp_number' => 'nullable|string|max:20',
+            'whatsapp_number'=> 'nullable|string|max:20',
         ]);
 
-        $profile = ServiceProfile::firstOrNew(['user_id' => $request->user()->id]);
-        
+        $data['slug']    = Str::slug($data['business_name']) . '-' . uniqid();
+        $data['user_id'] = $request->user()->id;
+        $data['is_active'] = true;
+
+        $profile = ServiceProfile::create($data);
+
+        $this->handleImages($request, $profile);
+
+        return response()->json([
+            'message' => 'Service profile created successfully',
+            'data'    => $profile->load('images'),
+        ], 201);
+    }
+
+    /**
+     * Update an existing profile belonging to the authenticated user.
+     */
+    public function update(Request $request, ?string $uuid = null)
+    {
+        $data = $request->validate([
+            'business_name'  => 'required|string|max:255',
+            'bio'            => 'nullable|string',
+            'category'       => 'required|string|max:100',
+            'location'       => 'nullable|string|max:255',
+            'city'           => 'nullable|string|max:100',
+            'region'         => 'nullable|string|max:100',
+            'contact_number' => 'nullable|string|max:20',
+            'whatsapp_number'=> 'nullable|string|max:20',
+        ]);
+
+        if ($uuid) {
+            $profile = ServiceProfile::where('uuid', $uuid)
+                ->where('user_id', $request->user()->id)
+                ->firstOrFail();
+        } else {
+            // Legacy: upsert on the first profile for backward compatibility
+            $profile = ServiceProfile::firstOrNew(['user_id' => $request->user()->id]);
+        }
+
         if (!$profile->exists || $profile->business_name !== $data['business_name']) {
             $data['slug'] = Str::slug($data['business_name']) . '-' . uniqid();
         }
@@ -81,13 +140,37 @@ class ServiceProfileController extends Controller
         $profile->is_active = true;
         $profile->save();
 
+        $this->handleImages($request, $profile);
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'data'    => $profile->load('images'),
+        ]);
+    }
+
+    /**
+     * Delete (soft-delete) a service profile belonging to the authenticated user.
+     */
+    public function destroy(Request $request, string $uuid)
+    {
+        $profile = ServiceProfile::where('uuid', $uuid)
+            ->where('user_id', $request->user()->id)
+            ->firstOrFail();
+
+        $profile->delete();
+
+        return response()->json(['message' => 'Service profile deleted. You can create a new one at any time.']);
+    }
+
+    // ─── Private Helpers ──────────────────────────────────────────────────────
+
+    private function handleImages(Request $request, ServiceProfile $profile): void
+    {
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                // If cloudinary is configured, we can use it. But we'll try-catch in case it's not.
                 try {
                     $path = $image->storeOnCloudinary("service_profiles/{$profile->id}")->getSecurePath();
                 } catch (\Exception $e) {
-                    // Fallback to local public disk if Cloudinary fails or isn't installed
                     $path = $image->store('service_images', 'public');
                 }
                 $profile->images()->create(['path' => $path]);
@@ -97,19 +180,11 @@ class ServiceProfileController extends Controller
         if ($request->has('delete_images')) {
             $imagesToDelete = $profile->images()->whereIn('id', $request->delete_images)->get();
             foreach ($imagesToDelete as $img) {
-                if (str_starts_with($img->path, 'http')) {
-                    // If we stored the Cloudinary URL, we can attempt to delete it using the facade if needed,
-                    // but usually just deleting the DB record is enough for now to remove it from the UI.
-                } else {
+                if (!str_starts_with($img->path, 'http')) {
                     Storage::disk('public')->delete($img->path);
                 }
                 $img->delete();
             }
         }
-
-        return response()->json([
-            'message' => 'Profile updated successfully',
-            'data' => $profile->load('images')
-        ]);
     }
 }

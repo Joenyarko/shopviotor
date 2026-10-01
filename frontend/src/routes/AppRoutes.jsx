@@ -73,6 +73,7 @@ const AdminHirePurchase = React.lazy(() => import('../pages/admin/HirePurchase')
 const AdminLayaway = React.lazy(() => import('../pages/admin/AdminLayaway'));
 const AdminPreOrders = React.lazy(() => import('../pages/admin/AdminPreOrders'));
 const ServiceCategories = React.lazy(() => import('../pages/admin/ServiceCategories'));
+const AdminServiceProfiles = React.lazy(() => import('../pages/admin/AdminServiceProfiles'));
 const VendorStores = React.lazy(() => import('../pages/admin/VendorStores'));
 import VendorLayout from '../layouts/VendorLayout';
 const VendorDashboard = React.lazy(() => import('../pages/vendor/VendorDashboard'));
@@ -223,6 +224,7 @@ const AppRoutes = () => {
         <Route path="/admin/layaway" element={<AdminLayaway />} />
         <Route path="/admin/pre-orders" element={<AdminPreOrders />} />
         <Route path="/admin/service-categories" element={<ServiceCategories />} />
+        <Route path="/admin/service-profiles" element={<AdminServiceProfiles />} />
         <Route path="/admin/vendor-stores" element={<VendorStores />} />
         <Route path="/admin/raffles" element={<AdminRaffles />} />
         <Route path="/admin/banners" element={<Banners />} />
