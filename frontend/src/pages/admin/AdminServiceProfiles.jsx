@@ -19,8 +19,23 @@ const AdminServiceProfiles = () => {
       if (search) params.search = search;
       if (status) params.status = status;
       const res = await apiClient.get('/admin/service-profiles', { params });
-      setProfiles(res.data.data || []);
-      setMeta(res.data.meta || { current_page: 1, last_page: 1, total: 0 });
+      
+      const list = Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res?.data?.data)
+          ? res.data.data
+          : Array.isArray(res)
+            ? res
+            : [];
+
+      const paginationMeta = res?.meta || res?.data?.meta || {
+        current_page: 1,
+        last_page: 1,
+        total: list.length,
+      };
+
+      setProfiles(list);
+      setMeta(paginationMeta);
     } catch (err) {
       toast.error('Failed to load service profiles.');
     } finally {
@@ -56,7 +71,7 @@ const AdminServiceProfiles = () => {
   const handleToggleStatus = async (uuid) => {
     try {
       const res = await apiClient.post(`/admin/service-profiles/${uuid}/toggle-status`);
-      toast.success(res.data.message || 'Status updated.');
+      toast.success(res?.message || res?.data?.message || 'Status updated.');
       fetchProfiles();
     } catch (err) {
       toast.error('Failed to toggle status.');

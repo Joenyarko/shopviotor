@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Image as ImageIcon, CheckCircle, AlertCircle, Save,
   Plus, Trash2, Edit2, X, Briefcase, MapPin
@@ -49,12 +49,26 @@ const ManageServiceProfile = () => {
     try {
       setLoading(true);
       const res = await apiClient.get('/services/my-profiles');
-      setProfiles(res.data?.data || []);
+      const list = Array.isArray(res?.data)
+        ? res.data
+        : Array.isArray(res?.data?.data)
+          ? res.data.data
+          : Array.isArray(res)
+            ? res
+            : [];
+      setProfiles(list);
     } catch {
       try {
         const res = await apiClient.get('/services/my-profile');
-        setProfiles(res.data?.data ? [res.data.data] : []);
-      } catch { /* nothing */ }
+        const single = res?.data?.data || res?.data || (res?.id ? res : null);
+        if (single && single.id) {
+          setProfiles([single]);
+        } else {
+          setProfiles([]);
+        }
+      } catch {
+        setProfiles([]);
+      }
     } finally {
       setLoading(false);
     }
