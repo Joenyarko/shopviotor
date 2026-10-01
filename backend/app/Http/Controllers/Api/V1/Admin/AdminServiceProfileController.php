@@ -14,8 +14,14 @@ class AdminServiceProfileController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $query = ServiceProfile::with(['user:id,uuid,first_name,last_name,email', 'images'])
-            ->withTrashed() // include soft-deleted ones
+        // Only include soft-deleted records when explicitly filtering by 'deleted'
+        if ($request->status === 'deleted') {
+            $query = ServiceProfile::onlyTrashed();
+        } else {
+            $query = ServiceProfile::query(); // excludes soft-deleted by default
+        }
+
+        $query->with(['user:id,uuid,first_name,last_name,email', 'images'])
             ->latest();
 
         if ($request->filled('search')) {
@@ -34,16 +40,16 @@ class AdminServiceProfileController extends Controller
         }
 
         if ($request->filled('status')) {
-            if ($request->status === 'deleted') {
-                $query->onlyTrashed();
-            } elseif ($request->status === 'active') {
-                $query->whereNull('deleted_at')->where('is_active', true);
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
             } elseif ($request->status === 'inactive') {
-                $query->whereNull('deleted_at')->where('is_active', false);
+                $query->where('is_active', false);
             }
+            // 'deleted' is already handled by onlyTrashed() above
         }
 
-        $paginated = $query->paginate($request->input('per_page', 20));
+        $perPage = (int) $request->input('per_page', 10);
+        $paginated = $query->paginate($perPage);
 
         $data = $paginated->getCollection()->map(fn($p) => [
             'id'            => $p->id,
@@ -69,7 +75,10 @@ class AdminServiceProfileController extends Controller
             'meta' => [
                 'current_page' => $paginated->currentPage(),
                 'last_page'    => $paginated->lastPage(),
+                'per_page'     => $paginated->perPage(),
                 'total'        => $paginated->total(),
+                'from'         => $paginated->firstItem() ?? 0,
+                'to'           => $paginated->lastItem() ?? 0,
             ],
         ]);
     }

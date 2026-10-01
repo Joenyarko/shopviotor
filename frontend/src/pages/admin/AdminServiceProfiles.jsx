@@ -9,13 +9,14 @@ const AdminServiceProfiles = () => {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
-  const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
+  const [perPage, setPerPage] = useState(10);
+  const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0, from: 0, to: 0 });
   const [confirmDelete, setConfirmDelete] = useState(null);
 
   const fetchProfiles = useCallback(async () => {
     setLoading(true);
     try {
-      const params = { page, per_page: 20 };
+      const params = { page, per_page: perPage };
       if (search) params.search = search;
       if (status) params.status = status;
       const res = await apiClient.get('/admin/service-profiles', { params });
@@ -29,9 +30,11 @@ const AdminServiceProfiles = () => {
             : [];
 
       const paginationMeta = res?.meta || res?.data?.meta || {
-        current_page: 1,
-        last_page: 1,
+        current_page: page,
+        last_page: Math.ceil(list.length / perPage) || 1,
         total: list.length,
+        from: (page - 1) * perPage + 1,
+        to: Math.min(page * perPage, list.length),
       };
 
       setProfiles(list);
@@ -41,7 +44,7 @@ const AdminServiceProfiles = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, search, status]);
+  }, [page, perPage, search, status]);
 
   useEffect(() => {
     fetchProfiles();
@@ -121,8 +124,18 @@ const AdminServiceProfiles = () => {
       <div className="bg-primary-500 text-secondary-900 rounded-2xl px-6 py-4 flex items-center gap-3">
         <Briefcase className="w-6 h-6 flex-shrink-0" />
         <div>
-          <p className="text-lg font-extrabold">{meta.total} Total Service Profiles</p>
-          <p className="text-sm font-semibold opacity-80">Across all Buy ATU members on the platform</p>
+          <p className="text-lg font-extrabold">
+            {meta.total} {status === 'deleted' ? 'Deleted Profiles' : status === 'active' ? 'Active Profiles' : status === 'inactive' ? 'Inactive Profiles' : 'Active & Registered Profiles'}
+          </p>
+          <p className="text-sm font-semibold opacity-80">
+            {status === 'deleted'
+              ? 'Soft-deleted service profiles (click Restore to reactivate)'
+              : status === 'active'
+                ? 'Currently visible and active on the storefront'
+                : status === 'inactive'
+                  ? 'Temporarily hidden from the storefront'
+                  : 'Buy ATU members on the platform (deleted profiles are in the Deleted filter)'}
+          </p>
         </div>
       </div>
 
@@ -224,15 +237,65 @@ const AdminServiceProfiles = () => {
           </table>
 
           {/* Pagination */}
-          {meta.last_page > 1 && (
-            <div className="flex items-center justify-between p-4 border-t border-secondary-100 dark:border-secondary-800">
-              <p className="text-xs text-secondary-500">Page {meta.current_page} of {meta.last_page} — {meta.total} total</p>
-              <div className="flex gap-2">
-                <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="p-2 rounded-lg border border-secondary-200 dark:border-secondary-700 disabled:opacity-40 hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors">
-                  <ChevronLeft className="w-4 h-4" />
+          {meta.total > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t border-secondary-100 dark:border-secondary-800 bg-secondary-50/50 dark:bg-secondary-850/50">
+              <div className="flex flex-wrap items-center gap-4 text-xs text-secondary-500 dark:text-secondary-400">
+                <span>
+                  Showing <strong className="text-secondary-900 dark:text-white">{meta.from || 1}</strong> to <strong className="text-secondary-900 dark:text-white">{meta.to || profiles.length}</strong> of <strong className="text-secondary-900 dark:text-white">{meta.total}</strong> profiles
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <span>Per page:</span>
+                  <select
+                    value={perPage}
+                    onChange={e => { setPerPage(Number(e.target.value)); setPage(1); }}
+                    className="px-2 py-1 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-900 text-xs font-semibold text-secondary-900 dark:text-white focus:outline-none"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  disabled={page <= 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  className="px-2.5 py-1.5 rounded-lg border border-secondary-200 dark:border-secondary-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors text-xs font-semibold flex items-center gap-1 text-secondary-700 dark:text-secondary-300"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" /> Prev
                 </button>
-                <button disabled={page >= meta.last_page} onClick={() => setPage(p => p + 1)} className="p-2 rounded-lg border border-secondary-200 dark:border-secondary-700 disabled:opacity-40 hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors">
-                  <ChevronRight className="w-4 h-4" />
+
+                {Array.from({ length: meta.last_page || 1 }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === meta.last_page || Math.abs(p - page) <= 1)
+                  .map((p, idx, arr) => {
+                    const prev = arr[idx - 1];
+                    return (
+                      <React.Fragment key={p}>
+                        {prev && p - prev > 1 && (
+                          <span className="px-1 text-xs text-secondary-400">...</span>
+                        )}
+                        <button
+                          onClick={() => setPage(p)}
+                          className={`w-7 h-7 rounded-lg text-xs font-bold transition-colors ${
+                            page === p
+                              ? 'bg-primary-500 text-secondary-900 shadow-sm'
+                              : 'border border-secondary-200 dark:border-secondary-700 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-100 dark:hover:bg-secondary-800'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+
+                <button
+                  disabled={page >= meta.last_page}
+                  onClick={() => setPage(p => Math.min(meta.last_page, p + 1))}
+                  className="px-2.5 py-1.5 rounded-lg border border-secondary-200 dark:border-secondary-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors text-xs font-semibold flex items-center gap-1 text-secondary-700 dark:text-secondary-300"
+                >
+                  Next <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
