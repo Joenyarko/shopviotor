@@ -60,7 +60,7 @@ class StoreProductRequest extends FormRequest
             'stock_quantity'              => ['required', 'integer', 'min:0'],
             'sku'                         => ['nullable', 'string', 'max:50'],
             'barcode'                     => ['nullable', 'string', 'max:50'],
-            'condition'                   => ['required', 'string', 'in:new,used_good,used_fair,refurbished'],
+            'condition'                   => ['required', 'string', 'in:new,used,used_good,used_fair,refurbished'],
             'status'                      => ['nullable', 'string', 'in:active,inactive,draft'],
             'is_featured'                 => ['nullable', 'boolean'],
             'is_negotiable'               => ['nullable', 'boolean'],

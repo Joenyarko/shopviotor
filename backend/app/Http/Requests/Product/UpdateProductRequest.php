@@ -63,7 +63,7 @@ class UpdateProductRequest extends FormRequest
             'stock_quantity'              => ['sometimes', 'required', 'integer', 'min:0'],
             'sku'                         => ['nullable', 'string', 'max:100', Rule::unique('products')->ignore($productId)],
             'barcode'                     => ['nullable', 'string', 'max:100', Rule::unique('products')->ignore($productId)],
-            'condition'                   => ['sometimes', 'required', 'string', 'in:new,used_good,used_fair,refurbished'],
+            'condition'                   => ['sometimes', 'required', 'string', 'in:new,used,used_good,used_fair,refurbished'],
             'status'                      => ['nullable', 'string', 'in:active,inactive,draft'],
             'is_featured'                 => ['nullable', 'boolean'],
             'is_negotiable'               => ['nullable', 'boolean'],
