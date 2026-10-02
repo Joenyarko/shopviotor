@@ -10,30 +10,49 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all'); // all, student_approvals
   const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState(''); // '', 'customer', 'vendor', 'admin'
   const [page, setPage] = useState(1);
   const [studPage, setStudPage] = useState(1);
   const itemsPerPage = 8;
 
-  // Filter based on search term
-  const filteredUsers = users.filter(u => 
-    (u.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-    (u.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  );
-  const filteredStudents = pendingStudents.filter(u => 
-    (u.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
-    (u.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  );
+  // Filter based on search term and role filter
+  const filteredUsers = users.filter(u => {
+    const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.name || '';
+    const matchesSearch = 
+      fullName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (u.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (u.phone?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    
+    if (!matchesSearch) return false;
+
+    if (!roleFilter) return true;
+    if (roleFilter === 'admin') {
+      return u.role === 'admin' || u.role === 'super_admin' || u.role === 'staff';
+    }
+    return u.role === roleFilter;
+  });
+
+  const filteredStudents = pendingStudents.filter(u => {
+    const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.name || '';
+    return fullName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (u.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+  });
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const paginatedUsers = filteredUsers.slice((page - 1) * itemsPerPage, page * itemsPerPage);
   const totalStudPages = Math.ceil(filteredStudents.length / itemsPerPage);
   const paginatedStudents = filteredStudents.slice((studPage - 1) * itemsPerPage, studPage * itemsPerPage);
 
-  // Reset pagination when search term changes
+  // Role counts for filter labels
+  const customerCount = users.filter(u => u.role === 'customer').length;
+  const vendorCount = users.filter(u => u.role === 'vendor').length;
+  const adminCount = users.filter(u => u.role === 'admin' || u.role === 'super_admin' || u.role === 'staff').length;
+
+  // Reset pagination when search term or role filter changes
   useEffect(() => {
     setPage(1);
     setStudPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, roleFilter]);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -167,18 +186,43 @@ const Users = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative max-w-md">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-secondary-400" />
+      {/* Search & Role Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+        <div className="relative flex-1 max-w-md">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-secondary-400" />
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-10 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-xl leading-5 bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 sm:text-sm transition-colors shadow-sm"
+            placeholder="Search users by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
-        <input
-          type="text"
-          className="block w-full pl-10 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg leading-5 bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors"
-          placeholder="Search users by name or email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+
+        {activeTab === 'all' && (
+          <div className="flex items-center gap-2">
+            <select
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              className="px-4 py-2 border border-secondary-200 dark:border-secondary-700 rounded-xl bg-white dark:bg-secondary-900 text-sm font-semibold text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer shadow-sm"
+            >
+              <option value="">All Roles ({users.length})</option>
+              <option value="customer">Customers ({customerCount})</option>
+              <option value="vendor">Vendors ({vendorCount})</option>
+              <option value="admin">Admins ({adminCount})</option>
+            </select>
+            {roleFilter && (
+              <button
+                onClick={() => setRoleFilter('')}
+                className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline px-1"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -186,7 +230,7 @@ const Users = () => {
       ) : activeTab === 'all' ? (
         paginatedUsers.length === 0 ? (
           <div className="p-8 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500 dark:text-secondary-400 font-semibold">
-            No users found.
+            {roleFilter || searchTerm ? 'No users match your filter criteria.' : 'No users found.'}
           </div>
         ) : (
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm">

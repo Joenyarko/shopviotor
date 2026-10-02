@@ -20,6 +20,8 @@ class UserController extends Controller
             $users = $this->userRepo->getAdmins($request->input('per_page', 100));
         } elseif ($role === 'customer') {
             $users = $this->userRepo->getCustomers($request->input('per_page', 100));
+        } elseif ($role === 'vendor') {
+            $users = \App\Models\User::where('role', \App\Enums\UserRole::Vendor->value)->latest()->paginate($request->input('per_page', 100));
         } else {
             $users = \App\Models\User::latest()->paginate($request->input('per_page', 100));
         }
