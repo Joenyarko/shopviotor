@@ -102,9 +102,9 @@ const ProductCard = ({ product, onWishlistToggle }) => {
             <div className="flex items-center text-xs text-secondary-500">
               <span className="truncate max-w-[100px]">{product.city || 'Accra'}, {product.region || 'Ghana'}</span>
             </div>
-            {product.average_rating > 0 && (
+            {parseFloat(product.average_rating) > 0 && (
               <span className="text-xs flex items-center gap-0.5 text-amber-500 font-semibold">
-                ★ {product.average_rating.toFixed(1)}
+                ★ {parseFloat(product.average_rating).toFixed(1)}
               </span>
             )}
           </div>
