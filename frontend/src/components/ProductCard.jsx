@@ -102,11 +102,17 @@ const ProductCard = ({ product, onWishlistToggle }) => {
             <div className="flex items-center text-xs text-secondary-500">
               <span className="truncate max-w-[100px]">{product.city || 'Accra'}, {product.region || 'Ghana'}</span>
             </div>
-            {parseFloat(product.average_rating) > 0 && (
-              <span className="text-xs flex items-center gap-0.5 text-amber-500 font-semibold">
-                ★ {parseFloat(product.average_rating).toFixed(1)}
-              </span>
-            )}
+            {(() => {
+              const rating = parseFloat(product.average_rating);
+              if (!isNaN(rating) && rating > 0) {
+                return (
+                  <span className="text-xs flex items-center gap-0.5 text-amber-500 font-semibold">
+                    ★ {rating.toFixed(1)}
+                  </span>
+                );
+              }
+              return null;
+            })()}
           </div>
         </div>
       </div>
