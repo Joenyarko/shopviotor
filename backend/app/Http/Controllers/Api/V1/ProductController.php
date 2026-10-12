@@ -14,7 +14,16 @@ class ProductController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->only(['category_id', 'brand_id', 'min_price', 'max_price', 'condition', 'city', 'sort', 'available_for_preorder', 'available_for_layaway', 'available_for_hire_purchase', 'available_for_trade', 'search']);
+        $filters = $request->only([
+            'category_id', 'brand_id', 'min_price', 'max_price', 
+            'condition', 'city', 'sort', 'available_for_preorder', 
+            'available_for_layaway', 'available_for_hire_purchase', 
+            'available_for_trade', 'search', 'is_featured', 'featured'
+        ]);
+
+        if ($request->has('featured')) {
+            $filters['is_featured'] = $request->input('featured');
+        }
 
         if ($request->user()) {
             $mostViewedCategory = \App\Models\UserProductView::where('user_id', $request->user()->id)
@@ -30,7 +39,7 @@ class ProductController extends Controller
         }
 
         $products = $this->productRepo->getActive(
-            $request->input('per_page', 15),
+            $request->input('per_page', 24),
             $filters
         );
 
@@ -82,10 +91,15 @@ class ProductController extends Controller
             return response()->json(['data' => []]);
         }
 
+        $filters = $request->only(['category_id', 'is_featured', 'featured']);
+        if ($request->has('featured')) {
+            $filters['is_featured'] = $request->input('featured');
+        }
+
         $products = $this->productRepo->search(
             $term ?? '', 
-            $request->input('per_page', 15),
-            $request->only(['category_id'])
+            $request->input('per_page', 24),
+            $filters
         );
 
         return response()->json([

@@ -110,9 +110,25 @@ class ProductRepository extends BaseRepository
         if (isset($filters['available_for_hire_purchase'])) {
             $query->where('available_for_hire_purchase', filter_var($filters['available_for_hire_purchase'], FILTER_VALIDATE_BOOLEAN));
         }
+        if (isset($filters['is_featured'])) {
+            $isFeatured = filter_var($filters['is_featured'], FILTER_VALIDATE_BOOLEAN);
+            if ($isFeatured) {
+                $query->where('is_featured', true);
+            }
+        } elseif (isset($filters['featured'])) {
+            $isFeatured = filter_var($filters['featured'], FILTER_VALIDATE_BOOLEAN);
+            if ($isFeatured) {
+                $query->where('is_featured', true);
+            }
+        }
 
         $sort = $filters['sort'] ?? 'latest';
         
+        // Prioritize featured deals when browsing latest/default
+        if ($sort === 'latest' || empty($sort)) {
+            $query->orderByDesc('is_featured');
+        }
+
         // Prioritize verified vendors
         $query->orderByRaw('(SELECT is_verified FROM stores WHERE stores.id = products.store_id) DESC');
         if (!empty($filters['boost_category_id']) && $sort === 'latest') {
@@ -176,6 +192,14 @@ class ProductRepository extends BaseRepository
                 $query->whereIn('category_id', $categoryIds);
             }
         }
+
+        if (isset($filters['is_featured']) && filter_var($filters['is_featured'], FILTER_VALIDATE_BOOLEAN)) {
+            $query->where('is_featured', true);
+        } elseif (isset($filters['featured']) && filter_var($filters['featured'], FILTER_VALIDATE_BOOLEAN)) {
+            $query->where('is_featured', true);
+        }
+
+        $query->orderByDesc('is_featured')->latest();
             
         return $query->paginate($perPage);
     }

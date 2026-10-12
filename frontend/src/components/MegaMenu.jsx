@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Package } from 'lucide-react';
 
 const MegaMenu = ({ categories, closeMenu }) => {
   const [activeCategory, setActiveCategory] = useState(categories.length > 0 ? categories[0] : null);
@@ -22,10 +22,12 @@ const MegaMenu = ({ categories, closeMenu }) => {
       {/* Level 1: Main Categories Sidebar */}
       <div className="w-1/3 border-r border-secondary-200 dark:border-secondary-800 py-2 bg-secondary-50 dark:bg-secondary-850">
         {categories.map((cat) => (
-          <div
+          <Link
             key={cat.id || cat.uuid}
+            to={`/products?category=${cat.slug || cat.id}`}
+            onClick={closeMenu}
             onMouseEnter={() => setActiveCategory(cat)}
-            className={`px-4 py-2.5 text-sm cursor-pointer flex items-center justify-between transition-colors ${
+            className={`px-4 py-2.5 text-sm cursor-pointer flex items-center justify-between transition-colors block ${
               activeCategory?.id === cat.id 
                 ? 'bg-white dark:bg-secondary-900 text-primary-600 font-bold border-l-4 border-primary-500' 
                 : 'text-secondary-700 dark:text-secondary-300 hover:bg-white dark:hover:bg-secondary-900 border-l-4 border-transparent'
@@ -38,7 +40,7 @@ const MegaMenu = ({ categories, closeMenu }) => {
             {cat.children && cat.children.length > 0 && (
               <ChevronRight className="w-4 h-4 text-secondary-400" />
             )}
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -91,8 +93,23 @@ const MegaMenu = ({ categories, closeMenu }) => {
                 ))}
               </div>
             ) : (
-              <div className="text-secondary-500 dark:text-secondary-400 text-sm py-8 text-center">
-                No subcategories found in {activeCategory.name}.
+              <div className="py-12 px-6 flex flex-col items-center justify-center text-center bg-secondary-50 dark:bg-secondary-800/40 rounded-xl border border-dashed border-secondary-200 dark:border-secondary-700 my-4">
+                <div className="w-14 h-14 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 flex items-center justify-center mb-3 text-2xl font-bold">
+                  {activeCategory.icon || <Package className="w-7 h-7" />}
+                </div>
+                <h4 className="text-base font-bold text-secondary-900 dark:text-white">
+                  Browse All {activeCategory.name} Products
+                </h4>
+                <p className="text-xs text-secondary-500 dark:text-secondary-400 max-w-sm mt-1.5 mb-5">
+                  Products in this department are cataloged directly under {activeCategory.name}. Click below to see all listings in this category.
+                </p>
+                <Link
+                  to={`/products?category=${activeCategory.slug || activeCategory.id}`}
+                  onClick={closeMenu}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold shadow-md hover:shadow transition-all"
+                >
+                  Explore {activeCategory.name} Listings &rarr;
+                </Link>
               </div>
             )}
           </div>

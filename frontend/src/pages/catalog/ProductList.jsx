@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import productService from '../../services/productService';
 import ProductCard from '../../components/ProductCard';
-import { Filter, SlidersHorizontal, ArrowUpDown, RefreshCw } from 'lucide-react';
+import { Filter, SlidersHorizontal, ArrowUpDown, RefreshCw, Sparkles } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
 const ProductList = () => {
@@ -11,10 +11,9 @@ const ProductList = () => {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 12;
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const paginatedProducts = products.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+  const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
 
   // Filter States
   const [category, setCategory] = useState(searchParams.get('category') || '');
@@ -23,8 +22,23 @@ const ProductList = () => {
   const [minPrice, setMinPrice] = useState(searchParams.get('min_price') || '');
   const [maxPrice, setMaxPrice] = useState(searchParams.get('max_price') || '');
   const [sort, setSort] = useState(searchParams.get('sort') || 'latest');
+  const [isFeatured, setIsFeatured] = useState(
+    searchParams.get('featured') === 'true' || searchParams.get('is_featured') === 'true'
+  );
 
   const queryTerm = searchParams.get('q') || '';
+
+  // Sync internal state when URL query params change (e.g., clicking category in header/MegaMenu)
+  useEffect(() => {
+    setCategory(searchParams.get('category') || '');
+    setBrand(searchParams.get('brand') || '');
+    setCondition(searchParams.get('condition') || '');
+    setMinPrice(searchParams.get('min_price') || '');
+    setMaxPrice(searchParams.get('max_price') || '');
+    setSort(searchParams.get('sort') || 'latest');
+    setIsFeatured(searchParams.get('featured') === 'true' || searchParams.get('is_featured') === 'true');
+    setPage(Number(searchParams.get('page')) || 1);
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchBrands = async () => {
@@ -54,9 +68,14 @@ const ProductList = () => {
           min_price: minPrice,
           max_price: maxPrice,
           sort,
+          page,
+          per_page: 24,
         };
         if (searchParams.get('hire_purchase') === 'true') {
           filters.available_for_hire_purchase = 1;
+        }
+        if (isFeatured || searchParams.get('featured') === 'true' || searchParams.get('is_featured') === 'true') {
+          filters.is_featured = 1;
         }
         
         let response;
@@ -66,7 +85,17 @@ const ProductList = () => {
           response = await productService.getProducts(filters);
         }
         
-        setProducts(response.data?.data || response.data || []);
+        const list = response.data?.data || response.data || [];
+        setProducts(Array.isArray(list) ? list : []);
+
+        const meta = response.data?.meta;
+        if (meta) {
+          setTotalPages(meta.last_page || 1);
+          setTotalProducts(meta.total ?? (Array.isArray(list) ? list.length : 0));
+        } else {
+          setTotalPages(1);
+          setTotalProducts(Array.isArray(list) ? list.length : 0);
+        }
       } catch (error) {
         console.error('Failed to load catalog products:', error);
       } finally {
@@ -75,7 +104,7 @@ const ProductList = () => {
     };
 
     loadProducts();
-  }, [searchParams, category, brand, condition, minPrice, maxPrice, sort, queryTerm]);
+  }, [searchParams, category, brand, condition, minPrice, maxPrice, sort, queryTerm, isFeatured, page]);
 
   const handleApplyFilters = (e) => {
     e.preventDefault();
@@ -87,7 +116,10 @@ const ProductList = () => {
     if (minPrice) params.min_price = minPrice;
     if (maxPrice) params.max_price = maxPrice;
     if (sort) params.sort = sort;
+    if (isFeatured) params.featured = 'true';
     if (searchParams.get('hire_purchase') === 'true') params.hire_purchase = 'true';
+    params.page = '1';
+    setPage(1);
     setSearchParams(params);
   };
 
@@ -98,6 +130,8 @@ const ProductList = () => {
     setMinPrice('');
     setMaxPrice('');
     setSort('latest');
+    setIsFeatured(false);
+    setPage(1);
     const params = {};
     if (queryTerm) params.q = queryTerm;
     if (searchParams.get('hire_purchase') === 'true') params.hire_purchase = 'true';
@@ -147,6 +181,22 @@ const ProductList = () => {
                 <option key={b.id || b.uuid} value={b.id || b.uuid}>{b.name}</option>
               ))}
             </select>
+          </div>
+
+          {/* Featured Deals Toggle */}
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-900/50">
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-900 dark:text-amber-300">
+              <input
+                type="checkbox"
+                checked={isFeatured}
+                onChange={(e) => setIsFeatured(e.target.checked)}
+                className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-amber-300 dark:border-amber-700 dark:bg-secondary-800"
+              />
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                Featured Deals Only
+              </span>
+            </label>
           </div>
 
           {/* Condition */}
@@ -203,9 +253,19 @@ const ProductList = () => {
         <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
           <div>
             <h1 className="text-xl font-extrabold text-secondary-900 dark:text-white">
-              {queryTerm ? `Search Results for "${queryTerm}"` : searchParams.get('hire_purchase') === 'true' ? 'Hire Purchase Products' : condition === 'used' ? 'Second Hand Products' : 'Browse Catalog'}
+              {queryTerm 
+                ? `Search Results for "${queryTerm}"` 
+                : isFeatured 
+                ? 'Featured Deals' 
+                : searchParams.get('hire_purchase') === 'true' 
+                ? 'Hire Purchase Products' 
+                : condition === 'used' 
+                ? 'Second Hand Products' 
+                : category 
+                ? (categories.find(c => c.slug === category || String(c.id) === String(category))?.name || 'Category Products') 
+                : 'Browse Catalog'}
             </h1>
-            <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">{products.length} products found</p>
+            <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">{totalProducts} products found</p>
           </div>
           
           <div className="flex items-center gap-2">
@@ -241,11 +301,21 @@ const ProductList = () => {
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-px bg-secondary-200 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-800">
-              {paginatedProducts.map(product => (
+              {products.map(product => (
                 <ProductCard key={product.id || product.uuid} product={product} />
               ))}
             </div>
-            <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+            <DotPagination 
+              currentPage={page} 
+              totalPages={totalPages} 
+              onPageChange={(p) => {
+                setPage(p);
+                const params = Object.fromEntries(searchParams.entries());
+                params.page = String(p);
+                setSearchParams(params);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }} 
+            />
           </div>
         )}
       </div>
