@@ -53,23 +53,36 @@ class ReviewController extends Controller
             ], 400);
         }
 
-        // For now, assume reviews are automatically approved.
+        // Verify if user actually purchased and received this product
+        $isVerified = \App\Models\OrderItem::whereHas('order', function ($q) use ($request) {
+            $q->where('user_id', $request->user()->id)
+              ->whereIn('status', ['delivered', 'completed']);
+        })->where('product_id', $product->id)->exists();
+
+        // Verified purchases are auto-approved; unverified reviews require moderation
+        $status = $isVerified ? 'approved' : 'pending';
+
         $review = Review::create([
-            'uuid' => Str::uuid()->toString(),
-            'user_id' => $request->user()->id,
-            'product_id' => $product->id,
-            'rating' => $request->rating,
-            'title' => $request->title,
-            'body' => $request->body,
-            'status' => 'approved',
+            'uuid'                 => Str::uuid()->toString(),
+            'user_id'              => $request->user()->id,
+            'product_id'           => $product->id,
+            'rating'               => $request->rating,
+            'title'                => $request->title,
+            'body'                 => $request->body,
+            'is_verified_purchase' => $isVerified,
+            'status'               => $status,
         ]);
 
-        // Update product average rating
-        $product->updateRatingStats();
+        if ($status === 'approved') {
+            // Update product average rating
+            $product->updateRatingStats();
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Review submitted successfully!',
+            'message' => $isVerified 
+                ? 'Review submitted successfully!' 
+                : 'Thank you! Your review has been submitted for moderation.',
             'data' => $review->load('user:id,first_name,last_name,avatar')
         ], 201);
     }

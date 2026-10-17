@@ -67,10 +67,10 @@ class PreOrderController extends Controller
         });
 
         // ─── Payment for deposit ───────────────────────────────────────────────
-        $isMockMode = empty(config('services.paystack.secret_key'));
+        $isLocalTesting = app()->environment(['local', 'testing']) && empty(config('services.paystack.secret_key'));
         $paymentData = null;
 
-        if ($deposit > 0 && !$isMockMode) {
+        if ($deposit > 0 && !$isLocalTesting) {
             $paymentData = app(\App\Services\PaymentService::class)->initiate([
                 'payable_type' => PreOrder::class,
                 'payable_id'   => $preOrder->id,
@@ -81,8 +81,8 @@ class PreOrderController extends Controller
             ]);
         }
 
-        // In testing mode without keys: auto-record the deposit as "mock paid" so the flow works locally
-        if ($deposit > 0 && $isMockMode) {
+        // In local testing mode without keys: auto-record the deposit as "mock paid" so developers can test locally
+        if ($deposit > 0 && $isLocalTesting) {
             $preOrder->update([
                 'deposit_paid'      => $deposit,
                 'balance_remaining' => $balance,
@@ -90,11 +90,11 @@ class PreOrderController extends Controller
         }
 
         return response()->json([
-            'message'    => 'Pre-order placed successfully.' . ($isMockMode && $deposit > 0 ? ' (Testing Mode — deposit auto-credited)' : ''),
+            'message'    => 'Pre-order placed successfully.' . ($isLocalTesting && $deposit > 0 ? ' (Testing Mode — deposit auto-credited)' : ''),
             'data'       => $preOrder->fresh()->load('product'),
             'deposit'    => $deposit,
             'payment'    => $paymentData,
-            'mode'       => $isMockMode ? 'testing' : 'live',
+            'mode'       => $isLocalTesting ? 'testing' : 'live',
         ], 201);
     }
 }

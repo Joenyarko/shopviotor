@@ -90,6 +90,17 @@ class VendorOrderController extends Controller
             'note'   => ['nullable', 'string', 'max:500'],
         ]);
 
+        // Guard against multi-vendor interference
+        $hasOtherStoreItems = $order->items()
+            ->whereHas('product', fn($q) => $q->where('store_id', '!=', $store->id))
+            ->exists();
+
+        if ($hasOtherStoreItems && in_array($data['status'], ['cancelled', 'delivered'])) {
+            return response()->json([
+                'message' => 'This order contains products from other stores. You cannot modify the overall order status for shared orders.',
+            ], 403);
+        }
+
         $order = app(OrderService::class)->updateStatus($order, $data['status'], $data['note'] ?? null);
 
         return response()->json([

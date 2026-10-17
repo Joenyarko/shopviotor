@@ -112,6 +112,11 @@ class SellRequestController extends Controller
             abort(403);
         }
 
+        $status = $sellRequest->status->value ?? (string) $sellRequest->status;
+        if ($status !== 'approved' || empty($sellRequest->offered_price)) {
+            abort(400, 'There is no active offer to accept on this request.');
+        }
+
         $sellRequest->update(['status' => 'accepted']);
 
         return response()->json([
@@ -125,6 +130,11 @@ class SellRequestController extends Controller
 
         if ($request->user()->id !== $sellRequest->user_id) {
             abort(403);
+        }
+
+        $status = $sellRequest->status->value ?? (string) $sellRequest->status;
+        if ($status !== 'approved') {
+            abort(400, 'There is no active offer to reject on this request.');
         }
 
         $sellRequest->update(['status' => 'rejected']);

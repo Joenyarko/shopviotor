@@ -14,28 +14,33 @@ class RaffleService
 {
     public function purchaseTicket(int $userId, Raffle $raffle, string $paymentReference): RaffleTicket
     {
-        if ($raffle->status !== RaffleStatus::Active) {
-            throw ValidationException::withMessages(['raffle' => ['This raffle is not active.']]);
-        }
-
-        if (!$raffle->hasAvailableTickets()) {
-            throw ValidationException::withMessages(['raffle' => ['All tickets have been sold.']]);
-        }
-
         return DB::transaction(function () use ($userId, $raffle, $paymentReference) {
+            // Lock the raffle row to prevent concurrent purchases from overselling
+            $lockedRaffle = Raffle::where('id', $raffle->id)->lockForUpdate()->firstOrFail();
+
+            if ($lockedRaffle->status !== RaffleStatus::Active) {
+                throw ValidationException::withMessages(['raffle' => ['This raffle is not active.']]);
+            }
+
+            if (!$lockedRaffle->hasAvailableTickets()) {
+                throw ValidationException::withMessages(['raffle' => ['All tickets have been sold.']]);
+            }
+
+            $ticketNumber = $this->generateTicketNumber($lockedRaffle);
+
             $ticket = RaffleTicket::create([
-                'raffle_id'         => $raffle->id,
+                'raffle_id'         => $lockedRaffle->id,
                 'user_id'           => $userId,
-                'ticket_number'     => $this->generateTicketNumber($raffle),
-                'amount_paid'       => $raffle->ticket_price,
+                'ticket_number'     => $ticketNumber,
+                'amount_paid'       => $lockedRaffle->ticket_price,
                 'payment_reference' => $paymentReference,
             ]);
 
-            $raffle->increment('tickets_sold');
+            $lockedRaffle->increment('tickets_sold');
 
             // Auto-close if max tickets reached
-            if ($raffle->max_tickets && $raffle->fresh()->tickets_sold >= $raffle->max_tickets) {
-                $raffle->update(['status' => RaffleStatus::Closed->value]);
+            if ($lockedRaffle->max_tickets && ($lockedRaffle->tickets_sold + 1) >= $lockedRaffle->max_tickets) {
+                $lockedRaffle->update(['status' => RaffleStatus::Closed->value]);
             }
 
             return $ticket;
@@ -101,7 +106,12 @@ class RaffleService
     private function generateTicketNumber(Raffle $raffle): string
     {
         $prefix = 'T' . str_pad($raffle->id, 4, '0', STR_PAD_LEFT);
-        $number = str_pad($raffle->tickets_sold + 1, 6, '0', STR_PAD_LEFT);
-        return "{$prefix}-{$number}";
+        $seq = $raffle->tickets_sold + 1;
+        do {
+            $number = str_pad($seq++, 6, '0', STR_PAD_LEFT);
+            $ticketNumber = "{$prefix}-{$number}";
+        } while (RaffleTicket::where('raffle_id', $raffle->id)->where('ticket_number', $ticketNumber)->exists());
+
+        return $ticketNumber;
     }
 }

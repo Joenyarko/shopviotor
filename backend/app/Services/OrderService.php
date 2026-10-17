@@ -158,13 +158,25 @@ class OrderService
 
         $order->update($updates);
 
-        // Handle Vendor Commissions
-        if ($oldStatus !== 'confirmed' && $status === 'confirmed') {
+        // Handle Inventory, Coupons, and Vendor Commissions upon cancellation
+        if ($oldStatus !== 'cancelled' && $status === 'cancelled') {
+            // Restore inventory to products
+            foreach ($order->items as $item) {
+                Product::where('id', $item->product_id)->increment('stock_quantity', $item->quantity);
+            }
+
+            // Roll back coupon usage count if applied
+            if ($order->coupon_id) {
+                Coupon::where('id', $order->coupon_id)->where('usage_count', '>', 0)->decrement('usage_count');
+            }
+
+            if (in_array($oldStatus, ['pending', 'confirmed', 'processing', 'shipped'])) {
+                $this->cancelCommissions($order);
+            }
+        } elseif ($oldStatus !== 'confirmed' && $status === 'confirmed') {
             $this->createPendingCommissions($order);
         } elseif ($oldStatus !== 'delivered' && $status === 'delivered') {
             $this->completeCommissions($order);
-        } elseif ($status === 'cancelled' && in_array($oldStatus, ['pending', 'confirmed', 'processing', 'shipped'])) {
-            $this->cancelCommissions($order);
         }
 
         return $order->fresh();

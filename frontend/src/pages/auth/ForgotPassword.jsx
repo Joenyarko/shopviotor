@@ -19,12 +19,11 @@ const ForgotPassword = () => {
     setLoading(true);
     setErrorMsg('');
     try {
-      await authService.login({ email: data.email, action: 'forgot_password' });
+      await authService.forgotPassword(data.email);
       setSuccess(true);
     } catch (err) {
-      setErrorMsg(err.message || 'We could not process password reset for this email.');
+      setErrorMsg(err.response?.data?.message || err.message || 'We could not process password reset for this email.');
     } finally {
-      setSuccess(true);
       setLoading(false);
     }
   };

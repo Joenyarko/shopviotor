@@ -82,41 +82,52 @@ class VendorWalletController extends Controller
             'payment_details' => 'required|string|max:500',
         ]);
 
-        $wallet = $store->wallet()->firstOrCreate(
-            ['store_id' => $store->id],
-            ['available_balance' => 0, 'pending_balance' => 0, 'total_earned' => 0]
-        );
-
         $amount = (float) $request->amount;
 
-        if ($amount > $wallet->available_balance) {
-            return response()->json([
-                'message' => 'Insufficient available balance.',
-            ], 422);
+        try {
+            $payoutRequest = DB::transaction(function () use ($store, $amount, $request) {
+                // Ensure wallet exists and lock row to prevent concurrent extraction race conditions
+                $wallet = StoreWallet::where('store_id', $store->id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$wallet) {
+                    $wallet = StoreWallet::create([
+                        'store_id'          => $store->id,
+                        'available_balance' => 0,
+                        'pending_balance'   => 0,
+                        'total_earned'      => 0,
+                    ]);
+                }
+
+                if ($amount > (float)$wallet->available_balance) {
+                    throw new \InvalidArgumentException('Insufficient available balance.');
+                }
+
+                // Deduct from available balance immediately
+                $wallet->decrement('available_balance', $amount);
+
+                $payout = $store->payoutRequests()->create([
+                    'amount'          => $amount,
+                    'status'          => 'pending',
+                    'payment_method'  => $request->payment_method,
+                    'payment_details' => $request->payment_details,
+                ]);
+
+                $store->transactions()->create([
+                    'type'           => 'debit',
+                    'amount'         => $amount,
+                    'description'    => 'Withdrawal Request',
+                    'status'         => 'pending',
+                    'reference_type' => PayoutRequest::class,
+                    'reference_id'   => $payout->id,
+                ]);
+
+                return $payout;
+            });
+        } catch (\InvalidArgumentException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
         }
-
-        $payoutRequest = DB::transaction(function () use ($store, $wallet, $amount, $request) {
-            // Deduct from available balance immediately
-            $wallet->decrement('available_balance', $amount);
-
-            $payout = $store->payoutRequests()->create([
-                'amount'          => $amount,
-                'status'          => 'pending',
-                'payment_method'  => $request->payment_method,
-                'payment_details' => $request->payment_details,
-            ]);
-
-            $store->transactions()->create([
-                'type'        => 'debit',
-                'amount'      => $amount,
-                'description' => 'Withdrawal Request',
-                'status'      => 'pending',
-                'reference_type' => PayoutRequest::class,
-                'reference_id'   => $payout->id,
-            ]);
-
-            return $payout;
-        });
 
         return response()->json([
             'message' => 'Payout requested successfully. It is now pending admin approval.',

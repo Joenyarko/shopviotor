@@ -66,12 +66,16 @@ class Product extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('status', ProductStatus::Active->value);
+        return $query->where('status', ProductStatus::Active->value)
+            ->where(function ($q) {
+                $q->whereNull('store_id')
+                  ->orWhereHas('store', fn($s) => $s->where('status', 'active'));
+            });
     }
 
     public function scopeFeatured($query)
     {
-        return $query->where('is_featured', true)->where('status', ProductStatus::Active->value);
+        return $query->active()->where('is_featured', true);
     }
 
     public function scopeInStock($query)

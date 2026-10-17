@@ -59,6 +59,10 @@ class UserController extends Controller
         ]);
 
         $user = $this->userRepo->findByUuid($uuid);
+        if (auth()->id() === $user->id && $request->role !== 'admin') {
+            return response()->json(['message' => 'You cannot demote yourself.'], 403);
+        }
+
         $user->update(['role' => $request->role]);
 
         return response()->json([
@@ -99,6 +103,8 @@ class UserController extends Controller
         }
 
         \Illuminate\Support\Facades\Cache::forget('admin_otp_' . $user->id);
+        // Mark 2FA as verified in cache for 12 hours
+        \Illuminate\Support\Facades\Cache::put('admin_2fa_verified_' . $user->id, true, now()->addHours(12));
 
         return response()->json([
             'message' => 'Admin portal access verified.',
@@ -116,7 +122,18 @@ class UserController extends Controller
             ], 403);
         }
 
-        $user->forceDelete(); // Permanently delete to prevent unique constraint errors
+        // Preserve financial integrity: do not force delete users with payments, orders, or stores
+        if ($user->orders()->exists() || $user->payments()->exists() || $user->store()->exists()) {
+            $user->tokens()->delete();
+            $user->update(['is_active' => false]);
+            $user->delete(); // Soft delete
+
+            return response()->json([
+                'message' => 'User has associated financial records (orders/payments/store); account has been safely deactivated and archived.'
+            ]);
+        }
+
+        $user->forceDelete();
 
         return response()->json([
             'message' => 'User deleted successfully.'

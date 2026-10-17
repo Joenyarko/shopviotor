@@ -40,6 +40,14 @@ class FulfillPaymentFulfillment
             $payable->update(['deposit_paid_at' => now()]);
             Log::info("HP #{$payable->id} deposit confirmed via payment {$payment->reference}");
             
+        } elseif ($payment->payable_type === \App\Models\HirePurchaseInstallment::class) {
+            // HP installment confirmed — credit installment
+            $installment = $payable;
+            if ($installment->hirePurchase) {
+                $this->hpService->payInstallment($installment->hirePurchase, $installment->id, $payment->reference);
+                Log::info("HP Installment #{$installment->id} marked as paid via payment {$payment->reference}");
+            }
+
         } elseif ($payment->payable_type === \App\Models\PreOrder::class) {
             // PreOrder deposit confirmed
             $payable->update([

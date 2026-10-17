@@ -58,6 +58,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/register/verify', [AuthController::class, 'verifyRegistration'])->middleware('throttle:10,1');
     Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
     Route::post('/auth/verify-2fa', [AuthController::class, 'verify2Fa'])->middleware('throttle:5,1');
+    Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,1');
+    Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
     
     // Google Authentication
     Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
@@ -83,7 +85,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/stores/my-store', [StoreController::class, 'myStore']);
         Route::post('/stores/my-store/update', [StoreController::class, 'update']);
-        Route::post('/stores/apply', [StoreController::class, 'apply']);
+        Route::post('/stores/apply', [StoreController::class, 'apply'])->middleware('throttle:5,1');
         
         // Service Profiles (Buy ATU) — supports multiple profiles per user
         Route::get('/services/my-profiles', [\App\Http\Controllers\Api\V1\ServiceProfileController::class, 'myProfiles']);
@@ -111,7 +113,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/payments/webhook/{gateway}', [PaymentController::class, 'webhook']);
 
     // AI Chat — public (no auth required so guests can also use it)
-    Route::post('/ai/chat', [AiChatController::class, 'chat'])->middleware(['auth:sanctum', 'throttle:30,1']);
+    Route::post('/ai/chat', [AiChatController::class, 'chat'])->middleware(['throttle:30,1']);
 
     // Marketing (Public)
     Route::get('/marketing/campaigns/active', [MarketingController::class, 'activeCampaigns']);
@@ -134,7 +136,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('addresses', AddressController::class)->except(['show']);
 
         // Checkout & Orders
-        Route::post('/checkout', [CheckoutController::class, 'process']);
+        Route::post('/checkout', [CheckoutController::class, 'process'])->middleware('throttle:10,1');
         Route::get('/orders', [OrderController::class, 'index']);
         Route::get('/orders/{uuid}', [OrderController::class, 'show']);
         Route::post('/orders/{uuid}/cancel', [OrderController::class, 'cancel']);
@@ -142,7 +144,7 @@ Route::prefix('v1')->group(function () {
         // Payments
         Route::get('/payments', [PaymentController::class, 'index']);
         Route::get('/payments/{uuid}', [PaymentController::class, 'show']);
-        Route::get('/payments/verify/{reference}', [PaymentController::class, 'verify']);
+        Route::get('/payments/verify/{reference}', [PaymentController::class, 'verify'])->middleware('throttle:30,1');
 
         // Reviews & Wishlist
         Route::post('/products/{uuid}/reviews', [\App\Http\Controllers\Api\V1\ReviewController::class, 'store']);
@@ -163,7 +165,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/hire-purchases/{uuid}/installments/{id}/pay', [HirePurchaseController::class, 'payInstallment']);
 
         Route::get('/raffles/my-tickets', [RaffleController::class, 'myTickets']);
-        Route::post('/raffles/{uuid}/purchase-ticket', [RaffleController::class, 'purchaseTicket']);
+        Route::post('/raffles/{uuid}/purchase-ticket', [RaffleController::class, 'purchaseTicket'])->middleware('throttle:20,1');
 
         // Customer Support Chat
         Route::apiResource('messages', MessageController::class)->only(['index', 'store', 'show']);
@@ -172,7 +174,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/layaways', [LayawayController::class, 'index']);
         Route::post('/layaways', [LayawayController::class, 'store']);
         Route::get('/layaways/{uuid}', [LayawayController::class, 'show']);
-        Route::post('/layaways/{uuid}/pay', [LayawayController::class, 'pay']);
+        Route::post('/layaways/{uuid}/pay', [LayawayController::class, 'pay'])->middleware('throttle:20,1');
         Route::get('/layaways/settings/terms', [LayawayController::class, 'terms']);
         Route::get('/layaway-cards', [LayawayController::class, 'cards']);
 
@@ -208,12 +210,12 @@ Route::prefix('v1')->group(function () {
             Route::get('/wallet', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'index']);
             Route::get('/wallet/transactions', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'transactions']);
             Route::get('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'payouts']);
-            Route::post('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'requestPayout']);
+            Route::post('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'requestPayout'])->middleware('throttle:5,1');
         });
 
         // ─── ADMIN ROUTES ─────────────────────────────────────────────────────────
         
-        Route::prefix('admin')->middleware('role:admin,super_admin')->group(function () {
+        Route::prefix('admin')->middleware(['role:admin,super_admin', 'admin_2fa'])->group(function () {
             // Dashboard Stats
             Route::get('/dashboard/comprehensive-stats', [AdminDashboardController::class, 'comprehensiveStats']);
             Route::get('/orders/stats', [AdminOrderController::class, 'stats']);
@@ -229,8 +231,8 @@ Route::prefix('v1')->group(function () {
             Route::post('/users/{uuid}/role', [AdminUserController::class, 'updateRole']);
 
             // Admin OTP 2FA Verification
-            Route::post('/otp/send', [AdminUserController::class, 'sendAdminOtp']);
-            Route::post('/otp/verify', [AdminUserController::class, 'verifyAdminOtp']);
+            Route::post('/otp/send', [AdminUserController::class, 'sendAdminOtp'])->middleware('throttle:3,1');
+            Route::post('/otp/verify', [AdminUserController::class, 'verifyAdminOtp'])->middleware('throttle:10,1');
 
             // Service Categories
             Route::apiResource('service-categories', \App\Http\Controllers\Api\V1\Admin\ServiceCategoryController::class)->except(['show']);

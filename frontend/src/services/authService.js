@@ -15,6 +15,8 @@ const authService = {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
   verify2Fa: (data) => apiClient.post('/auth/verify-2fa', data),
+  forgotPassword: (email) => apiClient.post('/auth/forgot-password', { email }),
+  resetPassword: (data) => apiClient.post('/auth/reset-password', data),
 };
 
 export default authService;

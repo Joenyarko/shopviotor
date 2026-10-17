@@ -22,8 +22,11 @@ return Application::configure(basePath: dirname(__DIR__))
             LogApiRequest::class,
         ]);
 
+        $middleware->throttleApi('api');
+
         $middleware->alias([
-            'role' => RoleMiddleware::class,
+            'role'      => RoleMiddleware::class,
+            'admin_2fa' => \App\Http\Middleware\EnsureAdmin2FaVerified::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

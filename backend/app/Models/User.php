@@ -50,6 +50,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
         'two_factor_secret',
         'two_factor_recovery_codes',
+        'google_token',
+        'google_id',
     ];
 
     protected $appends = [

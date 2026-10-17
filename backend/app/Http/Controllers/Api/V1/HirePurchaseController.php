@@ -92,8 +92,8 @@ class HirePurchaseController extends Controller
         $amountToPay = $installment->amount_due + ($installment->isOverdue() ? $hp->late_fee : 0);
 
         $paymentData = $this->paymentService->initiate([
-            'payable_type' => HirePurchase::class, // Or Installment::class depending on logic
-            'payable_id'   => $hp->id, // Tying to HP
+            'payable_type' => \App\Models\HirePurchaseInstallment::class,
+            'payable_id'   => $installment->id,
             'user_id'      => $request->user()->id,
             'email'        => $request->user()->email,
             'amount'       => $amountToPay,

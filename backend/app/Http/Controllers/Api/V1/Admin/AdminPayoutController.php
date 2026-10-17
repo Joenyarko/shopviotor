@@ -29,14 +29,15 @@ class AdminPayoutController extends Controller
             'admin_notes' => 'nullable|string|max:500',
         ]);
 
-        $payout = PayoutRequest::where('uuid', $uuid)->with('store.wallet')->firstOrFail();
+        return DB::transaction(function () use ($uuid, $request) {
+            $payout = PayoutRequest::where('uuid', $uuid)->lockForUpdate()->firstOrFail();
 
-        if ($payout->status !== 'pending') {
-            return response()->json(['message' => 'This payout request is no longer pending.'], 422);
-        }
+            if ($payout->status !== 'pending') {
+                return response()->json(['message' => 'This payout request is no longer pending.'], 422);
+            }
 
-        DB::transaction(function () use ($payout, $request) {
             $store = $payout->store;
+            $wallet = \App\Models\StoreWallet::where('store_id', $store->id)->lockForUpdate()->first();
             
             if ($request->action === 'approve') {
                 $payout->update([
@@ -60,7 +61,9 @@ class AdminPayoutController extends Controller
                     'processed_by' => $request->user()->id,
                 ]);
 
-                $store->wallet->increment('available_balance', $payout->amount);
+                if ($wallet) {
+                    $wallet->increment('available_balance', $payout->amount);
+                }
 
                 // Mark the transaction as cancelled
                 $store->transactions()
@@ -68,6 +71,11 @@ class AdminPayoutController extends Controller
                     ->where('reference_id', $payout->id)
                     ->update(['status' => 'cancelled']);
             }
+
+            return response()->json([
+                'message' => 'Payout request ' . ($request->action === 'approve' ? 'approved and paid' : 'rejected and refunded') . '.',
+                'data'    => $payout->fresh(),
+            ]);
         });
 
         return response()->json([

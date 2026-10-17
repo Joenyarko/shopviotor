@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
+import authService from '../../services/authService';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -22,14 +23,24 @@ const ResetPassword = () => {
   const email = searchParams.get('email');
 
   const onSubmit = async (data) => {
+    if (!token || !email) {
+      setErrorMsg('Invalid or missing password reset token and email.');
+      return;
+    }
+
     setLoading(true);
     setErrorMsg('');
     try {
+      await authService.resetPassword({
+        token,
+        email,
+        password: data.password,
+        password_confirmation: data.password_confirmation
+      });
       setSuccess(true);
     } catch (err) {
-      setErrorMsg(err.message || 'Failed to reset password. Token may have expired.');
+      setErrorMsg(err.response?.data?.message || err.message || 'Failed to reset password. Token may have expired.');
     } finally {
-      setSuccess(true);
       setLoading(false);
     }
   };
