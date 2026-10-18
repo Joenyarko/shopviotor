@@ -14,20 +14,58 @@ class UserController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $role = $request->input('role');
+        $search  = $request->input('search');
+        $role    = $request->input('role');
+        $perPage = (int) $request->input('per_page', 10);
 
-        if ($role === 'admin') {
-            $users = $this->userRepo->getAdmins($request->input('per_page', 100));
-        } elseif ($role === 'customer') {
-            $users = $this->userRepo->getCustomers($request->input('per_page', 100));
-        } elseif ($role === 'vendor') {
-            $users = \App\Models\User::where('role', \App\Enums\UserRole::Vendor->value)->latest()->paginate($request->input('per_page', 100));
-        } else {
-            $users = \App\Models\User::latest()->paginate($request->input('per_page', 100));
+        $query = \App\Models\User::query();
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
         }
 
+        if ($role === 'admin') {
+            $query->whereIn('role', [
+                \App\Enums\UserRole::Admin->value,
+                \App\Enums\UserRole::SuperAdmin->value,
+                \App\Enums\UserRole::Staff->value,
+            ]);
+        } elseif ($role === 'customer') {
+            $query->where('role', \App\Enums\UserRole::Customer->value);
+        } elseif ($role === 'vendor') {
+            $query->where('role', \App\Enums\UserRole::Vendor->value);
+        }
+
+        $users = $query->latest()->paginate($perPage);
+
+        // Global counts for role filter tabs
+        $counts = [
+            'total'     => \App\Models\User::count(),
+            'customers' => \App\Models\User::where('role', \App\Enums\UserRole::Customer->value)->count(),
+            'vendors'   => \App\Models\User::where('role', \App\Enums\UserRole::Vendor->value)->count(),
+            'admins'    => \App\Models\User::whereIn('role', [
+                \App\Enums\UserRole::Admin->value,
+                \App\Enums\UserRole::SuperAdmin->value,
+                \App\Enums\UserRole::Staff->value,
+            ])->count(),
+        ];
+
+        $paginatedData = UserResource::collection($users)->response()->getData(true);
+
         return response()->json([
-            'data' => UserResource::collection($users)->response()->getData(true),
+            'data'   => $paginatedData['data'] ?? [],
+            'meta'   => $paginatedData['meta'] ?? [
+                'current_page' => $users->currentPage(),
+                'last_page'    => $users->lastPage(),
+                'per_page'     => $users->perPage(),
+                'total'        => $users->total(),
+            ],
+            'counts' => $counts,
         ]);
     }
 
@@ -144,10 +182,18 @@ class UserController extends Controller
     {
         $users = \App\Models\User::where('student_verification_status', 'pending')
             ->latest()
-            ->paginate($request->input('per_page', 15));
+            ->paginate($request->input('per_page', 10));
+
+        $paginatedData = UserResource::collection($users)->response()->getData(true);
 
         return response()->json([
-            'data' => UserResource::collection($users)->response()->getData(true),
+            'data' => $paginatedData['data'] ?? [],
+            'meta' => $paginatedData['meta'] ?? [
+                'current_page' => $users->currentPage(),
+                'last_page'    => $users->lastPage(),
+                'per_page'     => $users->perPage(),
+                'total'        => $users->total(),
+            ],
         ]);
     }
 

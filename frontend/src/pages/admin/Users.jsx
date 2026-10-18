@@ -10,59 +10,80 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all'); // all, student_approvals
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState(''); // '', 'customer', 'vendor', 'admin'
   const [page, setPage] = useState(1);
   const [studPage, setStudPage] = useState(1);
-  const itemsPerPage = 8;
+  const perPage = 10;
+  const [meta, setMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
+  const [studMeta, setStudMeta] = useState({ current_page: 1, last_page: 1, total: 0 });
+  const [counts, setCounts] = useState({ total: 0, customers: 0, vendors: 0, admins: 0 });
 
-  // Filter based on search term and role filter
-  const filteredUsers = users.filter(u => {
-    const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.name || '';
-    const matchesSearch = 
-      fullName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      (u.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-      (u.phone?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-    
-    if (!matchesSearch) return false;
+  // Debounce search input so we don't spam the server on every keystroke
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(1);
+      setStudPage(1);
+    }, 350);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
-    if (!roleFilter) return true;
-    if (roleFilter === 'admin') {
-      return u.role === 'admin' || u.role === 'super_admin' || u.role === 'staff';
-    }
-    return u.role === roleFilter;
-  });
-
-  const filteredStudents = pendingStudents.filter(u => {
-    const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim() || u.name || '';
-    return fullName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      (u.email?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-  });
-
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-  const paginatedUsers = filteredUsers.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-  const totalStudPages = Math.ceil(filteredStudents.length / itemsPerPage);
-  const paginatedStudents = filteredStudents.slice((studPage - 1) * itemsPerPage, studPage * itemsPerPage);
-
-  // Role counts for filter labels
-  const customerCount = users.filter(u => u.role === 'customer').length;
-  const vendorCount = users.filter(u => u.role === 'vendor').length;
-  const adminCount = users.filter(u => u.role === 'admin' || u.role === 'super_admin' || u.role === 'staff').length;
-
-  // Reset pagination when search term or role filter changes
+  // Reset page when role filter changes
   useEffect(() => {
     setPage(1);
-    setStudPage(1);
-  }, [searchTerm, roleFilter]);
+  }, [roleFilter]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
       if (activeTab === 'all') {
-        const res = await adminService.get('/admin/users');
-        setUsers(res.data?.data || res.data || []);
+        const params = {
+          page,
+          per_page: perPage,
+        };
+        if (debouncedSearch) params.search = debouncedSearch;
+        if (roleFilter) params.role = roleFilter;
+
+        const res = await adminService.get('/admin/users', { params });
+        const list = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.data)
+            ? res.data.data
+            : Array.isArray(res)
+              ? res
+              : [];
+        setUsers(list);
+
+        if (res?.meta) {
+          setMeta(res.meta);
+        } else if (res?.data?.meta) {
+          setMeta(res.data.meta);
+        }
+
+        if (res?.counts) {
+          setCounts(res.counts);
+        }
       } else {
-        const res = await adminService.get('/admin/users/student-verifications/pending');
-        setPendingStudents(res.data?.data || res.data || []);
+        const params = {
+          page: studPage,
+          per_page: perPage,
+        };
+        const res = await adminService.get('/admin/users/student-verifications/pending', { params });
+        const list = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res?.data?.data)
+            ? res.data.data
+            : Array.isArray(res)
+              ? res
+              : [];
+        setPendingStudents(list);
+
+        if (res?.meta) {
+          setStudMeta(res.meta);
+        } else if (res?.data?.meta) {
+          setStudMeta(res.data.meta);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -73,7 +94,7 @@ const Users = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [activeTab]);
+  }, [activeTab, page, studPage, roleFilter, debouncedSearch]);
 
   const handleRoleChange = async (uuid, newRole) => {
     try {
@@ -208,10 +229,10 @@ const Users = () => {
               onChange={(e) => setRoleFilter(e.target.value)}
               className="px-4 py-2 border border-secondary-200 dark:border-secondary-700 rounded-xl bg-white dark:bg-secondary-900 text-sm font-semibold text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer shadow-sm"
             >
-              <option value="">All Roles ({users.length})</option>
-              <option value="customer">Customers ({customerCount})</option>
-              <option value="vendor">Vendors ({vendorCount})</option>
-              <option value="admin">Admins ({adminCount})</option>
+              <option value="">All Roles ({counts.total || meta.total || users.length})</option>
+              <option value="customer">Customers ({counts.customers})</option>
+              <option value="vendor">Vendors ({counts.vendors})</option>
+              <option value="admin">Admins ({counts.admins})</option>
             </select>
             {roleFilter && (
               <button
@@ -228,9 +249,9 @@ const Users = () => {
       {loading ? (
         <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
       ) : activeTab === 'all' ? (
-        paginatedUsers.length === 0 ? (
+        users.length === 0 ? (
           <div className="p-8 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500 dark:text-secondary-400 font-semibold">
-            {roleFilter || searchTerm ? 'No users match your filter criteria.' : 'No users found.'}
+            {roleFilter || debouncedSearch ? 'No users match your filter criteria.' : 'No users found.'}
           </div>
         ) : (
           <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm">
@@ -245,7 +266,7 @@ const Users = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                {paginatedUsers.map((u) => (
+                {users.map((u) => (
                   <tr key={u.id || u.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                     <td className="p-4 font-semibold text-secondary-900 dark:text-white">{u.first_name} {u.last_name}</td>
                     <td className="p-4 text-secondary-600 dark:text-secondary-300">{u.email}</td>
@@ -268,13 +289,13 @@ const Users = () => {
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() => handleToggleStatus(u.id)}
+                          onClick={() => handleToggleStatus(u.id || u.uuid)}
                           className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center justify-center min-w-[80px] ${u.is_active ? 'text-accent-600 dark:text-accent-400 bg-accent-50 dark:bg-accent-950/20 border-accent-200 dark:border-accent-800' : 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/20 border-primary-200 dark:border-primary-800'}`}
                         >
                           {u.is_active ? 'Suspend' : 'Activate'}
                         </button>
                         <button
-                          onClick={() => handleDelete(u.id)}
+                          onClick={() => handleDelete(u.id || u.uuid)}
                           className="p-1.5 rounded-lg border text-xs font-semibold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                           title="Permanently Delete User"
                         >
@@ -286,7 +307,10 @@ const Users = () => {
                 ))}
               </tbody>
             </table>
-            <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-secondary-200 dark:border-secondary-800 text-xs text-secondary-500 gap-2">
+              <span>Showing page <strong className="text-secondary-900 dark:text-white">{meta.current_page || 1}</strong> of <strong className="text-secondary-900 dark:text-white">{meta.last_page || 1}</strong> ({meta.total || users.length} total accounts)</span>
+              <DotPagination currentPage={page} totalPages={meta.last_page || 1} onPageChange={setPage} />
+            </div>
           </div>
         )
       ) : (
@@ -308,7 +332,7 @@ const Users = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                {paginatedStudents.map((u) => (
+                {pendingStudents.map((u) => (
                   <tr key={u.id || u.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
                     <td className="p-4 text-secondary-600 dark:text-secondary-300">
                       <div className="font-semibold text-secondary-900 dark:text-white">{u.first_name} {u.last_name}</div>
@@ -332,13 +356,13 @@ const Users = () => {
                     <td className="p-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() => handleApproveStudent(u.id, 'approved')}
+                          onClick={() => handleApproveStudent(u.id || u.uuid, 'approved')}
                           className="px-3 py-1.5 rounded-lg border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-xs font-bold hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors flex items-center gap-1"
                         >
                           <CheckCircle className="w-3.5 h-3.5" /> Approve
                         </button>
                         <button
-                          onClick={() => handleApproveStudent(u.id, 'rejected')}
+                          onClick={() => handleApproveStudent(u.id || u.uuid, 'rejected')}
                           className="px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-1"
                         >
                           <XCircle className="w-3.5 h-3.5" /> Reject
@@ -349,7 +373,10 @@ const Users = () => {
                 ))}
               </tbody>
             </table>
-            <DotPagination currentPage={studPage} totalPages={totalStudPages} onPageChange={setStudPage} />
+            <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-secondary-200 dark:border-secondary-800 text-xs text-secondary-500 gap-2">
+              <span>Showing page <strong className="text-secondary-900 dark:text-white">{studMeta.current_page || 1}</strong> of <strong className="text-secondary-900 dark:text-white">{studMeta.last_page || 1}</strong> ({studMeta.total || pendingStudents.length} pending)</span>
+              <DotPagination currentPage={studPage} totalPages={studMeta.last_page || 1} onPageChange={setStudPage} />
+            </div>
           </div>
         )
       )}
