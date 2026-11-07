@@ -102,17 +102,42 @@ class AuthController extends Controller
             $abilities = $user->isAdmin() ? ['admin', 'customer'] : ['customer'];
             $token = $user->createToken('auth_token', $abilities)->plainTextToken;
 
-            // Redirect back to frontend with the token
-            // Ensure FRONTEND_URL is set in your .env (e.g., https://www.shopviotor.com)
-            $frontendUrl = env('FRONTEND_URL', 'https://www.shopviotor.com');
-            return redirect($frontendUrl . '/auth/callback?token=' . $token);
+            // SECURITY: Store token behind a short-lived one-time exchange code (60s TTL)
+            // so the bearer token is never exposed in URL query strings, browser history, or Referer headers
+            $exchangeCode = Str::random(64);
+            \Illuminate\Support\Facades\Cache::put('google_oauth_code_' . $exchangeCode, $token, now()->addSeconds(60));
+
+            $frontendUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://www.shopviotor.com')), '/');
+            return redirect($frontendUrl . '/auth/callback?code=' . urlencode($exchangeCode));
 
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Google OAuth callback failed', [
+                'error' => $e->getMessage(),
+            ]);
             return response()->json([
-                'message' => 'Failed to authenticate with Google.',
-                'error' => $e->getMessage()
+                'message' => 'Failed to authenticate with Google. Please try again.',
             ], 500);
         }
+    }
+
+    public function exchangeGoogleCode(Request $request): JsonResponse
+    {
+        $request->validate([
+            'code' => 'required|string|size:64',
+        ]);
+
+        $cacheKey = 'google_oauth_code_' . $request->input('code');
+        $token    = \Illuminate\Support\Facades\Cache::pull($cacheKey); // atomic get-and-delete (one-time use)
+
+        if (!$token) {
+            return response()->json([
+                'message' => 'Invalid or expired authentication code.',
+            ], 422);
+        }
+
+        return response()->json([
+            'token' => $token,
+        ]);
     }
 
 

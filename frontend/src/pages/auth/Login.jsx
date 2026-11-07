@@ -25,8 +25,11 @@ const Login = () => {
     }
   });
 
-  // Support both ?redirect= query param and React Router location state
-  const redirectTo = searchParams.get('redirect') || location.state?.from?.pathname || '/dashboard';
+  // Support both ?redirect= query param and React Router location state (prevent open redirects)
+  const rawRedirect = searchParams.get('redirect') || location.state?.from?.pathname || '/dashboard';
+  const redirectTo = (typeof rawRedirect === 'string' && rawRedirect.startsWith('/') && !rawRedirect.startsWith('//'))
+    ? rawRedirect
+    : '/dashboard';
 
   const onSubmit = async (data) => {
     setLoading(true);

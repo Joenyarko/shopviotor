@@ -28,7 +28,7 @@ return [
         'https://www.shopviotor.com',
     ],
 
-    'allowed_origins_patterns' => ['#^https?://.*\.shopviotor\.com$#', '#^https?://.*\.vercel\.app$#'],
+    'allowed_origins_patterns' => ['#^https?://([a-z0-9-]+\.)?shopviotor\.com$#'],
 
     'allowed_headers' => ['*'],
 

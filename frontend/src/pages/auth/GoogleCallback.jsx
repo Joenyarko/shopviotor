@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import authService from '../../services/authService';
 import { RefreshCw } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const GoogleCallback = () => {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get('token');
+  const code = searchParams.get('code');
+  const legacyToken = searchParams.get('token');
   const error = searchParams.get('error');
   const { loginWithToken } = useAuth();
   const navigate = useNavigate();
@@ -20,10 +22,18 @@ const GoogleCallback = () => {
         return;
       }
 
-      if (token) {
+      if (code || legacyToken) {
         setStatus('Logging you in...');
         try {
-          const user = await loginWithToken(token);
+          let resolvedToken = legacyToken;
+          if (code) {
+            const exchangeRes = await authService.exchangeGoogleCode(code);
+            resolvedToken = exchangeRes?.token || exchangeRes?.data?.token;
+          }
+          if (!resolvedToken) {
+            throw new Error('Failed to exchange authentication code.');
+          }
+          const user = await loginWithToken(resolvedToken);
           toast.success('Successfully logged in with Google!');
           if (user && (user.role === 'admin' || user.role === 'super_admin')) {
             navigate('/admin', { replace: true });
@@ -35,17 +45,17 @@ const GoogleCallback = () => {
           navigate('/login', { replace: true });
         }
       } else {
-        toast.error('No token received from Google.');
+        toast.error('No authentication code received from Google.');
         navigate('/login', { replace: true });
       }
     };
 
     processGoogleAuth();
-  }, [token, error, navigate, loginWithToken]);
+  }, [code, legacyToken, error, navigate, loginWithToken]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-secondary-50 dark:bg-secondary-900">
-      <div className="flex flex-col items-center gap-4 p-8 bg-white dark:bg-secondary-800 rounded-2xl shadow-sm border border-secondary-100 dark:border-secondary-700">
+      <div className="flex flex-col items-center gap-4 p-8 bg-white dark:bg-secondary-800 rounded-sm shadow-sm border border-secondary-100 dark:border-secondary-700">
         <RefreshCw className="w-8 h-8 text-primary-500 animate-spin" />
         <h2 className="text-xl font-semibold text-secondary-900 dark:text-white">
           {status}

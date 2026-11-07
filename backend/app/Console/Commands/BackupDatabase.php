@@ -26,7 +26,9 @@ class BackupDatabase extends Command
         }
 
         $passwordFlag = $password ? "-p" . escapeshellarg($password) : "";
-        $command = "mysqldump -h {$host} -P {$port} -u " . escapeshellarg($user) . " {$passwordFlag} " . escapeshellarg($db) . " | gzip > " . escapeshellarg($backupPath);
+        $escapedHost  = escapeshellarg((string) $host);
+        $escapedPort  = (int) $port;
+        $command = "mysqldump -h {$escapedHost} -P {$escapedPort} -u " . escapeshellarg($user) . " {$passwordFlag} " . escapeshellarg($db) . " | gzip > " . escapeshellarg($backupPath);
 
         $this->info("Starting backup of database {$db}...");
         exec($command, $output, $exitCode);

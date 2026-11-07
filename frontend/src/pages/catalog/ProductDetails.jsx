@@ -34,7 +34,7 @@ import ReviewList from '../../components/reviews/ReviewList';
 import ReviewForm from '../../components/reviews/ReviewForm';
 
 const DeliveryInfoCard = () => (
-  <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
+  <div className="bg-white dark:bg-secondary-900 rounded-sm shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
     <div className="px-5 py-3 border-b border-secondary-200 dark:border-secondary-800">
       <h3 className="font-bold text-sm text-secondary-900 dark:text-white uppercase tracking-wide">Delivery & Returns</h3>
     </div>
@@ -74,8 +74,8 @@ const DeliveryInfoCard = () => (
 const SellerInfoCard = ({ store, navigate, product }) => {
   if (!store) {
     return (
-      <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 p-5 flex flex-col items-center justify-center text-center">
-        <div className="w-12 h-12 bg-secondary-100 dark:bg-secondary-800 rounded-full flex items-center justify-center mb-3">
+      <div className="bg-white dark:bg-secondary-900 rounded-sm shadow-sm border border-secondary-200 dark:border-secondary-800 p-5 flex flex-col items-center justify-center text-center">
+        <div className="w-12 h-12 bg-secondary-100 dark:bg-secondary-800 rounded-sm flex items-center justify-center mb-3">
           <StoreIcon className="w-6 h-6 text-secondary-400" />
         </div>
         <h4 className="font-bold text-sm text-secondary-900 dark:text-white">Viotor Official</h4>
@@ -85,14 +85,14 @@ const SellerInfoCard = ({ store, navigate, product }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
+    <div className="bg-white dark:bg-secondary-900 rounded-sm shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
       <div className="px-5 py-3 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center">
         <h3 className="font-bold text-sm text-secondary-900 dark:text-white uppercase tracking-wide">Seller Information</h3>
         <ChevronRight className="w-4 h-4 text-secondary-400" />
       </div>
       <div className="p-5">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-secondary-100 dark:bg-secondary-800 rounded-full overflow-hidden flex-shrink-0">
+          <div className="w-12 h-12 bg-secondary-100 dark:bg-secondary-800 rounded-sm overflow-hidden flex-shrink-0">
             {store.logo ? (
               <img src={store.logo} alt={store.name} className="w-full h-full object-cover" />
             ) : (
@@ -104,17 +104,17 @@ const SellerInfoCard = ({ store, navigate, product }) => {
           <div>
             <h4 className="font-bold text-secondary-900 dark:text-white truncate max-w-[150px]">{store.name}</h4>
             <div className="flex items-center gap-1 mt-0.5">
-              <span className="text-xs bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-400 px-1.5 py-0.5 rounded font-semibold">Official Store</span>
+              <span className="text-xs bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-400 px-1.5 py-0.5 rounded-sm font-semibold">Official Store</span>
             </div>
           </div>
         </div>
         
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-lg text-center">
+          <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-sm text-center">
             <span className="block font-bold text-sm text-secondary-900 dark:text-white">{store.average_rating ? parseFloat(store.average_rating).toFixed(1) : 'N/A'}</span>
             <span className="block text-[10px] text-secondary-500 uppercase tracking-wider mt-0.5">Seller Score</span>
           </div>
-          <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-lg text-center">
+          <div className="bg-secondary-50 dark:bg-secondary-800/50 p-2 rounded-sm text-center">
             <span className="block font-bold text-sm text-secondary-900 dark:text-white">{store.total_reviews || 0}</span>
             <span className="block text-[10px] text-secondary-500 uppercase tracking-wider mt-0.5">Reviews</span>
           </div>
@@ -122,7 +122,7 @@ const SellerInfoCard = ({ store, navigate, product }) => {
 
         <button 
           onClick={() => navigate(`/shops/${store.slug}`)}
-          className="w-full py-2.5 border border-secondary-300 dark:border-secondary-700 rounded-xl text-sm font-semibold text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors"
+          className="w-full py-2.5 border border-secondary-300 dark:border-secondary-700 rounded-sm text-sm font-semibold text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors"
         >
           Visit Store
         </button>
@@ -237,12 +237,12 @@ const ProductDetails = () => {
         <div className="flex-1 w-full space-y-6">
           
           {/* TOP SECTION: Images & Info Split */}
-          <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 p-4 sm:p-6 lg:p-8">
+          <div className="bg-white dark:bg-secondary-900 rounded-sm shadow-sm border border-secondary-200 dark:border-secondary-800 p-4 sm:p-6 lg:p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
               
               {/* Image Gallery */}
               <div className="space-y-4">
-                <div className="aspect-[4/5] bg-secondary-50 dark:bg-secondary-800 rounded-xl overflow-hidden relative group">
+                <div className="aspect-[4/5] bg-secondary-50 dark:bg-secondary-800 rounded-sm overflow-hidden relative group">
                   <img
                     src={activeImage || 'https://placehold.co/600x800?text=No+Image'}
                     alt={product.name}
@@ -395,7 +395,7 @@ const ProductDetails = () => {
                   {/* Primary Add to Cart */}
                   <button
                     onClick={handleAddToCart}
-                    className="w-full premium-button-primary shadow-lg shadow-primary-500/25 py-4 rounded-xl font-extrabold text-lg flex items-center justify-center gap-3 transition-transform hover:scale-[1.02]"
+                    className="w-full premium-button-primary shadow-lg shadow-primary-500/25 py-4 rounded-sm font-extrabold text-lg flex items-center justify-center gap-3 transition-transform hover:scale-[1.02]"
                   >
                     <ShoppingCart className="w-6 h-6" /> ADD TO CART
                   </button>
@@ -403,26 +403,26 @@ const ProductDetails = () => {
                   {/* Specialized Actions Grid */}
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     {product.available_for_hire_purchase && (
-                      <button onClick={() => navigate('/hire-purchase', { state: { targetProduct: product } })} className="w-full border-2 border-primary-100 dark:border-primary-900/30 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-primary-700 dark:text-primary-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                      <button onClick={() => navigate('/hire-purchase', { state: { targetProduct: product } })} className="w-full border-2 border-primary-100 dark:border-primary-900/30 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-primary-700 dark:text-primary-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
                         <Percent className="w-4 h-4" /> Installments
                       </button>
                     )}
                     {product.available_for_trade && (
-                      <button onClick={() => navigate('/barter', { state: { targetProduct: product } })} className="w-full border-2 border-purple-100 dark:border-purple-900/30 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-purple-700 dark:text-purple-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                      <button onClick={() => navigate('/barter', { state: { targetProduct: product } })} className="w-full border-2 border-purple-100 dark:border-purple-900/30 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-purple-700 dark:text-purple-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
                         <Scale className="w-4 h-4" /> Trade by Barter
                       </button>
                     )}
                     {product.available_for_preorder && (
-                      <button onClick={() => navigate(`/pre-orders/${product.id}`)} className="w-full border-2 border-orange-100 dark:border-orange-900/30 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-700 dark:text-orange-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                      <button onClick={() => navigate(`/pre-orders/${product.id}`)} className="w-full border-2 border-orange-100 dark:border-orange-900/30 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-700 dark:text-orange-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
                         <Package className="w-5 h-5" /> Reserve Pre-Order
                       </button>
                     )}
                     {product.is_layaway && product.layaway_boxes > 0 && (
-                      <button onClick={handleOpenLayawayModal} className="w-full border-2 border-blue-100 dark:border-blue-900/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-400 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                      <button onClick={handleOpenLayawayModal} className="w-full border-2 border-blue-100 dark:border-blue-900/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
                         <Clock className="w-4 h-4" /> Layaway / Susu
                       </button>
                     )}
-                    <button onClick={() => navigate('/messages', { state: { initialSubject: `Inquiry: ${product.name}` } })} className="w-full border-2 border-secondary-200 dark:border-secondary-800 hover:bg-secondary-50 dark:hover:bg-secondary-800 text-secondary-700 dark:text-secondary-300 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
+                    <button onClick={() => navigate('/messages', { state: { initialSubject: `Inquiry: ${product.name}` } })} className="w-full border-2 border-secondary-200 dark:border-secondary-800 hover:bg-secondary-50 dark:hover:bg-secondary-800 text-secondary-700 dark:text-secondary-300 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
                       <MessageSquare className="w-4 h-4" /> Support
                     </button>
                   </div>
@@ -433,7 +433,7 @@ const ProductDetails = () => {
           </div>
 
           {/* PRODUCT DETAILS BLOCK */}
-          <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
+          <div className="bg-white dark:bg-secondary-900 rounded-sm shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
             <div className="px-6 py-4 border-b border-secondary-200 dark:border-secondary-800">
               <h2 className="text-lg font-bold text-secondary-900 dark:text-white uppercase">Product Details</h2>
             </div>
@@ -441,7 +441,7 @@ const ProductDetails = () => {
               {product.description}
               {/* If we had marketing banners per product, they'd go here. Using a sample layout below */}
               {product.short_description && (
-                <div className="mt-8 bg-secondary-50 dark:bg-secondary-800/30 p-6 rounded-xl border border-secondary-100 dark:border-secondary-800">
+                <div className="mt-8 bg-secondary-50 dark:bg-secondary-800/30 p-6 rounded-sm border border-secondary-100 dark:border-secondary-800">
                   <h3 className="text-secondary-900 dark:text-white font-bold mb-3">Key Marketing Features</h3>
                   <p>{product.short_description}</p>
                 </div>
@@ -450,7 +450,7 @@ const ProductDetails = () => {
           </div>
 
           {/* SPECIFICATIONS BLOCK */}
-          <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
+          <div className="bg-white dark:bg-secondary-900 rounded-sm shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
             <div className="px-6 py-4 border-b border-secondary-200 dark:border-secondary-800">
               <h2 className="text-lg font-bold text-secondary-900 dark:text-white uppercase">Specifications</h2>
             </div>
@@ -478,7 +478,7 @@ const ProductDetails = () => {
               
               <div className="flex-1">
                 <h3 className="font-bold text-secondary-900 dark:text-white mb-4 uppercase text-sm tracking-wide">Technical Specs</h3>
-                <div className="border border-secondary-200 dark:border-secondary-800 rounded-lg overflow-hidden text-sm">
+                <div className="border border-secondary-200 dark:border-secondary-800 rounded-sm overflow-hidden text-sm">
                   <div className="grid grid-cols-2 bg-secondary-50 dark:bg-secondary-800 border-b border-secondary-200 dark:border-secondary-700">
                     <div className="p-3 font-semibold text-secondary-900 dark:text-white">SKU</div>
                     <div className="p-3 text-secondary-700 dark:text-secondary-300">{product.sku || 'N/A'}</div>
@@ -504,7 +504,7 @@ const ProductDetails = () => {
           </div>
 
           {/* CUSTOMER FEEDBACK BLOCK */}
-          <div className="bg-white dark:bg-secondary-900 rounded-2xl shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
+          <div className="bg-white dark:bg-secondary-900 rounded-sm shadow-sm border border-secondary-200 dark:border-secondary-800 overflow-hidden">
             <div className="px-6 py-4 border-b border-secondary-200 dark:border-secondary-800">
               <h2 className="text-lg font-bold text-secondary-900 dark:text-white uppercase">Verified Customer Feedback</h2>
             </div>

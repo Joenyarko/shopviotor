@@ -21,7 +21,7 @@ const AuthLayout = () => {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-secondary-900 py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-secondary-200 dark:border-secondary-800 transition-colors">
+        <div className="bg-white dark:bg-secondary-900 py-8 px-4 shadow sm:rounded-sm sm:px-10 border border-secondary-200 dark:border-secondary-800 transition-colors">
           <Outlet />
         </div>
       </div>

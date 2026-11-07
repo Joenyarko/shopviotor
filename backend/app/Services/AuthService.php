@@ -44,14 +44,27 @@ class AuthService
 
     public function verifyRegistration(string $email, string $otp): array
     {
+        $attemptKey = 'registration_otp_attempts_' . $email;
+        $attempts   = Cache::get($attemptKey, 0);
+
+        if ($attempts >= 5) {
+            Cache::forget('registration_otp_' . $email);
+            throw ValidationException::withMessages([
+                'otp' => ['Too many failed attempts. Please register again to request a new code.'],
+            ]);
+        }
+
         $cacheKey = 'registration_otp_' . $email;
         $cachedData = Cache::get($cacheKey);
 
-        if (!$cachedData || $cachedData['otp'] !== $otp) {
+        if (!$cachedData || !hash_equals((string) $cachedData['otp'], (string) $otp)) {
+            Cache::put($attemptKey, $attempts + 1, now()->addMinutes(15));
             throw ValidationException::withMessages([
                 'otp' => ['Invalid or expired verification code.'],
             ]);
         }
+
+        Cache::forget($attemptKey);
 
         $data = $cachedData['data'];
 
@@ -147,7 +160,7 @@ class AuthService
 
         $cachedCode = \Illuminate\Support\Facades\Cache::get('2fa_code_' . $userId);
 
-        if (!$cachedCode || $cachedCode !== $code) {
+        if (!$cachedCode || !hash_equals((string) $cachedCode, (string) $code)) {
             \Illuminate\Support\Facades\Cache::put($attemptKey, $attempts + 1, now()->addMinutes(10));
             throw ValidationException::withMessages([
                 'code' => ['The verification code is invalid or has expired.'],

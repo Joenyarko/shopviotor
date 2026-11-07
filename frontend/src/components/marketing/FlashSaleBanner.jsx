@@ -9,7 +9,7 @@ const formatCurrency = (amount) => {
 
 const CountdownUnit = ({ value, label, isBlack }) => (
   <div className="flex flex-col items-center">
-    <div className={`font-black text-sm sm:text-base w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg shadow-sm ${isBlack ? 'bg-white text-secondary-900' : 'bg-white text-primary-600'}`}>
+    <div className={`font-black text-sm sm:text-base w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center rounded-sm shadow-sm ${isBlack ? 'bg-white text-secondary-900' : 'bg-white text-primary-600'}`}>
       {value.toString().padStart(2, '0')}
     </div>
     <span className={`text-[9px] mt-0.5 uppercase tracking-wider font-semibold ${isBlack ? 'text-secondary-300' : 'text-primary-900/80'}`}>{label}</span>
@@ -64,7 +64,7 @@ const FlashSaleBanner = () => {
   const subTextColorClass = 'text-secondary-300';
 
   return (
-    <section className="mb-12 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800">
+    <section className="mb-12 rounded-sm overflow-hidden shadow-sm bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800">
       {/* Header Bar */}
       <div className={`${headerBgClass} py-1 px-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative`}>
         <div className="flex items-center gap-3 relative z-10">
@@ -100,11 +100,11 @@ const FlashSaleBanner = () => {
             return (
               <Link key={product.id} to={`/products/${product.slug}`} className="group block relative p-4 hover:shadow-xl transition-all duration-300 bg-white dark:bg-secondary-900 overflow-hidden min-w-[150px] w-[45%] flex-none snap-start md:w-auto md:min-w-0">
                 {/* Discount Badge */}
-                <div className="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm">
+                <div className="absolute top-3 left-3 z-10 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-sm shadow-sm">
                   -{discountPercentage}%
                 </div>
 
-                <div className="aspect-square mb-4 rounded-lg overflow-hidden bg-secondary-50 dark:bg-secondary-800 relative">
+                <div className="aspect-square mb-4 rounded-sm overflow-hidden bg-secondary-50 dark:bg-secondary-800 relative">
                   {product.primary_image ? (
                     <img 
                       src={product.primary_image} 

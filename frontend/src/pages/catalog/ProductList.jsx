@@ -142,7 +142,7 @@ const ProductList = () => {
     <div className="flex flex-col lg:flex-row gap-8">
       
       {/* 1. FILTER SIDEBAR */}
-      <aside className="w-full lg:w-64 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 h-fit transition-colors">
+      <aside className="w-full lg:w-64 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm p-6 h-fit transition-colors">
         <div className="flex items-center justify-between pb-4 border-b border-secondary-100 dark:border-secondary-800">
           <h2 className="font-bold text-secondary-900 dark:text-white flex items-center gap-2">
             <Filter className="w-5 h-5 text-primary-500" /> Filters
@@ -159,7 +159,7 @@ const ProductList = () => {
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full mt-2 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-lg text-sm"
+              className="w-full mt-2 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-sm text-sm"
             >
               <option value="">All Categories</option>
               {categories.map(cat => (
@@ -174,7 +174,7 @@ const ProductList = () => {
             <select
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
-              className="w-full mt-2 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-lg text-sm"
+              className="w-full mt-2 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-sm text-sm"
             >
               <option value="">All Brands</option>
               {brands.map(b => (
@@ -184,13 +184,13 @@ const ProductList = () => {
           </div>
 
           {/* Featured Deals Toggle */}
-          <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-900/50">
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-sm border border-amber-200 dark:border-amber-900/50">
             <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-amber-900 dark:text-amber-300">
               <input
                 type="checkbox"
                 checked={isFeatured}
                 onChange={(e) => setIsFeatured(e.target.checked)}
-                className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-amber-300 dark:border-amber-700 dark:bg-secondary-800"
+                className="w-4 h-4 rounded-sm text-amber-600 focus:ring-amber-500 border-amber-300 dark:border-amber-700 dark:bg-secondary-800"
               />
               <span className="flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
@@ -211,7 +211,7 @@ const ProductList = () => {
                     value={cond}
                     checked={condition === cond}
                     onChange={(e) => setCondition(e.target.value)}
-                    className="text-primary-500 focus:ring-primary-500 border-secondary-300 rounded"
+                    className="text-primary-500 focus:ring-primary-500 border-secondary-300 rounded-sm"
                   />
                   {cond}
                 </label>
@@ -228,19 +228,19 @@ const ProductList = () => {
                 placeholder="Min"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                className="w-1/2 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-lg text-sm"
+                className="w-1/2 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-sm text-sm"
               />
               <input
                 type="number"
                 placeholder="Max"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-1/2 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-lg text-sm"
+                className="w-1/2 p-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-sm text-sm"
               />
             </div>
           </div>
 
-          <button type="submit" className="w-full premium-button-primary py-2.5 rounded-lg text-sm font-semibold">
+          <button type="submit" className="w-full premium-button-primary py-2.5 rounded-sm text-sm font-semibold">
             Apply Filters
           </button>
         </form>
@@ -250,7 +250,7 @@ const ProductList = () => {
       <div className="flex-1 space-y-6">
         
         {/* List Header Controls */}
-        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
+        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors">
           <div>
             <h1 className="text-xl font-extrabold text-secondary-900 dark:text-white">
               {queryTerm 
@@ -278,7 +278,7 @@ const ProductList = () => {
                 params.sort = e.target.value;
                 setSearchParams(params);
               }}
-              className="p-1.5 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-lg text-sm"
+              className="p-1.5 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-sm text-sm"
             >
               <option value="latest">Newest First</option>
               <option value="price_asc">Price: Low to High</option>
@@ -290,11 +290,11 @@ const ProductList = () => {
 
         {/* Product Cards Grid */}
         {loading ? (
-          <div className="flex justify-center items-center py-32 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
+          <div className="flex justify-center items-center py-32 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm">
             <RefreshCw className="w-10 h-10 text-primary-500 animate-spin" />
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl shadow-sm">
+          <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm shadow-sm">
             <h3 className="text-lg font-bold text-secondary-900 dark:text-white">No products found</h3>
             <p className="text-secondary-500 dark:text-secondary-400 mt-2">Try adjusting your filters or search query.</p>
           </div>

@@ -27,12 +27,12 @@ const ProductCard = ({ product, onWishlistToggle }) => {
   const productPrice = parseFloat(product.price || 0);
 
   return (
-    <div className="group bg-white dark:bg-secondary-900 hover:shadow-lg transition-all duration-300 relative flex flex-col h-full z-0 hover:z-10">
+    <div className="group bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm hover:shadow-lg transition-all duration-300 relative flex flex-col h-full z-0 hover:z-10">
       
       {/* Wishlist Button */}
       <button
         onClick={handleWishlistClick}
-        className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 dark:bg-secondary-800/80 backdrop-blur-sm border border-secondary-200 dark:border-secondary-700 shadow-sm hover:bg-white dark:hover:bg-secondary-700 z-10 transition-colors"
+        className="absolute top-3 right-3 p-1.5 rounded-sm bg-white/80 dark:bg-secondary-800/80 backdrop-blur-sm border border-secondary-200 dark:border-secondary-700 shadow-sm hover:bg-white dark:hover:bg-secondary-700 z-10 transition-colors"
         aria-label="Add to wishlist"
       >
         <Heart className={`w-4 h-4 ${wishlisted ? 'fill-accent-500 text-accent-500' : 'text-secondary-600 dark:text-secondary-400'}`} />
@@ -52,21 +52,21 @@ const ProductCard = ({ product, onWishlistToggle }) => {
         
         {/* Badges Overlay */}
         <div className="absolute bottom-2 left-2 flex flex-wrap gap-1 max-w-[90%]">
-          <span className={`text-[9px] px-1.5 py-1 font-bold uppercase rounded tracking-wider leading-none shadow-sm ${conditionColor(product.condition)}`}>
+          <span className={`text-[9px] px-1.5 py-1 font-bold uppercase rounded-sm tracking-wider leading-none shadow-sm ${conditionColor(product.condition)}`}>
             {product.condition === 'new' ? 'New' : 'Used'}
           </span>
           {product.shipping_type === 'free' && (
-            <span className="bg-green-600 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Free Shipping">
+            <span className="bg-green-600 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded-sm tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Free Shipping">
               Free Shipping
             </span>
           )}
           {product.available_for_trade && (
-            <span className="bg-purple-600 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Available for Trade by Barter">
+            <span className="bg-purple-600 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded-sm tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Available for Trade by Barter">
               <Scale className="w-2.5 h-2.5" /> Barter
             </span>
           )}
           {product.available_for_hire_purchase && (
-            <span className="bg-primary-500 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Available for Hire Purchase">
+            <span className="bg-primary-500 text-white text-[9px] px-1.5 py-1 font-bold uppercase rounded-sm tracking-wider flex items-center gap-0.5 leading-none shadow-sm" title="Available for Hire Purchase">
               <Percent className="w-2.5 h-2.5" /> HP
             </span>
           )}

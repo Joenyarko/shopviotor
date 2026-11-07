@@ -64,6 +64,7 @@ Route::prefix('v1')->group(function () {
     // Google Authentication
     Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
     Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+    Route::post('/auth/google/exchange', [AuthController::class, 'exchangeGoogleCode'])->middleware('throttle:10,1');
 
     // Catalog
     Route::get('/categories', [CategoryController::class, 'index']);

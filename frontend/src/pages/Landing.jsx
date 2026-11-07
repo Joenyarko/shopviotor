@@ -132,7 +132,7 @@ const Landing = () => {
         <HeroBanner 
           position="storefront_top_ad" 
           fallbackContent={
-            <div className="w-full h-48 md:h-80 bg-secondary-100 dark:bg-secondary-800 rounded-xl animate-pulse"></div>
+            <div className="w-full h-48 md:h-80 bg-secondary-100 dark:bg-secondary-800 rounded-sm animate-pulse"></div>
           } 
         />
         
@@ -143,7 +143,7 @@ const Landing = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             onSubmit={handleSearchSubmit} 
-            className="flex items-center gap-2 bg-white dark:bg-secondary-900 p-2 rounded-full shadow-lg border border-secondary-200 dark:border-secondary-800"
+            className="flex items-center gap-2 bg-white dark:bg-secondary-900 p-2 rounded shadow-lg border border-secondary-200 dark:border-secondary-800"
           >
             <input
               type="text"
@@ -152,7 +152,7 @@ const Landing = () => {
               onChange={(e) => setSearchVal(e.target.value)}
               className="flex-grow min-w-0 w-full pl-2 sm:pl-4 bg-transparent border-none text-secondary-900 dark:text-white placeholder-secondary-400 focus:outline-none text-sm md:text-base"
             />
-            <button type="submit" className="bg-primary-500 hover:bg-primary-600 px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-secondary-900 font-bold transition-colors flex items-center gap-2 text-sm shadow-md active:scale-95 flex-shrink-0">
+            <button type="submit" className="bg-primary-500 hover:bg-primary-600 px-4 sm:px-6 py-2 sm:py-2.5 rounded-sm text-secondary-900 font-bold transition-colors flex items-center gap-2 text-sm shadow-md active:scale-95 flex-shrink-0">
               Search
             </button>
           </motion.form>
@@ -181,9 +181,9 @@ const Landing = () => {
               <Link 
                 key={cat.id || cat.uuid} 
                 to={`/products?category=${cat.slug || cat.id}`}
-                className="flex-shrink-0 w-28 sm:w-auto group bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-4 text-center hover:border-primary-500 hover:shadow-sm transition-all duration-300 flex flex-col items-center justify-center gap-3"
+                className="flex-shrink-0 w-28 sm:w-auto group bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm p-4 text-center hover:border-primary-500 hover:shadow-sm transition-all duration-300 flex flex-col items-center justify-center gap-3"
               >
-                <div className="w-12 h-12 rounded-2xl bg-secondary-50 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 flex items-center justify-center group-hover:bg-primary-50 dark:group-hover:bg-primary-950/20 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors text-2xl">
+                <div className="w-12 h-12 rounded-sm bg-secondary-50 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-300 flex items-center justify-center group-hover:bg-primary-50 dark:group-hover:bg-primary-950/20 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors text-2xl">
                   {cat.icon && !iconMap[cat.icon] ? cat.icon : <IconComponent className="w-6 h-6" />}
                 </div>
                 <span className="text-xs font-semibold text-secondary-700 dark:text-secondary-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 line-clamp-1">
@@ -196,10 +196,10 @@ const Landing = () => {
       </section>
 
       {/* 3. VALUE PROPOSITION ROW */}
-      <section className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-3xl p-8 transition-colors">
+      <section className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm p-8 transition-colors">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-sm bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
@@ -208,7 +208,7 @@ const Landing = () => {
             </div>
           </div>
           <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/20 text-purple-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-sm bg-purple-50 dark:bg-purple-950/20 text-purple-600 flex items-center justify-center flex-shrink-0">
               <TrendingUp className="w-6 h-6" />
             </div>
             <div>
@@ -217,7 +217,7 @@ const Landing = () => {
             </div>
           </div>
           <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/20 text-blue-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-sm bg-blue-50 dark:bg-blue-950/20 text-blue-600 flex items-center justify-center flex-shrink-0">
               <Truck className="w-6 h-6" />
             </div>
             <div>
@@ -243,11 +243,11 @@ const Landing = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
+          <div className="flex justify-center items-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm">
             <RefreshCw className="w-10 h-10 text-primary-500 animate-spin" />
           </div>
         ) : featured.length === 0 ? (
-          <div className="text-center py-12 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
+          <div className="text-center py-12 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm">
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No featured products currently listed.</p>
           </div>
         ) : (
@@ -265,7 +265,7 @@ const Landing = () => {
       <HeroBanner 
         position="storefront_middle" 
         fallbackContent={
-          <div className="relative overflow-hidden shadow-sm h-48 md:h-72 group bg-secondary-900 rounded-3xl mt-12 mb-8">
+          <div className="relative overflow-hidden shadow-sm h-48 md:h-72 group bg-secondary-900 rounded-sm mt-12 mb-8">
             <img 
               src="https://images.unsplash.com/photo-1607082349566-187342175e2f?q=80&w=2070&auto=format&fit=crop" 
               alt="Advertisement Placeholder" 
@@ -297,11 +297,11 @@ const Landing = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
+          <div className="flex justify-center items-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-sm">
             <RefreshCw className="w-10 h-10 text-primary-500 animate-spin" />
           </div>
         ) : latest.length === 0 ? (
-          <div className="bg-secondary-50 dark:bg-secondary-900/50 rounded-2xl border border-secondary-200 dark:border-secondary-800 p-12 flex flex-col items-center justify-center text-center h-48">
+          <div className="bg-secondary-50 dark:bg-secondary-900/50 rounded-sm border border-secondary-200 dark:border-secondary-800 p-12 flex flex-col items-center justify-center text-center h-48">
             <Package className="w-10 h-10 text-secondary-300 dark:text-secondary-600 mb-3" />
             <p className="text-secondary-500 dark:text-secondary-400 text-sm">No new products currently listed.</p>
           </div>
@@ -324,7 +324,7 @@ const Landing = () => {
         const subTextColorClass = isBlack ? 'text-secondary-300' : 'text-primary-900/80';
         
         return (
-        <section key={collection.uuid} className="space-y-0 mb-6 rounded-lg overflow-hidden shadow-sm bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800">
+        <section key={collection.uuid} className="space-y-0 mb-6 rounded-sm overflow-hidden shadow-sm bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800">
           <div className={`${headerBgClass} py-1 px-4 flex justify-between items-center relative`}>
             <div>
               <h2 className={`text-sm sm:text-base font-bold ${textColorClass}`}>
@@ -354,7 +354,7 @@ const Landing = () => {
       {/* Brand Logos */}
       {brands && brands.length > 0 && (
         <section className="py-4">
-          <div className="flex overflow-hidden border border-secondary-200 dark:border-secondary-800 rounded-xl bg-white dark:bg-secondary-900 shadow-sm relative group">
+          <div className="flex overflow-hidden border border-secondary-200 dark:border-secondary-800 rounded-sm bg-white dark:bg-secondary-900 shadow-sm relative group">
             <div className="flex w-max animate-marquee">
               {[...brands, ...brands, ...brands, ...brands].map((brand, idx) => (
                 <div key={`${brand.id || brand.uuid}-${idx}`} className="w-40 sm:w-48 h-24 flex-shrink-0 flex items-center justify-center p-6 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all cursor-pointer">

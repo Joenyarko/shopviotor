@@ -50,7 +50,7 @@ const HeroBanner = ({ position, fallbackContent }) => {
 
   if (loading) {
     return (
-      <div className="relative rounded-2xl overflow-hidden bg-secondary-200 dark:bg-secondary-800 animate-pulse h-36 sm:h-48 md:h-auto md:aspect-[21/9] lg:aspect-[3/1] max-h-[450px] shadow-lg mx-4"></div>
+      <div className="relative rounded-sm overflow-hidden bg-secondary-200 dark:bg-secondary-800 animate-pulse h-36 sm:h-48 md:h-auto md:aspect-[21/9] lg:aspect-[3/1] max-h-[450px] shadow-lg mx-4"></div>
     );
   }
 
@@ -66,7 +66,7 @@ const HeroBanner = ({ position, fallbackContent }) => {
             {banners.map((banner, idx) => (
               <div 
                 key={banner.id || idx} 
-                className="relative w-[90%] sm:w-[88%] md:w-[85%] flex-shrink-0 snap-center h-full rounded-xl overflow-hidden shadow-sm group bg-secondary-900"
+                className="relative w-[90%] sm:w-[88%] md:w-[85%] flex-shrink-0 snap-center h-full rounded-sm overflow-hidden shadow-sm group bg-secondary-900"
               >
                 <img 
                   src={banner.image_url} 

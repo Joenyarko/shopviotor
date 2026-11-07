@@ -83,15 +83,21 @@ class ServiceProfileController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'business_name'  => 'required|string|max:255',
-            'bio'            => 'nullable|string',
-            'category'       => 'required|string|max:100',
-            'location'       => 'nullable|string|max:255',
-            'city'           => 'nullable|string|max:100',
-            'region'         => 'nullable|string|max:100',
-            'contact_number' => 'nullable|string|max:20',
-            'whatsapp_number'=> 'nullable|string|max:20',
+            'business_name'   => 'required|string|max:255',
+            'bio'             => 'nullable|string|max:5000',
+            'category'        => 'required|string|max:100',
+            'location'        => 'nullable|string|max:255',
+            'city'            => 'nullable|string|max:100',
+            'region'          => 'nullable|string|max:100',
+            'contact_number'  => 'nullable|string|max:20',
+            'whatsapp_number' => 'nullable|string|max:20',
+            'images'          => 'nullable|array|max:10',
+            'images.*'        => 'image|mimes:jpeg,png,jpg,webp|max:4096',
+            'delete_images'   => 'nullable|array',
+            'delete_images.*' => 'integer',
         ]);
+
+        unset($data['images'], $data['delete_images']);
 
         $data['slug']    = Str::slug($data['business_name']) . '-' . uniqid();
         $data['user_id'] = $request->user()->id;
@@ -113,15 +119,21 @@ class ServiceProfileController extends Controller
     public function update(Request $request, ?string $uuid = null)
     {
         $data = $request->validate([
-            'business_name'  => 'required|string|max:255',
-            'bio'            => 'nullable|string',
-            'category'       => 'required|string|max:100',
-            'location'       => 'nullable|string|max:255',
-            'city'           => 'nullable|string|max:100',
-            'region'         => 'nullable|string|max:100',
-            'contact_number' => 'nullable|string|max:20',
-            'whatsapp_number'=> 'nullable|string|max:20',
+            'business_name'   => 'required|string|max:255',
+            'bio'             => 'nullable|string|max:5000',
+            'category'        => 'required|string|max:100',
+            'location'        => 'nullable|string|max:255',
+            'city'            => 'nullable|string|max:100',
+            'region'          => 'nullable|string|max:100',
+            'contact_number'  => 'nullable|string|max:20',
+            'whatsapp_number' => 'nullable|string|max:20',
+            'images'          => 'nullable|array|max:10',
+            'images.*'        => 'image|mimes:jpeg,png,jpg,webp|max:4096',
+            'delete_images'   => 'nullable|array',
+            'delete_images.*' => 'integer',
         ]);
+
+        unset($data['images'], $data['delete_images']);
 
         if ($uuid) {
             $profile = ServiceProfile::where('uuid', $uuid)

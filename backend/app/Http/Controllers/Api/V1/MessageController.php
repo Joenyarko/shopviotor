@@ -45,9 +45,9 @@ class MessageController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'body'          => ['required_without:attachments', 'string', 'nullable'],
+            'body'          => ['required_without:attachments', 'string', 'nullable', 'max:5000'],
             'attachments'   => ['nullable', 'array', 'max:5'],
-            'attachments.*' => ['file', 'max:10240'], // 10MB max per file
+            'attachments.*' => ['file', 'mimes:jpg,jpeg,png,webp,gif,pdf,doc,docx', 'max:10240'], // 10MB max per file, safe MIME whitelist
         ]);
 
         $conversation = $this->messageService->getOrCreateConversation($request->user()->id);

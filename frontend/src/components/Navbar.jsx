@@ -131,7 +131,7 @@ const Navbar = () => {
               placeholder="Search products, brands, services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-full bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              className="w-full pl-10 pr-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
             />
             <Search className="absolute left-3 top-2.5 w-5 h-5 text-secondary-400" />
           </form>
@@ -142,27 +142,27 @@ const Navbar = () => {
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
-              className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-full"
+              className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded"
               aria-label="Toggle dark mode"
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
             {/* Wishlist */}
-            <Link to="/wishlist" className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-full relative">
+            <Link to="/wishlist" className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded relative">
               <Heart className="w-5 h-5" />
             </Link>
 
             {/* Messages / Chat */}
-            <Link to="/messages" className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-full relative">
+            <Link to="/messages" className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded relative">
               <MessageSquare className="w-5 h-5" />
             </Link>
 
             {/* Cart */}
-            <Link to="/checkout" className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-full relative">
+            <Link to="/checkout" className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded relative">
               <ShoppingCart className="w-5 h-5" />
               {cartItemsCount > 0 && (
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xxs font-bold leading-none text-white bg-primary-500 rounded-full">
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xxs font-bold leading-none text-white bg-primary-500 rounded-sm">
                   {cartItemsCount}
                 </span>
               )}
@@ -173,14 +173,14 @@ const Navbar = () => {
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 border border-secondary-300 dark:border-secondary-700 px-3 py-1.5 rounded-full hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors"
+                  className="flex items-center gap-2 border border-secondary-300 dark:border-secondary-700 px-3 py-1.5 rounded hover:bg-secondary-50 dark:hover:bg-secondary-800 transition-colors"
                 >
                   <User className="w-4 h-4 text-secondary-600 dark:text-secondary-300" />
                   <span className="text-sm font-medium text-secondary-700 dark:text-secondary-200">{user?.first_name}</span>
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-secondary-800 ring-1 ring-black ring-opacity-5 z-50 py-1">
+                  <div className="absolute right-0 mt-2 w-48 rounded-sm shadow-lg bg-white dark:bg-secondary-800 ring-1 ring-black ring-opacity-5 z-50 py-1">
                     {isAdmin() && (
                       <Link
                         to="/admin"
@@ -262,7 +262,7 @@ const Navbar = () => {
                 )}
               </div>
             ) : (
-              <Link to="/login" className="premium-button-primary px-5 py-2 rounded-full text-sm">
+              <Link to="/login" className="premium-button-primary px-5 py-2 rounded text-sm">
                 Login
               </Link>
             )}
@@ -272,13 +272,13 @@ const Navbar = () => {
           <div className="md:hidden flex items-center gap-2">
             <button
               onClick={toggleDarkMode}
-              className="p-2 text-secondary-600 dark:text-secondary-300 rounded-full"
+              className="p-2 text-secondary-600 dark:text-secondary-300 rounded"
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-md"
+              className="p-2 text-secondary-600 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -305,7 +305,7 @@ const Navbar = () => {
           <span className="text-lg font-bold text-secondary-900">Menu</span>
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="p-2 text-secondary-900 hover:bg-primary-600/30 rounded-full transition-colors"
+            className="p-2 text-secondary-900 hover:bg-primary-600/30 rounded transition-colors"
           >
             <X className="w-6 h-6" />
           </button>
@@ -318,7 +318,7 @@ const Navbar = () => {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-none rounded-full bg-white text-secondary-900 focus:ring-2 focus:ring-secondary-900 transition-all placeholder:text-secondary-400 shadow-sm"
+              className="w-full pl-10 pr-4 py-3 border-none rounded bg-white text-secondary-900 focus:ring-2 focus:ring-secondary-900 transition-all placeholder:text-secondary-400 shadow-sm"
             />
             <Search className="absolute left-4 top-3.5 w-5 h-5 text-secondary-400" />
           </form>
@@ -326,15 +326,15 @@ const Navbar = () => {
           <div>
             <h3 className="text-xs font-bold text-secondary-900/60 uppercase tracking-wider mb-4">Services</h3>
             <div className="grid grid-cols-2 gap-3">
-              <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Products</Link>
-              <Link to="/products?condition=used" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Second Hand</Link>
-              <Link to="/sell" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-secondary-900 hover:bg-secondary-800 text-white rounded-xl text-sm font-bold transition-colors shadow-sm">Sell Item</Link>
-              <Link to="/professionals" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Buy ATU</Link>
-              <Link to="/barter" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Trade by Barter</Link>
-              <Link to="/hire-purchase" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Hire Purchase</Link>
-              <Link to="/raffles" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Raffles</Link>
-              <Link to="/layaway" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Layaway</Link>
-              <Link to="/pre-orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center col-span-2 py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded-xl text-sm font-medium transition-colors shadow-sm">Pre-Orders</Link>
+              <Link to="/products" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Products</Link>
+              <Link to="/products?condition=used" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Second Hand</Link>
+              <Link to="/sell" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-secondary-900 hover:bg-secondary-800 text-white rounded text-sm font-bold transition-colors shadow-sm">Sell Item</Link>
+              <Link to="/professionals" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Buy ATU</Link>
+              <Link to="/barter" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Trade by Barter</Link>
+              <Link to="/hire-purchase" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Hire Purchase</Link>
+              <Link to="/raffles" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Raffles</Link>
+              <Link to="/layaway" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Layaway</Link>
+              <Link to="/pre-orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center col-span-2 py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Pre-Orders</Link>
             </div>
           </div>
 
@@ -344,29 +344,29 @@ const Navbar = () => {
               {isAuthenticated ? (
                 <>
                   {isAdmin() && (
-                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 bg-white/40 hover:bg-primary-600/30 rounded-xl font-bold transition-colors flex items-center gap-2">
+                    <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 bg-white/40 hover:bg-primary-600/30 rounded font-bold transition-colors flex items-center gap-2">
                       <LayoutDashboard className="w-4 h-4" /> Admin Portal
                     </Link>
                   )}
                   {isVendor() ? (
-                    <Link to="/vendor" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-100 dark:border-emerald-900/30 rounded-xl font-bold transition-colors flex items-center gap-2">
+                    <Link to="/vendor" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-emerald-600 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-100 dark:border-emerald-900/30 rounded font-bold transition-colors flex items-center gap-2">
                       <Store className="w-4 h-4 text-emerald-500" /> Vendor Hub (My Store)
                     </Link>
                   ) : (
-                    <Link to="/become-a-vendor" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-amber-600 dark:text-amber-400 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded-xl font-bold transition-colors flex items-center gap-2">
+                    <Link to="/become-a-vendor" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-amber-600 dark:text-amber-400 hover:bg-secondary-100 dark:hover:bg-secondary-800 rounded font-bold transition-colors flex items-center gap-2">
                       <Store className="w-4 h-4" /> My Store / Become Vendor
                     </Link>
                   )}
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors flex items-center gap-2"><User className="w-4 h-4" /> My Profile</Link>
-                  <Link to="/my-service-profile" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Service Profile</Link>
-                  <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Wishlist</Link>
-                  <Link to="/my-tickets" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Tickets</Link>
-                  <Link to="/my-pre-orders" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Pre-Orders</Link>
-                  <Link to="/my-layaways" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded-xl font-medium transition-colors">My Layaways</Link>
-                  <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }} className="w-full text-left py-3 px-4 text-accent-700 hover:bg-primary-600/30 rounded-xl font-bold transition-colors">Logout</button>
+                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors flex items-center gap-2"><User className="w-4 h-4" /> My Profile</Link>
+                  <Link to="/my-service-profile" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Service Profile</Link>
+                  <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Wishlist</Link>
+                  <Link to="/my-tickets" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Tickets</Link>
+                  <Link to="/my-pre-orders" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Pre-Orders</Link>
+                  <Link to="/my-layaways" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Layaways</Link>
+                  <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }} className="w-full text-left py-3 px-4 text-accent-700 hover:bg-primary-600/30 rounded font-bold transition-colors">Logout</button>
                 </>
               ) : (
-                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center w-full py-3.5 bg-secondary-900 hover:bg-secondary-800 text-white rounded-xl font-bold transition-colors shadow-sm">Login to Your Account</Link>
+                <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center w-full py-3.5 bg-secondary-900 hover:bg-secondary-800 text-white rounded font-bold transition-colors shadow-sm">Login to Your Account</Link>
               )}
             </div>
           </div>

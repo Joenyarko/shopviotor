@@ -59,7 +59,7 @@ class PaymentController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Payment verification failed', ['ref' => $reference, 'error' => $e->getMessage()]);
-            return response()->json(['message' => 'Verification failed: ' . $e->getMessage()], 400);
+            return response()->json(['message' => 'Payment verification failed. Please contact support if you were charged.'], 400);
         }
     }
 

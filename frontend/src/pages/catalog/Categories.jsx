@@ -123,7 +123,7 @@ const Categories = () => {
               placeholder={`Search in ${activeCategory?.name || 'category'}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm border border-secondary-200 dark:border-secondary-700 rounded-full bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full pl-9 pr-4 py-2 text-sm border border-secondary-200 dark:border-secondary-700 rounded-sm bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </form>
         </div>
@@ -149,7 +149,7 @@ const Categories = () => {
           {activeCategory?.children && activeCategory.children.length > 0 ? (
             <div className="space-y-4">
               {activeCategory.children.map((subCategory) => (
-                <div key={subCategory.id || subCategory.uuid} className="bg-white dark:bg-secondary-900 rounded-xl overflow-hidden shadow-sm border border-secondary-100 dark:border-secondary-800">
+                <div key={subCategory.id || subCategory.uuid} className="bg-white dark:bg-secondary-900 rounded-sm overflow-hidden shadow-sm border border-secondary-100 dark:border-secondary-800">
                   {/* Section Header */}
                   <div className="px-4 py-3 border-b border-secondary-100 dark:border-secondary-800 flex items-center justify-between">
                     <h3 className="font-bold text-secondary-800 dark:text-secondary-100 text-sm uppercase tracking-wider">
@@ -174,7 +174,7 @@ const Categories = () => {
                             to={`/products?category=${subSub.slug || subSub.id}`}
                             className="flex flex-col items-center group text-center"
                           >
-                            <div className="w-16 h-16 md:w-20 md:h-20 bg-secondary-50 dark:bg-secondary-800 rounded-xl flex items-center justify-center mb-2 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/20 transition-colors border border-transparent group-hover:border-primary-200">
+                            <div className="w-16 h-16 md:w-20 md:h-20 bg-secondary-50 dark:bg-secondary-800 rounded-sm flex items-center justify-center mb-2 group-hover:bg-primary-50 dark:group-hover:bg-primary-900/20 transition-colors border border-transparent group-hover:border-primary-200">
                               {subSub.image ? (
                                 <img src={subSub.image} alt={subSub.name} className="w-full h-full object-contain p-2" />
                               ) : subSub.icon && !iconMap[subSub.icon] && !iconMap[subSub.name] ? (
