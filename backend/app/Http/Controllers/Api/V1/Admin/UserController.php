@@ -116,8 +116,14 @@ class UserController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $code = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
-        \Illuminate\Support\Facades\Cache::put('admin_otp_' . $user->id, $code, now()->addMinutes(10));
+        // Reuse existing valid OTP if generated within the 10-minute window
+        // so refreshing the page does not invalidate the code already in-flight to the user's inbox
+        $code = \Illuminate\Support\Facades\Cache::get('admin_otp_' . $user->id);
+        if (!$code) {
+            $code = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+            \Illuminate\Support\Facades\Cache::put('admin_otp_' . $user->id, $code, now()->addMinutes(10));
+        }
+
         \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\TwoFactorAuthMail($user, $code));
 
         return response()->json(['message' => 'Verification code sent to your email.']);
@@ -136,7 +142,7 @@ class UserController extends Controller
 
         $cachedCode = \Illuminate\Support\Facades\Cache::get('admin_otp_' . $user->id);
 
-        if (!$cachedCode || $cachedCode !== $request->code) {
+        if (!$cachedCode || !hash_equals((string) $cachedCode, trim((string) $request->code))) {
             return response()->json(['message' => 'The verification code is invalid or has expired.'], 422);
         }
 

@@ -58,6 +58,21 @@ const AdminOtpVerification = ({ onVerified }) => {
     }
   };
 
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').trim().replace(/\D/g, '').slice(0, 6);
+    if (pastedData) {
+      const newCode = ['', '', '', '', '', ''];
+      for (let i = 0; i < pastedData.length; i++) {
+        newCode[i] = pastedData[i];
+      }
+      setCode(newCode);
+      const targetIdx = Math.min(pastedData.length, 5);
+      const targetInput = document.getElementById(`admin-otp-${targetIdx}`);
+      if (targetInput) targetInput.focus();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const fullCode = code.join('');
@@ -117,6 +132,7 @@ const AdminOtpVerification = ({ onVerified }) => {
                 value={digit}
                 onChange={(e) => handleChange(idx, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(idx, e)}
+                onPaste={handlePaste}
                 className="w-11 h-12 text-center text-xl font-bold rounded-xl border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
               />
             ))}

@@ -13,6 +13,7 @@ const GoogleCallback = () => {
   const { loginWithToken } = useAuth();
   const navigate = useNavigate();
   const [status, setStatus] = useState('Authenticating...');
+  const exchangedRef = React.useRef(false);
 
   useEffect(() => {
     const processGoogleAuth = async () => {
@@ -22,7 +23,10 @@ const GoogleCallback = () => {
         return;
       }
 
+      if (exchangedRef.current) return;
+
       if (code || legacyToken) {
+        exchangedRef.current = true;
         setStatus('Logging you in...');
         try {
           let resolvedToken = legacyToken;
