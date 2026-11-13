@@ -18,9 +18,10 @@ class OrderController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $perPage = (int) $request->input('per_page', 50);
         $orders = $this->orderRepo->paginate(
-            $request->input('per_page', 15),
-            ['user', 'payment']
+            $perPage,
+            ['user.addresses', 'payment', 'address', 'items.product.images']
         );
 
         return response()->json([
@@ -30,7 +31,7 @@ class OrderController extends Controller
 
     public function show(string $uuid): JsonResponse
     {
-        $order = $this->orderRepo->findByUuid($uuid, ['user', 'items.product', 'payment', 'address']);
+        $order = $this->orderRepo->findByUuid($uuid, ['user.addresses', 'items.product.images', 'payment', 'address']);
 
         return response()->json([
             'data' => new OrderResource($order),

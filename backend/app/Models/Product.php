@@ -101,7 +101,7 @@ class Product extends Model
 
     public function getPrimaryImageAttribute(): ?string
     {
-        $primary = $this->images->where('is_primary', true)->first();
+        $primary = $this->images->where('is_primary', true)->first() ?? $this->images->first();
         if (!$primary) return null;
         return \Illuminate\Support\Str::startsWith($primary->path, ['http://', 'https://']) 
             ? $primary->path 
