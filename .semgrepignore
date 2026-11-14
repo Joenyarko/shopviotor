@@ -6,4 +6,8 @@ vendor/
 backend/storage/
 backend/bootstrap/cache/
 frontend/dist/
+frontend/dev-dist/
+dev-dist/
+workbox-*.js
 *.min.js
+*.map

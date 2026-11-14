@@ -22,4 +22,7 @@ backend/bootstrap/cache/
 # Frontend builds
 frontend/dist/
 frontend/dist-ssr/
+frontend/dev-dist/
+dev-dist/
 *.local
+

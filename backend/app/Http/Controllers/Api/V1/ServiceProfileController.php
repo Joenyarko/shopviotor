@@ -193,7 +193,12 @@ class ServiceProfileController extends Controller
             $imagesToDelete = $profile->images()->whereIn('id', $request->delete_images)->get();
             foreach ($imagesToDelete as $img) {
                 if (!str_starts_with($img->path, 'http')) {
-                    Storage::disk('public')->delete($img->path);
+                    $fileName = basename($img->path);
+                    $safePath = 'service_images/' . $fileName;
+                    if (Storage::disk('public')->exists($safePath)) {
+                        // nosemgrep: php.laravel.security.laravel-path-traversal-storage.laravel-path-traversal-storage
+                        Storage::disk('public')->delete($safePath);
+                    }
                 }
                 $img->delete();
             }

@@ -1,6 +1,29 @@
 import Swal from 'sweetalert2';
 
 /**
+ * Ensures Paystack inline script is loaded dynamically on demand.
+ */
+const loadPaystackScript = () => {
+  return new Promise((resolve, reject) => {
+    if (window.PaystackPop) {
+      return resolve(window.PaystackPop);
+    }
+    const existing = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(window.PaystackPop));
+      existing.addEventListener('error', () => reject(new Error('Failed to load Paystack')));
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    script.onload = () => resolve(window.PaystackPop);
+    script.onerror = () => reject(new Error('Failed to load Paystack'));
+    document.head.appendChild(script);
+  });
+};
+
+/**
  * Initializes the Paystack inline popup.
  *
  * @param {Object} options
@@ -10,11 +33,21 @@ import Swal from 'sweetalert2';
  * @param {Function} options.onSuccess - Callback for successful payment
  * @param {Function} options.onClose - Callback for when the user closes the popup
  */
-export const openPaystack = ({ email, amountGHS, reference, onSuccess, onClose }) => {
+export const openPaystack = async ({ email, amountGHS, reference, onSuccess, onClose }) => {
+  try {
+    await loadPaystackScript();
+  } catch (err) {
+    Swal.fire({
+      icon: 'error',
+      text: 'Paystack payment gateway could not be loaded. Please check your internet connection and try again.'
+    });
+    return;
+  }
+
   if (!window.PaystackPop) {
     Swal.fire({
       icon: 'error',
-      text: 'Paystack could not be loaded. Please check your internet connection and try again.'
+      text: 'Paystack payment gateway is unavailable. Please try again.'
     });
     return;
   }
