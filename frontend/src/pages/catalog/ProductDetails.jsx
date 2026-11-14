@@ -402,22 +402,22 @@ const ProductDetails = () => {
                   
                   {/* Specialized Actions Grid */}
                   <div className="grid grid-cols-2 gap-3 pt-2">
-                    {product.available_for_hire_purchase && (
-                      <button onClick={() => navigate('/hire-purchase', { state: { targetProduct: product } })} className="w-full border-2 border-primary-100 dark:border-primary-900/30 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-primary-700 dark:text-primary-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
+                    {Boolean(product.available_for_hire_purchase) && (
+                      <button onClick={() => navigate(`/hire-purchase?product=${product.id}`, { state: { targetProduct: product } })} className="w-full border-2 border-primary-100 dark:border-primary-900/30 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-primary-700 dark:text-primary-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
                         <Percent className="w-4 h-4" /> Installments
                       </button>
                     )}
-                    {product.available_for_trade && (
+                    {Boolean(product.available_for_trade) && (
                       <button onClick={() => navigate('/barter', { state: { targetProduct: product } })} className="w-full border-2 border-purple-100 dark:border-purple-900/30 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-purple-700 dark:text-purple-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
                         <Scale className="w-4 h-4" /> Trade by Barter
                       </button>
                     )}
-                    {product.available_for_preorder && (
+                    {Boolean(product.available_for_preorder) && (
                       <button onClick={() => navigate(`/pre-orders/${product.id}`)} className="w-full border-2 border-orange-100 dark:border-orange-900/30 hover:bg-orange-50 dark:hover:bg-orange-900/20 text-orange-700 dark:text-orange-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
                         <Package className="w-5 h-5" /> Reserve Pre-Order
                       </button>
                     )}
-                    {product.is_layaway && product.layaway_boxes > 0 && (
+                    {Boolean(product.is_layaway && product.layaway_boxes > 0) && (
                       <button onClick={handleOpenLayawayModal} className="w-full border-2 border-blue-100 dark:border-blue-900/30 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-700 dark:text-blue-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
                         <Clock className="w-4 h-4" /> Layaway / Susu
                       </button>
@@ -464,10 +464,10 @@ const ProductDetails = () => {
                     ))
                   ) : (
                     <>
-                      {product.available_for_trade && <li>Eligible for direct Trade by Barter</li>}
-                      {product.available_for_hire_purchase && <li>Available for Pay-in-Installments (Hire Purchase)</li>}
-                      {product.condition && <li className="capitalize">Condition: {product.condition.replace('_', ' ')}</li>}
-                      {product.is_negotiable && <li>Price is negotiable upon contact</li>}
+                      {Boolean(product.available_for_trade) && <li>Eligible for direct Trade by Barter</li>}
+                      {Boolean(product.available_for_hire_purchase) && <li>Available for Pay-in-Installments (Hire Purchase)</li>}
+                      {Boolean(product.condition) && <li className="capitalize">Condition: {product.condition.replace('_', ' ')}</li>}
+                      {Boolean(product.is_negotiable) && <li>Price is negotiable upon contact</li>}
                       {(!product.available_for_trade && !product.available_for_hire_purchase && !product.condition && !product.is_negotiable) && (
                         <li>See technical specs below for details</li>
                       )}
