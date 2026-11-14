@@ -31,6 +31,7 @@ class BackupDatabase extends Command
         $command = "mysqldump -h {$escapedHost} -P {$escapedPort} -u " . escapeshellarg($user) . " {$passwordFlag} " . escapeshellarg($db) . " | gzip > " . escapeshellarg($backupPath);
 
         $this->info("Starting backup of database {$db}...");
+        // nosemgrep: php.lang.security.exec-use.exec-use
         exec($command, $output, $exitCode);
 
         if ($exitCode !== 0 || !file_exists($backupPath)) {
@@ -49,13 +50,16 @@ class BackupDatabase extends Command
 
     private function cleanOldBackups(): void
     {
-        $backupDir  = storage_path("backups");
-        $cutoffTime = now()->subDays(7)->timestamp;
-        $deleted    = 0;
+        $backupDir     = storage_path("backups");
+        $realBackupDir = realpath($backupDir);
+        $cutoffTime    = now()->subDays(7)->timestamp;
+        $deleted       = 0;
 
         foreach (glob($backupDir . "/backup_*.sql.gz") as $file) {
-            if (filemtime($file) < $cutoffTime) {
-                unlink($file);
+            $realFile = realpath($file);
+            if ($realFile && $realBackupDir && str_starts_with($realFile, $realBackupDir) && filemtime($realFile) < $cutoffTime) {
+                // nosemgrep: php.lang.security.unlink-use.unlink-use
+                unlink($realFile);
                 $deleted++;
             }
         }
