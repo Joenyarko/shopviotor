@@ -91,6 +91,47 @@ class PaymentController extends Controller
                 } catch (\Exception $e) {
                     Log::error('Webhook verification failed', ['ref' => $reference, 'error' => $e->getMessage()]);
                 }
+            } elseif ($event === 'transfer.success') {
+                $reference = $data['reference'] ?? null;
+                $transferCode = $data['transfer_code'] ?? null;
+                $payout = \App\Models\PayoutRequest::where('transfer_reference', $reference)
+                    ->orWhere('transfer_code', $transferCode)
+                    ->first();
+
+                if ($payout) {
+                    $payout->update([
+                        'transfer_status' => 'success',
+                        'status'          => 'paid',
+                    ]);
+                    $payout->store?->transactions()
+                        ->where('reference_type', \App\Models\PayoutRequest::class)
+                        ->where('reference_id', $payout->id)
+                        ->update(['status' => 'completed']);
+                }
+            } elseif ($event === 'transfer.failed' || $event === 'transfer.reversed') {
+                $reference = $data['reference'] ?? null;
+                $transferCode = $data['transfer_code'] ?? null;
+                $payout = \App\Models\PayoutRequest::where('transfer_reference', $reference)
+                    ->orWhere('transfer_code', $transferCode)
+                    ->first();
+
+                if ($payout && $payout->status !== 'rejected') {
+                    $payout->update([
+                        'transfer_status' => 'failed',
+                        'status'          => 'rejected',
+                        'admin_notes'     => 'Paystack Transfer failed or reversed: ' . ($data['gateway_response'] ?? 'Unknown error'),
+                    ]);
+
+                    $wallet = \App\Models\StoreWallet::where('store_id', $payout->store_id)->first();
+                    if ($wallet) {
+                        $wallet->increment('available_balance', $payout->amount);
+                    }
+
+                    $payout->store?->transactions()
+                        ->where('reference_type', \App\Models\PayoutRequest::class)
+                        ->where('reference_id', $payout->id)
+                        ->update(['status' => 'cancelled']);
+                }
             }
         }
 

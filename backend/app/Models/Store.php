@@ -22,6 +22,9 @@ class Store extends Model
         'status', 'subscription_plan', 'commission_rate',
         'can_offer_layaway', 'can_offer_hire_purchase',
         'can_offer_preorders', 'can_offer_trades',
+        'payout_bank_code', 'payout_bank_name',
+        'payout_account_number', 'payout_account_name',
+        'payout_recipient_code',
         'is_verified', 'approved_at', 'suspended_at',
     ];
 

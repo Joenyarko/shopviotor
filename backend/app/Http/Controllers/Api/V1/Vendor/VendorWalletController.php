@@ -6,15 +6,47 @@ use App\Http\Controllers\Controller;
 use App\Models\PayoutRequest;
 use App\Models\StoreTransaction;
 use App\Models\StoreWallet;
+use App\Services\Payment\PaystackTransferService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class VendorWalletController extends Controller
 {
+    public function __construct(
+        private PaystackTransferService $transferService = new PaystackTransferService()
+    ) {}
+
     private function getStore()
     {
         return auth()->user()->store;
+    }
+
+    public function banks(): JsonResponse
+    {
+        $banks = $this->transferService->getGhanaBanks();
+        return response()->json(['data' => $banks]);
+    }
+
+    public function resolveAccount(Request $request): JsonResponse
+    {
+        $request->validate([
+            'account_number' => 'required|string|min:8|max:20',
+            'bank_code'      => 'required|string|max:20',
+        ]);
+
+        $res = $this->transferService->resolveAccount(
+            $request->account_number,
+            $request->bank_code
+        );
+
+        if (!$res['success']) {
+            return response()->json([
+                'message' => $res['message'] ?? 'Could not verify account holder name.',
+            ], 422);
+        }
+
+        return response()->json(['data' => $res]);
     }
 
     public function index(): JsonResponse
@@ -79,13 +111,48 @@ class VendorWalletController extends Controller
         $request->validate([
             'amount'          => 'required|numeric|min:10',
             'payment_method'  => 'required|string|max:50',
-            'payment_details' => 'required|string|max:500',
+            'payment_details' => 'nullable|string|max:500',
+            'bank_code'       => 'nullable|string|max:50',
+            'bank_name'       => 'nullable|string|max:100',
+            'account_number'  => 'nullable|string|max:30',
+            'account_name'    => 'nullable|string|max:100',
         ]);
 
         $amount = (float) $request->amount;
 
         try {
-            $payoutRequest = DB::transaction(function () use ($store, $amount, $request) {
+            // Attempt to register recipient code with Paystack if account info is provided
+            $recipientCode = null;
+            $paymentDetails = $request->payment_details;
+
+            if ($request->account_number && $request->bank_code) {
+                $accountName = $request->account_name ?: $store->name;
+                $recipientRes = $this->transferService->createRecipient(
+                    $accountName,
+                    $request->account_number,
+                    $request->bank_code
+                );
+
+                if ($recipientRes['success']) {
+                    $recipientCode = $recipientRes['recipient_code'];
+                }
+
+                $paymentDetails = trim(
+                    ($request->bank_name ? "{$request->bank_name} - " : '') .
+                    "{$request->account_number} ({$accountName})"
+                );
+
+                // Save on store for future payouts
+                $store->update([
+                    'payout_bank_code'      => $request->bank_code,
+                    'payout_bank_name'      => $request->bank_name,
+                    'payout_account_number' => $request->account_number,
+                    'payout_account_name'   => $accountName,
+                    'payout_recipient_code' => $recipientCode,
+                ]);
+            }
+
+            $payoutRequest = DB::transaction(function () use ($store, $amount, $request, $recipientCode, $paymentDetails) {
                 // Ensure wallet exists and lock row to prevent concurrent extraction race conditions
                 $wallet = StoreWallet::where('store_id', $store->id)
                     ->lockForUpdate()
@@ -111,7 +178,8 @@ class VendorWalletController extends Controller
                     'amount'          => $amount,
                     'status'          => 'pending',
                     'payment_method'  => $request->payment_method,
-                    'payment_details' => $request->payment_details,
+                    'payment_details' => $paymentDetails ?: ($request->payment_method . ' - ' . $store->phone),
+                    'recipient_code'  => $recipientCode,
                 ]);
 
                 $store->transactions()->create([

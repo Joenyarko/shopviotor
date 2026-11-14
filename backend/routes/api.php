@@ -212,6 +212,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/wallet/transactions', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'transactions']);
             Route::get('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'payouts']);
             Route::post('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'requestPayout'])->middleware('throttle:5,1');
+            Route::get('/payouts/banks', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'banks']);
+            Route::get('/payouts/resolve-account', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'resolveAccount']);
         });
 
         // ─── ADMIN ROUTES ─────────────────────────────────────────────────────────

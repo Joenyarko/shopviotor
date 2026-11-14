@@ -27,6 +27,8 @@ const vendorService = {
   getWalletTransactions: (params = {}) => apiClient.get('/vendor/wallet/transactions', { params }),
   getPayouts: (params = {}) => apiClient.get('/vendor/payouts', { params }),
   requestPayout: (data) => apiClient.post('/vendor/payouts', data),
+  getBanks: () => apiClient.get('/vendor/payouts/banks'),
+  resolveAccount: (params) => apiClient.get('/vendor/payouts/resolve-account', { params }),
 
   // Admin
   adminGetStores: (params = {}) => apiClient.get('/admin/stores', { params }),
