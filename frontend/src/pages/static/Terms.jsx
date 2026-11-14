@@ -36,7 +36,7 @@ const Terms = () => {
           Key Commercial Summary
         </h3>
         <p className="text-sm text-secondary-700 dark:text-secondary-300 leading-relaxed">
-          Shop Viotor is operated by <strong>Pawn 2 King Enterprise</strong>, a business registered under the laws of the Republic of Ghana. We operate a multi-service marketplace connecting verified buyers, merchants, and service providers. All financial transactions on our platform are processed through PCI-DSS Level 1 compliant infrastructure (including <strong>Paystack</strong> and accredited Mobile Money networks) with built-in buyer escrow protection.
+          Shop Viotor Ventures is a business registered under the laws of the Republic of Ghana. We operate a multi-service marketplace connecting verified buyers, merchants, and service providers. All financial transactions on our platform are processed through PCI-DSS Level 1 compliant infrastructure (including <strong>Paystack</strong> and accredited Mobile Money networks) with built-in buyer escrow protection.
         </p>
       </div>
 
@@ -115,7 +115,7 @@ const Terms = () => {
             </p>
             <p><strong>B. Hire Purchase Terms:</strong></p>
             <p>
-              Hire purchase requires mandatory Know Your Customer (KYC) identity verification (Ghana Card, institutional or student ID, and valid phone contact). The buyer receives immediate physical possession upon payment of the initial down deposit. Title and ownership of the goods remain with Shop Viotor / Pawn 2 King Enterprise until the final installment is paid in full. Defaulting on scheduled repayments gives Shop Viotor the legal right to repossess the item and pursue lawful debt recovery.
+              Hire purchase requires mandatory Know Your Customer (KYC) identity verification (Ghana Card, institutional or student ID, and valid phone contact). The buyer receives immediate physical possession upon payment of the initial down deposit. Title and ownership of the goods remain with Shop Viotor Ventures until the final installment is paid in full. Defaulting on scheduled repayments gives Shop Viotor the legal right to repossess the item and pursue lawful debt recovery.
             </p>
           </div>
         </section>
@@ -153,7 +153,7 @@ const Terms = () => {
             7. Limitation of Liability
           </h2>
           <p>
-            To the maximum extent permitted by Ghanaian law, Shop Viotor, its parent company Pawn 2 King Enterprise, directors, and affiliates shall not be liable for any indirect, incidental, or consequential damages resulting from platform downtime, courier transit delays, or disputes between buyers and independent vendors beyond our direct escrow protection. Our maximum aggregate liability for any claim shall not exceed the actual transaction amount paid by the customer.
+            To the maximum extent permitted by Ghanaian law, Shop Viotor Ventures, its directors, and affiliates shall not be liable for any indirect, incidental, or consequential damages resulting from platform downtime, courier transit delays, or disputes between buyers and independent vendors beyond our direct escrow protection. Our maximum aggregate liability for any claim shall not exceed the actual transaction amount paid by the customer.
           </p>
         </section>
 
@@ -173,7 +173,7 @@ const Terms = () => {
             9. Contact & Registered Business Information
           </h2>
           <div className="bg-secondary-50 dark:bg-secondary-900 rounded-xl p-4 border border-secondary-200 dark:border-secondary-800 space-y-2 text-xs">
-            <p><strong>Operating Entity:</strong> Pawn 2 King Enterprise (Trading as Shop Viotor)</p>
+            <p><strong>Operating Entity:</strong> Shop Viotor Ventures</p>
             <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-primary-500" /> <strong>Headquarters:</strong> Accra Central / ATU Commercial Corridor, Greater Accra, Ghana</p>
             <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-primary-500" /> <strong>Official Support Email:</strong> <a href="mailto:support@shopviotor.com" className="text-primary-600 dark:text-primary-400 underline">support@shopviotor.com</a></p>
             <p><strong>Customer Care Hours:</strong> Monday – Saturday, 8:00 AM – 6:00 PM GMT</p>

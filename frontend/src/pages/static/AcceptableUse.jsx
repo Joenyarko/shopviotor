@@ -34,7 +34,7 @@ const AcceptableUse = () => {
           Zero Tolerance for Illegal & Deceptive Activities
         </h3>
         <p className="text-sm text-secondary-700 dark:text-secondary-300 leading-relaxed">
-          Shop Viotor (operated by <strong>Pawn 2 King Enterprise</strong>) enforces a strict Acceptable Use Policy to maintain a secure, ethical, and trustworthy marketplace in Ghana. This policy governs all buyers, merchants, service providers, and barter traders. Any attempt to use our platform or payment systems for prohibited goods, counterfeit trade, money laundering, or fraudulent activities will result in immediate termination, funds forfeiture, and referral to law enforcement.
+          Shop Viotor Ventures enforces a strict Acceptable Use Policy to maintain a secure, ethical, and trustworthy marketplace in Ghana. This policy governs all buyers, merchants, service providers, and barter traders. Any attempt to use our platform or payment systems for prohibited goods, counterfeit trade, money laundering, or fraudulent activities will result in immediate termination, funds forfeiture, and referral to law enforcement.
         </p>
       </div>
 
@@ -150,7 +150,7 @@ const AcceptableUse = () => {
           <div className="bg-secondary-50 dark:bg-secondary-900 rounded-xl p-4 border border-secondary-200 dark:border-secondary-800 space-y-2 text-xs">
             <p>If you encounter a suspicious listing, counterfeit item, or policy violation, please notify our trust and compliance officers immediately:</p>
             <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-primary-500" /> <strong>Trust & Compliance Email:</strong> <a href="mailto:support@shopviotor.com" className="text-primary-600 dark:text-primary-400 underline">support@shopviotor.com</a></p>
-            <p className="flex items-center gap-1.5"><Scale className="w-3.5 h-3.5 text-primary-500" /> <strong>Legal Entity:</strong> Pawn 2 King Enterprise, Accra, Ghana</p>
+            <p className="flex items-center gap-1.5"><Scale className="w-3.5 h-3.5 text-primary-500" /> <strong>Legal Entity:</strong> Shop Viotor Ventures, Accra, Ghana</p>
           </div>
         </section>
 

@@ -18,7 +18,7 @@ const About = () => {
       <div className="bg-gradient-to-b from-secondary-950 to-secondary-900 text-white py-20 px-4 text-center relative overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-primary-500/20 blur-[100px] rounded-full pointer-events-none" />
         <div className="max-w-4xl mx-auto relative z-10 space-y-6">
-          <span className="text-primary-500 font-bold tracking-widest text-sm uppercase">Pawn 2 King Enterprise</span>
+          <span className="text-primary-500 font-bold tracking-widest text-sm uppercase">Shop Viotor Ventures</span>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-tight">
             Redefining <span className="text-primary-400">Commerce</span> in Ghana
           </h1>

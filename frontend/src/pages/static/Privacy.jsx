@@ -35,7 +35,7 @@ const Privacy = () => {
           Our Privacy & Payment Security Commitment
         </h3>
         <p className="text-sm text-secondary-700 dark:text-secondary-300 leading-relaxed">
-          At Shop Viotor (operated by <strong>Pawn 2 King Enterprise</strong>), we consider the privacy and security of your personal and financial information paramount. We adhere strictly to the <strong>Data Protection Act, 2012 (Act 843) of the Republic of Ghana</strong>. We do <strong>not</strong> store or have access to your complete debit/credit card numbers or Mobile Money PINs; all digital payments are handled through PCI-DSS Level 1 certified payment processor <strong>Paystack</strong>.
+          At Shop Viotor Ventures, we consider the privacy and security of your personal and financial information paramount. We adhere strictly to the <strong>Data Protection Act, 2012 (Act 843) of the Republic of Ghana</strong>. We do <strong>not</strong> store or have access to your complete debit/credit card numbers or Mobile Money PINs; all digital payments are handled through PCI-DSS Level 1 certified payment processor <strong>Paystack</strong>.
         </p>
       </div>
 
@@ -186,7 +186,7 @@ const Privacy = () => {
           <div className="bg-secondary-50 dark:bg-secondary-900 rounded-xl p-4 border border-secondary-200 dark:border-secondary-800 space-y-2 text-xs">
             <p>If you have any questions or wish to exercise your data privacy rights, please reach out to us:</p>
             <p className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-primary-500" /> <strong>Data Protection Email:</strong> <a href="mailto:privacy@shopviotor.com" className="text-primary-600 dark:text-primary-400 underline">privacy@shopviotor.com</a> (or <a href="mailto:support@shopviotor.com" className="text-primary-600 dark:text-primary-400 underline">support@shopviotor.com</a>)</p>
-            <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-primary-500" /> <strong>Office Address:</strong> Pawn 2 King Enterprise, Accra Central Commercial Corridor, Greater Accra, Ghana</p>
+            <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-primary-500" /> <strong>Office Address:</strong> Shop Viotor Ventures, Accra Central Commercial Corridor, Greater Accra, Ghana</p>
           </div>
         </section>
 
