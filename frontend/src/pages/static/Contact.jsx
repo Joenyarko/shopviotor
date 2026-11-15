@@ -78,7 +78,7 @@ const Contact = () => {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-secondary-900 dark:text-white mb-2">Email Address</label>
-                <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" placeholder="john@example.com" />
+                <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" placeholder="john@gmail.com" />
               </div>
             </div>
             

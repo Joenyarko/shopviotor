@@ -131,6 +131,8 @@ Route::prefix('v1')->group(function () {
         // Auth / User Profile
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::post('/auth/refresh', [AuthController::class, 'refreshToken'])->middleware('throttle:10,1');
+        Route::post('/auth/change-password', [AuthController::class, 'changePassword'])->middleware('throttle:5,1');
         Route::post('/auth/submit-student-verification', [AuthController::class, 'submitStudentVerification']);
 
         // Address Book

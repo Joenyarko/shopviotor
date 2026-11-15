@@ -110,30 +110,112 @@ class AuthService
 
     public function login(array $data, string $ip = null, string $userAgent = null): array
     {
-        $user = $this->userRepo->findByEmail($data['email']);
+        $email = strtolower(trim($data['email']));
+        $emailHash = md5($email);
+        $lockoutKey = 'login_lockout_until_' . $emailHash;
+        $attemptsKey = 'login_failed_attempts_' . $emailHash;
+        $tierKey = 'login_lockout_tier_' . $emailHash;
 
+        // 1. Check if account is temporarily locked out
+        $lockoutUntil = Cache::get($lockoutKey);
+        if ($lockoutUntil && now()->timestamp < $lockoutUntil) {
+            $remainingSeconds = $lockoutUntil - now()->timestamp;
+            $remainingMinutes = max(1, (int) ceil($remainingSeconds / 60));
+            throw ValidationException::withMessages([
+                'email' => ["Account temporarily locked due to multiple failed login attempts. Please try again in {$remainingMinutes} minute(s)."],
+            ]);
+        }
+
+        // 2. IP-based rate limiting guard against brute-force / credential stuffing
+        if ($ip) {
+            $ipLockoutKey = 'login_ip_lockout_until_' . md5($ip);
+            $ipLockoutUntil = Cache::get($ipLockoutKey);
+            if ($ipLockoutUntil && now()->timestamp < $ipLockoutUntil) {
+                $remSec = $ipLockoutUntil - now()->timestamp;
+                $remMin = max(1, (int) ceil($remSec / 60));
+                throw ValidationException::withMessages([
+                    'email' => ["Too many failed login requests from your network. Please wait {$remMin} minute(s) before trying again."],
+                ]);
+            }
+        }
+
+        $user = $this->userRepo->findByEmail($email);
+
+        // 3. Credential verification
         if (!$user || !Hash::check($data['password'], $user->password)) {
             $this->logLoginAttempt($user, $ip, $userAgent, 'failed');
+
+            // Increment failed attempt counter
+            $attempts = (int) Cache::get($attemptsKey, 0) + 1;
+            Cache::put($attemptsKey, $attempts, now()->addHours(24));
+
+            // IP attempt tracking
+            if ($ip) {
+                $ipAttemptsKey = 'login_ip_attempts_' . md5($ip);
+                $ipAttempts = (int) Cache::get($ipAttemptsKey, 0) + 1;
+                Cache::put($ipAttemptsKey, $ipAttempts, now()->addHours(24));
+                if ($ipAttempts >= 10) {
+                    Cache::put('login_ip_lockout_until_' . md5($ip), now()->addMinutes(15)->timestamp, now()->addMinutes(15));
+                }
+            }
+
+            // Lockout triggered at 3 failed attempts
+            if ($attempts >= 3) {
+                $tier = (int) Cache::get($tierKey, 0) + 1;
+                Cache::put($tierKey, $tier, now()->addDays(7));
+
+                // Progressive lockout duration:
+                // Tier 1: 15 minutes
+                // Tier 2: 60 minutes (1 hour)
+                // Tier 3+: 240 minutes (4 hours)
+                $lockoutMinutes = match ($tier) {
+                    1 => 15,
+                    2 => 60,
+                    default => 240,
+                };
+
+                $lockoutTimestamp = now()->addMinutes($lockoutMinutes)->timestamp;
+                Cache::put($lockoutKey, $lockoutTimestamp, now()->addMinutes($lockoutMinutes));
+                Cache::forget($attemptsKey);
+
+                $lockoutLabel = $lockoutMinutes >= 60 
+                    ? ($lockoutMinutes / 60) . ' hour(s)' 
+                    : "{$lockoutMinutes} minutes";
+
+                throw ValidationException::withMessages([
+                    'email' => ["Account temporarily locked due to 3 failed attempts. Please try again in {$lockoutLabel}."],
+                ]);
+            }
+
+            $remaining = 3 - $attempts;
             throw ValidationException::withMessages([
-                'email' => ['These credentials do not match our records.'],
+                'email' => ["These credentials do not match our records. ({$remaining} attempt" . ($remaining === 1 ? '' : 's') . " remaining before account lockout)"],
             ]);
         }
 
         if (!$user->is_active) {
             $this->logLoginAttempt($user, $ip, $userAgent, 'blocked');
             throw ValidationException::withMessages([
-                'email' => ['Your account has been suspended. Contact support.'],
+                'email' => ['Your account has been suspended or deactivated. Contact support@shopviotor.com.'],
             ]);
         }
 
+        // Reset lockout tracking on successful password entry
+        Cache::forget($attemptsKey);
+        Cache::forget($lockoutKey);
+        Cache::forget($tierKey);
+        if ($ip) {
+            Cache::forget('login_ip_attempts_' . md5($ip));
+        }
+
         // Generate 2FA Code
-        $code = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+        $code = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
         
         // Store in cache for 10 minutes
-        \Illuminate\Support\Facades\Cache::put('2fa_code_' . $user->id, $code, now()->addMinutes(10));
+        Cache::put('2fa_code_' . $user->id, $code, now()->addMinutes(10));
         
         // Send email
-        \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\TwoFactorAuthMail($user, $code));
+        Mail::to($user->email)->send(new \App\Mail\TwoFactorAuthMail($user, $code));
         
         $this->logLoginAttempt($user, $ip, $userAgent, 'successful');
 
@@ -146,30 +228,55 @@ class AuthService
 
     public function verify2Fa(int $userId, string $code, string $ip = null, string $userAgent = null): array
     {
-        // SECURITY: Track failed 2FA attempts to prevent brute-force
         $attemptKey  = '2fa_attempts_' . $userId;
-        $attempts    = \Illuminate\Support\Facades\Cache::get($attemptKey, 0);
+        $lockoutKey  = '2fa_lockout_until_' . $userId;
+        $tierKey     = '2fa_tier_' . $userId;
 
-        if ($attempts >= 5) {
-            // Invalidate the 2FA code entirely on lockout
-            \Illuminate\Support\Facades\Cache::forget('2fa_code_' . $userId);
+        // Check if 2FA is locked
+        $lockoutUntil = Cache::get($lockoutKey);
+        if ($lockoutUntil && now()->timestamp < $lockoutUntil) {
+            $remMin = max(1, (int) ceil(($lockoutUntil - now()->timestamp) / 60));
             throw ValidationException::withMessages([
-                'code' => ['Too many failed attempts. Your session has been invalidated. Please log in again.'],
+                'code' => ["Too many failed verification attempts. Please wait {$remMin} minute(s) before trying again."],
             ]);
         }
 
-        $cachedCode = \Illuminate\Support\Facades\Cache::get('2fa_code_' . $userId);
+        $attempts = (int) Cache::get($attemptKey, 0);
+        $cachedCode = Cache::get('2fa_code_' . $userId);
 
-        if (!$cachedCode || !hash_equals((string) $cachedCode, (string) $code)) {
-            \Illuminate\Support\Facades\Cache::put($attemptKey, $attempts + 1, now()->addMinutes(10));
+        if (!$cachedCode || !hash_equals((string) $cachedCode, trim((string) $code))) {
+            $attempts++;
+            Cache::put($attemptKey, $attempts, now()->addMinutes(15));
+
+            if ($attempts >= 3) {
+                $tier = (int) Cache::get($tierKey, 0) + 1;
+                Cache::put($tierKey, $tier, now()->addDays(7));
+                $lockMinutes = match ($tier) {
+                    1 => 15,
+                    2 => 60,
+                    default => 240,
+                };
+
+                Cache::put($lockoutKey, now()->addMinutes($lockMinutes)->timestamp, now()->addMinutes($lockMinutes));
+                Cache::forget('2fa_code_' . $userId);
+                Cache::forget($attemptKey);
+
+                throw ValidationException::withMessages([
+                    'code' => ["Too many failed attempts. Verification locked for {$lockMinutes} minutes. Please log in again."],
+                ]);
+            }
+
+            $rem = 3 - $attempts;
             throw ValidationException::withMessages([
-                'code' => ['The verification code is invalid or has expired.'],
+                'code' => ["The verification code is invalid or has expired. ({$rem} attempt" . ($rem === 1 ? '' : 's') . " remaining)"],
             ]);
         }
 
-        // Success: clean up attempt counter and code
-        \Illuminate\Support\Facades\Cache::forget('2fa_code_' . $userId);
-        \Illuminate\Support\Facades\Cache::forget($attemptKey);
+        // Success: clean up attempt counter, code, and lockout tier
+        Cache::forget('2fa_code_' . $userId);
+        Cache::forget($attemptKey);
+        Cache::forget($lockoutKey);
+        Cache::forget($tierKey);
 
         $user = $this->userRepo->findById($userId);
 

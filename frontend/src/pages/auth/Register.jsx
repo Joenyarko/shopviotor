@@ -126,7 +126,7 @@ const Register = () => {
                   message: 'Invalid email address'
                 }
               })}
-              placeholder="john@example.com"
+              placeholder="john@gmail.com"
               className="w-full mt-1.5 px-4 py-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:outline-none transition-colors"
             />
             {errors.email && <span className="text-xs text-accent-600 dark:text-accent-400 mt-1 block">{errors.email.message}</span>}

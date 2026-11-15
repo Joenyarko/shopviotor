@@ -140,13 +140,42 @@ class UserController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
+        $lockoutKey = 'admin_otp_lockout_' . $user->id;
+        $lockoutUntil = \Illuminate\Support\Facades\Cache::get($lockoutKey);
+        if ($lockoutUntil && now()->timestamp < $lockoutUntil) {
+            $remMin = max(1, (int) ceil(($lockoutUntil - now()->timestamp) / 60));
+            return response()->json([
+                'message' => "Admin verification locked due to multiple failed attempts. Please wait {$remMin} minute(s)."
+            ], 429);
+        }
+
+        $attemptsKey = 'admin_otp_attempts_' . $user->id;
+        $attempts = (int) \Illuminate\Support\Facades\Cache::get($attemptsKey, 0);
         $cachedCode = \Illuminate\Support\Facades\Cache::get('admin_otp_' . $user->id);
 
         if (!$cachedCode || !hash_equals((string) $cachedCode, trim((string) $request->code))) {
-            return response()->json(['message' => 'The verification code is invalid or has expired.'], 422);
+            $attempts++;
+            \Illuminate\Support\Facades\Cache::put($attemptsKey, $attempts, now()->addMinutes(15));
+
+            if ($attempts >= 3) {
+                \Illuminate\Support\Facades\Cache::put($lockoutKey, now()->addMinutes(15)->timestamp, now()->addMinutes(15));
+                \Illuminate\Support\Facades\Cache::forget('admin_otp_' . $user->id);
+                \Illuminate\Support\Facades\Cache::forget($attemptsKey);
+                return response()->json([
+                    'message' => 'Too many failed attempts. Admin verification locked for 15 minutes.'
+                ], 429);
+            }
+
+            $rem = 3 - $attempts;
+            return response()->json([
+                'message' => "The verification code is invalid or has expired. ({$rem} attempt" . ($rem === 1 ? '' : 's') . " remaining)"
+            ], 422);
         }
 
         \Illuminate\Support\Facades\Cache::forget('admin_otp_' . $user->id);
+        \Illuminate\Support\Facades\Cache::forget($attemptsKey);
+        \Illuminate\Support\Facades\Cache::forget($lockoutKey);
+
         // Mark 2FA as verified in cache for 12 hours
         \Illuminate\Support\Facades\Cache::put('admin_2fa_verified_' . $user->id, true, now()->addHours(12));
 
@@ -166,21 +195,14 @@ class UserController extends Controller
             ], 403);
         }
 
-        // Preserve financial integrity: do not force delete users with payments, orders, or stores
-        if ($user->orders()->exists() || $user->payments()->exists() || $user->store()->exists()) {
-            $user->tokens()->delete();
-            $user->update(['is_active' => false]);
-            $user->delete(); // Soft delete
-
-            return response()->json([
-                'message' => 'User has associated financial records (orders/payments/store); account has been safely deactivated and archived.'
-            ]);
-        }
-
-        $user->forceDelete();
+        // Under Anti-Money Laundering (AML) Act 1044 & statutory financial retention requirements (5+ years),
+        // accounts are revoked, deactivated, and soft-deleted to permanently preserve financial audit logs.
+        $user->tokens()->delete();
+        $user->update(['is_active' => false]);
+        $user->delete(); // Soft delete
 
         return response()->json([
-            'message' => 'User deleted successfully.'
+            'message' => 'User account has been deactivated and archived in compliance with statutory financial retention regulations.'
         ]);
     }
 

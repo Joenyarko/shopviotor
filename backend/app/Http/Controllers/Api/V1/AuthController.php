@@ -295,4 +295,53 @@ class AuthController extends Controller
             'message' => 'Password reset successfully. Please log in with your new password.',
         ]);
     }
+
+    public function changePassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'current_password'      => 'required|string',
+            'password'              => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required|string',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['The provided password does not match your current password.'],
+            ]);
+        }
+
+        // Update password (auto-hashed by model cast)
+        $user->update(['password' => $request->password]);
+
+        // Revoke all tokens across all devices immediately
+        $user->tokens()->delete();
+
+        return response()->json([
+            'message' => 'Password changed successfully. All other active sessions have been terminated. Please log in again.',
+        ]);
+    }
+
+    public function refreshToken(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated.'], 401);
+        }
+
+        // Delete current token
+        if ($user->currentAccessToken()) {
+            $user->currentAccessToken()->delete();
+        }
+
+        // Issue new token with same abilities
+        $abilities = $user->isAdmin() ? ['admin', 'customer'] : ['customer'];
+        $newToken  = $user->createToken('auth_token', $abilities)->plainTextToken;
+
+        return response()->json([
+            'token'   => $newToken,
+            'message' => 'Token refreshed successfully.',
+        ]);
+    }
 }
