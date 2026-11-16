@@ -7,6 +7,17 @@ import LayawayBoxTracker from '../../components/LayawayBoxTracker';
 import { toast } from 'react-toastify';
 import DotPagination from '../../components/DotPagination';
 
+const flattenCategories = (cats, level = 0) => {
+  let result = [];
+  (cats || []).forEach(c => {
+    result.push({ ...c, level });
+    if (c.children && c.children.length > 0) {
+      result = result.concat(flattenCategories(c.children, level + 1));
+    }
+  });
+  return result;
+};
+
 const AdminLayaway = () => {
   const [activeTab, setActiveTab] = useState(() => {
     return sessionStorage.getItem('adminLayawayActiveTab') || 'dashboard';
@@ -45,6 +56,7 @@ const AdminLayaway = () => {
   const [inventoryMeta, setInventoryMeta] = useState(null);
   const [loadingInventory, setLoadingInventory] = useState(false);
   const [inventorySearch, setInventorySearch] = useState('');
+  const [inventoryCategory, setInventoryCategory] = useState('all');
   const [inventoryPage, setInventoryPage] = useState(1);
   const [inventorySort, setInventorySort] = useState('name_asc');
 
@@ -122,7 +134,7 @@ const AdminLayaway = () => {
     if (activeTab === 'cards') loadCards();
     if (activeTab === 'locations') loadLocations();
     if (activeTab === 'settings') loadTerms();
-  }, [activeTab, customerPage, salesPage, inventoryPage, cardPage, selectedCardId, inventorySort, cardSort]);
+  }, [activeTab, customerPage, salesPage, inventoryPage, cardPage, selectedCardId, inventorySort, cardSort, inventoryCategory]);
 
   useEffect(() => {
     productService.getCategories().then(r => setCategories(r.data?.data || r.data || [])).catch(console.error);
@@ -186,7 +198,16 @@ const AdminLayaway = () => {
   const loadInventory = async () => {
     setLoadingInventory(true);
     try {
-      const res = await layawayService.adminGetInventory({ page: inventoryPage, search: inventorySearch, sort: inventorySort, per_page: 15 });
+      const params = {
+        page: inventoryPage,
+        search: inventorySearch,
+        sort: inventorySort,
+        per_page: 15
+      };
+      if (inventoryCategory && inventoryCategory !== 'all') {
+        params.category_id = inventoryCategory;
+      }
+      const res = await layawayService.adminGetInventory(params);
       setInventory(res.data || []);
       setInventoryMeta(res.meta || null);
     } catch (e) {
@@ -1011,7 +1032,22 @@ const AdminLayaway = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <h1 className="text-3xl font-bold text-yellow-600">Layaway Products</h1>
               <div className="flex gap-3 w-full md:w-auto items-center">
-                <form onSubmit={handleInventorySearch} className="flex gap-2 flex-1 md:flex-initial">
+                <form onSubmit={handleInventorySearch} className="flex flex-wrap md:flex-nowrap gap-2 flex-1 md:flex-initial">
+                  <select
+                    value={inventoryCategory}
+                    onChange={(e) => {
+                      setInventoryCategory(e.target.value);
+                      setInventoryPage(1);
+                    }}
+                    className="bg-white border border-gray-300 text-gray-900 px-3 py-2 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 text-sm h-[42px] max-w-[180px]"
+                  >
+                    <option value="all">All Categories</option>
+                    {flattenCategories(categories).map(c => (
+                      <option key={c.id || c.uuid} value={c.id || c.uuid}>
+                        {c.level > 0 ? '\u00A0\u00A0'.repeat(c.level) + '↳ ' : ''}{c.name}
+                      </option>
+                    ))}
+                  </select>
                   <select
                     value={inventorySort}
                     onChange={(e) => {

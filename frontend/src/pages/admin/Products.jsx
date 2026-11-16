@@ -9,24 +9,65 @@ import DotPagination from '../../components/DotPagination';
 
 const MAX_IMAGES = 5;
 
+const flattenCategories = (cats, level = 0) => {
+  let result = [];
+  (cats || []).forEach(c => {
+    result.push({ ...c, level });
+    if (c.children && c.children.length > 0) {
+      result = result.concat(flattenCategories(c.children, level + 1));
+    }
+  });
+  return result;
+};
+
+const findCategoryInTree = (catId, cats) => {
+  for (const c of (cats || [])) {
+    if (String(c.id) === String(catId) || String(c.uuid) === String(catId)) return c;
+    if (c.children?.length) {
+      const found = findCategoryInTree(catId, c.children);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+const getAllCategoryIds = (cat) => {
+  if (!cat) return [];
+  let ids = [String(cat.id), String(cat.uuid)].filter(Boolean);
+  if (cat.children && cat.children.length > 0) {
+    cat.children.forEach(child => {
+      ids = ids.concat(getAllCategoryIds(child));
+    });
+  }
+  return ids;
+};
+
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
   
-  const filteredProducts = products.filter(p => 
-    (p.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = (p.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    if (!matchesSearch) return false;
+    if (!selectedCategory || selectedCategory === 'all') return true;
+
+    const catNode = findCategoryInTree(selectedCategory, categories);
+    const validIds = catNode ? getAllCategoryIds(catNode) : [String(selectedCategory)];
+    const pCatId = String(p.category_id || p.category?.id || p.category?.uuid || '');
+    return validIds.includes(pCatId);
+  });
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const paginatedProducts = filteredProducts.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   useEffect(() => {
     setPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, selectedCategory]);
 
   // Modal states
   const [modalOpen, setModalOpen] = useState(false);
@@ -294,20 +335,32 @@ const Products = () => {
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Product Catalog</h2>
           <p className="text-sm text-secondary-500 mt-1">Manage store inventory, variations, and pricing.</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-stretch sm:items-center">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors shadow-sm"
+          >
+            <option value="all">All Categories</option>
+            {flattenCategories(categories).map(c => (
+              <option key={c.id || c.uuid} value={c.id || c.uuid}>
+                {c.level > 0 ? '\u00A0\u00A0'.repeat(c.level) + '↳ ' : ''}{c.name}
+              </option>
+            ))}
+          </select>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-4 w-4 text-secondary-400" />
             </div>
             <input
               type="text"
-              className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              className="block w-full sm:w-60 pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors shadow-sm"
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow">
+          <button onClick={handleOpenCreate} className="premium-button-primary px-4 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 shadow">
             <Plus className="w-4 h-4" /> Add Product
           </button>
         </div>

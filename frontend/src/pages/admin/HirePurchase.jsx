@@ -6,6 +6,39 @@ import { Briefcase, X, RefreshCw, Eye, Plus, Image as ImageIcon, Upload, Trash2,
 import DotPagination from '../../components/DotPagination';
 import CategorySelector from '../../components/CategorySelector';
 
+const flattenCategories = (cats, level = 0) => {
+  let result = [];
+  (cats || []).forEach(c => {
+    result.push({ ...c, level });
+    if (c.children && c.children.length > 0) {
+      result = result.concat(flattenCategories(c.children, level + 1));
+    }
+  });
+  return result;
+};
+
+const findCategoryInTree = (catId, cats) => {
+  for (const c of (cats || [])) {
+    if (String(c.id) === String(catId) || String(c.uuid) === String(catId)) return c;
+    if (c.children?.length) {
+      const found = findCategoryInTree(catId, c.children);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+const getAllCategoryIds = (cat) => {
+  if (!cat) return [];
+  let ids = [String(cat.id), String(cat.uuid)].filter(Boolean);
+  if (cat.children && cat.children.length > 0) {
+    cat.children.forEach(child => {
+      ids = ids.concat(getAllCategoryIds(child));
+    });
+  }
+  return ids;
+};
+
 const AdminHirePurchase = () => {
   const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'products'
   
@@ -19,6 +52,8 @@ const AdminHirePurchase = () => {
   const [hpProducts, setHpProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [prodSearch, setProdSearch] = useState('');
+  const [selectedProdCategory, setSelectedProdCategory] = useState('all');
   const [page, setPage] = useState(1);
   const [prodPage, setProdPage] = useState(1);
   const itemsPerPage = 8;
@@ -28,14 +63,29 @@ const AdminHirePurchase = () => {
     (a.product?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
   
+  const filteredHpProducts = hpProducts.filter(p => {
+    const matchesSearch = (p.name?.toLowerCase() || '').includes(prodSearch.toLowerCase());
+    if (!matchesSearch) return false;
+    if (!selectedProdCategory || selectedProdCategory === 'all') return true;
+
+    const catNode = findCategoryInTree(selectedProdCategory, categories);
+    const validIds = catNode ? getAllCategoryIds(catNode) : [String(selectedProdCategory)];
+    const pCatId = String(p.category_id || p.category?.id || p.category?.uuid || '');
+    return validIds.includes(pCatId);
+  });
+
   const totalPages = Math.ceil(filteredApps.length / itemsPerPage);
   const paginatedApps = filteredApps.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-  const totalProdPages = Math.ceil(hpProducts.length / itemsPerPage);
-  const paginatedHpProducts = hpProducts.slice((prodPage - 1) * itemsPerPage, prodPage * itemsPerPage);
+  const totalProdPages = Math.ceil(filteredHpProducts.length / itemsPerPage);
+  const paginatedHpProducts = filteredHpProducts.slice((prodPage - 1) * itemsPerPage, prodPage * itemsPerPage);
 
   useEffect(() => {
     setPage(1);
   }, [searchTerm]);
+
+  useEffect(() => {
+    setProdPage(1);
+  }, [prodSearch, selectedProdCategory]);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
   
@@ -181,20 +231,47 @@ const AdminHirePurchase = () => {
           </h2>
           <p className="text-sm text-secondary-500 mt-1">Review applications, track installments, and manage eligible products.</p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          {activeTab === 'applications' && (
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-stretch sm:items-center">
+          {activeTab === 'applications' ? (
             <div className="relative w-full sm:w-64">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-secondary-400" />
               </div>
               <input
                 type="text"
-                className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors shadow-sm"
                 placeholder="Search applications..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+          ) : (
+            <>
+              <select
+                value={selectedProdCategory}
+                onChange={(e) => setSelectedProdCategory(e.target.value)}
+                className="border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors shadow-sm"
+              >
+                <option value="all">All Categories</option>
+                {flattenCategories(categories).map(c => (
+                  <option key={c.id || c.uuid} value={c.id || c.uuid}>
+                    {c.level > 0 ? '\u00A0\u00A0'.repeat(c.level) + '↳ ' : ''}{c.name}
+                  </option>
+                ))}
+              </select>
+              <div className="relative w-full sm:w-60">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-secondary-400" />
+                </div>
+                <input
+                  type="text"
+                  className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors shadow-sm"
+                  placeholder="Search HP products..."
+                  value={prodSearch}
+                  onChange={(e) => setProdSearch(e.target.value)}
+                />
+              </div>
+            </>
           )}
           <button onClick={() => {
             setEditingProductId(null);
@@ -329,6 +406,10 @@ const AdminHirePurchase = () => {
               <Briefcase className="w-12 h-12 mb-3 text-secondary-300" />
               <p>No products are currently available for Hire Purchase.</p>
               <button onClick={() => setShowAddProductModal(true)} className="mt-4 text-primary-600 font-bold hover:underline">Post the first one</button>
+            </div>
+          ) : filteredHpProducts.length === 0 ? (
+            <div className="p-12 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500 dark:text-secondary-400 font-semibold">
+              No hire purchase products match your filter criteria.
             </div>
           ) : (
             <div className="space-y-6">

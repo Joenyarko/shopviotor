@@ -282,13 +282,24 @@ class LayawayController extends Controller
             $query->where('name', 'like', "%{$request->search}%");
         }
 
+        if ($request->filled('category_id') && $request->category_id !== 'all') {
+            $cat = $request->category_id;
+            $query->where(function($q) use ($cat) {
+                $q->where('category_id', $cat)
+                  ->orWhereHas('category', function($cq) use ($cat) {
+                      $cq->where('uuid', $cat)->orWhere('id', $cat);
+                  });
+            });
+        }
+
         if ($request->status !== 'all') {
             $query->where(function($q) {
                 $q->where('is_layaway', true)->orWhere('available_for_layaway', true);
             });
         }
 
-        $products = $query->orderBy('created_at', 'desc')->paginate(20);
+        $perPage = min(max((int)$request->input('per_page', 20), 1), 1000);
+        $products = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
         $formatted = collect($products->items())->map(function($product) {
             return [
