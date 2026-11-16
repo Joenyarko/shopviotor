@@ -57,6 +57,7 @@ const AdminLayaway = () => {
   const [loadingInventory, setLoadingInventory] = useState(false);
   const [inventorySearch, setInventorySearch] = useState('');
   const [inventoryCategory, setInventoryCategory] = useState('all');
+  const [categories, setCategories] = useState([]);
   const [inventoryPage, setInventoryPage] = useState(1);
   const [inventorySort, setInventorySort] = useState('name_asc');
 
@@ -107,7 +108,6 @@ const AdminLayaway = () => {
   // Layaway Product Form State
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [editingProductId, setEditingProductId] = useState(null);
-  const [categories, setCategories] = useState([]);
   const [prodName, setProdName] = useState('');
   const [prodPrice, setProdPrice] = useState('');
   const [prodCategoryId, setProdCategoryId] = useState('');

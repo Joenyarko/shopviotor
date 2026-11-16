@@ -50,6 +50,7 @@ const AdminHirePurchase = () => {
 
   // Products State
   const [hpProducts, setHpProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [prodSearch, setProdSearch] = useState('');
@@ -90,7 +91,6 @@ const AdminHirePurchase = () => {
   const [editingProductId, setEditingProductId] = useState(null);
   
   // Product Form State
-  const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [categoryId, setCategoryId] = useState('');

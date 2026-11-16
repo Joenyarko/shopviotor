@@ -52,6 +52,7 @@ const TradeRequests = () => {
 
   // Products State
   const [tradeProducts, setTradeProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [prodSearch, setProdSearch] = useState('');
@@ -93,7 +94,6 @@ const TradeRequests = () => {
   const [editingProductId, setEditingProductId] = useState(null);
   
   // Product Form State
-  const [categories, setCategories] = useState([]);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [categoryId, setCategoryId] = useState('');
