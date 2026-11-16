@@ -39,7 +39,7 @@ class ProductController extends Controller
         }
 
         $products = $this->productRepo->getAdminProducts(
-            $request->input('per_page', 15),
+            min(max((int) $request->input('per_page', 15), 1), 1000),
             $filters,
             ['category', 'brand', 'variations.options', 'images']
         );

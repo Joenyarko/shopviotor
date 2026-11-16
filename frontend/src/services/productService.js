@@ -12,7 +12,8 @@ const productService = {
   getBrand: (slug) => apiClient.get(`/brands/${slug}`),
 
   // Admin endpoints
-  adminGetProducts: (params = {}) => apiClient.get('/admin/products', { params }),
+  // Admin pages paginate client-side, so fetch the full catalogue (backend caps at 1000)
+  adminGetProducts: (params = {}) => apiClient.get('/admin/products', { params: { per_page: 1000, ...params } }),
   adminGetProduct: (uuid) => apiClient.get(`/admin/products/${uuid}`),
   adminCreateProduct: (formData) => {
     return apiClient.post('/admin/products', formData, {
