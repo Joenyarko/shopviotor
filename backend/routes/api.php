@@ -271,6 +271,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/orders', [AdminOrderController::class, 'index']);
             Route::get('/orders/{uuid}', [AdminOrderController::class, 'show']);
             Route::put('/orders/{uuid}/status', [AdminOrderController::class, 'updateStatus']);
+            Route::post('/orders/{uuid}/confirm-payment', [AdminOrderController::class, 'confirmPayment']);
             Route::delete('/orders/{uuid}', [AdminOrderController::class, 'destroy']);
             Route::post('/orders/{uuid}/restore', [AdminOrderController::class, 'restore']);
 
@@ -279,6 +280,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/raffles/winners/{id}', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'deleteWinner']);
             Route::get('/raffles/{uuid}/tickets', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'tickets']);
             Route::post('/raffles/{uuid}/draw', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'draw']);
+            Route::post('/raffles/{uuid}/issue-ticket', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'issueTicketManual']);
             Route::apiResource('raffles', \App\Http\Controllers\Api\V1\Admin\RaffleController::class)->except(['show']);
 
             // Sell Requests
@@ -297,6 +299,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/hire-purchases', [AdminHirePurchaseController::class, 'index']);
             Route::get('/hire-purchases/{uuid}', [AdminHirePurchaseController::class, 'show']);
             Route::post('/hire-purchases/{uuid}/status', [AdminHirePurchaseController::class, 'updateStatus']);
+            Route::post('/hire-purchases/{uuid}/confirm-deposit', [AdminHirePurchaseController::class, 'confirmDeposit']);
+            Route::post('/hire-purchases/{uuid}/installments/{installmentId}/confirm-payment', [AdminHirePurchaseController::class, 'confirmInstallment']);
 
             // Layaway (Admin)
             Route::get('/layaways/dashboard/stats', [AdminLayawayController::class, 'dashboard']);
@@ -326,6 +330,7 @@ Route::prefix('v1')->group(function () {
             // Pre-Orders (Admin)
             Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\Admin\PreOrderController::class, 'index']);
             Route::post('/pre-orders/{uuid}/status', [\App\Http\Controllers\Api\V1\Admin\PreOrderController::class, 'updateStatus']);
+            Route::post('/pre-orders/{uuid}/confirm-deposit', [\App\Http\Controllers\Api\V1\Admin\PreOrderController::class, 'confirmDeposit']);
 
             // Vendor Stores (Admin)
             Route::get('/stores', [AdminStoreController::class, 'index']);

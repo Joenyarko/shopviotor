@@ -164,4 +164,28 @@ class RaffleController extends Controller
 
         return response()->json($tickets);
     }
+
+    public function issueTicketManual(Request $request, string $uuid): JsonResponse
+    {
+        $request->validate([
+            'user_id'        => 'required|exists:users,id',
+            'quantity'       => 'nullable|integer|min:1|max:50',
+            'transaction_id' => 'nullable|string|max:100',
+        ]);
+
+        $raffle = Raffle::where('uuid', $uuid)->firstOrFail();
+        $qty = $request->quantity ?? 1;
+        $ref = $request->transaction_id ?? ('RAF-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(6)));
+
+        $tickets = [];
+        $raffleService = app(\App\Services\RaffleService::class);
+        for ($i = 0; $i < $qty; $i++) {
+            $tickets[] = $raffleService->purchaseTicket((int) $request->user_id, $raffle, $ref);
+        }
+
+        return response()->json([
+            'message' => "{$qty} ticket(s) issued and marked as paid successfully.",
+            'tickets' => $tickets,
+        ]);
+    }
 }

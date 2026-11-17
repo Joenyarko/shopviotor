@@ -182,6 +182,48 @@ class OrderService
         return $order->fresh();
     }
 
+    public function confirmManualPayment(Order $order, string $method = 'momo', ?string $transactionId = null, ?string $notes = null): Order
+    {
+        return DB::transaction(function () use ($order, $method, $transactionId, $notes) {
+            $formattedNote = trim(($order->admin_notes ? $order->admin_notes . "\n" : "") . ($notes ?? "Payment confirmed by admin via MoMo"));
+
+            $order->update([
+                'status'      => \App\Enums\OrderStatus::Processing,
+                'paid_at'     => now(),
+                'admin_notes' => $formattedNote,
+            ]);
+
+            // Create or update associated Payment record
+            $payment = $order->payment;
+            if ($payment) {
+                $payment->update([
+                    'status'            => \App\Enums\PaymentStatus::Completed,
+                    'method'            => \App\Enums\PaymentMethod::MobileMoney,
+                    'gateway_reference' => $transactionId,
+                    'notes'             => $notes,
+                    'paid_at'           => now(),
+                ]);
+            } else {
+                $order->payment()->create([
+                    'user_id'           => $order->user_id,
+                    'amount'            => $order->total,
+                    'currency'          => $order->currency ?? 'GHS',
+                    'method'            => \App\Enums\PaymentMethod::MobileMoney,
+                    'status'            => \App\Enums\PaymentStatus::Completed,
+                    'reference'         => $order->order_number,
+                    'gateway_reference' => $transactionId,
+                    'notes'             => $notes,
+                    'paid_at'           => now(),
+                ]);
+            }
+
+            // Vendor commissions (if applicable)
+            $this->createPendingCommissions($order);
+
+            return $order->fresh(['payment', 'items.product', 'user', 'address']);
+        });
+    }
+
     private function createPendingCommissions(Order $order): void
     {
         $items = $order->items()->with('product.store.wallet')->get();

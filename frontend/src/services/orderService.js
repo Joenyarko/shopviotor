@@ -14,6 +14,7 @@ const orderService = {
   adminGetOrders: (params = {}) => apiClient.get('/admin/orders', { params }),
   adminGetOrder: (uuid) => apiClient.get(`/admin/orders/${uuid}`),
   adminUpdateStatus: (uuid, status, note = '') => apiClient.put(`/admin/orders/${uuid}/status`, { status, note }),
+  adminConfirmPayment: (uuid, data = {}) => apiClient.post(`/admin/orders/${uuid}/confirm-payment`, data),
   adminGetStats: () => apiClient.get('/admin/orders/stats'),
   adminDeleteOrder: (uuid) => apiClient.delete(`/admin/orders/${uuid}`),
   adminRestoreOrder: (uuid) => apiClient.post(`/admin/orders/${uuid}/restore`),

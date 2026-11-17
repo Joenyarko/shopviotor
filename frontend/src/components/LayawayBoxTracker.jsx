@@ -12,7 +12,8 @@ import { openPaystack } from '../utils/paystack';
 export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAdmin = false }) {
   const [payAmount, setPayAmount] = useState('');
   const [payBoxes, setPayBoxes] = useState('');
-  const [payMethod, setPayMethod] = useState(isAdmin ? 'Cash' : 'Paystack');
+  const [payMethod, setPayMethod] = useState(isAdmin ? 'Momo' : 'Paystack');
+  const [payReference, setPayReference] = useState('');
   const [payNotes, setPayNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -85,6 +86,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
         amount_paid: payAmount ? parseFloat(payAmount) : null,
         number_of_boxes: payBoxes ? parseInt(payBoxes, 10) : null,
         payment_method: payMethod,
+        reference: payReference.trim() || undefined,
         notes: payNotes,
       };
 
@@ -102,6 +104,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
         toast.success(res.data?.message || 'Payment recorded successfully!');
         setPayAmount('');
         setPayBoxes('');
+        setPayReference('');
         setPayNotes('');
         if (onPaymentSuccess) onPaymentSuccess();
       };
@@ -329,6 +332,24 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                   </select>
                 )}
               </div>
+
+              {isAdmin && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
+                    MoMo Transaction ID / Reference (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={payReference}
+                    onChange={(e) => setPayReference(e.target.value)}
+                    placeholder="e.g. 1928374650 or LAY-XXXXX"
+                    className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white font-mono text-sm focus:outline-none focus:border-yellow-500 transition-colors"
+                  />
+                  <span className="text-[10px] text-gray-500 mt-1 block">
+                    Defaults to auto-generated LAY-YYYYMMDD-XXXX if left blank.
+                  </span>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Notes (Optional)</label>

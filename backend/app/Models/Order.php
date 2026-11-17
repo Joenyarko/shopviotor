@@ -53,9 +53,8 @@ class Order extends Model
 
     public static function generateOrderNumber(): string
     {
-        // Use Str::random for collision safety (uniqid() can collide under high concurrency)
         do {
-            $number = 'VIO-' . strtoupper(Str::random(10));
+            $number = 'ORD-' . date('Ymd') . '-' . strtoupper(Str::random(5));
         } while (static::where('order_number', $number)->exists());
 
         return $number;

@@ -145,6 +145,43 @@ const AdminPreOrders = () => {
     }
   };
 
+  const handleConfirmDeposit = async (order) => {
+    const { value: txId } = await Swal.fire({
+      title: 'Confirm Pre-Order MoMo Deposit',
+      html: `
+        <div style="text-align: left; font-size: 13px; margin-bottom: 12px; line-height: 1.6;">
+          <p><strong>Customer:</strong> ${order.customer_details?.name || order.user?.name || 'Customer'}</p>
+          <p><strong>Product:</strong> ${order.product?.name}</p>
+          <p><strong>Total Price:</strong> GHS ${parseFloat(order.total_price || 0).toFixed(2)}</p>
+        </div>
+      `,
+      input: 'text',
+      inputLabel: 'MoMo Transaction ID / Reference (from SMS to 0508208803)',
+      inputPlaceholder: 'e.g. 1928374650 or MoMo SMS ref',
+      showCancelButton: true,
+      confirmButtonText: 'Confirm Deposit & Mark Processing',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+    });
+
+    if (txId === undefined) return;
+
+    setProcessing(true);
+    try {
+      await preorderService.adminConfirmDeposit(order.uuid, { transaction_id: txId.trim() || undefined });
+      Swal.fire({
+        title: 'Deposit Confirmed!',
+        text: 'Pre-order deposit marked as paid and added to revenue.',
+        icon: 'success',
+      });
+      loadPreOrders();
+    } catch (e) {
+      Swal.fire({ text: e.response?.data?.message || 'Failed to confirm deposit.', icon: 'error' });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -330,22 +367,35 @@ const AdminPreOrders = () => {
                             {order.status}
                           </span>
                         </td>
-                        <td className="p-4 text-right space-x-2">
-                          {order.status === 'pending' && (
-                            <button disabled={processing} onClick={() => handleStatusUpdate(order.uuid, 'arrived')} className="p-1.5 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors" title="Mark Arrived">
-                              <Check className="w-4 h-4" />
-                            </button>
-                          )}
-                          {order.status === 'arrived' && (
-                            <button disabled={processing} onClick={() => handleStatusUpdate(order.uuid, 'completed')} className="p-1.5 bg-emerald-100 text-emerald-600 hover:bg-emerald-200 rounded-lg transition-colors" title="Mark Completed">
-                              <Check className="w-4 h-4" />
-                            </button>
-                          )}
-                          {(order.status === 'pending' || order.status === 'arrived') && (
-                            <button disabled={processing} onClick={() => handleStatusUpdate(order.uuid, 'cancelled')} className="p-1.5 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors" title="Cancel Order">
-                              <X className="w-4 h-4" />
-                            </button>
-                          )}
+                        <td className="p-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                            {order.status === 'pending' && parseFloat(order.deposit_paid || 0) <= 0 && (
+                              <button
+                                disabled={processing}
+                                onClick={() => handleConfirmDeposit(order)}
+                                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1 active:scale-95 transition-all"
+                                title="Confirm MoMo Deposit"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Confirm MoMo</span>
+                              </button>
+                            )}
+                            {order.status === 'pending' && (
+                              <button disabled={processing} onClick={() => handleStatusUpdate(order.uuid, 'arrived')} className="p-1.5 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors" title="Mark Arrived">
+                                <Check className="w-4 h-4" />
+                              </button>
+                            )}
+                            {order.status === 'arrived' && (
+                              <button disabled={processing} onClick={() => handleStatusUpdate(order.uuid, 'completed')} className="p-1.5 bg-emerald-100 text-emerald-600 hover:bg-emerald-200 rounded-lg transition-colors" title="Mark Completed">
+                                <Check className="w-4 h-4" />
+                              </button>
+                            )}
+                            {(order.status === 'pending' || order.status === 'arrived') && (
+                              <button disabled={processing} onClick={() => handleStatusUpdate(order.uuid, 'cancelled')} className="p-1.5 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors" title="Cancel Order">
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}

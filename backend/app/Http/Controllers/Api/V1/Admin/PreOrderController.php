@@ -44,4 +44,29 @@ class PreOrderController extends Controller
             'data' => $preOrder->load('product', 'user')
         ]);
     }
+
+    public function confirmDeposit(Request $request, string $uuid)
+    {
+        $request->validate([
+            'transaction_id' => 'nullable|string|max:100',
+            'amount'         => 'nullable|numeric|min:0',
+            'notes'          => 'nullable|string|max:500',
+        ]);
+
+        $preOrder = PreOrder::where('uuid', $uuid)->firstOrFail();
+        $deposit = $request->amount ? (float) $request->amount : (float) ($preOrder->product->preorder_deposit_amount ?? $preOrder->deposit_paid ?: $preOrder->total_price);
+        $balance = max(0, (float) $preOrder->total_price - $deposit);
+        $txId = $request->transaction_id ?? ('PRE-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5)));
+
+        $preOrder->update([
+            'deposit_paid'      => $deposit,
+            'balance_remaining' => $balance,
+            'status'            => 'processing',
+        ]);
+
+        return response()->json([
+            'message' => 'Pre-order deposit confirmed successfully.',
+            'data'    => $preOrder->load('product', 'user'),
+        ]);
+    }
 }

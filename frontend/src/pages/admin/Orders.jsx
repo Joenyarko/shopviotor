@@ -75,6 +75,12 @@ const Orders = () => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
 
+  // Manual MoMo confirmation state
+  const [confirmingPaymentOrder, setConfirmingPaymentOrder] = useState(null);
+  const [momoRefInput, setMomoRefInput] = useState('');
+  const [momoNoteInput, setMomoNoteInput] = useState('');
+  const [confirmingSubmitting, setConfirmingSubmitting] = useState(false);
+
   // Helper to extract customer details
   const getCustomerInfo = (order) => {
     const addr = order?.address || order?.user?.addresses?.[0];
@@ -202,6 +208,41 @@ const Orders = () => {
       Swal.fire({ text: 'Error updating order status.', icon: 'error' });
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleConfirmMoMoPayment = async (e) => {
+    e.preventDefault();
+    if (!confirmingPaymentOrder) return;
+
+    setConfirmingSubmitting(true);
+    try {
+      await orderService.adminConfirmPayment(confirmingPaymentOrder.uuid || confirmingPaymentOrder.id, {
+        transaction_id: momoRefInput.trim() || undefined,
+        notes: momoNoteInput.trim() || undefined,
+      });
+
+      Swal.fire({
+        title: 'Payment Confirmed!',
+        text: `Order #${confirmingPaymentOrder.order_number} has been verified and marked as PAID. Status moved to Processing for delivery.`,
+        icon: 'success',
+        timer: 2200,
+        showConfirmButton: false
+      });
+
+      setConfirmingPaymentOrder(null);
+      setMomoRefInput('');
+      setMomoNoteInput('');
+      await loadOrders();
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        title: 'Confirmation Failed',
+        text: err?.response?.data?.message || 'Could not confirm payment. Please try again.',
+        icon: 'error'
+      });
+    } finally {
+      setConfirmingSubmitting(false);
     }
   };
 
@@ -486,7 +527,21 @@ const Orders = () => {
 
                           {/* Actions */}
                           <td className="p-3.5 text-right">
-                            <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                              {!isPaid && rawStatus !== 'cancelled' && (
+                                <button
+                                  onClick={() => {
+                                    setMomoRefInput('');
+                                    setMomoNoteInput('');
+                                    setConfirmingPaymentOrder(o);
+                                  }}
+                                  title="Confirm MoMo Payment"
+                                  className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1 shadow-sm transition-transform active:scale-95 whitespace-nowrap"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>Confirm MoMo</span>
+                                </button>
+                              )}
                               <button
                                 onClick={() => setDetailModalOrder(o)}
                                 title="View Full Order Invoice & Delivery Slip"
@@ -703,6 +758,28 @@ const Orders = () => {
                   </span>
                 </div>
               </div>
+
+              {/* MoMo Direct Confirm Shortcut in Right Sidebar */}
+              {!(selectedOrder.paid_at || selectedOrder.payment?.status === 'successful') && (selectedOrder.status?.value || selectedOrder.status) !== 'cancelled' && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-xl space-y-2">
+                  <div className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                    MoMo Payment Pending
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMomoRefInput('');
+                      setMomoNoteInput('');
+                      setConfirmingPaymentOrder(selectedOrder);
+                    }}
+                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-sm flex items-center justify-center gap-1.5 active:scale-95 transition-all"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    Confirm MoMo Payment (GHS {parseFloat(selectedOrder.total || 0).toFixed(2)})
+                  </button>
+                </div>
+              )}
 
               {/* Fulfillment Status Update Form */}
               <form onSubmit={handleUpdateStatus} className="pt-3 border-t border-secondary-100 dark:border-secondary-800 space-y-3">
@@ -993,6 +1070,32 @@ const Orders = () => {
                 </div>
               </div>
 
+              {/* MoMo Manual Confirmation Prompt inside Detail Modal */}
+              {!(detailModalOrder.paid_at || detailModalOrder.payment?.status === 'successful') && (detailModalOrder.status?.value || detailModalOrder.status) !== 'cancelled' && (
+                <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/60 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                  <div>
+                    <span className="font-bold text-emerald-800 dark:text-emerald-300 block mb-0.5">
+                      Customer Paid via Direct MoMo?
+                    </span>
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-400">
+                      Confirming this payment records the GHS {parseFloat(detailModalOrder.total || 0).toFixed(2)} in your Dashboard and moves this order to Processing.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMomoRefInput('');
+                      setMomoNoteInput('');
+                      setConfirmingPaymentOrder(detailModalOrder);
+                    }}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg flex items-center gap-1.5 shadow-sm whitespace-nowrap active:scale-95 transition-all"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    Confirm MoMo Payment
+                  </button>
+                </div>
+              )}
+
               {/* Fulfillment Dispatch Notes */}
               {(detailModalOrder.admin_notes || detailModalOrder.cancellation_reason) && (
                 <div className="p-3.5 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 rounded-xl text-xs space-y-1">
@@ -1018,6 +1121,117 @@ const Orders = () => {
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* MANUAL MOMO PAYMENT CONFIRMATION MODAL */}
+      {confirmingPaymentOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="p-4 border-b border-secondary-100 dark:border-secondary-800 flex items-center justify-between bg-emerald-50/50 dark:bg-emerald-950/20">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm">
+                  <CheckCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm text-secondary-900 dark:text-white">
+                    Confirm MoMo Payment
+                  </h3>
+                  <span className="text-[11px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    Order #{confirmingPaymentOrder.order_number}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmingPaymentOrder(null)}
+                className="p-1 rounded-lg text-secondary-400 hover:text-secondary-600 hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleConfirmMoMoPayment} className="p-5 space-y-4">
+              <div className="p-3.5 bg-secondary-50 dark:bg-secondary-800/40 rounded-xl space-y-2 border border-secondary-100 dark:border-secondary-800 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-secondary-500">Customer:</span>
+                  <span className="font-bold text-secondary-900 dark:text-white">
+                    {getCustomerInfo(confirmingPaymentOrder).name}
+                  </span>
+                </div>
+                {getCustomerInfo(confirmingPaymentOrder).phone && (
+                  <div className="flex justify-between">
+                    <span className="text-secondary-500">Phone:</span>
+                    <span className="font-mono font-semibold text-secondary-900 dark:text-white">
+                      {getCustomerInfo(confirmingPaymentOrder).phone}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center pt-2 border-t border-secondary-200 dark:border-secondary-700">
+                  <span className="text-secondary-600 dark:text-secondary-400 font-semibold">Total Amount:</span>
+                  <span className="text-base font-extrabold text-emerald-600 dark:text-emerald-400">
+                    GHS {parseFloat(confirmingPaymentOrder.total || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-secondary-700 dark:text-secondary-300 mb-1">
+                  MoMo Transaction ID / Reference (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 1928374650 or MTN / Telecel SMS ref"
+                  value={momoRefInput}
+                  onChange={(e) => setMomoRefInput(e.target.value)}
+                  className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-white dark:bg-secondary-800 text-xs text-secondary-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <p className="text-[10px] text-secondary-500 mt-1">
+                  Reference found on your 0508208803 payment SMS alert.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-secondary-700 dark:text-secondary-300 mb-1">
+                  Payment / Fulfillment Notes (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Verified payment via Telecel Cash to Francis Victor Okine"
+                  value={momoNoteInput}
+                  onChange={(e) => setMomoNoteInput(e.target.value)}
+                  className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-white dark:bg-secondary-800 text-xs text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmingPaymentOrder(null)}
+                  disabled={confirmingSubmitting}
+                  className="w-1/3 py-2.5 border border-secondary-300 dark:border-secondary-700 text-secondary-700 dark:text-secondary-300 text-xs font-bold rounded-xl hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={confirmingSubmitting}
+                  className="w-2/3 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all"
+                >
+                  {confirmingSubmitting ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Confirm & Mark as Paid</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

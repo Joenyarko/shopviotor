@@ -123,7 +123,7 @@ class RaffleController extends Controller
         if ($isMockMode) {
             // Testing: generate tickets immediately with a server-side reference
             for ($i = 0; $i < $quantity; $i++) {
-                $reference = 'MOCK-RAFFLE-' . strtoupper(Str::random(12));
+                $reference = 'RAF-' . date('Ymd') . '-' . strtoupper(Str::random(6));
                 $tickets[] = $this->raffleService->purchaseTicket($user->id, $raffle, $reference);
             }
 

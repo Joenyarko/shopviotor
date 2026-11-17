@@ -214,6 +214,69 @@ const AdminRaffles = () => {
     } catch { setHolders([]); }
   };
 
+  const handleIssueMoMoTicket = async (raffle) => {
+    const { value: formValues } = await Swal.fire({
+      title: 'Issue MoMo Raffle Ticket(s)',
+      html: `
+        <div style="text-align: left; font-size: 13px; margin-bottom: 12px; line-height: 1.6;">
+          <p><strong>Raffle:</strong> ${raffle.title || raffle.product?.name || 'Raffle'}</p>
+          <p><strong>Price per Ticket:</strong> GHS ${parseFloat(raffle.ticket_price || 0).toFixed(2)}</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; text-align: left;">
+          <div>
+            <label style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase;">User ID *</label>
+            <input id="swal-user-id" class="swal2-input" placeholder="User ID number" style="margin: 4px 0; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase;">Quantity of Tickets</label>
+            <input id="swal-qty" type="number" min="1" max="50" value="1" class="swal2-input" style="margin: 4px 0; width: 100%;">
+          </div>
+          <div>
+            <label style="font-size: 11px; font-weight: bold; color: #64748b; text-transform: uppercase;">MoMo Reference / Transaction ID</label>
+            <input id="swal-txid" class="swal2-input" placeholder="e.g. 1928374650 or MoMo SMS ref" style="margin: 4px 0; width: 100%;">
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Issue & Confirm Payment',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+      preConfirm: () => {
+        const userId = document.getElementById('swal-user-id').value;
+        const qty = document.getElementById('swal-qty').value;
+        const txId = document.getElementById('swal-txid').value;
+        if (!userId) {
+          Swal.showValidationMessage('Please enter a User ID');
+          return false;
+        }
+        return { userId, qty, txId };
+      }
+    });
+
+    if (!formValues) return;
+
+    try {
+      const res = await raffleService.adminIssueTicketManual(raffle.uuid, {
+        user_id: formValues.userId,
+        quantity: parseInt(formValues.qty, 10) || 1,
+        transaction_id: formValues.txId ? formValues.txId.trim() : undefined,
+      });
+
+      Swal.fire({
+        title: 'Tickets Issued!',
+        text: res.data?.message || 'Ticket(s) issued and marked as paid.',
+        icon: 'success',
+      });
+
+      handleViewHolders(raffle);
+      loadRaffles();
+    } catch (err) {
+      console.error(err);
+      Swal.fire({ text: err.response?.data?.message || 'Failed to issue tickets.', icon: 'error' });
+    }
+  };
+
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -585,7 +648,17 @@ const AdminRaffles = () => {
                 <h3 className="font-bold text-secondary-900 dark:text-white">Ticket Holders</h3>
                 <p className="text-xs text-secondary-500 dark:text-secondary-400 line-clamp-1">{holdersRaffle.title}</p>
               </div>
-              <button onClick={() => setHoldersRaffle(null)} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500 dark:text-secondary-400"><X className="w-5 h-5" /></button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleIssueMoMoTicket(holdersRaffle)}
+                  className="px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 shadow-sm transition-transform active:scale-95"
+                >
+                  <Ticket className="w-3.5 h-3.5" />
+                  <span>+ Issue MoMo</span>
+                </button>
+                <button onClick={() => setHoldersRaffle(null)} className="p-1 rounded-md hover:bg-secondary-200 dark:hover:bg-secondary-800 text-secondary-500 dark:text-secondary-400"><X className="w-5 h-5" /></button>
+              </div>
             </div>
             <div className="p-4 space-y-3">
               {holders.length === 0 ? (

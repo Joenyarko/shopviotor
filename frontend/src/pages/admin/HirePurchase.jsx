@@ -155,6 +155,98 @@ const AdminHirePurchase = () => {
     }
   };
 
+  const handleSelectApp = async (app) => {
+    setSelectedApp(app);
+    try {
+      const res = await hpService.adminGetAgreement(app.uuid);
+      if (res.data?.data) {
+        setSelectedApp(res.data.data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleConfirmDeposit = async (app) => {
+    const defaultRef = app.deposit_reference || ('HIR-' + app.uuid.slice(0, 8).toUpperCase());
+    const { value: txId } = await Swal.fire({
+      title: 'Confirm MoMo Deposit',
+      html: `
+        <div style="text-align: left; font-size: 13px; margin-bottom: 12px; line-height: 1.6;">
+          <p><strong>Customer:</strong> ${app.user?.name || 'Customer'}</p>
+          <p><strong>Product:</strong> ${app.product?.name}</p>
+          <p><strong>Deposit Required:</strong> GHS ${parseFloat(app.deposit_amount || 0).toLocaleString()}</p>
+          <p><strong>Payment Ref:</strong> <code style="color: #10b981;">${defaultRef}</code></p>
+        </div>
+      `,
+      input: 'text',
+      inputLabel: 'MoMo Transaction ID (from SMS alert to 0508208803)',
+      inputValue: defaultRef,
+      showCancelButton: true,
+      confirmButtonText: 'Confirm & Activate Agreement',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+    });
+
+    if (txId === undefined) return;
+
+    setProcessing(true);
+    try {
+      await hpService.adminConfirmDeposit(app.uuid, { transaction_id: txId.trim() || defaultRef });
+      Swal.fire({
+        title: 'Deposit Confirmed!',
+        text: `Deposit payment of GHS ${parseFloat(app.deposit_amount || 0).toLocaleString()} confirmed. Agreement is now ACTIVE and reflected in Dashboard.`,
+        icon: 'success',
+      });
+      loadApplications();
+      handleSelectApp(app);
+    } catch (err) {
+      console.error(err);
+      Swal.fire({ text: err.response?.data?.message || 'Failed to confirm deposit.', icon: 'error' });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleConfirmInstallment = async (app, installment) => {
+    const defaultRef = 'HIR-INST-' + (app.deposit_reference || app.uuid.slice(0, 6).toUpperCase()) + '-' + installment.installment_number;
+    const { value: txId } = await Swal.fire({
+      title: `Confirm Installment #${installment.installment_number}`,
+      html: `
+        <div style="text-align: left; font-size: 13px; margin-bottom: 12px; line-height: 1.6;">
+          <p><strong>Amount Due:</strong> GHS ${parseFloat(installment.amount_due || 0).toFixed(2)}</p>
+          <p><strong>Due Date:</strong> ${installment.due_date || 'N/A'}</p>
+        </div>
+      `,
+      input: 'text',
+      inputLabel: 'MoMo Transaction ID / Reference (Optional)',
+      inputValue: defaultRef,
+      showCancelButton: true,
+      confirmButtonText: 'Mark Installment as Paid',
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+    });
+
+    if (txId === undefined) return;
+
+    setProcessing(true);
+    try {
+      await hpService.adminConfirmInstallment(app.uuid, installment.id, { transaction_id: txId.trim() || defaultRef });
+      Swal.fire({
+        title: 'Installment Confirmed!',
+        text: `Installment #${installment.installment_number} marked as PAID. Revenue added to Dashboard.`,
+        icon: 'success',
+      });
+      loadApplications();
+      handleSelectApp(app);
+    } catch (err) {
+      console.error(err);
+      Swal.fire({ text: err.response?.data?.message || 'Failed to confirm installment.', icon: 'error' });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   // --- Product Form Handlers ---
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -340,7 +432,7 @@ const AdminHirePurchase = () => {
                           </span>
                         </td>
                         <td className="p-4 text-right flex justify-end gap-2">
-                          <button onClick={() => setSelectedApp(app)} className="p-1.5 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 rounded-lg"><Eye className="w-4 h-4" /></button>
+                          <button onClick={() => handleSelectApp(app)} className="p-1.5 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 rounded-lg"><Eye className="w-4 h-4" /></button>
                         </td>
                       </tr>
                     ))}
@@ -414,27 +506,98 @@ const AdminHirePurchase = () => {
                     <span className="block text-xxs text-secondary-500 uppercase font-bold tracking-wider">Total Amount</span>
                     <span className="text-sm font-semibold text-secondary-900 dark:text-white">GHS {parseFloat(selectedApp.total_amount || 0).toLocaleString()}</span>
                   </div>
-                  <div>
-                    <span className="block text-xxs text-secondary-500 uppercase font-bold tracking-wider">Deposit Paid</span>
-                    <span className="text-sm font-semibold text-secondary-900 dark:text-white">GHS {parseFloat(selectedApp.deposit_amount || 0).toLocaleString()}</span>
+                  <div className="p-3 bg-secondary-50 dark:bg-secondary-800/40 rounded-xl space-y-1.5 border border-secondary-100 dark:border-secondary-800">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-secondary-500 font-semibold uppercase text-xxs">Deposit Required:</span>
+                      <span className="font-extrabold text-secondary-900 dark:text-white">
+                        GHS {parseFloat(selectedApp.deposit_amount || 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-secondary-500 font-semibold uppercase text-xxs">Deposit Status:</span>
+                      <span className={`px-2 py-0.5 rounded-full text-xxs font-bold uppercase ${selectedApp.deposit_paid_at ? 'bg-emerald-100 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400' : 'bg-amber-100 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400'}`}>
+                        {selectedApp.deposit_paid_at ? 'Paid' : 'Unpaid'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs pt-1 border-t border-secondary-200 dark:border-secondary-700">
+                      <span className="text-secondary-500 font-semibold uppercase text-xxs">Payment Reference:</span>
+                      <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-xxs">
+                        {selectedApp.deposit_reference || ('HIR-' + selectedApp.uuid.slice(0, 8).toUpperCase())}
+                      </span>
+                    </div>
                   </div>
+
                   <div>
                     <span className="block text-xxs text-secondary-500 uppercase font-bold tracking-wider">Monthly Installment ({selectedApp.duration_months} Months)</span>
                     <span className="text-sm font-semibold text-secondary-900 dark:text-white">GHS {parseFloat(selectedApp.monthly_installment || 0).toLocaleString()}</span>
                   </div>
+
                   <div>
                     <span className="block text-xxs text-secondary-500 uppercase font-bold tracking-wider">Customer Notes</span>
                     <p className="text-sm text-secondary-700 dark:text-secondary-300">{selectedApp.notes || 'None'}</p>
                   </div>
+
+                  {/* Installments Breakdown if loaded */}
+                  {selectedApp.installments && selectedApp.installments.length > 0 && (
+                    <div className="pt-2 border-t border-secondary-100 dark:border-secondary-800 space-y-2">
+                      <span className="block text-xxs text-secondary-500 uppercase font-bold tracking-wider">
+                        Installments Schedule ({selectedApp.installments.filter(i => i.status === 'paid').length}/{selectedApp.installments.length} Paid)
+                      </span>
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        {selectedApp.installments.map((inst) => (
+                          <div key={inst.id} className="p-2 bg-secondary-50 dark:bg-secondary-800/40 rounded-lg flex items-center justify-between text-xs border border-secondary-100 dark:border-secondary-800">
+                            <div>
+                              <div className="font-bold text-secondary-900 dark:text-white">
+                                #{inst.installment_number}: GHS {parseFloat(inst.amount_due || 0).toFixed(2)}
+                              </div>
+                              <div className="text-[10px] text-secondary-500">
+                                Due: {inst.due_date || 'N/A'}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {inst.status === 'paid' ? (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400">
+                                  PAID
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleConfirmInstallment(selectedApp, inst)}
+                                  disabled={processing}
+                                  className="px-2 py-1 text-[10px] font-bold rounded bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm transition-transform active:scale-95"
+                                >
+                                  Confirm MoMo
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="pt-4 border-t border-secondary-100 dark:border-secondary-800 space-y-2">
-                    <button 
-                      onClick={() => handleUpdateStatus(selectedApp.uuid, 'active')}
-                      disabled={processing} 
-                      className="w-full premium-button-primary py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
-                    >
-                      <CheckCircle className="w-4 h-4" /> Approve & Activate
-                    </button>
+                    {/* Confirm Deposit Button if unpaid */}
+                    {!selectedApp.deposit_paid_at && selectedApp.status !== 'rejected' && (
+                      <button 
+                        onClick={() => handleConfirmDeposit(selectedApp)}
+                        disabled={processing} 
+                        className="w-full py-2.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all"
+                      >
+                        <CheckCircle className="w-4 h-4" /> Confirm MoMo Deposit & Activate
+                      </button>
+                    )}
+
+                    {selectedApp.status !== 'active' && (
+                      <button 
+                        onClick={() => handleUpdateStatus(selectedApp.uuid, 'active')}
+                        disabled={processing} 
+                        className="w-full premium-button-primary py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5"
+                      >
+                        <CheckCircle className="w-4 h-4" /> Approve Agreement
+                      </button>
+                    )}
+
                     <button 
                       onClick={() => handleUpdateStatus(selectedApp.uuid, 'rejected')}
                       disabled={processing} 

@@ -55,6 +55,29 @@ class OrderController extends Controller
         ]);
     }
 
+    public function confirmPayment(Request $request, string $uuid): JsonResponse
+    {
+        $order = $this->orderRepo->findByUuid($uuid);
+
+        $data = $request->validate([
+            'transaction_id' => ['nullable', 'string', 'max:100'],
+            'payment_method' => ['nullable', 'string', 'max:50'],
+            'notes'          => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $order = $this->orderService->confirmManualPayment(
+            $order,
+            $data['payment_method'] ?? 'momo',
+            $data['transaction_id'] ?? null,
+            $data['notes'] ?? null
+        );
+
+        return response()->json([
+            'message' => 'Payment confirmed successfully. Order is now marked as Processing for delivery.',
+            'data'    => new OrderResource($order),
+        ]);
+    }
+
     public function stats(): JsonResponse
     {
         $stats = $this->orderRepo->getRevenueStats();

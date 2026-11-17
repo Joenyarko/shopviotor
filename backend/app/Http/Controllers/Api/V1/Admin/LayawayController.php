@@ -434,8 +434,8 @@ class LayawayController extends Controller
                 'uuid' => \Illuminate\Support\Str::uuid()->toString(),
                 'amount' => $amount,
                 'boxes_covered' => $boxes,
-                'payment_method' => $request->payment_method,
-                'reference' => 'ADMIN-' . strtoupper(uniqid()),
+                'payment_method' => $request->payment_method ?? 'momo',
+                'reference' => $request->reference ?? $request->transaction_id ?? ('LAY-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5))),
                 'notes' => $request->notes,
                 'color_code' => $colorCode,
             ]);

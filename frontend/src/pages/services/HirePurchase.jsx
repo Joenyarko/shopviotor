@@ -1244,7 +1244,7 @@ const HirePurchase = () => {
               <div className="flex justify-between items-center p-3 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl">
                 <span className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Payment Reference:</span>
                 <span className="text-xs font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
-                  {createdAgreement?.uuid ? createdAgreement.uuid.slice(0, 13) : 'HP-' + (targetProduct?.id || 'VIOTOR')}
+                  {createdAgreement?.deposit_reference || (createdAgreement?.uuid ? 'HIR-' + createdAgreement.uuid.slice(0, 8).toUpperCase() : 'HIR-DEPOSIT')}
                 </span>
               </div>
             </div>
@@ -1258,7 +1258,7 @@ const HirePurchase = () => {
                 Close Window
               </button>
               <a
-                href={`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I have initialized a Hire Purchase agreement for "${targetProduct?.name}" and made a deposit payment of GHS ${deposit.toFixed(2)} to 0508208803 (Ref: ${createdAgreement?.uuid || 'HP-DEPOSIT'}). Please confirm and approve.`)}`}
+                href={`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I have initialized a Hire Purchase agreement for "${targetProduct?.name}" and made a deposit payment of GHS ${deposit.toFixed(2)} to 0508208803 (Ref: ${createdAgreement?.deposit_reference || (createdAgreement?.uuid ? 'HIR-' + createdAgreement.uuid.slice(0, 8).toUpperCase() : 'HIR-DEPOSIT')}). Please confirm and approve.`)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 transition-colors"
