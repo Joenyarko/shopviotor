@@ -1,19 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import orderService from '../../services/orderService';
-import { ShoppingBag, RefreshCw, Clock, Package, Truck, CheckCircle, CreditCard, Phone, XCircle, AlertCircle, Copy, Check, X } from 'lucide-react';
-import DotPagination from '../../components/DotPagination';
+import {
+  ShoppingBag, RefreshCw, Clock, Package, Truck, CheckCircle,
+  CreditCard, Phone, AlertCircle, Copy, Check, X, ChevronLeft, ChevronRight,
+  ExternalLink, ChevronDown, ChevronUp, ArrowRight, Eye
+} from 'lucide-react';
 import { openPaystack } from '../../utils/paystack';
 import { useAuth } from '../../contexts/AuthContext';
 import Swal from 'sweetalert2';
+
+const STATUS_TABS = [
+  { id: 'all', label: 'All Orders' },
+  { id: 'pending', label: 'Pending Payment' },
+  { id: 'processing', label: 'Processing' },
+  { id: 'shipped', label: 'Shipped' },
+  { id: 'delivered', label: 'Delivered' },
+  { id: 'cancelled', label: 'Cancelled' },
+];
 
 const Orders = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [expandedOrders, setExpandedOrders] = useState({});
   const [selectedMomoOrder, setSelectedMomoOrder] = useState(null);
   const [copied, setCopied] = useState(false);
-  const itemsPerPage = 4;
+  const [copiedOrderNum, setCopiedOrderNum] = useState(null);
+  const itemsPerPage = 5;
 
   const fetchOrders = async () => {
     try {
@@ -34,6 +49,19 @@ const Orders = () => {
     navigator.clipboard.writeText('0508208803');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyOrderNumber = (orderNum) => {
+    navigator.clipboard.writeText(orderNum);
+    setCopiedOrderNum(orderNum);
+    setTimeout(() => setCopiedOrderNum(null), 2000);
+  };
+
+  const toggleExpand = (orderId) => {
+    setExpandedOrders(prev => ({
+      ...prev,
+      [orderId]: !prev[orderId]
+    }));
   };
 
   const handlePayOnline = (order) => {
@@ -58,7 +86,7 @@ const Orders = () => {
         Swal.fire({
           icon: 'info',
           title: 'Payment Incomplete',
-          text: 'Payment window was closed. You can also transfer directly via Mobile Money to 0508208803.',
+          text: 'Payment window was closed. You can transfer directly via Mobile Money to 0508208803.',
         });
       }
     });
@@ -85,153 +113,275 @@ const Orders = () => {
     }
   };
 
-  const totalPages = Math.ceil(orders.length / itemsPerPage);
-  const currentOrders = orders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  // Filter orders by active status tab
+  const filteredOrders = useMemo(() => {
+    return orders.filter(order => {
+      if (statusFilter === 'all') return true;
+      if (statusFilter === 'pending') return order.status === 'pending' || (!order.paid_at && order.status !== 'cancelled');
+      return order.status === statusFilter;
+    });
+  }, [orders, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / itemsPerPage));
+  const currentOrders = useMemo(() => {
+    return filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [filteredOrders, currentPage, itemsPerPage]);
+
+  const getStatusBadge = (order) => {
+    const isUnpaid = !order.paid_at && order.status !== 'cancelled' && order.status !== 'delivered';
+    if (order.status === 'delivered') {
+      return <span className="px-2.5 py-0.5 rounded-full text-xxs font-extrabold uppercase bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">Delivered</span>;
+    }
+    if (order.status === 'cancelled') {
+      return <span className="px-2.5 py-0.5 rounded-full text-xxs font-extrabold uppercase bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400">Cancelled</span>;
+    }
+    if (order.status === 'shipped') {
+      return <span className="px-2.5 py-0.5 rounded-full text-xxs font-extrabold uppercase bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400">Shipped</span>;
+    }
+    if (order.status === 'processing') {
+      return <span className="px-2.5 py-0.5 rounded-full text-xxs font-extrabold uppercase bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400">Processing</span>;
+    }
+    if (isUnpaid) {
+      return <span className="px-2.5 py-0.5 rounded-full text-xxs font-extrabold uppercase bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-400 animate-pulse">Payment Pending</span>;
+    }
+    return <span className="px-2.5 py-0.5 rounded-full text-xxs font-extrabold uppercase bg-primary-100 dark:bg-primary-950/40 text-primary-700 dark:text-primary-400">{order.status}</span>;
+  };
+
+  const getProgressWidth = (status) => {
+    switch (status) {
+      case 'processing': return '35%';
+      case 'shipped': return '70%';
+      case 'delivered': return '100%';
+      default: return '10%';
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-extrabold text-secondary-900 dark:text-white flex items-center gap-2">
-          <ShoppingBag className="w-8 h-8 text-primary-500" /> My Purchase Orders
-        </h1>
-        <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">Review shipping progress and purchase history.</p>
+    <div className="space-y-5 max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-secondary-200 dark:border-secondary-800">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-secondary-900 dark:text-white flex items-center gap-2">
+            <ShoppingBag className="w-7 h-7 text-primary-500" /> My Orders
+          </h1>
+          <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-0.5">Track shipment progress and manage payment for your purchases.</p>
+        </div>
+        <div className="text-xs text-secondary-500 font-semibold bg-secondary-100 dark:bg-secondary-800 px-3 py-1.5 rounded-xl self-start sm:self-auto">
+          Total: <span className="text-secondary-900 dark:text-white font-extrabold">{orders.length}</span> orders
+        </div>
       </div>
 
+      {/* Filter Tabs */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        {STATUS_TABS.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => { setStatusFilter(tab.id); setCurrentPage(1); }}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+              statusFilter === tab.id
+                ? 'bg-primary-500 text-white shadow-sm'
+                : 'bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-50 dark:hover:bg-secondary-800'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Main Content */}
       {loading ? (
-        <div className="animate-pulse space-y-4">
-          {[1, 2].map(i => <div key={i} className="h-28 bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800" />)}
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-28 bg-white dark:bg-secondary-900 rounded-2xl border border-secondary-200 dark:border-secondary-800 animate-pulse" />
+          ))}
         </div>
-      ) : orders.length === 0 ? (
-        <div className="text-center py-20 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl transition-colors">
-          <p className="text-secondary-500 dark:text-secondary-400 text-sm">You haven't placed any orders yet.</p>
+      ) : filteredOrders.length === 0 ? (
+        <div className="text-center py-16 bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl">
+          <ShoppingBag className="w-12 h-12 text-secondary-300 mx-auto mb-3" />
+          <p className="text-secondary-600 dark:text-secondary-300 font-bold text-sm">No orders found</p>
+          <p className="text-secondary-400 text-xs mt-1">There are no orders matching this filter.</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {currentOrders.map((order) => (
-            <div key={order.id || order.uuid} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 transition-colors shadow-sm">
-              
-              <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4 border-b border-secondary-100 dark:border-secondary-800 pb-4">
-                <div className="space-y-1">
-                  <span className="text-xxs font-bold text-secondary-450 uppercase">Order Ref</span>
-                  <h4 className="font-bold text-secondary-900 dark:text-white text-sm md:text-base">#{order.order_number}</h4>
-                  <p className="text-xxs text-secondary-500 dark:text-secondary-400">Date: {new Date(order.created_at).toLocaleDateString()}</p>
-                </div>
+        <div className="space-y-3">
+          {currentOrders.map((order) => {
+            const isUnpaid = order.status !== 'cancelled' && order.status !== 'delivered' && !order.paid_at;
+            const isExpanded = expandedOrders[order.id || order.uuid];
 
-                <div>
-                  <span className="block text-xxs text-secondary-500 dark:text-secondary-400 font-bold uppercase">Total Bill</span>
-                  <span className="font-extrabold text-sm md:text-base text-secondary-900 dark:text-white">GHS {parseFloat(order.total).toFixed(2)}</span>
-                </div>
+            return (
+              <div
+                key={order.id || order.uuid}
+                className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-4 sm:p-5 transition-all shadow-sm hover:border-secondary-300 dark:hover:border-secondary-700"
+              >
+                {/* Compact Order Header */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-secondary-100 dark:border-secondary-800/80">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-black text-sm text-secondary-900 dark:text-white">
+                      #{order.order_number}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyOrderNumber(order.order_number)}
+                      title="Copy Order Number"
+                      className="p-1 rounded text-secondary-400 hover:text-secondary-700 dark:hover:text-secondary-200 transition-colors"
+                    >
+                      {copiedOrderNum === order.order_number ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    </button>
+                    <span className="text-xxs text-secondary-400 hidden sm:inline">• {new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  </div>
 
-                <div>
-                  <span className="block text-xxs text-secondary-500 dark:text-secondary-400 font-bold uppercase mb-1">Status</span>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xxs font-bold uppercase ${order.status === 'delivered' ? 'bg-emerald-100 text-emerald-800' : order.status === 'cancelled' ? 'bg-accent-100 text-accent-850' : 'bg-primary-100 text-primary-850'}`}>
-                    {order.status}
-                  </span>
-                </div>
-              </div>
-
-              {/* Status Timeline */}
-              {order.status !== 'cancelled' && (
-                <div className="mb-6 pt-2 pb-4">
-                  <div className="relative flex items-center justify-between w-full max-w-xl mx-auto">
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-secondary-200 dark:bg-secondary-800 -z-10 rounded-full"></div>
-                    
-                    {/* Pending */}
-                    <div className="flex flex-col items-center gap-1 bg-white dark:bg-secondary-900 px-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['pending', 'processing', 'shipped', 'delivered'].includes(order.status) ? 'bg-primary-500 text-white' : 'bg-secondary-200 dark:bg-secondary-700 text-secondary-500'}`}>
-                        <Clock className="w-4 h-4" />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase text-secondary-600 dark:text-secondary-400">Pending</span>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <span className="text-xxs uppercase font-bold text-secondary-400 block sm:hidden">Total</span>
+                      <span className="text-sm font-black text-secondary-900 dark:text-white">
+                        GHS {parseFloat(order.total).toLocaleString('en-GH', { minimumFractionDigits: 2 })}
+                      </span>
                     </div>
-
-                    {/* Processing */}
-                    <div className="flex flex-col items-center gap-1 bg-white dark:bg-secondary-900 px-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['processing', 'shipped', 'delivered'].includes(order.status) ? 'bg-primary-500 text-white' : 'bg-secondary-200 dark:bg-secondary-700 text-secondary-500'}`}>
-                        <Package className="w-4 h-4" />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase text-secondary-600 dark:text-secondary-400">Processing</span>
-                    </div>
-
-                    {/* Shipped */}
-                    <div className="flex flex-col items-center gap-1 bg-white dark:bg-secondary-900 px-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['shipped', 'delivered'].includes(order.status) ? 'bg-primary-500 text-white' : 'bg-secondary-200 dark:bg-secondary-700 text-secondary-500'}`}>
-                        <Truck className="w-4 h-4" />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase text-secondary-600 dark:text-secondary-400">Shipped</span>
-                    </div>
-
-                    {/* Delivered */}
-                    <div className="flex flex-col items-center gap-1 bg-white dark:bg-secondary-900 px-2">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${['delivered'].includes(order.status) ? 'bg-emerald-500 text-white' : 'bg-secondary-200 dark:bg-secondary-700 text-secondary-500'}`}>
-                        <CheckCircle className="w-4 h-4" />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase text-secondary-600 dark:text-secondary-400">Delivered</span>
-                    </div>
+                    {getStatusBadge(order)}
                   </div>
                 </div>
-              )}
 
-              {/* Order Items */}
-              <div className="space-y-3">
-                <h5 className="text-xs font-bold text-secondary-900 dark:text-white uppercase tracking-wider mb-2">Order Details</h5>
-                {order.items && order.items.length > 0 ? (
-                  order.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-4 bg-secondary-50 dark:bg-secondary-800/50 p-3 rounded-lg border border-secondary-100 dark:border-secondary-800">
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-secondary-900 dark:text-white">{item.product_name}</p>
-                        <p className="text-xs text-secondary-500 dark:text-secondary-400">Qty: {item.quantity} | GHS {parseFloat(item.price).toFixed(2)} each</p>
-                      </div>
-                      <div className="font-bold text-sm text-secondary-900 dark:text-white">
-                        GHS {(parseFloat(item.price) * item.quantity).toFixed(2)}
-                      </div>
+                {/* Compact Status Progress Strip (For Active Orders) */}
+                {order.status !== 'cancelled' && (
+                  <div className="py-2.5">
+                    <div className="flex justify-between text-[10px] font-bold uppercase text-secondary-400 mb-1">
+                      <span className={order.status === 'pending' ? 'text-primary-600 font-extrabold' : ''}>Order Placed</span>
+                      <span className={order.status === 'processing' ? 'text-primary-600 font-extrabold' : ''}>Processing</span>
+                      <span className={order.status === 'shipped' ? 'text-primary-600 font-extrabold' : ''}>Shipped</span>
+                      <span className={order.status === 'delivered' ? 'text-emerald-600 font-extrabold' : ''}>Delivered</span>
                     </div>
-                  ))
-                ) : (
-                  <p className="text-xs text-secondary-500">No item details available.</p>
+                    <div className="w-full bg-secondary-100 dark:bg-secondary-800 h-1.5 rounded-full overflow-hidden">
+                      <div
+                        className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                        style={{ width: getProgressWidth(order.status) }}
+                      />
+                    </div>
+                  </div>
                 )}
-              </div>
 
-              {/* Order Action Controls (For Unpaid / Pending Orders) */}
-              {order.status !== 'cancelled' && order.status !== 'delivered' && !order.paid_at && (
-                <div className="mt-4 pt-4 border-t border-secondary-100 dark:border-secondary-800 flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 font-medium">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                    <span>Payment pending. Complete payment to initiate delivery:</span>
-                  </div>
+                {/* Items Preview Strip */}
+                <div className="pt-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 overflow-hidden flex-1 text-xs text-secondary-700 dark:text-secondary-300">
+                      <Package className="w-3.5 h-3.5 text-secondary-400 flex-shrink-0" />
+                      <span className="truncate">
+                        {order.items && order.items.length > 0 
+                          ? order.items.map(it => `${it.product_name} (×${it.quantity})`).join(', ')
+                          : 'Order items'}
+                      </span>
+                    </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedMomoOrder(order)}
-                      className="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1.5 shadow-sm transition-colors"
-                    >
-                      <Phone className="w-3.5 h-3.5" /> Pay via MoMo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handlePayOnline(order)}
-                      className="premium-button-primary px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm"
-                    >
-                      <CreditCard className="w-3.5 h-3.5" /> Pay Online
-                    </button>
-                    {order.status === 'pending' && (
+                    {order.items && order.items.length > 0 && (
                       <button
                         type="button"
-                        onClick={() => handleCancelOrder(order)}
-                        className="px-3 py-2 rounded-xl text-xs font-bold text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+                        onClick={() => toggleExpand(order.id || order.uuid)}
+                        className="text-xxs font-bold text-secondary-500 hover:text-primary-600 dark:hover:text-primary-400 flex items-center gap-1 pl-2 transition-colors"
                       >
-                        Cancel
+                        {isExpanded ? <>Less <ChevronUp className="w-3 h-3" /></> : <>Details <ChevronDown className="w-3 h-3" /></>}
                       </button>
                     )}
                   </div>
-                </div>
-              )}
 
-            </div>
-          ))}
+                  {/* Expandable Order Line Items */}
+                  {isExpanded && order.items && (
+                    <div className="mt-3 pt-3 border-t border-secondary-100 dark:border-secondary-800 space-y-2 animate-fade-in">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-xs p-2 rounded-lg bg-secondary-50 dark:bg-secondary-800/40">
+                          <span className="font-medium text-secondary-800 dark:text-secondary-200">
+                            {item.product_name} <span className="text-secondary-400 font-bold">× {item.quantity}</span>
+                          </span>
+                          <span className="font-bold text-secondary-900 dark:text-white">
+                            GHS {(parseFloat(item.price) * item.quantity).toFixed(2)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Compact Payment Action Toolbar (If Unpaid) */}
+                {isUnpaid && (
+                  <div className="mt-3 pt-3 border-t border-amber-100 dark:border-amber-950/40 flex flex-wrap items-center justify-between gap-2.5">
+                    <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 font-medium">
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Action required: Complete payment to process shipment</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedMomoOrder(order)}
+                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1.5 shadow-sm transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5" /> Pay via MoMo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handlePayOnline(order)}
+                        className="premium-button-primary px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                      >
+                        <CreditCard className="w-3.5 h-3.5" /> Pay Online
+                      </button>
+                      {order.status === 'pending' && (
+                        <button
+                          type="button"
+                          onClick={() => handleCancelOrder(order)}
+                          className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+            );
+          })}
+
+          {/* Numbered Pagination Toolbar */}
           {totalPages > 1 && (
-            <div className="flex justify-center pt-4">
-              <DotPagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
+              <span className="text-xs text-secondary-500">
+                Showing <strong className="text-secondary-800 dark:text-white">{(currentPage - 1) * itemsPerPage + 1}</strong> to <strong className="text-secondary-800 dark:text-white">{Math.min(currentPage * itemsPerPage, filteredOrders.length)}</strong> of <strong className="text-secondary-800 dark:text-white">{filteredOrders.length}</strong> orders
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  className="p-1.5 rounded-lg border border-secondary-200 dark:border-secondary-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary-100 dark:hover:bg-secondary-800 text-secondary-700 dark:text-secondary-300 text-xs font-bold flex items-center gap-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+
+                {Array.from({ length: totalPages }).map((_, idx) => {
+                  const pNum = idx + 1;
+                  return (
+                    <button
+                      key={pNum}
+                      type="button"
+                      onClick={() => setCurrentPage(pNum)}
+                      className={`w-8 h-8 rounded-lg text-xs font-extrabold transition-colors ${
+                        currentPage === pNum
+                          ? 'bg-primary-500 text-white shadow-sm'
+                          : 'border border-secondary-200 dark:border-secondary-700 text-secondary-700 dark:text-secondary-300 hover:bg-secondary-100 dark:hover:bg-secondary-800'
+                      }`}
+                    >
+                      {pNum}
+                    </button>
+                  );
+                })}
+
+                <button
+                  type="button"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  className="p-1.5 rounded-lg border border-secondary-200 dark:border-secondary-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-secondary-100 dark:hover:bg-secondary-800 text-secondary-700 dark:text-secondary-300 text-xs font-bold flex items-center gap-1"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           )}
         </div>

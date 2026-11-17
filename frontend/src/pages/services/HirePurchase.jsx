@@ -791,7 +791,7 @@ const HirePurchase = () => {
                         : 'border-secondary-200 dark:border-secondary-700 text-secondary-600 hover:bg-secondary-50 dark:hover:bg-secondary-800'
                     }`}
                   >
-                    <UserCheck className="w-4 h-4" /> Ghana Card / General Public (Dojah)
+                    <UserCheck className="w-4 h-4" /> Ghana Card
                   </button>
                   <button
                     type="button"
@@ -986,7 +986,7 @@ const HirePurchase = () => {
                     className="w-full premium-button-primary py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2"
                   >
                     {submittingKyc ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                    {submittingKyc ? 'Submitting & Verifying...' : 'Submit Ghana Card & Verify with Dojah'}
+                    {submittingKyc ? 'Submitting & Verifying...' : 'Submit Ghana Card for Verification'}
                   </button>
                 </form>
               )}

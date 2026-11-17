@@ -8,7 +8,7 @@ import orderService from '../../services/orderService';
 import apiClient from '../../api/client';
 import {
   MapPin, CreditCard, Package, ChevronRight, RefreshCw,
-  CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag, Trash2
+  CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag, Trash2, Copy, Check
 } from 'lucide-react';
 import { openPaystack } from '../../utils/paystack';
 
@@ -35,6 +35,8 @@ const Checkout = () => {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [orderSuccess, setOrderSuccess] = useState(null);
+  const [copiedNum, setCopiedNum] = useState(false);
+  const [copiedRef, setCopiedRef] = useState(false);
   
   const [taxRate, setTaxRate] = useState(0.05); // Default 5% until fetched
   const [defaultShipping, setDefaultShipping] = useState(30.00);
@@ -205,30 +207,75 @@ const Checkout = () => {
         <p className="text-secondary-500 dark:text-secondary-400 mb-2">Your order <span className="font-bold text-secondary-800 dark:text-white">#{orderSuccess.order_number}</span> has been created.</p>
         
         {paymentMethod === 'mobile_money' && (
-          <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 p-4 rounded-xl text-left text-xs space-y-2 mb-6 mt-4">
-            <p className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-              <Phone className="w-4 h-4 text-emerald-600" /> Payment Instructions (Mobile Money)
+          <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 p-5 rounded-2xl text-left text-xs space-y-3 mb-6 mt-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <p className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5 text-sm">
+                <Phone className="w-4 h-4 text-emerald-600" /> Send Mobile Money (MoMo) Payment
+              </p>
+              <span className="text-xxs font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">
+                Awaiting Transfer
+              </span>
+            </div>
+
+            <p className="text-secondary-600 dark:text-secondary-300 leading-relaxed">
+              Please transfer <strong className="text-secondary-900 dark:text-white">GHS {parseFloat(orderSuccess.total || orderTotal).toFixed(2)}</strong> using your new Order Reference below:
             </p>
-            <p className="text-secondary-600 dark:text-secondary-300">
-              Please transfer <span className="font-bold text-emerald-700 dark:text-emerald-400">GHS {parseFloat(orderSuccess.total || orderTotal).toFixed(2)}</span> to our official account:
-            </p>
-            <div className="bg-white dark:bg-secondary-900 p-3 rounded-lg border border-emerald-100 dark:border-emerald-900/40 text-xs space-y-1">
-              <div className="flex justify-between">
-                <span className="text-secondary-500">Number:</span>
-                <span className="font-black text-primary-600 dark:text-primary-400 text-sm">0508208803</span>
+
+            <div className="bg-white dark:bg-secondary-900 p-4 rounded-xl border border-emerald-200/70 dark:border-emerald-800/40 space-y-2.5">
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="text-secondary-500 block text-xxs font-bold uppercase">MoMo Number:</span>
+                  <span className="font-mono font-black text-primary-600 dark:text-primary-400 text-base">0508208803</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText('0508208803');
+                    setCopiedNum(true);
+                    setTimeout(() => setCopiedNum(false), 2000);
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-xxs font-bold bg-secondary-100 dark:bg-secondary-800 text-secondary-800 dark:text-white flex items-center gap-1 hover:bg-secondary-200"
+                >
+                  {copiedNum ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                  {copiedNum ? 'Copied' : 'Copy'}
+                </button>
               </div>
-              <div className="flex justify-between">
-                <span className="text-secondary-500">Name:</span>
+
+              <div className="flex justify-between items-center pt-1 border-t border-secondary-100 dark:border-secondary-800">
+                <span className="text-secondary-500 text-xxs font-bold uppercase">Account Name:</span>
                 <span className="font-bold text-secondary-900 dark:text-white">Francis Victor Okine</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-secondary-500">Reference:</span>
-                <span className="font-bold text-amber-600 dark:text-amber-400">#{orderSuccess.order_number}</span>
+
+              <div className="flex justify-between items-center pt-1 border-t border-secondary-100 dark:border-secondary-800">
+                <div>
+                  <span className="text-secondary-500 block text-xxs font-bold uppercase">Payment Reference:</span>
+                  <span className="font-mono font-extrabold text-amber-600 dark:text-amber-400 text-sm">{orderSuccess.order_number}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(orderSuccess.order_number);
+                    setCopiedRef(true);
+                    setTimeout(() => setCopiedRef(false), 2000);
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-xxs font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center gap-1 hover:bg-amber-200"
+                >
+                  {copiedRef ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                  {copiedRef ? 'Copied' : 'Copy Ref'}
+                </button>
               </div>
             </div>
-            <p className="text-[11px] text-secondary-500">
-              Your order is reserved and will be verified and dispatched immediately upon receipt!
-            </p>
+
+            <div className="pt-1">
+              <a
+                href={`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I have placed Order #${orderSuccess.order_number} for GHS ${parseFloat(orderSuccess.total || orderTotal).toFixed(2)} and will send payment to 0508208803. Please confirm receipt.`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+              >
+                Notify on WhatsApp (0508208803)
+              </a>
+            </div>
           </div>
         )}
 
@@ -453,7 +500,7 @@ const Checkout = () => {
                 <div className="space-y-3.5 p-4 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800/60 text-sm">
                   <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold">
                     <Phone className="w-4 h-4 text-emerald-600" />
-                    <span>Official Mobile Money Payment Instructions</span>
+                    <span>Direct Mobile Money (MoMo) Details</span>
                   </div>
 
                   <div className="bg-white dark:bg-secondary-900 p-3.5 rounded-xl border border-emerald-200/70 dark:border-emerald-800/40 space-y-2">
@@ -471,7 +518,21 @@ const Checkout = () => {
                     </div>
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-secondary-500">Payment Reference:</span>
-                      <span className="font-bold text-amber-600 dark:text-amber-400">Your Order Number</span>
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded text-[11px]">
+                        Generated when you click "Place Order" below
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Step by step guide */}
+                  <div className="p-3 bg-white/70 dark:bg-secondary-900/60 rounded-xl border border-emerald-200/50 dark:border-emerald-800/30 space-y-1.5 text-xs text-secondary-700 dark:text-secondary-300">
+                    <div className="flex items-start gap-2">
+                      <span className="w-4 h-4 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">1</span>
+                      <span>Click <strong>Place Order</strong> below to generate your unique Order Number.</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="w-4 h-4 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">2</span>
+                      <span>Transfer <strong>GHS {orderTotal.toFixed(2)}</strong> to <strong>0508208803</strong> using that Order Number as the MoMo reference.</span>
                     </div>
                   </div>
 
@@ -486,9 +547,6 @@ const Checkout = () => {
                       placeholder="e.g. 050XXXXXXX or MoMo Ref ID"
                       className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
                     />
-                    <p className="text-xxs text-secondary-500 dark:text-secondary-400">
-                      Transfer GHS {orderTotal.toFixed(2)} to 0508208803 using your order number as reference. Once received, our team will dispatch your order immediately.
-                    </p>
                   </div>
                 </div>
               )}

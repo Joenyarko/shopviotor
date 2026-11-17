@@ -369,7 +369,7 @@ const AdminHirePurchase = () => {
                       <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
                         selectedApp.applicant_type === 'general' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                       }`}>
-                        {selectedApp.applicant_type === 'general' ? 'Ghana Card / Dojah' : 'Student'}
+                        {selectedApp.applicant_type === 'general' ? 'Ghana Card' : 'Student'}
                       </span>
                     </div>
 
