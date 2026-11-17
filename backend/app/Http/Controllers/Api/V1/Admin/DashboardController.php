@@ -65,22 +65,22 @@ class DashboardController extends Controller
             $activeCustomers = $totalUsers;
         }
 
-        // 2. E-Commerce (Orders) - Realized Paid Revenue Only
-        $ordersCount = $applyDateFilter(Order::where(function($q) {
+        // 2. E-Commerce (Orders) - Realized Paid Revenue Only (Excluding Cancelled and Unpaid)
+        $ordersCount = $applyDateFilter(Order::where('status', '!=', 'cancelled')->where(function($q) {
             $q->whereNotNull('paid_at')
               ->orWhereIn('status', ['paid', 'processing', 'shipped', 'delivered', 'completed']);
         }))->count();
-        $ordersRevenue = (float) $applyDateFilter(Order::where(function($q) {
+        $ordersRevenue = (float) $applyDateFilter(Order::where('status', '!=', 'cancelled')->where(function($q) {
             $q->whereNotNull('paid_at')
               ->orWhereIn('status', ['paid', 'processing', 'shipped', 'delivered', 'completed']);
         }))->sum('total');
 
         // 3. Hire Purchase - Verified Deposited / Paid Revenue Only
-        $hpCount = $applyDateFilter(HirePurchase::where(function($q) {
+        $hpCount = $applyDateFilter(HirePurchase::where('status', '!=', 'cancelled')->where(function($q) {
             $q->whereNotNull('deposit_paid_at')
               ->orWhereIn('status', ['active', 'completed']);
         }))->count();
-        $hpDepositRevenue = (float) $applyDateFilter(HirePurchase::where(function($q) {
+        $hpDepositRevenue = (float) $applyDateFilter(HirePurchase::where('status', '!=', 'cancelled')->where(function($q) {
             $q->whereNotNull('deposit_paid_at')
               ->orWhereIn('status', ['active', 'completed']);
         }))->sum('deposit_amount');
@@ -134,11 +134,11 @@ class DashboardController extends Controller
                 $dayEnd = Carbon::today()->subDays($i)->endOfDay();
                 $label = $dayStart->format('M d');
 
-                $mOrders = (float) Order::where(function($q) {
+                $mOrders = (float) Order::where('status', '!=', 'cancelled')->where(function($q) {
                     $q->whereNotNull('paid_at')->orWhereIn('status', ['paid', 'processing', 'shipped', 'delivered', 'completed']);
                 })->whereBetween('created_at', [$dayStart, $dayEnd])->sum('total');
 
-                $mHp = (float) HirePurchase::where(function($q) {
+                $mHp = (float) HirePurchase::where('status', '!=', 'cancelled')->where(function($q) {
                     $q->whereNotNull('deposit_paid_at')->orWhereIn('status', ['active', 'completed']);
                 })->whereBetween('created_at', [$dayStart, $dayEnd])->sum('deposit_amount')
                      + (float) HirePurchaseInstallment::where('status', 'paid')->whereBetween('paid_at', [$dayStart, $dayEnd])->sum('amount_paid');
@@ -165,11 +165,11 @@ class DashboardController extends Controller
                 $monthEnd = Carbon::now()->subMonths($i)->endOfMonth();
                 $label = $monthStart->format('M Y');
 
-                $mOrders = (float) Order::where(function($q) {
+                $mOrders = (float) Order::where('status', '!=', 'cancelled')->where(function($q) {
                     $q->whereNotNull('paid_at')->orWhereIn('status', ['paid', 'processing', 'shipped', 'delivered', 'completed']);
                 })->whereBetween('created_at', [$monthStart, $monthEnd])->sum('total');
 
-                $mHp = (float) HirePurchase::where(function($q) {
+                $mHp = (float) HirePurchase::where('status', '!=', 'cancelled')->where(function($q) {
                     $q->whereNotNull('deposit_paid_at')->orWhereIn('status', ['active', 'completed']);
                 })->whereBetween('created_at', [$monthStart, $monthEnd])->sum('deposit_amount')
                      + (float) HirePurchaseInstallment::where('status', 'paid')->whereBetween('paid_at', [$monthStart, $monthEnd])->sum('amount_paid');
@@ -242,6 +242,48 @@ class DashboardController extends Controller
                 ],
                 'trends' => $trends,
             ],
+        ]);
+    }
+
+    public function clearTestRevenue(): JsonResponse
+    {
+        // Cancel all test orders, removing paid_at so analytics immediately zero out
+        $cancelledOrders = Order::query()->update([
+            'status'              => 'cancelled',
+            'paid_at'             => null,
+            'cancelled_at'        => Carbon::now(),
+            'cancellation_reason' => 'Test financial reset by administrator',
+        ]);
+
+        // Cancel pending/test hire purchase records
+        $cancelledHp = HirePurchase::query()->update([
+            'status'          => 'cancelled',
+            'deposit_paid_at' => null,
+            'notes'           => 'Test application reset by administrator',
+        ]);
+
+        // Reset installment records
+        HirePurchaseInstallment::query()->update([
+            'status'      => 'pending',
+            'paid_at'     => null,
+            'amount_paid' => 0,
+        ]);
+
+        // Clear test layaway payments
+        LayawayPayment::query()->delete();
+
+        // Reset pre-orders
+        PreOrder::query()->update([
+            'deposit_paid' => 0,
+            'status'       => 'pending',
+        ]);
+
+        // Clear raffle tickets
+        RaffleTicket::query()->delete();
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => "Successfully cleared test revenue: {$cancelledOrders} orders and {$cancelledHp} hire purchase records reset to zero.",
         ]);
     }
 }

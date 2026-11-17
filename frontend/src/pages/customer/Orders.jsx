@@ -3,7 +3,7 @@ import orderService from '../../services/orderService';
 import {
   ShoppingBag, RefreshCw, Clock, Package, Truck, CheckCircle,
   CreditCard, Phone, AlertCircle, Copy, Check, X, ChevronLeft, ChevronRight,
-  ExternalLink, ChevronDown, ChevronUp, ArrowRight, Eye
+  ExternalLink, ChevronDown, ChevronUp, ArrowRight, Eye, Lock
 } from 'lucide-react';
 import { openPaystack } from '../../utils/paystack';
 import { useAuth } from '../../contexts/AuthContext';
@@ -316,10 +316,16 @@ const Orders = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handlePayOnline(order)}
-                        className="premium-button-primary px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                        onClick={() => Swal.fire({
+                          title: 'Paystack Under Live Verification',
+                          text: 'Card / Paystack payment is temporarily locked while our live credentials are being verified. Please use "Pay via MoMo" to transfer directly to 0508208803.',
+                          icon: 'info',
+                          confirmButtonColor: '#eab308'
+                        })}
+                        className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-secondary-100 dark:bg-secondary-800 text-secondary-500 dark:text-secondary-400 flex items-center gap-1.5 cursor-not-allowed opacity-80"
+                        title="Online Card / Paystack is temporarily locked"
                       >
-                        <CreditCard className="w-3.5 h-3.5" /> Pay Online
+                        <Lock className="w-3.5 h-3.5 text-amber-500" /> Pay Online 🔒
                       </button>
                       {order.status === 'pending' && (
                         <button

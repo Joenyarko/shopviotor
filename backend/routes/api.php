@@ -224,6 +224,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('admin')->middleware(['role:admin,super_admin', 'admin_2fa'])->group(function () {
             // Dashboard Stats
             Route::get('/dashboard/comprehensive-stats', [AdminDashboardController::class, 'comprehensiveStats']);
+            Route::post('/dashboard/clear-test-revenue', [AdminDashboardController::class, 'clearTestRevenue']);
             Route::get('/orders/stats', [AdminOrderController::class, 'stats']);
             Route::get('/analytics/app-installs', [\App\Http\Controllers\Api\V1\AnalyticsController::class, 'installStats']);
             // Audit Logs

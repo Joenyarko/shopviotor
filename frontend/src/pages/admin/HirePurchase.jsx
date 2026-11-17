@@ -53,16 +53,29 @@ const AdminHirePurchase = () => {
   const [categories, setCategories] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [appStatusFilter, setAppStatusFilter] = useState('all');
   const [prodSearch, setProdSearch] = useState('');
   const [selectedProdCategory, setSelectedProdCategory] = useState('all');
   const [page, setPage] = useState(1);
   const [prodPage, setProdPage] = useState(1);
   const itemsPerPage = 8;
   
-  const filteredApps = applications.filter(a => 
-    (a.user?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-    (a.product?.name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
-  );
+  const filteredApps = applications.filter(a => {
+    const s = searchTerm.toLowerCase();
+    const matchesSearch = 
+      (a.user?.name?.toLowerCase() || '').includes(s) ||
+      (a.user?.phone?.toLowerCase() || '').includes(s) ||
+      (a.user?.email?.toLowerCase() || '').includes(s) ||
+      (a.product?.name?.toLowerCase() || '').includes(s) ||
+      (a.deposit_reference?.toLowerCase() || '').includes(s);
+    if (!matchesSearch) return false;
+
+    if (appStatusFilter === 'all') return true;
+    if (appStatusFilter === 'pending_deposit') {
+      return !a.deposit_paid_at && a.status !== 'rejected';
+    }
+    return a.status === appStatusFilter;
+  });
   
   const filteredHpProducts = hpProducts.filter(p => {
     const matchesSearch = (p.name?.toLowerCase() || '').includes(prodSearch.toLowerCase());
@@ -328,18 +341,18 @@ const AdminHirePurchase = () => {
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
             <Briefcase className="w-6 h-6 text-primary-500" /> Hire Purchase Management
           </h2>
-          <p className="text-sm text-secondary-500 mt-1">Review applications, track installments, and manage eligible products.</p>
+          <p className="text-sm text-secondary-500 mt-1">Review customer configured order plans, confirm MoMo deposits, track monthly installments, and manage eligible products.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto items-stretch sm:items-center">
           {activeTab === 'applications' ? (
-            <div className="relative w-full sm:w-64">
+            <div className="relative w-full sm:w-72">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-secondary-400" />
               </div>
               <input
                 type="text"
                 className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors shadow-sm"
-                placeholder="Search applications..."
+                placeholder="Search plans by customer, phone, HIR ref..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -386,62 +399,162 @@ const AdminHirePurchase = () => {
 
       <div className="flex border-b border-secondary-200 dark:border-secondary-800">
         <button
-          onClick={() => setActiveTab('applications')}
-          className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors ${activeTab === 'applications' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200'}`}
+          onClick={() => { setActiveTab('applications'); setPage(1); }}
+          className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'applications' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200'}`}
         >
-          Customer Applications
+          <span>Order Plans</span>
+          <span className="px-2 py-0.5 rounded-full text-xs bg-primary-100 dark:bg-primary-950/40 text-primary-700 dark:text-primary-300 font-bold">
+            {applications.length}
+          </span>
         </button>
         <button
-          onClick={() => setActiveTab('products')}
-          className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors ${activeTab === 'products' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200'}`}
+          onClick={() => { setActiveTab('products'); setProdPage(1); }}
+          className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'products' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200'}`}
         >
-          HP Products
+          <span>HP Products</span>
+          <span className="px-2 py-0.5 rounded-full text-xs bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400 font-bold">
+            {hpProducts.length}
+          </span>
         </button>
       </div>
 
       {activeTab === 'applications' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
-            {loading ? (
-              <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
-            ) : applications.length === 0 ? (
-              <div className="p-8 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500 dark:text-secondary-400 font-semibold">
-                No hire purchase applications found.
-              </div>
-            ) : (
-              <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm">
-                <table className="w-full min-w-[650px] text-left border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xxs">
-                      <th className="p-4">Customer</th>
-                      <th className="p-4">Product</th>
-                      <th className="p-4">Total Value</th>
-                      <th className="p-4">Status</th>
-                      <th className="p-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-                    {paginatedApps.map((app) => (
-                      <tr key={app.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
-                        <td className="p-4 font-semibold text-secondary-900 dark:text-white">{app.user?.name || 'Customer'}</td>
-                        <td className="p-4 text-secondary-700 dark:text-secondary-300">{app.product?.name}</td>
-                        <td className="p-4 font-semibold text-secondary-900 dark:text-white">GHS {parseFloat(app.total_amount || 0).toLocaleString()}</td>
-                        <td className="p-4">
-                          <span className={`text-xxs px-2.5 py-0.5 rounded-full font-bold uppercase ${app.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400' : 'bg-yellow-100 dark:bg-yellow-950/20 text-yellow-800 dark:text-yellow-450'}`}>
-                            {app.status}
-                          </span>
-                        </td>
-                        <td className="p-4 text-right flex justify-end gap-2">
-                          <button onClick={() => handleSelectApp(app)} className="p-1.5 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 rounded-lg"><Eye className="w-4 h-4" /></button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
-              </div>
-            )}
+        <div className="space-y-4">
+          {/* Order Plans Status Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            {[
+              { id: 'all', label: 'All Plans', count: applications.length },
+              { id: 'pending_deposit', label: 'Pending MoMo Deposit', count: applications.filter(a => !a.deposit_paid_at && a.status !== 'rejected').length },
+              { id: 'active', label: 'Active Running', count: applications.filter(a => a.status === 'active').length },
+              { id: 'completed', label: 'Completed', count: applications.filter(a => a.status === 'completed').length },
+              { id: 'rejected', label: 'Rejected', count: applications.filter(a => a.status === 'rejected').length },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => { setAppStatusFilter(tab.id); setPage(1); }}
+                className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                  appStatusFilter === tab.id
+                    ? 'bg-primary-500 text-white shadow-sm'
+                    : 'bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-50'
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${appStatusFilter === tab.id ? 'bg-black/20 text-white' : 'bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400'}`}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
           </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-4">
+              {loading ? (
+                <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
+              ) : applications.length === 0 ? (
+                <div className="p-8 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500 dark:text-secondary-400 font-semibold">
+                  No hire purchase order plans configured yet.
+                </div>
+              ) : filteredApps.length === 0 ? (
+                <div className="p-8 border border-secondary-200 dark:border-secondary-800 rounded-xl text-center bg-white dark:bg-secondary-900 text-secondary-500 dark:text-secondary-400 font-semibold">
+                  No order plans found matching "{searchTerm || appStatusFilter}".
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm">
+                  <table className="w-full min-w-[700px] text-left border-collapse text-sm">
+                    <thead>
+                      <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xxs">
+                        <th className="p-4">Customer</th>
+                        <th className="p-4">Configured Product</th>
+                        <th className="p-4">Plan Terms</th>
+                        <th className="p-4">MoMo Deposit & Ref</th>
+                        <th className="p-4">Status</th>
+                        <th className="p-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
+                      {paginatedApps.map((app) => (
+                        <tr key={app.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30 transition-colors">
+                          <td className="p-4">
+                            <div className="font-bold text-secondary-900 dark:text-white">{app.user?.name || 'Customer'}</div>
+                            <div className="text-xs text-secondary-500">{app.user?.phone || app.user?.email || 'N/A'}</div>
+                            <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded font-bold uppercase bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400">
+                              {app.applicant_type === 'student' ? 'Student' : 'Ghana Card'}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <div className="font-semibold text-secondary-900 dark:text-white line-clamp-1" title={app.product?.name}>
+                              {app.product?.name}
+                            </div>
+                            <div className="text-xs text-secondary-500">
+                              Price: GHS {parseFloat(app.product_price || app.product?.price || 0).toLocaleString()}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="font-extrabold text-secondary-900 dark:text-white">
+                              GHS {parseFloat(app.total_amount || 0).toLocaleString()}
+                            </div>
+                            <div className="text-xs text-secondary-500">
+                              {app.duration_months} Mos @ GHS {parseFloat(app.monthly_installment || 0).toLocaleString()}/mo
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div className="font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400">
+                              {app.deposit_reference || ('HIR-' + app.uuid.slice(0, 8).toUpperCase())}
+                            </div>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-xs font-semibold text-secondary-700 dark:text-secondary-300">
+                                GHS {parseFloat(app.deposit_amount || 0).toLocaleString()}
+                              </span>
+                              <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold uppercase ${
+                                app.deposit_paid_at
+                                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400'
+                                  : 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-400'
+                              }`}>
+                                {app.deposit_paid_at ? 'Paid' : 'Unpaid'}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <span className={`text-xxs px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${
+                              app.status === 'active'
+                                ? 'bg-emerald-100 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400'
+                                : app.status === 'completed'
+                                  ? 'bg-blue-100 dark:bg-blue-950/20 text-blue-800 dark:text-blue-400'
+                                  : 'bg-amber-100 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400'
+                            }`}>
+                              {app.status}
+                            </span>
+                          </td>
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                              {!app.deposit_paid_at && app.status !== 'rejected' && (
+                                <button
+                                  onClick={() => handleConfirmDeposit(app)}
+                                  disabled={processing}
+                                  title="Confirm MoMo Deposit payment"
+                                  className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 shadow-sm active:scale-95 transition-all whitespace-nowrap"
+                                >
+                                  <CheckCircle className="w-3.5 h-3.5" />
+                                  <span>Confirm MoMo</span>
+                                </button>
+                              )}
+                              <button
+                                onClick={() => handleSelectApp(app)}
+                                title="View Plan Details & Installment Schedule"
+                                className="p-1.5 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 rounded-lg transition-colors"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <DotPagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+                </div>
+              )}
+            </div>
 
           <div>
             {selectedApp ? (
@@ -615,6 +728,7 @@ const AdminHirePurchase = () => {
             )}
           </div>
         </div>
+      </div>
       )}
 
       {activeTab === 'products' && (

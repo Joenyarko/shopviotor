@@ -19,33 +19,48 @@ class ResetTestRevenue extends Command
     {
         $this->info('Reviewing test transaction data...');
 
-        $unpaidOrders = Order::whereNull('paid_at')->where('status', '!=', 'cancelled')->count();
-        $unpaidHp = HirePurchase::whereNull('deposit_paid_at')->where('status', '!=', 'cancelled')->count();
+        $totalOrders = Order::where('status', '!=', 'cancelled')->count();
+        $totalHp = HirePurchase::where('status', '!=', 'cancelled')->count();
 
-        $this->line("Found {$unpaidOrders} unpaid test order(s) and {$unpaidHp} pending test agreement(s).");
+        $this->line("Found {$totalOrders} active/test order(s) and {$totalHp} test agreement(s).");
 
-        if (!$this->option('force') && !$this->confirm('Do you want to cancel unpaid test orders and agreements to reset analytics to zero?', true)) {
+        if (!$this->option('force') && !$this->confirm('Do you want to cancel test orders and agreements to reset analytics to zero?', true)) {
             $this->info('Operation aborted.');
             return Command::SUCCESS;
         }
 
-        // Cancel unpaid orders
-        $cancelledOrders = Order::whereNull('paid_at')
+        // Cancel test orders and clear paid_at
+        $cancelledOrders = Order::query()
             ->update([
-                'status' => 'cancelled',
-                'cancelled_at' => now(),
-                'cancellation_reason' => 'Test order reset',
+                'status'              => 'cancelled',
+                'paid_at'             => null,
+                'cancelled_at'        => now(),
+                'cancellation_reason' => 'Test financial reset by administrator',
             ]);
 
-        // Cancel unpaid HP applications
-        $cancelledHp = HirePurchase::whereNull('deposit_paid_at')
+        // Cancel test HP applications
+        $cancelledHp = HirePurchase::query()
             ->update([
-                'status' => 'cancelled',
-                'notes' => 'Test application reset',
+                'status'          => 'cancelled',
+                'deposit_paid_at' => null,
+                'notes'           => 'Test application reset by administrator',
             ]);
 
-        $this->info("Successfully cancelled {$cancelledOrders} test order(s) and {$cancelledHp} test HP agreement(s).");
-        $this->info('Corporate dashboard analytics have been reset.');
+        \App\Models\HirePurchaseInstallment::query()->update([
+            'status'      => 'pending',
+            'paid_at'     => null,
+            'amount_paid' => 0,
+        ]);
+
+        \App\Models\LayawayPayment::query()->delete();
+        \App\Models\PreOrder::query()->update([
+            'deposit_paid' => 0,
+            'status'       => 'pending',
+        ]);
+        \App\Models\RaffleTicket::query()->delete();
+
+        $this->info("Successfully reset {$cancelledOrders} test order(s) and {$cancelledHp} test HP agreement(s).");
+        $this->info('Corporate dashboard analytics have been completely reset to GHS 0.00.');
 
         return Command::SUCCESS;
     }

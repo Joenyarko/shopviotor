@@ -41,7 +41,7 @@ const RaffleDetail = () => {
   // Purchase form states
   const [quantity, setQuantity] = useState(1);
   const [customQty, setCustomQty] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('paystack');
+  const [paymentMethod, setPaymentMethod] = useState('momo');
   const [buyerName, setBuyerName] = useState('');
   const [phone, setPhone] = useState('');
   const [promoCode, setPromoCode] = useState('');
@@ -410,14 +410,27 @@ const RaffleDetail = () => {
 
                     {/* Payment Method Selector */}
                     <div>
-                       <label className="block text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest mb-2 mt-2">Choose Payment Method</label>
+                       <label className="block text-[10px] font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-widest mb-2 mt-2">Payment Method</label>
                        <div className="grid grid-cols-1 gap-2">
                          <div 
-                           onClick={() => setPaymentMethod('paystack')} 
-                           className={`cursor-pointer border rounded-lg p-2.5 flex items-center justify-between transition-colors ${paymentMethod === 'paystack' ? 'border-primary-500 bg-primary-500/10 text-primary-600 dark:text-primary-400' : 'border-secondary-300 dark:border-secondary-700 text-secondary-500 dark:text-secondary-400 hover:border-slate-500'}`}
+                           onClick={() => setPaymentMethod('momo')} 
+                           className={`cursor-pointer border-2 rounded-lg p-2.5 flex items-center justify-between transition-colors ${paymentMethod === 'momo' ? 'border-primary-500 bg-primary-500/10 text-primary-600 dark:text-primary-400' : 'border-secondary-300 dark:border-secondary-700 text-secondary-500 dark:text-secondary-400'}`}
                          >
-                           <span className="text-xs font-bold uppercase tracking-wider">Card / Mobile Money (via Paystack)</span>
-                           {paymentMethod === 'paystack' && <CheckCircle className="w-4 h-4" />}
+                           <div>
+                             <span className="text-xs font-bold uppercase tracking-wider block">Direct Mobile Money (MoMo)</span>
+                             <span className="text-[10px] text-secondary-500">Pay to 0508208803 (Francis Victor Okine)</span>
+                           </div>
+                           {paymentMethod === 'momo' && <CheckCircle className="w-4 h-4 text-emerald-500" />}
+                         </div>
+
+                         <div 
+                           className="border rounded-lg p-2.5 flex items-center justify-between opacity-60 bg-secondary-100 dark:bg-secondary-800/50 border-secondary-200 dark:border-secondary-700 cursor-not-allowed select-none"
+                         >
+                           <div>
+                             <span className="text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase tracking-wider block">Card / Paystack (Online)</span>
+                             <span className="text-[10px] text-secondary-400">Gateway Under Verification</span>
+                           </div>
+                           <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">🔒 Locked</span>
                          </div>
                        </div>
                     </div>
@@ -427,7 +440,7 @@ const RaffleDetail = () => {
                       type="submit" disabled={purchasing || isFull}
                       className="w-full bg-gradient-to-r from-primary-500 to-primary-400 hover:from-primary-400 hover:to-primary-300 text-secondary-950 font-extrabold text-sm py-4 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(255,184,0,0.3)] disabled:opacity-60 disabled:shadow-none transition-all mt-2"
                     >
-                      {purchasing ? <RefreshCw className="w-5 h-5 animate-spin" /> : isFull ? 'Raffle Full' : <>Pay via Paystack</>}
+                      {purchasing ? <RefreshCw className="w-5 h-5 animate-spin" /> : isFull ? 'Raffle Full' : <>Buy Tickets (GHS {(effectiveQty * (raffle.ticket_price || 0)).toFixed(2)})</>}
                     </button>
                     <p className="text-center text-[10px] text-secondary-400 dark:text-secondary-500 font-semibold flex items-center justify-center gap-1 mt-3">
                        <Shield className="w-3 h-3" /> Secure and Encrypted Checkout

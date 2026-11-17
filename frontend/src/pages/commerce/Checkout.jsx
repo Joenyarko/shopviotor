@@ -8,7 +8,7 @@ import orderService from '../../services/orderService';
 import apiClient from '../../api/client';
 import {
   MapPin, CreditCard, Package, ChevronRight, RefreshCw,
-  CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag, Trash2, Copy, Check
+  CheckCircle, Plus, AlertCircle, Phone, Building2, Truck, ShoppingBag, Trash2, Copy, Check, Lock
 } from 'lucide-react';
 import { openPaystack } from '../../utils/paystack';
 
@@ -23,7 +23,7 @@ const Checkout = () => {
   const [step, setStep] = useState(0); // 0=Address, 1=Review, 2=Payment
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('paystack');
+  const [paymentMethod, setPaymentMethod] = useState('mobile_money');
   const [phone, setPhone] = useState('');
   const [provider, setProvider] = useState('mtn');
   const [addingAddress, setAddingAddress] = useState(false);
@@ -472,27 +472,43 @@ const Checkout = () => {
 
               <div className="space-y-3">
                 {[
-                  { value: 'mobile_money', label: 'Direct Mobile Money (MoMo Transfer)', icon: <Phone className="w-5 h-5" />, desc: 'Instant transfer to 0508208803 (Francis Victor Okine)' },
-                  { value: 'paystack', label: 'Online Card / Paystack', icon: <CreditCard className="w-5 h-5" />, desc: 'Pay with debit/credit card or online' },
+                  { value: 'mobile_money', label: 'Direct Mobile Money (MoMo Transfer)', icon: <Phone className="w-5 h-5" />, desc: 'Instant transfer to 0508208803 (Francis Victor Okine)', disabled: false },
+                  { value: 'paystack', label: 'Online Card / Paystack', icon: <Lock className="w-5 h-5 text-amber-500" />, desc: 'Gateway verification in progress — please pay via Direct MoMo', disabled: true },
                 ].map(pm => (
-                  <label key={pm.value} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                    paymentMethod === pm.value
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20'
-                      : 'border-secondary-200 dark:border-secondary-700 hover:border-secondary-400'
-                  }`}>
+                  <div
+                    key={pm.value}
+                    onClick={() => {
+                      if (!pm.disabled) setPaymentMethod(pm.value);
+                    }}
+                    className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${
+                      pm.disabled
+                        ? 'opacity-60 bg-secondary-50 dark:bg-secondary-800/40 border-secondary-200 dark:border-secondary-800 cursor-not-allowed select-none'
+                        : paymentMethod === pm.value
+                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20 cursor-pointer'
+                          : 'border-secondary-200 dark:border-secondary-700 hover:border-secondary-400 cursor-pointer'
+                    }`}
+                  >
                     <input type="radio" name="payment" value={pm.value}
+                      disabled={pm.disabled}
                       checked={paymentMethod === pm.value}
-                      onChange={() => setPaymentMethod(pm.value)}
-                      className="accent-primary-500"
+                      onChange={() => !pm.disabled && setPaymentMethod(pm.value)}
+                      className="accent-primary-500 disabled:opacity-40"
                     />
-                    <div className={`p-2 rounded-lg ${paymentMethod === pm.value ? 'bg-primary-500 text-white' : 'bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400'}`}>
+                    <div className={`p-2 rounded-lg ${pm.disabled ? 'bg-secondary-200 dark:bg-secondary-700 text-secondary-500' : paymentMethod === pm.value ? 'bg-primary-500 text-white' : 'bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400'}`}>
                       {pm.icon}
                     </div>
-                    <div>
-                      <p className="font-semibold text-sm">{pm.label}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className={`font-semibold text-sm ${pm.disabled ? 'text-secondary-500 dark:text-secondary-400' : ''}`}>{pm.label}</p>
+                        {pm.disabled && (
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                            <Lock className="w-3 h-3" /> Offline
+                          </span>
+                        )}
+                      </div>
                       <p className="text-secondary-400 text-xs">{pm.desc}</p>
                     </div>
-                  </label>
+                  </div>
                 ))}
               </div>
 

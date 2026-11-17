@@ -348,31 +348,47 @@ class LayawayController extends Controller
     public function show(string $uuid): JsonResponse
     {
         $card = LayawayCard::where('uuid', $uuid)
-            ->with(['user:id,first_name,last_name,phone', 'product:id,uuid,name', 'product.images', 'payments' => function($q) {
+            ->with(['user', 'product:id,uuid,name', 'product.images', 'layawayPlanCard', 'payments' => function($q) {
                 $q->orderBy('created_at', 'asc');
             }])
             ->firstOrFail();
 
-        $totalPaid = $card->payments->sum('amount');
-        $boxesChecked = $card->payments->sum('boxes_covered');
-        $totalAmount = $card->total_boxes * $card->box_price;
+        $totalPaid = (float) $card->payments->sum('amount');
+        $boxesChecked = (int) $card->payments->sum('boxes_covered');
+        $totalAmount = (float) ($card->total_boxes * $card->box_price);
+
+        $productName = $card->product?->name 
+            ?? $card->layawayPlanCard?->name 
+            ?? 'Layaway Susu Plan';
+
+        $customerName = 'Customer';
+        if ($card->user) {
+            $customerName = trim(($card->user->first_name ?? '') . ' ' . ($card->user->last_name ?? ''));
+            if (empty($customerName)) {
+                $customerName = $card->user->name ?? $card->user->email ?? 'Customer';
+            }
+        }
+
+        $customerPhone = $card->user?->phone ?? $card->user?->phone_number ?? 'N/A';
+        $customerCity = $card->pickup_point ?? 'N/A';
 
         return response()->json([
             'data' => [
                 'uuid' => $card->uuid,
-                'product_name' => $card->product->name,
-                'customer_name' => $card->user->full_name ?? 'N/A',
-                'customer_phone' => $card->user->phone ?? 'N/A',
-                'customer_city' => 'N/A',
+                'product_name' => $productName,
+                'customer_name' => $customerName,
+                'customer_phone' => $customerPhone,
+                'customer_city' => $customerCity,
                 'total_boxes' => $card->total_boxes,
-                'boxes_checked' => (int) $boxesChecked,
-                'boxes_remaining' => $card->total_boxes - $boxesChecked,
+                'boxes_checked' => $boxesChecked,
+                'boxes_remaining' => max(0, $card->total_boxes - $boxesChecked),
                 'box_price' => (float) $card->box_price,
-                'total_amount' => (float) $totalAmount,
-                'amount_paid' => (float) $totalPaid,
-                'amount_remaining' => (float) $totalAmount - $totalPaid,
-                'completion_percentage' => round(($boxesChecked / $card->total_boxes) * 100, 2),
+                'total_amount' => $totalAmount,
+                'amount_paid' => $totalPaid,
+                'amount_remaining' => max(0, $totalAmount - $totalPaid),
+                'completion_percentage' => $card->total_boxes > 0 ? round(($boxesChecked / $card->total_boxes) * 100, 2) : 0,
                 'status' => $card->status,
+                'is_plan_card' => !is_null($card->layaway_plan_card_id),
                 'payments' => $card->payments->map(function ($payment) {
                     return [
                         'uuid' => $payment->uuid,

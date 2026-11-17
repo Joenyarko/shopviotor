@@ -318,18 +318,25 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                     onChange={(e) => setPayMethod(e.target.value)}
                     className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"
                   >
+                    <option value="Momo">Direct Mobile Money (MoMo)</option>
                     <option value="Cash">Cash</option>
-                    <option value="Momo">Momo</option>
+                    <option value="Paystack">Paystack (Online)</option>
                     <option value="Bank Transfer">Bank Transfer</option>
                   </select>
                 ) : (
-                  <select 
-                    value={payMethod} 
-                    onChange={(e) => setPayMethod(e.target.value)}
-                    className="w-full bg-[#262626] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"
-                  >
-                    <option value="Paystack">Paystack (Online)</option>
-                  </select>
+                  <div className="p-3 bg-[#1e1e1e] border border-gray-700 rounded text-xs space-y-2">
+                    <div className="flex items-center justify-between text-gray-400">
+                      <span>Online Card / Paystack</span>
+                      <span className="flex items-center gap-1 text-amber-500 font-bold text-[10px] bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/40">
+                        🔒 Gateway Under Verification
+                      </span>
+                    </div>
+                    <div className="p-2.5 bg-emerald-950/30 border border-emerald-800/50 rounded text-emerald-400 text-xs">
+                      <p className="font-bold">Pay via Direct MoMo Transfer:</p>
+                      <p>Number: <strong className="text-white font-mono">0508208803</strong> (Francis Victor Okine)</p>
+                      <p className="text-[11px] text-gray-400 mt-1">Please transfer GHS {parseFloat(payAmount || boxPrice || 0).toFixed(2)} to 0508208803 with your name as reference.</p>
+                    </div>
+                  </div>
                 )}
               </div>
 

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import Swal from 'sweetalert2';
 import dashboardService from '../../services/dashboardService';
 import { 
   DollarSign, ShoppingCart, UserCheck, TrendingUp, RefreshCw, 
   Package, ArrowUpRight, ArrowDownRight, Layers, CreditCard, 
-  RefreshCcw, Clock, Gift, ShieldAlert, Activity, PieChart, Smartphone
+  RefreshCcw, Clock, Gift, ShieldAlert, Activity, PieChart, Smartphone,
+  RotateCcw
 } from 'lucide-react';
 import apiClient from '../../api/client';
 import { 
@@ -60,6 +62,38 @@ const Dashboard = () => {
 
   const { summary, models, trends } = data; // Note: using 'trends' instead of 'monthly_trends'
 
+  const handleClearTestRevenue = async () => {
+    const result = await Swal.fire({
+      title: 'Reset Test Revenue to GHS 0.00?',
+      text: 'This will cancel test orders and agreements, zeroing out revenue, profit, and average ticket size so your dashboard starts completely clean.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, Reset Test Revenue',
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setLoading(true);
+      await apiClient.post('/admin/dashboard/clear-test-revenue');
+      await Swal.fire({
+        title: 'Reset Complete',
+        text: 'All test revenue and transactions have been reset to GHS 0.00.',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      await fetchDashboardData(filter);
+    } catch (err) {
+      console.error(err);
+      Swal.fire('Error', 'Failed to reset test revenue.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-8 pb-12">
       {/* Header with Live Status */}
@@ -77,7 +111,7 @@ const Dashboard = () => {
             Real-time synchronization across all 7 business models with zero simulated metrics.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <select 
             value={filter} 
             onChange={(e) => setFilter(e.target.value)}
@@ -99,6 +133,15 @@ const Dashboard = () => {
           >
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-primary-500' : ''}`} />
             Refresh
+          </button>
+          <button 
+            onClick={handleClearTestRevenue}
+            disabled={loading}
+            className="px-3.5 py-2.5 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            title="Reset test orders and zero out revenue"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Reset Test Revenue
           </button>
         </div>
       </div>
