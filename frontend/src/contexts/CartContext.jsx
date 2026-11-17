@@ -34,6 +34,7 @@ export const CartProvider = ({ children }) => {
           quantity,
           primary_image: product.primary_image || (product.images?.[0]?.url) || null,
           stock_quantity: product.stock_quantity,
+          store: product.store || null,
         },
       ];
     });

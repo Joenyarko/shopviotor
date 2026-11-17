@@ -158,16 +158,19 @@ class StoreController extends Controller
         }
 
         $request->validate([
-            'name'        => 'sometimes|string|max:100',
-            'description' => 'nullable|string|max:1000',
-            'phone'       => 'nullable|string|max:30',
-            'whatsapp'    => 'nullable|string|max:30',
-            'location'    => 'nullable|string|max:200',
-            'logo'        => 'nullable|image|max:2048',
-            'banner'      => 'nullable|image|max:4096',
-            'banners'     => 'nullable|array|max:5',
-            'banners.*'   => 'image|max:4096',
-            'removed_banners' => 'nullable|array',
+            'name'              => 'sometimes|string|max:100',
+            'description'       => 'nullable|string|max:1000',
+            'phone'             => 'nullable|string|max:30',
+            'whatsapp'          => 'nullable|string|max:30',
+            'momo_number'       => 'nullable|string|max:30',
+            'momo_account_name' => 'nullable|string|max:100',
+            'momo_network'      => 'nullable|string|max:50',
+            'location'          => 'nullable|string|max:200',
+            'logo'              => 'nullable|image|max:2048',
+            'banner'            => 'nullable|image|max:4096',
+            'banners'           => 'nullable|array|max:5',
+            'banners.*'         => 'image|max:4096',
+            'removed_banners'   => 'nullable|array',
             'removed_banners.*' => 'string',
         ]);
 
@@ -191,7 +194,7 @@ class StoreController extends Controller
         }
         $store->banners = !empty($currentBanners) ? $currentBanners : null;
 
-        $store->fill($request->only(['name', 'description', 'phone', 'whatsapp', 'location']));
+        $store->fill($request->only(['name', 'description', 'phone', 'whatsapp', 'location', 'momo_number', 'momo_account_name', 'momo_network']));
         $store->save();
 
         return response()->json([
@@ -203,13 +206,16 @@ class StoreController extends Controller
     private function formatStore(Store $store, bool $detailed = false): array
     {
         $data = [
-            'uuid'            => $store->uuid,
-            'name'            => $store->name,
-            'slug'            => $store->slug,
-            'description'     => $store->description,
-            'phone'           => $store->phone,
-            'whatsapp'        => $store->whatsapp,
-            'location'        => $store->location,
+            'uuid'              => $store->uuid,
+            'name'              => $store->name,
+            'slug'              => $store->slug,
+            'description'       => $store->description,
+            'phone'             => $store->phone,
+            'whatsapp'          => $store->whatsapp,
+            'momo_number'       => $store->momo_number,
+            'momo_account_name' => $store->momo_account_name,
+            'momo_network'      => $store->momo_network,
+            'location'          => $store->location,
             'logo_url'        => $store->logo_url,
             'banner_url'      => $store->banner_url,
             'banners_urls'    => $store->banners_urls,

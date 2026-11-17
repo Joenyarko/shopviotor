@@ -74,6 +74,67 @@ const VendorOrders = () => {
     }
   };
 
+  const handleConfirmPayment = async (order) => {
+    const customer = order.user ? `${order.user.first_name || ''} ${order.user.last_name || ''}`.trim() : 'Customer';
+    const amount = Number(order.total || 0).toFixed(2);
+
+    const { value: formValues } = await Swal.fire({
+      title: `Confirm Payment for #${order.order_number}?`,
+      html: `
+        <div style="text-align: left; font-size: 13px; margin-bottom: 12px; line-height: 1.6;">
+          <p><strong>Customer:</strong> ${customer}</p>
+          <p><strong>Amount to receive:</strong> <span style="color: #059669; font-weight: 800;">${order.currency || 'GHS'} ${amount}</span></p>
+          <p style="color: #64748b; font-size: 12px; margin-top: 6px;">Check your MoMo wallet to ensure the transfer has arrived before confirming.</p>
+        </div>
+        <input id="swal-tx-id" class="swal2-input" placeholder="MoMo Transaction ID (Optional)" style="font-size: 13px; margin-top: 4px;" />
+        <textarea id="swal-notes" class="swal2-textarea" placeholder="Payment verification note (Optional)" style="font-size: 13px; height: 70px;"></textarea>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, Confirm Payment Received',
+      preConfirm: () => {
+        return {
+          transaction_id: document.getElementById('swal-tx-id')?.value,
+          notes: document.getElementById('swal-notes')?.value,
+        };
+      }
+    });
+
+    if (!formValues) return;
+
+    try {
+      setLoading(true);
+      await vendorService.confirmOrderPayment(order.uuid || order.id, {
+        payment_method: 'momo',
+        transaction_id: formValues.transaction_id || null,
+        notes: formValues.notes || null,
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Payment Confirmed!',
+        text: `Order #${order.order_number} marked as Paid & Processing for delivery.`,
+        timer: 2500,
+        showConfirmButton: false,
+      });
+      if (selectedOrder && (selectedOrder.id === order.id || selectedOrder.uuid === order.uuid)) {
+        handleCloseModal();
+      }
+      loadOrders();
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Confirmation Failed',
+        text: err.response?.data?.message || 'Could not confirm payment. Please try again.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getStatusBadge = (statusVal) => {
     const val = statusVal?.value || statusVal || 'pending';
     switch (val) {
@@ -221,12 +282,23 @@ const VendorOrders = () => {
                         {getStatusBadge(order.status)}
                       </td>
                       <td className="p-5 text-right">
-                        <button
-                          onClick={() => handleOpenModal(order)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary-100 dark:bg-secondary-800 hover:bg-primary-500 hover:text-white dark:hover:bg-primary-600 text-secondary-800 dark:text-white font-bold text-xs transition-all shadow-sm"
-                        >
-                          <Eye className="w-4 h-4" /> Manage
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          {(order.status?.value === 'pending' || order.status === 'pending' || !order.paid_at) && (
+                            <button
+                              onClick={() => handleConfirmPayment(order)}
+                              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition-all shadow-sm"
+                              title="Confirm direct Mobile Money payment received"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Confirm MoMo
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleOpenModal(order)}
+                            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-secondary-100 dark:bg-secondary-800 hover:bg-primary-500 hover:text-white dark:hover:bg-primary-600 text-secondary-800 dark:text-white font-bold text-xs transition-all shadow-sm"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> Manage
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -319,6 +391,27 @@ const VendorOrders = () => {
                 ))}
               </div>
             </div>
+
+            {/* MoMo Payment Confirmation Banner */}
+            {(!selectedOrder.paid_at || selectedOrder.status === 'pending' || selectedOrder.status?.value === 'pending') && (
+              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="font-bold text-sm text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Direct MoMo Payment Pending
+                  </div>
+                  <p className="text-xs text-secondary-600 dark:text-secondary-300 mt-0.5">
+                    Once the customer's Mobile Money transfer reflects in your wallet, click below to mark as Paid & Processing.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleConfirmPayment(selectedOrder)}
+                  className="px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-600 text-white shrink-0 flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                >
+                  <CheckCircle2 className="w-4 h-4" /> Confirm MoMo Received
+                </button>
+              </div>
+            )}
 
             {/* Status Update Form */}
             <form onSubmit={handleUpdateStatus} className="bg-secondary-50 dark:bg-secondary-800/50 rounded-2xl p-5 border border-secondary-200 dark:border-secondary-700/50 space-y-4">

@@ -19,6 +19,7 @@ class Store extends Model
     protected $fillable = [
         'uuid', 'user_id', 'name', 'slug', 'logo', 'banner', 'banners',
         'description', 'phone', 'whatsapp', 'location',
+        'momo_number', 'momo_account_name', 'momo_network',
         'status', 'subscription_plan', 'commission_rate',
         'can_offer_layaway', 'can_offer_hire_purchase',
         'can_offer_preorders', 'can_offer_trades',

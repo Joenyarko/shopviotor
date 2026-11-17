@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import vendorService from '../../services/vendorService';
-import { Store, Upload, Save, RefreshCw, MapPin, Phone, MessageSquare, ShieldCheck, CheckCircle2, Lock, Percent, FileText } from 'lucide-react';
+import { Store, Upload, Save, RefreshCw, MapPin, Phone, MessageSquare, ShieldCheck, CheckCircle2, Lock, Percent, FileText, CreditCard } from 'lucide-react';
 
 const VendorSettings = () => {
   const [store, setStore] = useState(null);
@@ -12,6 +12,9 @@ const VendorSettings = () => {
     description: '',
     phone: '',
     whatsapp: '',
+    momo_number: '',
+    momo_account_name: '',
+    momo_network: 'MTN',
     location: '',
   });
 
@@ -36,6 +39,9 @@ const VendorSettings = () => {
           description: storeData.description || '',
           phone: storeData.phone || '',
           whatsapp: storeData.whatsapp || '',
+          momo_number: storeData.momo_number || '',
+          momo_account_name: storeData.momo_account_name || '',
+          momo_network: storeData.momo_network || 'MTN',
           location: storeData.location || '',
         });
         setLogoPreview(storeData.logo_url || '');
@@ -340,6 +346,77 @@ const VendorSettings = () => {
                 placeholder="Describe your products, warranty policies, and specialty offerings..."
                 className="w-full px-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-primary-500 transition-all resize-none"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Direct Mobile Money (MoMo) Details */}
+        <div className="bg-white dark:bg-secondary-900 rounded-3xl shadow-xl border border-secondary-200 dark:border-secondary-800 overflow-hidden">
+          <div className="p-6 border-b border-secondary-200 dark:border-secondary-800 bg-amber-50/50 dark:bg-amber-950/20">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                <CreditCard className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-secondary-900 dark:text-white flex items-center gap-2">
+                  Direct Mobile Money (MoMo) Receiving Details
+                  <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300">
+                    Direct Payout
+                  </span>
+                </h3>
+                <p className="text-xs text-secondary-500 mt-0.5">
+                  Customers who purchase products from your store will transfer directly to these MoMo details during our payment gateway verification period.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-xs font-bold text-secondary-700 dark:text-secondary-300 mb-1.5">
+                MoMo Wallet Number *
+              </label>
+              <input
+                type="tel"
+                name="momo_number"
+                value={formData.momo_number}
+                onChange={handleChange}
+                placeholder="e.g. 024XXXXXXX"
+                className="w-full px-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-amber-500 transition-all"
+              />
+              <span className="text-xxs text-secondary-400 mt-1 block">Phone number registered to your MoMo merchant or subscriber wallet.</span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-secondary-700 dark:text-secondary-300 mb-1.5">
+                MoMo Account Name *
+              </label>
+              <input
+                type="text"
+                name="momo_account_name"
+                value={formData.momo_account_name}
+                onChange={handleChange}
+                placeholder="e.g. Francis Kofi / Shop Name"
+                className="w-full px-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-amber-500 transition-all"
+              />
+              <span className="text-xxs text-secondary-400 mt-1 block">Exact legal or business name registered on the wallet.</span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-secondary-700 dark:text-secondary-300 mb-1.5">
+                Mobile Network *
+              </label>
+              <select
+                name="momo_network"
+                value={formData.momo_network}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-xl bg-secondary-50 dark:bg-secondary-800 border border-secondary-300 dark:border-secondary-700 text-secondary-900 dark:text-white text-sm font-medium focus:ring-2 focus:ring-amber-500 transition-all"
+              >
+                <option value="MTN">MTN Mobile Money</option>
+                <option value="Telecel">Telecel Cash</option>
+                <option value="AT">AT Money (AirtelTigo)</option>
+              </select>
+              <span className="text-xxs text-secondary-400 mt-1 block">Network provider of the receiving MoMo wallet.</span>
             </div>
           </div>
         </div>

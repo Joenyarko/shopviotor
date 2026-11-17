@@ -21,6 +21,7 @@ const vendorService = {
   getOrders: (params = {}) => apiClient.get('/vendor/orders', { params }),
   getOrder: (uuid) => apiClient.get(`/vendor/orders/${uuid}`),
   updateOrderStatus: (uuid, status, note = null) => apiClient.post(`/vendor/orders/${uuid}/status`, { status, note }),
+  confirmOrderPayment: (uuid, data = {}) => apiClient.post(`/vendor/orders/${uuid}/confirm-payment`, data),
 
   // Vendor Wallet & Payouts
   getWallet: () => apiClient.get('/vendor/wallet'),

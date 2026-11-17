@@ -209,6 +209,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/orders', [VendorOrderController::class, 'index']);
             Route::get('/orders/{uuid}', [VendorOrderController::class, 'show']);
             Route::post('/orders/{uuid}/status', [VendorOrderController::class, 'updateStatus']);
+            Route::post('/orders/{uuid}/confirm-payment', [VendorOrderController::class, 'confirmPayment']);
             
             // Wallet & Payouts
             Route::get('/wallet', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'index']);

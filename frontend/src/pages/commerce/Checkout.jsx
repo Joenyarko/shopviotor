@@ -40,6 +40,25 @@ const Checkout = () => {
   
   const [taxRate, setTaxRate] = useState(0.05); // Default 5% until fetched
   const [defaultShipping, setDefaultShipping] = useState(30.00);
+  const [recipientInfo, setRecipientInfo] = useState(null);
+
+  // Detect if any cart items belong to a vendor store
+  const vendorStore = cart.find(item => item.store && (item.store.momo_number || item.store.name))?.store || null;
+  const momoRecipient = vendorStore ? {
+    isVendor: true,
+    storeName: vendorStore.name || 'Vendor Store',
+    accountName: vendorStore.momo_account_name || vendorStore.name,
+    number: vendorStore.momo_number || vendorStore.phone || '0508208803',
+    network: vendorStore.momo_network || 'MTN / Telecel / AT',
+    whatsapp: vendorStore.whatsapp || vendorStore.phone || vendorStore.momo_number || '0508208803',
+  } : {
+    isVendor: false,
+    storeName: 'Shop Viotor Official',
+    accountName: 'Francis Victor Okine',
+    number: '0508208803',
+    network: 'Telecel / MTN',
+    whatsapp: '0508208803',
+  };
 
   // Fees
   const shippingFee = cart.reduce((total, item) => {
@@ -185,6 +204,7 @@ const Checkout = () => {
         return;
       }
 
+      setRecipientInfo(momoRecipient);
       clearCart();
       setOrderSuccess(res?.order || res.data?.order);
     } catch (err) {
@@ -198,6 +218,10 @@ const Checkout = () => {
 
   // ─── Success Screen ───────────────────────────────────────────────────────────
   if (orderSuccess) {
+    const activeMomo = recipientInfo || momoRecipient;
+    const cleanPhone = (activeMomo.whatsapp || activeMomo.number || '0508208803').replace(/\D/g, '');
+    const waTarget = cleanPhone.startsWith('0') ? '233' + cleanPhone.slice(1) : (cleanPhone.startsWith('233') ? cleanPhone : '233' + cleanPhone);
+
     return (
       <div className="max-w-lg mx-auto px-4 py-16 text-center">
         <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce-once">
@@ -217,20 +241,26 @@ const Checkout = () => {
               </span>
             </div>
 
+            {activeMomo.isVendor && (
+              <div className="px-3 py-1.5 rounded-lg bg-amber-100/70 dark:bg-amber-950/40 border border-amber-300/50 dark:border-amber-800/40 text-[11px] font-bold text-amber-900 dark:text-amber-300">
+                Vendor Store Order: {activeMomo.storeName}
+              </div>
+            )}
+
             <p className="text-secondary-600 dark:text-secondary-300 leading-relaxed">
-              Please transfer <strong className="text-secondary-900 dark:text-white">GHS {parseFloat(orderSuccess.total || orderTotal).toFixed(2)}</strong> using your new Order Reference below:
+              Please transfer <strong className="text-secondary-900 dark:text-white">GHS {parseFloat(orderSuccess.total || orderTotal).toFixed(2)}</strong> to {activeMomo.isVendor ? activeMomo.storeName : 'Shop Viotor'} using your Order Reference below:
             </p>
 
             <div className="bg-white dark:bg-secondary-900 p-4 rounded-xl border border-emerald-200/70 dark:border-emerald-800/40 space-y-2.5">
               <div className="flex justify-between items-center">
                 <div>
                   <span className="text-secondary-500 block text-xxs font-bold uppercase">MoMo Number:</span>
-                  <span className="font-mono font-black text-primary-600 dark:text-primary-400 text-base">0508208803</span>
+                  <span className="font-mono font-black text-primary-600 dark:text-primary-400 text-base">{activeMomo.number}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => {
-                    navigator.clipboard.writeText('0508208803');
+                    navigator.clipboard.writeText(activeMomo.number);
                     setCopiedNum(true);
                     setTimeout(() => setCopiedNum(false), 2000);
                   }}
@@ -243,7 +273,12 @@ const Checkout = () => {
 
               <div className="flex justify-between items-center pt-1 border-t border-secondary-100 dark:border-secondary-800">
                 <span className="text-secondary-500 text-xxs font-bold uppercase">Account Name:</span>
-                <span className="font-bold text-secondary-900 dark:text-white">Francis Victor Okine</span>
+                <span className="font-bold text-secondary-900 dark:text-white">{activeMomo.accountName}</span>
+              </div>
+
+              <div className="flex justify-between items-center pt-1 border-t border-secondary-100 dark:border-secondary-800">
+                <span className="text-secondary-500 text-xxs font-bold uppercase">Network:</span>
+                <span className="font-semibold text-secondary-800 dark:text-secondary-200">{activeMomo.network}</span>
               </div>
 
               <div className="flex justify-between items-center pt-1 border-t border-secondary-100 dark:border-secondary-800">
@@ -268,12 +303,12 @@ const Checkout = () => {
 
             <div className="pt-1">
               <a
-                href={`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I have placed Order #${orderSuccess.order_number} for GHS ${parseFloat(orderSuccess.total || orderTotal).toFixed(2)} and will send payment to 0508208803. Please confirm receipt.`)}`}
+                href={`https://wa.me/${waTarget}?text=${encodeURIComponent(`Hello ${activeMomo.storeName}, I have placed Order #${orderSuccess.order_number} for GHS ${parseFloat(orderSuccess.total || orderTotal).toFixed(2)} and will send payment to ${activeMomo.number}. Please confirm receipt.`)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 transition-colors shadow-sm"
               >
-                Notify on WhatsApp (0508208803)
+                Notify {activeMomo.isVendor ? activeMomo.storeName : ''} on WhatsApp ({activeMomo.whatsapp || activeMomo.number})
               </a>
             </div>
           </div>
@@ -514,23 +549,30 @@ const Checkout = () => {
 
               {paymentMethod === 'mobile_money' && (
                 <div className="space-y-3.5 p-4 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800/60 text-sm">
-                  <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold">
-                    <Phone className="w-4 h-4 text-emerald-600" />
-                    <span>Direct Mobile Money (MoMo) Details</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold">
+                      <Phone className="w-4 h-4 text-emerald-600" />
+                      <span>Direct Mobile Money (MoMo) Details</span>
+                    </div>
+                    {momoRecipient.isVendor && (
+                      <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300">
+                        Vendor: {momoRecipient.storeName}
+                      </span>
+                    )}
                   </div>
 
                   <div className="bg-white dark:bg-secondary-900 p-3.5 rounded-xl border border-emerald-200/70 dark:border-emerald-800/40 space-y-2">
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-secondary-500">Account Name:</span>
-                      <span className="font-bold text-secondary-900 dark:text-white">Francis Victor Okine</span>
+                      <span className="font-bold text-secondary-900 dark:text-white">{momoRecipient.accountName}</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-secondary-500">MoMo Number:</span>
-                      <span className="font-black text-sm text-primary-600 dark:text-primary-400 tracking-wider">0508208803</span>
+                      <span className="font-black text-sm text-primary-600 dark:text-primary-400 tracking-wider">{momoRecipient.number}</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-secondary-500">Network:</span>
-                      <span className="font-semibold text-secondary-800 dark:text-secondary-200">Telecel / MTN</span>
+                      <span className="font-semibold text-secondary-800 dark:text-secondary-200">{momoRecipient.network}</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-secondary-500">Payment Reference:</span>
@@ -548,21 +590,8 @@ const Checkout = () => {
                     </div>
                     <div className="flex items-start gap-2">
                       <span className="w-4 h-4 rounded-full bg-emerald-500 text-white font-bold flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">2</span>
-                      <span>Transfer <strong>GHS {orderTotal.toFixed(2)}</strong> to <strong>0508208803</strong> using that Order Number as the MoMo reference.</span>
+                      <span>Transfer <strong>GHS {orderTotal.toFixed(2)}</strong> to <strong>{momoRecipient.number}</strong> ({momoRecipient.accountName}) using that Order Number as the MoMo reference.</span>
                     </div>
-                  </div>
-
-                  <div className="space-y-1.5 pt-1">
-                    <label className="block text-xs font-bold text-secondary-700 dark:text-secondary-300">
-                      Your Sender Phone / MoMo Transaction ID (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={phone}
-                      onChange={e => setPhone(e.target.value)}
-                      placeholder="e.g. 050XXXXXXX or MoMo Ref ID"
-                      className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
-                    />
                   </div>
                 </div>
               )}
