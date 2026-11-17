@@ -58,6 +58,8 @@ class ResetTestRevenue extends Command
             'status'       => 'pending',
         ]);
         \App\Models\RaffleTicket::query()->delete();
+        \App\Models\PaymentTransaction::query()->delete();
+        \App\Models\Payment::query()->delete();
 
         $this->info("Successfully reset {$cancelledOrders} test order(s) and {$cancelledHp} test HP agreement(s).");
         $this->info('Corporate dashboard analytics have been completely reset to GHS 0.00.');

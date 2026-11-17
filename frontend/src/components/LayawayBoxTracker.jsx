@@ -80,13 +80,69 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
   const { user } = useAuth();
   const handleRecordPayment = async (e) => {
     e.preventDefault();
+
+    const parsedAmount = payAmount ? parseFloat(payAmount) : 0;
+    const parsedBoxes = payBoxes ? parseInt(payBoxes, 10) : 0;
+
+    if (parsedAmount <= 0 && parsedBoxes <= 0) {
+      toast.warning('Please enter an amount or number of boxes to record payment.');
+      return;
+    }
+
+    const finalAmount = parsedAmount > 0 ? parsedAmount : (parsedBoxes * boxPrice);
+    const finalBoxes = parsedBoxes > 0 ? parsedBoxes : Math.round(finalAmount / boxPrice);
+
+    if (finalBoxes > boxesRemaining) {
+      toast.error(`Payment covers ${finalBoxes} boxes, but only ${boxesRemaining} boxes remain.`);
+      return;
+    }
+
+    const generatedRef = payReference.trim() || ('LAY-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.random().toString(36).substring(2, 7).toUpperCase());
+
+    if (isAdmin) {
+      const confirmResult = await Swal.fire({
+        title: 'Confirm Layaway MoMo Payment',
+        html: `
+          <div style="text-align: left; font-size: 13px; line-height: 1.6;">
+            <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+              <span style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #eab308; display: block;">Payment Reference (MoMo Remark):</span>
+              <span style="font-family: monospace; font-size: 16px; font-weight: 900; color: #facc15; letter-spacing: 1px;">${generatedRef}</span>
+            </div>
+            <div style="margin-bottom: 12px; padding: 0 4px;">
+              <p><strong>Customer:</strong> ${card.customer_name || 'Customer'} (${card.customer_phone || 'N/A'})</p>
+              <p><strong>Boxes to Mark:</strong> <strong style="color: #facc15;">${finalBoxes} boxes</strong> (@ GHS ${boxPrice.toFixed(2)} each)</p>
+              <p style="font-size: 15px; margin-top: 4px;"><strong>Total Amount:</strong> <strong style="color: #10b981; font-size: 17px;">GHS ${finalAmount.toFixed(2)}</strong></p>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 12px;">
+              <span style="color: #94a3b8; font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">MoMo Destination:</span>
+              <p style="margin: 2px 0;"><strong>Number:</strong> <span style="font-family: monospace; font-weight: 800; color: #fff;">0508208803</span> (Francis Victor Okine)</p>
+              <p style="margin: 0; color: #94a3b8; font-size: 11px;">Network: Telecel / MTN</p>
+            </div>
+            <p style="color: #94a3b8; font-size: 11px; margin-top: 10px;">
+              Verify that the customer transferred <strong>GHS ${finalAmount.toFixed(2)}</strong> with reference <strong>${generatedRef}</strong> before recording.
+            </p>
+          </div>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Yes, Confirm Paid & Update Boxes',
+        cancelButtonText: 'Cancel',
+      });
+
+      if (!confirmResult.isConfirmed) {
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     try {
       const payload = {
-        amount_paid: payAmount ? parseFloat(payAmount) : null,
-        number_of_boxes: payBoxes ? parseInt(payBoxes, 10) : null,
-        payment_method: payMethod,
-        reference: payReference.trim() || undefined,
+        amount_paid: finalAmount,
+        number_of_boxes: finalBoxes,
+        payment_method: payMethod || 'momo',
+        reference: generatedRef,
         notes: payNotes,
       };
 
@@ -94,7 +150,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
       if (isAdmin) {
         endpoint = `/admin/layaways/${card.uuid}/payments`;
       } else {
-        payload.amount = parseFloat(payAmount);
+        payload.amount = finalAmount;
         endpoint = `/layaways/${card.uuid}/pay`;
       }
 
@@ -112,7 +168,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
       if (!isAdmin && res?.data?.payment?.reference) {
         openPaystack({
           email: user?.email,
-          amountGHS: parseFloat(payAmount),
+          amountGHS: parseFloat(finalAmount),
           reference: res.data.payment.reference,
           onSuccess: async () => {
             try {
@@ -129,7 +185,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
       } else if (!isAdmin && res?.payment?.reference) {
         openPaystack({
           email: user?.email,
-          amountGHS: parseFloat(payAmount),
+          amountGHS: parseFloat(finalAmount),
           reference: res.payment.reference,
           onSuccess: async () => {
             try {
@@ -400,7 +456,14 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                   {card.payments && card.payments.length > 0 ? (
                     card.payments.map((payment) => (
                       <tr key={payment.uuid} className="grid grid-cols-12 gap-2 items-center bg-[#222222] p-2 rounded">
-                        <td className="col-span-3 text-xs">{new Date(payment.created_at).toLocaleDateString()}</td>
+                        <td className="col-span-3">
+                          <div className="text-xs text-white">{new Date(payment.created_at).toLocaleDateString()}</div>
+                          {payment.reference && (
+                            <div className="text-[10px] text-yellow-400 font-mono font-bold truncate" title={payment.reference}>
+                              {payment.reference}
+                            </div>
+                          )}
+                        </td>
                         <td className="col-span-2">
                           <span className="bg-gray-800 px-2 py-1 rounded text-white font-bold">{payment.boxes_covered}</span>
                         </td>

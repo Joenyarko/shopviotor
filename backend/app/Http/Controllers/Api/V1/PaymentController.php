@@ -157,4 +157,14 @@ class PaymentController extends Controller
             'data'    => new PaymentResource($payment),
         ]);
     }
+
+    public function clearTestPayments(): JsonResponse
+    {
+        \App\Models\PaymentTransaction::query()->delete();
+        \App\Models\Payment::query()->delete();
+
+        return response()->json([
+            'message' => 'All test payment audits have been cleared successfully.'
+        ]);
+    }
 }

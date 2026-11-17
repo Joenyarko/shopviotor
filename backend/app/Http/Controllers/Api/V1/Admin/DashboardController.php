@@ -278,8 +278,10 @@ class DashboardController extends Controller
             'status'       => 'pending',
         ]);
 
-        // Clear raffle tickets
+        // Clear raffle tickets and payment audits
         RaffleTicket::query()->delete();
+        \App\Models\PaymentTransaction::query()->delete();
+        \App\Models\Payment::query()->delete();
 
         return response()->json([
             'status'  => 'success',

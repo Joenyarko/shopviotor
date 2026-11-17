@@ -446,14 +446,31 @@ class LayawayController extends Controller
         $colorCode = ($paymentCount % 2 === 0) ? '#eab308' : '#000000'; // Yellow and Black
 
         DB::transaction(function () use ($card, $amount, $boxes, $request, $colorCode, $currentBoxes) {
-            $card->payments()->create([
+            $reference = $request->reference ?? $request->transaction_id ?? ('LAY-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5)));
+
+            $payment = $card->payments()->create([
                 'uuid' => \Illuminate\Support\Str::uuid()->toString(),
                 'amount' => $amount,
                 'boxes_covered' => $boxes,
                 'payment_method' => $request->payment_method ?? 'momo',
-                'reference' => $request->reference ?? $request->transaction_id ?? ('LAY-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5))),
+                'reference' => $reference,
                 'notes' => $request->notes,
                 'color_code' => $colorCode,
+            ]);
+
+            // Record in central Payment audit table
+            \App\Models\Payment::create([
+                'uuid' => \Illuminate\Support\Str::uuid()->toString(),
+                'payable_type' => \App\Models\LayawayCard::class,
+                'payable_id' => $card->id,
+                'user_id' => $card->user_id,
+                'reference' => $reference,
+                'method' => 'mobile_money',
+                'status' => 'completed',
+                'amount' => $amount,
+                'currency' => 'GHS',
+                'notes' => $request->notes ?? ('Layaway box payment (' . $boxes . ' boxes)'),
+                'paid_at' => now(),
             ]);
 
             if ($currentBoxes + $boxes >= $card->total_boxes) {
@@ -472,6 +489,7 @@ class LayawayController extends Controller
         $payment = LayawayPayment::where('uuid', $paymentUuid)->where('layaway_card_id', $card->id)->firstOrFail();
 
         DB::transaction(function () use ($card, $payment) {
+            \App\Models\Payment::where('reference', $payment->reference)->delete();
             $payment->delete();
 
             $currentBoxes = $card->payments()->sum('boxes_covered');

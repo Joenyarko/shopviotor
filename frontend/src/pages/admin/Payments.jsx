@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import React, { useEffect, useState } from 'react';
 import adminService from '../../api/client';
-import { RefreshCw, CheckCircle, Search } from 'lucide-react';
+import { RefreshCw, CheckCircle, Search, Trash2 } from 'lucide-react';
 import DotPagination from '../../components/DotPagination';
 
 const Payments = () => {
@@ -54,6 +54,37 @@ const Payments = () => {
     }
   };
 
+  const handleClearPayments = async () => {
+    const result = await Swal.fire({
+      title: 'Clear Test Payment Audits?',
+      text: 'Are you sure you want to clear all test payment audits? This will wipe the payment logs so you start fresh with real transactions.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, Clear All Test Payments',
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setLoading(true);
+      await adminService.delete('/admin/payments/clear-history');
+      await Swal.fire({
+        icon: 'success',
+        title: 'Cleared!',
+        text: 'Payment audits have been cleared successfully.',
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      fetchPayments();
+    } catch (e) {
+      Swal.fire('Error', e.response?.data?.message || 'Failed to clear payments.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -61,17 +92,27 @@ const Payments = () => {
           <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Payment Audits</h2>
           <p className="text-sm text-secondary-500 mt-1">Review webhook responses, gateway references, and manual receipts.</p>
         </div>
-        <div className="relative w-full sm:w-auto max-w-sm">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-secondary-400" />
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <button
+            onClick={handleClearPayments}
+            disabled={loading || payments.length === 0}
+            className="px-3.5 py-2 rounded-xl text-xs font-bold bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 flex items-center gap-1.5 transition-all disabled:opacity-40 shadow-sm"
+            title="Clear all test payment audits"
+          >
+            <Trash2 className="w-4 h-4" /> Clear Test Payments
+          </button>
+          <div className="relative flex-1 sm:w-64">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-secondary-400" />
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              placeholder="Search by reference..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <input
-            type="text"
-            className="block w-full pl-9 pr-3 py-2 border border-secondary-200 dark:border-secondary-700 rounded-lg text-sm bg-white dark:bg-secondary-900 text-secondary-900 dark:text-white placeholder-secondary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-            placeholder="Search by reference..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
         </div>
       </div>
 
