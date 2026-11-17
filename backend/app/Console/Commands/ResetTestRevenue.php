@@ -50,3 +50,4 @@ class ResetTestRevenue extends Command
         return Command::SUCCESS;
     }
 }
+
