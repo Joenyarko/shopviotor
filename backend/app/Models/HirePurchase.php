@@ -19,6 +19,7 @@ class HirePurchase extends Model
 
     protected $fillable = [
         'uuid', 'user_id', 'product_id', 'order_id', 'status',
+        'applicant_type', 'ghana_card_number', 'digital_address', 'payment_method', 'deposit_reference',
         'product_price', 'deposit_amount', 'total_amount', 'balance_remaining',
         'monthly_installment', 'duration_months', 'interest_rate', 'late_fee',
         'next_due_date', 'deposit_paid_at', 'completed_at', 'defaulted_at', 'notes',

@@ -30,13 +30,22 @@ apiClient.interceptors.response.use(
     const status = error.response ? error.response.status : null;
     const data = error.response ? error.response.data : null;
 
-    if (status === 401) {
+    if (status === 401 || (status === 403 && (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/vendor')))) {
       // Clear local auth storage
       localStorage.removeItem('viotor_token');
       localStorage.removeItem('viotor_user');
+      sessionStorage.removeItem('admin_2fa_verified');
       
-      // Dispatch custom event to notify components (or trigger redirect)
+      // Dispatch custom event to notify components
       window.dispatchEvent(new Event('auth_session_expired'));
+
+      // If user is inside admin or vendor portal, proactively redirect to login with notification
+      if (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/vendor')) {
+        const redirectUrl = `/login?session_expired=1&redirect=${encodeURIComponent(window.location.pathname)}`;
+        if (window.location.pathname !== '/login') {
+          window.location.href = redirectUrl;
+        }
+      }
     }
 
     let message = data?.message || error.message || 'An unexpected error occurred.';

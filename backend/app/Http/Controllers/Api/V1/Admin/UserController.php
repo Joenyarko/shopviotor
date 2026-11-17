@@ -239,4 +239,19 @@ class UserController extends Controller
             'data' => new UserResource($user),
         ]);
     }
+
+    public function approveIdentityVerification(string $uuid, Request $request): JsonResponse
+    {
+        $request->validate([
+            'status' => ['required', 'in:approved,rejected'],
+        ]);
+
+        $user = $this->userRepo->findByUuid($uuid);
+        $user->update(['identity_verification_status' => $request->status]);
+
+        return response()->json([
+            'message' => 'Identity verification status updated successfully.',
+            'data' => new UserResource($user),
+        ]);
+    }
 }

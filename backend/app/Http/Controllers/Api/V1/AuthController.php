@@ -204,6 +204,94 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Submit Ghana Card Identity Verification with Dojah Integration.
+     */
+    public function submitIdentityVerification(
+        Request $request,
+        \App\Services\Verification\DojahVerificationService $dojahService
+    ): JsonResponse {
+        $request->validate([
+            'ghana_card_number'   => ['required', 'string', 'regex:/^GHA-\d{9}-\d$/i'],
+            'digital_address'     => ['required', 'string', 'max:50'],
+            'occupation'          => ['required', 'string', 'max:150'],
+            'employer_name'       => ['nullable', 'string', 'max:150'],
+            'monthly_income'      => ['nullable', 'numeric', 'min:0'],
+            'next_of_kin_name'    => ['required', 'string', 'max:150'],
+            'next_of_kin_phone'   => ['required', 'string', 'max:25'],
+            'next_of_kin_relation'=> ['required', 'string', 'max:100'],
+            'ghana_card_front'    => ['required', 'image', 'max:5120'],
+            'ghana_card_back'     => ['nullable', 'image', 'max:5120'],
+            'selfie_image'        => ['required'], // can be image file or base64 data url
+        ]);
+
+        $user = $request->user();
+
+        // 1. Store Ghana Card Front
+        $frontPath = $request->file('ghana_card_front')->store('identity/ghana-cards', 'public');
+        $backPath  = null;
+        if ($request->hasFile('ghana_card_back')) {
+            $backPath = $request->file('ghana_card_back')->store('identity/ghana-cards', 'public');
+        }
+
+        // 2. Process & Store Selfie (File or Base64 Webcam snapshot)
+        $selfieUrl = null;
+        if ($request->hasFile('selfie_image')) {
+            $selfiePath = $request->file('selfie_image')->store('identity/selfies', 'public');
+            $selfieUrl  = '/storage/' . $selfiePath;
+        } elseif (is_string($request->selfie_image) && str_starts_with($request->selfie_image, 'data:image')) {
+            $imageParts = explode(';base64,', $request->selfie_image);
+            if (isset($imageParts[1])) {
+                $imageDecoded = base64_decode($imageParts[1]);
+                $fileName = 'identity/selfies/' . uniqid('selfie_') . '.jpg';
+                \Illuminate\Support\Facades\Storage::disk('public')->put($fileName, $imageDecoded);
+                $selfieUrl = '/storage/' . $fileName;
+            }
+        }
+
+        // 3. Perform Dojah verification
+        $cardPin = strtoupper(trim($request->ghana_card_number));
+        $dojahCardResult = $dojahService->verifyGhanaCard($cardPin);
+        
+        $dojahFaceResult = null;
+        if ($selfieUrl) {
+            $dojahFaceResult = $dojahService->verifyFacialMatch($selfieUrl);
+        }
+
+        $isDojahApproved = ($dojahCardResult['status'] ?? '') === 'success' && ($dojahFaceResult['match'] ?? false);
+        $finalStatus     = $isDojahApproved ? 'approved' : 'pending';
+
+        $user->update([
+            'applicant_type'               => 'general',
+            'ghana_card_number'            => $cardPin,
+            'ghana_card_front_url'         => '/storage/' . $frontPath,
+            'ghana_card_back_url'          => $backPath ? ('/storage/' . $backPath) : null,
+            'selfie_url'                   => $selfieUrl,
+            'digital_address'              => $request->digital_address,
+            'occupation'                   => $request->occupation,
+            'employer_name'                => $request->employer_name,
+            'monthly_income'               => $request->monthly_income,
+            'next_of_kin_name'             => $request->next_of_kin_name,
+            'next_of_kin_phone'            => $request->next_of_kin_phone,
+            'next_of_kin_relation'         => $request->next_of_kin_relation,
+            'identity_verification_status' => $finalStatus,
+            'dojah_reference'              => $dojahCardResult['reference'] ?? null,
+            'dojah_raw_response'           => [
+                'card_verification' => $dojahCardResult,
+                'face_match'        => $dojahFaceResult,
+                'submitted_at'      => now()->toIso8601String(),
+            ],
+        ]);
+
+        return response()->json([
+            'message' => $isDojahApproved 
+                ? 'Ghana Card & biometric verification approved successfully.' 
+                : 'Identity details submitted successfully. Queued for verification.',
+            'status'  => $finalStatus,
+            'user'    => new UserResource($user->fresh()),
+        ]);
+    }
+
     // ─── Password Reset ───────────────────────────────────────────────────────
 
     public function forgotPassword(Request $request): JsonResponse

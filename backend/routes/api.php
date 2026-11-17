@@ -134,6 +134,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/auth/refresh', [AuthController::class, 'refreshToken'])->middleware('throttle:10,1');
         Route::post('/auth/change-password', [AuthController::class, 'changePassword'])->middleware('throttle:5,1');
         Route::post('/auth/submit-student-verification', [AuthController::class, 'submitStudentVerification']);
+        Route::post('/auth/submit-identity-verification', [AuthController::class, 'submitIdentityVerification']);
 
         // Address Book
         Route::apiResource('addresses', AddressController::class)->except(['show']);
@@ -231,6 +232,7 @@ Route::prefix('v1')->group(function () {
             // Users
             Route::get('/users/student-verifications/pending', [AdminUserController::class, 'pendingStudentVerifications']);
             Route::post('/users/{uuid}/approve-student-verification', [AdminUserController::class, 'approveStudentVerification']);
+            Route::post('/users/{uuid}/approve-identity-verification', [AdminUserController::class, 'approveIdentityVerification']);
             Route::apiResource('users', AdminUserController::class)->only(['index', 'show', 'destroy']);
             Route::post('/users/{uuid}/toggle-status', [AdminUserController::class, 'toggleStatus']);
             Route::post('/users/{uuid}/role', [AdminUserController::class, 'updateRole']);

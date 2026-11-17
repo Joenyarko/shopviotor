@@ -65,23 +65,41 @@ class DashboardController extends Controller
             $activeCustomers = $totalUsers;
         }
 
-        // 2. E-Commerce (Orders)
-        $ordersCount = $applyDateFilter(Order::where('status', '!=', 'cancelled'))->count();
-        $ordersRevenue = (float) $applyDateFilter(Order::where('status', '!=', 'cancelled'))->sum('total');
+        // 2. E-Commerce (Orders) - Realized Paid Revenue Only
+        $ordersCount = $applyDateFilter(Order::where(function($q) {
+            $q->whereNotNull('paid_at')
+              ->orWhereIn('status', ['paid', 'processing', 'shipped', 'delivered', 'completed']);
+        }))->count();
+        $ordersRevenue = (float) $applyDateFilter(Order::where(function($q) {
+            $q->whereNotNull('paid_at')
+              ->orWhereIn('status', ['paid', 'processing', 'shipped', 'delivered', 'completed']);
+        }))->sum('total');
 
-        // 3. Hire Purchase
-        $hpCount = $applyDateFilter(HirePurchase::query())->count();
-        $hpDepositRevenue = (float) $applyDateFilter(HirePurchase::where('status', '!=', 'rejected'))->sum('deposit_amount');
+        // 3. Hire Purchase - Verified Deposited / Paid Revenue Only
+        $hpCount = $applyDateFilter(HirePurchase::where(function($q) {
+            $q->whereNotNull('deposit_paid_at')
+              ->orWhereIn('status', ['active', 'completed']);
+        }))->count();
+        $hpDepositRevenue = (float) $applyDateFilter(HirePurchase::where(function($q) {
+            $q->whereNotNull('deposit_paid_at')
+              ->orWhereIn('status', ['active', 'completed']);
+        }))->sum('deposit_amount');
         $hpInstallmentRevenue = (float) $applyDateFilter(HirePurchaseInstallment::where('status', 'paid'), 'paid_at')->sum('amount_paid');
         $hpTotalRevenue = $hpDepositRevenue + $hpInstallmentRevenue;
 
-        // 4. Trade Requests
-        $tradeCount = $applyDateFilter(TradeRequest::query())->count();
-        $tradeValue = (float) $applyDateFilter(TradeRequest::where('status', '!=', 'rejected'))->sum('difference');
+        // 4. Trade Requests - Completed Trades Only
+        $tradeCount = $applyDateFilter(TradeRequest::where(function($q) {
+            $q->whereNotNull('completed_at')
+              ->orWhere('status', 'completed');
+        }))->count();
+        $tradeValue = (float) $applyDateFilter(TradeRequest::where(function($q) {
+            $q->whereNotNull('completed_at')
+              ->orWhere('status', 'completed');
+        }))->sum('difference');
 
-        // 5. Pre-Orders
-        $preOrderCount = $applyDateFilter(PreOrder::query())->count();
-        $preOrderRevenue = (float) $applyDateFilter(PreOrder::where('status', '!=', 'cancelled'))->sum('deposit_paid');
+        // 5. Pre-Orders - Realized Paid Deposits Only
+        $preOrderCount = $applyDateFilter(PreOrder::whereIn('status', ['arrived', 'completed'])->where('deposit_paid', '>', 0))->count();
+        $preOrderRevenue = (float) $applyDateFilter(PreOrder::whereIn('status', ['arrived', 'completed'])->where('deposit_paid', '>', 0))->sum('deposit_paid');
 
         // 6. Layaway
         $layawayCount = $applyDateFilter(LayawayCard::query())->count();
@@ -116,11 +134,17 @@ class DashboardController extends Controller
                 $dayEnd = Carbon::today()->subDays($i)->endOfDay();
                 $label = $dayStart->format('M d');
 
-                $mOrders = (float) Order::where('status', '!=', 'cancelled')->whereBetween('created_at', [$dayStart, $dayEnd])->sum('total');
-                $mHp = (float) HirePurchase::where('status', '!=', 'rejected')->whereBetween('created_at', [$dayStart, $dayEnd])->sum('deposit_amount')
+                $mOrders = (float) Order::where(function($q) {
+                    $q->whereNotNull('paid_at')->orWhereIn('status', ['paid', 'processing', 'shipped', 'delivered', 'completed']);
+                })->whereBetween('created_at', [$dayStart, $dayEnd])->sum('total');
+
+                $mHp = (float) HirePurchase::where(function($q) {
+                    $q->whereNotNull('deposit_paid_at')->orWhereIn('status', ['active', 'completed']);
+                })->whereBetween('created_at', [$dayStart, $dayEnd])->sum('deposit_amount')
                      + (float) HirePurchaseInstallment::where('status', 'paid')->whereBetween('paid_at', [$dayStart, $dayEnd])->sum('amount_paid');
+
                 $mLayaway = (float) LayawayPayment::whereBetween('created_at', [$dayStart, $dayEnd])->sum('amount');
-                $mPreOrder = (float) PreOrder::where('status', '!=', 'cancelled')->whereBetween('created_at', [$dayStart, $dayEnd])->sum('deposit_paid');
+                $mPreOrder = (float) PreOrder::whereIn('status', ['arrived', 'completed'])->where('deposit_paid', '>', 0)->whereBetween('created_at', [$dayStart, $dayEnd])->sum('deposit_paid');
                 $mRaffle = (float) RaffleTicket::whereBetween('created_at', [$dayStart, $dayEnd])->sum('amount_paid');
 
                 $trends[] = [
@@ -141,11 +165,17 @@ class DashboardController extends Controller
                 $monthEnd = Carbon::now()->subMonths($i)->endOfMonth();
                 $label = $monthStart->format('M Y');
 
-                $mOrders = (float) Order::where('status', '!=', 'cancelled')->whereBetween('created_at', [$monthStart, $monthEnd])->sum('total');
-                $mHp = (float) HirePurchase::where('status', '!=', 'rejected')->whereBetween('created_at', [$monthStart, $monthEnd])->sum('deposit_amount')
+                $mOrders = (float) Order::where(function($q) {
+                    $q->whereNotNull('paid_at')->orWhereIn('status', ['paid', 'processing', 'shipped', 'delivered', 'completed']);
+                })->whereBetween('created_at', [$monthStart, $monthEnd])->sum('total');
+
+                $mHp = (float) HirePurchase::where(function($q) {
+                    $q->whereNotNull('deposit_paid_at')->orWhereIn('status', ['active', 'completed']);
+                })->whereBetween('created_at', [$monthStart, $monthEnd])->sum('deposit_amount')
                      + (float) HirePurchaseInstallment::where('status', 'paid')->whereBetween('paid_at', [$monthStart, $monthEnd])->sum('amount_paid');
+
                 $mLayaway = (float) LayawayPayment::whereBetween('created_at', [$monthStart, $monthEnd])->sum('amount');
-                $mPreOrder = (float) PreOrder::where('status', '!=', 'cancelled')->whereBetween('created_at', [$monthStart, $monthEnd])->sum('deposit_paid');
+                $mPreOrder = (float) PreOrder::whereIn('status', ['arrived', 'completed'])->where('deposit_paid', '>', 0)->whereBetween('created_at', [$monthStart, $monthEnd])->sum('deposit_paid');
                 $mRaffle = (float) RaffleTicket::whereBetween('created_at', [$monthStart, $monthEnd])->sum('amount_paid');
 
                 $trends[] = [

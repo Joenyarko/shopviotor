@@ -133,6 +133,13 @@ const Login = () => {
         <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Access your deals, barter, and orders.</p>
       </div>
 
+      {searchParams.get('session_expired') && !errorMsg && (
+        <div className="p-3 bg-amber-50 dark:bg-amber-950/30 text-amber-800 dark:text-amber-300 rounded-lg flex items-start gap-2.5 text-xs sm:text-sm border border-amber-200 dark:border-amber-800/60 font-medium">
+          <AlertCircle className="w-5 h-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+          <span>Your session expired due to inactivity. Please sign in again to continue.</span>
+        </div>
+      )}
+
       {errorMsg && (
         <div className="p-3 bg-accent-50 dark:bg-accent-950/20 text-accent-600 dark:text-accent-400 rounded-lg flex items-start gap-2.5 text-sm border border-accent-200/50">
           <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />

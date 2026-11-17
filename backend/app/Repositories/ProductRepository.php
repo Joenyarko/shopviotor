@@ -36,11 +36,15 @@ class ProductRepository extends BaseRepository
                     $q->where('available_for_layaway', false)->where('is_layaway', false);
                 });
             }
-        } else {
-            $query->where('is_layaway', false);
         }
         if (isset($filters['available_for_hire_purchase'])) {
             $query->where('available_for_hire_purchase', filter_var($filters['available_for_hire_purchase'], FILTER_VALIDATE_BOOLEAN));
+        }
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+        if (!empty($filters['search'])) {
+            $query->where('name', 'like', '%' . $filters['search'] . '%');
         }
 
         return $query->latest()->paginate($perPage);
@@ -104,8 +108,6 @@ class ProductRepository extends BaseRepository
                     $q->where('available_for_layaway', false)->where('is_layaway', false);
                 });
             }
-        } else {
-            $query->where('is_layaway', false);
         }
         if (isset($filters['available_for_hire_purchase'])) {
             $query->where('available_for_hire_purchase', filter_var($filters['available_for_hire_purchase'], FILTER_VALIDATE_BOOLEAN));

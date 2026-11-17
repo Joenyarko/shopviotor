@@ -5,7 +5,8 @@ import productService from '../../services/productService';
 import {
   Percent, ArrowRight, ShieldCheck, Clock, HelpCircle,
   FileText, AlertCircle, ArrowLeft, RefreshCw, CheckCircle2,
-  Search, SlidersHorizontal, Tag, ExternalLink, X, ChevronRight, Layers
+  Search, SlidersHorizontal, Tag, ExternalLink, X, ChevronRight, Layers,
+  Phone, Copy, Check, UserCheck, CreditCard, Building2, MapPin, UploadCloud, Camera
 } from 'lucide-react';
 import { openPaystack } from '../../utils/paystack';
 import { useAuth } from '../../contexts/AuthContext';
@@ -40,6 +41,25 @@ const HirePurchase = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Verification tab selector
+  const [verificationType, setVerificationType] = useState('ghana_card'); // 'ghana_card' | 'student'
+
+  // Ghana Card & Dojah KYC form state
+  const [ghanaCardNumber, setGhanaCardNumber] = useState('');
+  const [digitalAddress, setDigitalAddress] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [employerName, setEmployerName] = useState('');
+  const [monthlyIncome, setMonthlyIncome] = useState('');
+  const [nextOfKinName, setNextOfKinName] = useState('');
+  const [nextOfKinPhone, setNextOfKinPhone] = useState('');
+  const [nextOfKinRelation, setNextOfKinRelation] = useState('Parent');
+  const [cardFrontFile, setCardFrontFile] = useState(null);
+  const [cardBackFile, setCardBackFile] = useState(null);
+  const [selfieFile, setSelfieFile] = useState(null);
+  const [cardFrontPreview, setCardFrontPreview] = useState(null);
+  const [selfiePreview, setSelfiePreview] = useState(null);
+  const [submittingKyc, setSubmittingKyc] = useState(false);
+
   // Student verification form state
   const [studentName, setStudentName] = useState('');
   const [studentCourse, setStudentCourse] = useState('');
@@ -47,6 +67,11 @@ const HirePurchase = () => {
   const [studentId, setStudentId] = useState('');
   const [studentImage, setStudentImage] = useState(null);
   const [submittingStudent, setSubmittingStudent] = useState(false);
+
+  // MoMo Deposit Details & Completion Modal
+  const [createdAgreement, setCreatedAgreement] = useState(null);
+  const [showMomoModal, setShowMomoModal] = useState(false);
+  const [momoCopied, setMomoCopied] = useState(false);
 
   // Load HP products and categories on mount
   useEffect(() => {
@@ -232,6 +257,54 @@ const HirePurchase = () => {
     }
   };
 
+  const handleGhanaCardSubmit = async (e) => {
+    e.preventDefault();
+    const cleanPin = ghanaCardNumber.trim().toUpperCase();
+    if (!/^GHA-\d{9}-\d$/i.test(cleanPin)) {
+      setErrorMsg('Invalid Ghana Card PIN format. Must match GHA-XXXXXXXXX-X (e.g. GHA-123456789-0).');
+      return;
+    }
+    if (!cardFrontFile) {
+      setErrorMsg('Please upload a clear front picture of your official Ghana Card.');
+      return;
+    }
+    if (!selfieFile) {
+      setErrorMsg('Please capture or upload a clear biometric selfie to complete identity verification.');
+      return;
+    }
+
+    setSubmittingKyc(true);
+    setErrorMsg('');
+    try {
+      const formData = new FormData();
+      formData.append('ghana_card_number', cleanPin);
+      formData.append('digital_address', digitalAddress.trim());
+      formData.append('occupation', occupation.trim());
+      if (employerName.trim()) formData.append('employer_name', employerName.trim());
+      if (monthlyIncome) formData.append('monthly_income', monthlyIncome);
+      formData.append('next_of_kin_name', nextOfKinName.trim());
+      formData.append('next_of_kin_phone', nextOfKinPhone.trim());
+      formData.append('next_of_kin_relation', nextOfKinRelation.trim());
+      formData.append('ghana_card_front', cardFrontFile);
+      if (cardBackFile) formData.append('ghana_card_back', cardBackFile);
+      formData.append('selfie_image', selfieFile);
+
+      const { default: authService } = await import('../../services/authService');
+      await authService.submitIdentityVerification(formData);
+      window.location.reload();
+    } catch (err) {
+      setErrorMsg(err.response?.data?.message || err.message || 'Failed to submit Ghana Card verification.');
+    } finally {
+      setSubmittingKyc(false);
+    }
+  };
+
+  const handleCopyMomoNumber = () => {
+    navigator.clipboard.writeText('0508208803');
+    setMomoCopied(true);
+    setTimeout(() => setMomoCopied(false), 2000);
+  };
+
   const handleSubmitAgreement = async (e) => {
     e.preventDefault();
     if (!targetProduct) return;
@@ -248,37 +321,17 @@ const HirePurchase = () => {
         deposit_amount: deposit,
         duration_months: duration,
         interest_rate: hpInterestRate,
+        payment_method: 'momo',
       };
 
       const res = await hpService.createAgreement(payload);
-      
-      const handleSuccess = () => {
-        setSuccess(true);
-      };
-
-      if (res?.payment?.reference) {
-        openPaystack({
-          email: user?.email,
-          amountGHS: deposit,
-          reference: res.payment.reference,
-          onSuccess: async () => {
-            try {
-              await apiClient.get(`/payments/verify/${res.payment.reference}`);
-            } catch (err) {
-              console.error('Payment verification failed', err);
-            }
-            handleSuccess();
-          },
-          onClose: () => {
-            setErrorMsg('Payment window closed. Your agreement was created but awaits deposit payment.');
-          }
-        });
-      } else {
-        handleSuccess();
-      }
+      const createdObj = res?.data || res?.agreement || res;
+      setCreatedAgreement(createdObj);
+      setShowMomoModal(true);
+      setSuccess(true);
     } catch (err) {
       console.error(err);
-      setErrorMsg(err.message || 'Failed to initialize hire purchase agreement.');
+      setErrorMsg(err.response?.data?.message || err.message || 'Failed to initialize hire purchase agreement.');
     } finally {
       setLoading(false);
     }
@@ -704,7 +757,7 @@ const HirePurchase = () => {
           {/* ============================================================ */}
           {/* APPLICATION / VERIFICATION & FINANCING CONFIGURATOR */}
           {/* ============================================================ */}
-          {success ? (
+          {success && !showMomoModal ? (
             <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-8 text-center space-y-4 shadow-sm">
               <CheckCircle2 className="w-16 h-16 text-emerald-500 mx-auto" />
               <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Agreement Initialized!</h2>
@@ -712,59 +765,284 @@ const HirePurchase = () => {
                 Your Hire Purchase plan is set up. You can pay your deposit and start taking deliveries under the dashboard.
               </p>
               <div className="flex gap-4 justify-center pt-2">
+                <button onClick={() => setShowMomoModal(true)} className="px-5 py-2.5 rounded-xl text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2">
+                  <Phone className="w-4 h-4" /> View MoMo Deposit Details
+                </button>
                 <Link to="/dashboard" className="premium-button-primary px-6 rounded-xl text-sm py-2.5">Go to Dashboard</Link>
                 <button onClick={handleClearSelectedProduct} className="premium-button-secondary px-6 rounded-xl text-sm py-2.5">Choose Another Item</button>
               </div>
             </div>
-          ) : user?.student_verification_status === 'pending' ? (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-2xl p-8 text-center space-y-4">
-              <RefreshCw className="w-16 h-16 text-yellow-500 mx-auto animate-spin" />
-              <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">Verification Pending</h2>
-              <p className="text-sm text-secondary-600 dark:text-secondary-300 max-w-sm mx-auto">
-                Your student ID is currently being reviewed by our team. You can proceed with Hire Purchase once approved.
-              </p>
-            </div>
-          ) : user?.student_verification_status !== 'approved' ? (
-            <form onSubmit={handleStudentSubmit} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-4 shadow-sm">
-              <div className="border-b border-secondary-100 dark:border-secondary-800 pb-3">
-                <h2 className="text-lg font-bold text-secondary-900 dark:text-white">Student Verification Required</h2>
-                <p className="text-xs text-secondary-500">Please provide your student identification details to qualify for Hire Purchase financing.</p>
-              </div>
-              
-              {errorMsg && <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm">{errorMsg}</div>}
-              
-              <div>
-                <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Full Legal Name</label>
-                <input required type="text" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g. Francis Joe Nyarko" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Course of Study</label>
-                  <input required type="text" value={studentCourse} onChange={e => setStudentCourse(e.target.value)} placeholder="e.g. Computer Science" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
+          ) : (!user?.student_verification_status || (user.student_verification_status !== 'approved' && user.identity_verification_status !== 'approved' && user.student_verification_status !== 'pending' && user.identity_verification_status !== 'pending')) ? (
+            <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
+              <div className="border-b border-secondary-100 dark:border-secondary-800 pb-4">
+                <h2 className="text-lg font-bold text-secondary-900 dark:text-white">Identity Verification Required</h2>
+                <p className="text-xs text-secondary-500 mt-1">
+                  Choose your applicant category below to verify your identity and qualify for instant Hire Purchase financing.
+                </p>
+
+                {/* Tabs */}
+                <div className="flex gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => { setVerificationType('ghana_card'); setErrorMsg(''); }}
+                    className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+                      verificationType === 'ghana_card'
+                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 shadow-sm'
+                        : 'border-secondary-200 dark:border-secondary-700 text-secondary-600 hover:bg-secondary-50 dark:hover:bg-secondary-800'
+                    }`}
+                  >
+                    <UserCheck className="w-4 h-4" /> Ghana Card / General Public (Dojah)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setVerificationType('student'); setErrorMsg(''); }}
+                    className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 border transition-all ${
+                      verificationType === 'student'
+                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 shadow-sm'
+                        : 'border-secondary-200 dark:border-secondary-700 text-secondary-600 hover:bg-secondary-50 dark:hover:bg-secondary-800'
+                    }`}
+                  >
+                    <FileText className="w-4 h-4" /> Student Verification
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Level / Year</label>
-                  <input required type="text" value={studentLevel} onChange={e => setStudentLevel(e.target.value)} placeholder="e.g. Level 300" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Student ID Number</label>
-                <input required type="text" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="e.g. 012024883" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Upload Student ID Card Picture</label>
-                <input required type="file" accept="image/*" onChange={e => setStudentImage(e.target.files[0])} className="w-full px-4 py-2 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
               </div>
 
-              <button type="submit" disabled={submittingStudent} className="w-full premium-button-primary py-3 rounded-xl font-bold text-sm shadow-md">
-                {submittingStudent ? 'Submitting...' : 'Submit for Verification'}
-              </button>
-            </form>
+              {errorMsg && (
+                <div className="p-3 bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 rounded-xl text-xs font-medium flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+
+              {/* TAB 1: GHANA CARD & DOJAH IDENTITY VERIFICATION (FOR GENERAL PUBLIC / OUTSIDERS) */}
+              {verificationType === 'ghana_card' && (
+                <form onSubmit={handleGhanaCardSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
+                      Ghana Card PIN (Official NIA Format) *
+                    </label>
+                    <input
+                      required
+                      type="text"
+                      value={ghanaCardNumber}
+                      onChange={e => setGhanaCardNumber(e.target.value.toUpperCase())}
+                      placeholder="e.g. GHA-123456789-0"
+                      className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm font-mono tracking-wider uppercase focus:ring-2 focus:ring-primary-500"
+                    />
+                    <span className="text-[10px] text-secondary-400 mt-0.5 block">Format: GHA-XXXXXXXXX-X</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
+                        GhanaPost GPS Digital Address *
+                      </label>
+                      <input
+                        required
+                        type="text"
+                        value={digitalAddress}
+                        onChange={e => setDigitalAddress(e.target.value.toUpperCase())}
+                        placeholder="e.g. GA-183-4921"
+                        className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm uppercase"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
+                        Occupation / Profession *
+                      </label>
+                      <input
+                        required
+                        type="text"
+                        value={occupation}
+                        onChange={e => setOccupation(e.target.value)}
+                        placeholder="e.g. Business Owner / Engineer"
+                        className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
+                        Employer or Business Name (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={employerName}
+                        onChange={e => setEmployerName(e.target.value)}
+                        placeholder="e.g. Viotor Ventures / Self-employed"
+                        className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
+                        Estimated Monthly Income (GHS)
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={monthlyIncome}
+                        onChange={e => setMonthlyIncome(e.target.value)}
+                        placeholder="e.g. 3500"
+                        className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Next of Kin / Guarantor */}
+                  <div className="p-3.5 rounded-xl bg-secondary-50 dark:bg-secondary-800/40 border border-secondary-200/60 dark:border-secondary-700/60 space-y-3">
+                    <span className="text-xs font-bold text-secondary-800 dark:text-white uppercase tracking-wider block">
+                      Guarantor / Next of Kin Details
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-xxs font-semibold uppercase text-secondary-500 mb-1">Full Name *</label>
+                        <input
+                          required
+                          type="text"
+                          value={nextOfKinName}
+                          onChange={e => setNextOfKinName(e.target.value)}
+                          placeholder="e.g. Mary Okine"
+                          className="w-full px-3 py-2 border rounded-lg dark:bg-secondary-800 dark:border-secondary-700 text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xxs font-semibold uppercase text-secondary-500 mb-1">Phone Number *</label>
+                        <input
+                          required
+                          type="tel"
+                          value={nextOfKinPhone}
+                          onChange={e => setNextOfKinPhone(e.target.value)}
+                          placeholder="e.g. 0244123456"
+                          className="w-full px-3 py-2 border rounded-lg dark:bg-secondary-800 dark:border-secondary-700 text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xxs font-semibold uppercase text-secondary-500 mb-1">Relationship *</label>
+                        <input
+                          required
+                          type="text"
+                          value={nextOfKinRelation}
+                          onChange={e => setNextOfKinRelation(e.target.value)}
+                          placeholder="e.g. Spouse / Sibling / Parent"
+                          className="w-full px-3 py-2 border rounded-lg dark:bg-secondary-800 dark:border-secondary-700 text-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Document & Selfie Uploads */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
+                        Ghana Card Photo (Front) *
+                      </label>
+                      <input
+                        required
+                        type="file"
+                        accept="image/*"
+                        onChange={e => {
+                          const file = e.target.files[0];
+                          setCardFrontFile(file);
+                          setCardFrontPreview(file ? URL.createObjectURL(file) : null);
+                        }}
+                        className="w-full px-3 py-2 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-xs"
+                      />
+                      {cardFrontPreview && (
+                        <div className="mt-2 w-24 h-16 rounded border overflow-hidden">
+                          <img src={cardFrontPreview} alt="Card preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
+                        Biometric Selfie / Liveness Photo *
+                      </label>
+                      <input
+                        required
+                        type="file"
+                        accept="image/*"
+                        capture="user"
+                        onChange={e => {
+                          const file = e.target.files[0];
+                          setSelfieFile(file);
+                          setSelfiePreview(file ? URL.createObjectURL(file) : null);
+                        }}
+                        className="w-full px-3 py-2 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-xs"
+                      />
+                      <span className="text-[10px] text-secondary-400 mt-0.5 block">Take a live selfie or upload your portrait</span>
+                      {selfiePreview && (
+                        <div className="mt-2 w-16 h-16 rounded-full border-2 border-emerald-500 overflow-hidden">
+                          <img src={selfiePreview} alt="Selfie preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={submittingKyc}
+                    className="w-full premium-button-primary py-3 rounded-xl font-bold text-sm shadow-md flex items-center justify-center gap-2"
+                  >
+                    {submittingKyc ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                    {submittingKyc ? 'Submitting & Verifying...' : 'Submit Ghana Card & Verify with Dojah'}
+                  </button>
+                </form>
+              )}
+
+              {/* TAB 2: STUDENT VERIFICATION */}
+              {verificationType === 'student' && (
+                <form onSubmit={handleStudentSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Full Legal Name *</label>
+                    <input required type="text" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g. Francis Joe Nyarko" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Course of Study *</label>
+                      <input required type="text" value={studentCourse} onChange={e => setStudentCourse(e.target.value)} placeholder="e.g. Computer Science" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Level / Year *</label>
+                      <input required type="text" value={studentLevel} onChange={e => setStudentLevel(e.target.value)} placeholder="e.g. Level 300" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Student ID Number *</label>
+                    <input required type="text" value={studentId} onChange={e => setStudentId(e.target.value)} placeholder="e.g. 012024883" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Upload Student ID Card Picture *</label>
+                    <input required type="file" accept="image/*" onChange={e => setStudentImage(e.target.files[0])} className="w-full px-4 py-2 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
+                  </div>
+
+                  <button type="submit" disabled={submittingStudent} className="w-full premium-button-primary py-3 rounded-xl font-bold text-sm shadow-md">
+                    {submittingStudent ? 'Submitting...' : 'Submit Student Verification'}
+                  </button>
+                </form>
+              )}
+
+            </div>
           ) : (
-            <form onSubmit={handleSubmitAgreement} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm transition-colors">
-              
-              <div className="border-b border-secondary-100 dark:border-secondary-800 pb-3">
-                <h3 className="font-bold text-base text-secondary-900 dark:text-white">Configure Down Payment & Installment Term</h3>
+            <div className="space-y-6">
+              {/* Verification status notice if pending */}
+              {(user?.student_verification_status === 'pending' || user?.identity_verification_status === 'pending') && (
+                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex items-start gap-3">
+                  <RefreshCw className="w-5 h-5 text-amber-500 animate-spin flex-shrink-0 mt-0.5" />
+                  <div className="text-xs">
+                    <strong className="text-amber-900 dark:text-amber-300 font-bold block mb-0.5">Verification Pending Compliance Review</strong>
+                    <span className="text-amber-800/80 dark:text-amber-300/80">
+                      Your identity documents have been safely received. You can configure your payment plan below and submit your initial deposit to secure your item immediately.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmitAgreement} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm transition-colors">
+                
+                <div className="border-b border-secondary-100 dark:border-secondary-800 pb-3">
+                  <h3 className="font-bold text-base text-secondary-900 dark:text-white">Configure Down Payment & Installment Term</h3>
                 <p className="text-xs text-secondary-500">Adjust the slider or enter your preferred deposit to customize your monthly payments.</p>
               </div>
 
@@ -838,6 +1116,7 @@ const HirePurchase = () => {
               </button>
 
             </form>
+            </div>
           )}
 
         </div>
@@ -904,6 +1183,92 @@ const HirePurchase = () => {
         </div>
 
       </div>
+
+      {/* MoMo Down Payment Deposit Modal */}
+      {showMomoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-secondary-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-secondary-100 dark:border-secondary-800 relative">
+            <button
+              onClick={() => setShowMomoModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-full text-secondary-400 hover:text-secondary-600 dark:hover:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center flex-shrink-0">
+                <Phone className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-secondary-900 dark:text-white">Mobile Money Deposit</h3>
+                <p className="text-xs text-secondary-500">
+                  Agreement Reference: <span className="font-mono font-bold">{createdAgreement?.uuid ? createdAgreement.uuid.slice(0, 13) : 'HP-' + (targetProduct?.id || 'VIOTOR')}</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 mb-5">
+              <p className="text-xs text-amber-800 dark:text-amber-300 font-medium leading-relaxed">
+                Please transfer your initial down payment to our official Mobile Money account below using your agreement reference.
+              </p>
+            </div>
+
+            <div className="space-y-3 mb-6">
+              <div className="flex justify-between items-center p-3 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl">
+                <span className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Deposit Amount:</span>
+                <span className="text-base font-extrabold text-primary-600 dark:text-primary-400">
+                  GHS {deposit.toLocaleString('en-GH', { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl">
+                <span className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Account Name:</span>
+                <span className="text-xs font-bold text-secondary-900 dark:text-white">Francis Victor Okine</span>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl">
+                <div>
+                  <div className="text-xs font-medium text-secondary-600 dark:text-secondary-400">MoMo Number:</div>
+                  <div className="text-sm font-bold text-secondary-900 dark:text-white font-mono">0508208803</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCopyMomoNumber}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-secondary-700 text-secondary-800 dark:text-white border border-secondary-200 dark:border-secondary-600 flex items-center gap-1.5 hover:bg-secondary-100 transition-colors"
+                >
+                  {momoCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  {momoCopied ? 'Copied' : 'Copy'}
+                </button>
+              </div>
+
+              <div className="flex justify-between items-center p-3 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl">
+                <span className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Payment Reference:</span>
+                <span className="text-xs font-extrabold font-mono text-emerald-600 dark:text-emerald-400">
+                  {createdAgreement?.uuid ? createdAgreement.uuid.slice(0, 13) : 'HP-' + (targetProduct?.id || 'VIOTOR')}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowMomoModal(false)}
+                className="w-full py-2.5 rounded-xl font-bold text-xs bg-secondary-100 hover:bg-secondary-200 dark:bg-secondary-800 dark:hover:bg-secondary-700 text-secondary-800 dark:text-white transition-colors"
+              >
+                Close Window
+              </button>
+              <a
+                href={`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I have initialized a Hire Purchase agreement for "${targetProduct?.name}" and made a deposit payment of GHS ${deposit.toFixed(2)} to 0508208803 (Ref: ${createdAgreement?.uuid || 'HP-DEPOSIT'}). Please confirm and approve.`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 transition-colors"
+              >
+                Notify on WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

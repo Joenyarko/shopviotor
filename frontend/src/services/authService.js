@@ -14,6 +14,9 @@ const authService = {
   submitStudentVerification: (data) => apiClient.post('/auth/submit-student-verification', data, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+  submitIdentityVerification: (data) => apiClient.post('/auth/submit-identity-verification', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
   verify2Fa: (data) => apiClient.post('/auth/verify-2fa', data),
   exchangeGoogleCode: (code) => apiClient.post('/auth/google/exchange', { code }),
   forgotPassword: (email) => apiClient.post('/auth/forgot-password', { email }),

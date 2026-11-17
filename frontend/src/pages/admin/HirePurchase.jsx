@@ -118,7 +118,14 @@ const AdminHirePurchase = () => {
     setLoadingProducts(true);
     try {
       const res = await productService.adminGetProducts({ available_for_hire_purchase: true });
-      setHpProducts(res.data?.data || res.data || []);
+      const items = Array.isArray(res) 
+        ? res 
+        : (Array.isArray(res?.data) 
+            ? res.data 
+            : (Array.isArray(res?.data?.data) 
+                ? res.data.data 
+                : (Array.isArray(res?.data?.data?.data) ? res.data.data.data : [])));
+      setHpProducts(items);
     } catch (e) {
       console.error(e);
     } finally {
@@ -349,6 +356,56 @@ const AdminHirePurchase = () => {
               <aside className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 transition-colors shadow-sm">
                 <h3 className="font-bold text-secondary-900 dark:text-white mb-4">Application Details</h3>
                 <div className="space-y-4">
+                  <div>
+                    <span className="block text-xxs text-secondary-500 uppercase font-bold tracking-wider">Customer</span>
+                    <span className="text-sm font-semibold text-secondary-900 dark:text-white">{selectedApp.user?.name}</span>
+                    <span className="block text-xs text-secondary-500">{selectedApp.user?.email} • {selectedApp.user?.phone || 'No phone'}</span>
+                  </div>
+
+                  {/* Verification & KYC Snapshot */}
+                  <div className="p-3 rounded-xl bg-secondary-50 dark:bg-secondary-800/60 border border-secondary-200/60 dark:border-secondary-700/60 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xxs font-bold uppercase tracking-wider text-secondary-400">KYC Profile</span>
+                      <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full ${
+                        selectedApp.applicant_type === 'general' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                      }`}>
+                        {selectedApp.applicant_type === 'general' ? 'Ghana Card / Dojah' : 'Student'}
+                      </span>
+                    </div>
+
+                    {selectedApp.applicant_type === 'general' ? (
+                      <div className="space-y-1.5 text-xs text-secondary-700 dark:text-secondary-300">
+                        <div><strong>Card PIN:</strong> <span className="font-mono">{selectedApp.ghana_card_number || selectedApp.user?.ghana_card_number || 'N/A'}</span></div>
+                        <div><strong>GPS Address:</strong> {selectedApp.digital_address || selectedApp.user?.digital_address || 'N/A'}</div>
+                        <div><strong>Occupation:</strong> {selectedApp.user?.occupation || 'N/A'} {selectedApp.user?.employer_name ? `(${selectedApp.user.employer_name})` : ''}</div>
+                        {selectedApp.user?.monthly_income && <div><strong>Monthly Income:</strong> GHS {parseFloat(selectedApp.user.monthly_income).toLocaleString()}</div>}
+                        <div><strong>Next of Kin:</strong> {selectedApp.user?.next_of_kin_name || 'N/A'} ({selectedApp.user?.next_of_kin_phone || 'N/A'})</div>
+
+                        <div className="flex flex-wrap gap-2 pt-1 border-t border-secondary-200/50 dark:border-secondary-700/50">
+                          {selectedApp.user?.ghana_card_front_url && (
+                            <a href={selectedApp.user.ghana_card_front_url} target="_blank" rel="noreferrer" className="text-[11px] font-bold text-primary-600 hover:underline">View Ghana Card Front</a>
+                          )}
+                          {selectedApp.user?.ghana_card_back_url && (
+                            <a href={selectedApp.user.ghana_card_back_url} target="_blank" rel="noreferrer" className="text-[11px] font-bold text-primary-600 hover:underline">View Back</a>
+                          )}
+                          {selectedApp.user?.selfie_url && (
+                            <a href={selectedApp.user.selfie_url} target="_blank" rel="noreferrer" className="text-[11px] font-bold text-emerald-600 hover:underline">View Live Selfie</a>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5 text-xs text-secondary-700 dark:text-secondary-300">
+                        <div><strong>Student ID:</strong> <span className="font-mono">{selectedApp.user?.student_id || 'N/A'}</span></div>
+                        <div><strong>Course & Level:</strong> {selectedApp.user?.student_course || 'N/A'} ({selectedApp.user?.student_level || 'N/A'})</div>
+                        {selectedApp.user?.student_id_picture_url && (
+                          <div className="pt-1">
+                            <a href={selectedApp.user.student_id_picture_url} target="_blank" rel="noreferrer" className="text-[11px] font-bold text-primary-600 hover:underline">View Student ID Card</a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <div>
                     <span className="block text-xxs text-secondary-500 uppercase font-bold tracking-wider">Product Name</span>
                     <span className="text-sm font-semibold text-secondary-900 dark:text-white">{selectedApp.product?.name}</span>

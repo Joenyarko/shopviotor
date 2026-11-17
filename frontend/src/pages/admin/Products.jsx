@@ -120,7 +120,14 @@ const Products = () => {
     setLoading(true);
     try {
       const response = await productService.adminGetProducts();
-      setProducts(response.data?.data || response.data || []);
+      const items = Array.isArray(response) 
+        ? response 
+        : (Array.isArray(response?.data) 
+            ? response.data 
+            : (Array.isArray(response?.data?.data) 
+                ? response.data.data 
+                : (Array.isArray(response?.data?.data?.data) ? response.data.data.data : [])));
+      setProducts(items);
     } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 

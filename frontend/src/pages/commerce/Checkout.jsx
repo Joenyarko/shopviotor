@@ -161,6 +161,7 @@ const Checkout = () => {
           email: user.email,
           amountGHS: orderTotal,
           reference: res.payment.reference,
+          access_code: res.payment.access_code || res.payment.data?.access_code,
           onSuccess: async (response) => {
             try {
               await orderService.verifyPayment(response.reference);
@@ -169,7 +170,7 @@ const Checkout = () => {
             setOrderSuccess(res.order || res.data?.order);
           },
           onClose: () => {
-            setErrorMsg('Payment window closed. Your order was created — you can pay later from your Orders page.');
+            setErrorMsg('Payment window closed. Your order was created — you can pay later from your Orders page or transfer via MoMo to 0508208803.');
             setSubmitting(false);
           },
         });
@@ -201,8 +202,37 @@ const Checkout = () => {
           <CheckCircle className="w-12 h-12" />
         </div>
         <h1 className="text-3xl font-extrabold mb-2">Order Placed! 🎉</h1>
-        <p className="text-secondary-500 dark:text-secondary-400 mb-2">Your order <span className="font-bold text-secondary-800 dark:text-white">#{orderSuccess.order_number}</span> has been confirmed.</p>
-        <p className="text-secondary-400 text-sm mb-8">You'll receive a confirmation email shortly.</p>
+        <p className="text-secondary-500 dark:text-secondary-400 mb-2">Your order <span className="font-bold text-secondary-800 dark:text-white">#{orderSuccess.order_number}</span> has been created.</p>
+        
+        {paymentMethod === 'mobile_money' && (
+          <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 p-4 rounded-xl text-left text-xs space-y-2 mb-6 mt-4">
+            <p className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+              <Phone className="w-4 h-4 text-emerald-600" /> Payment Instructions (Mobile Money)
+            </p>
+            <p className="text-secondary-600 dark:text-secondary-300">
+              Please transfer <span className="font-bold text-emerald-700 dark:text-emerald-400">GHS {parseFloat(orderSuccess.total || orderTotal).toFixed(2)}</span> to our official account:
+            </p>
+            <div className="bg-white dark:bg-secondary-900 p-3 rounded-lg border border-emerald-100 dark:border-emerald-900/40 text-xs space-y-1">
+              <div className="flex justify-between">
+                <span className="text-secondary-500">Number:</span>
+                <span className="font-black text-primary-600 dark:text-primary-400 text-sm">0508208803</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-secondary-500">Name:</span>
+                <span className="font-bold text-secondary-900 dark:text-white">Francis Victor Okine</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-secondary-500">Reference:</span>
+                <span className="font-bold text-amber-600 dark:text-amber-400">#{orderSuccess.order_number}</span>
+              </div>
+            </div>
+            <p className="text-[11px] text-secondary-500">
+              Your order is reserved and will be verified and dispatched immediately upon receipt!
+            </p>
+          </div>
+        )}
+
+        <p className="text-secondary-400 text-sm mb-8">You can track your order status anytime from your Orders page.</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link to="/orders" className="premium-button-primary px-8 py-3 rounded-xl font-bold">Track My Order</Link>
           <Link to="/products" className="px-8 py-3 rounded-xl font-bold border border-secondary-300 dark:border-secondary-700 text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors">Continue Shopping</Link>
@@ -395,9 +425,8 @@ const Checkout = () => {
 
               <div className="space-y-3">
                 {[
-                  { value: 'paystack', label: 'Card / Paystack', icon: <CreditCard className="w-5 h-5" />, desc: 'Pay securely with debit/credit card' },
-                  // { value: 'mobile_money', label: 'Mobile Money', icon: <Phone className="w-5 h-5" />, desc: 'MTN, Vodafone, or AirtelTigo' },
-                  // { value: 'bank_transfer', label: 'Bank Transfer', icon: <Building2 className="w-5 h-5" />, desc: 'Pay via direct bank transfer' },
+                  { value: 'mobile_money', label: 'Direct Mobile Money (MoMo Transfer)', icon: <Phone className="w-5 h-5" />, desc: 'Instant transfer to 0508208803 (Francis Victor Okine)' },
+                  { value: 'paystack', label: 'Online Card / Paystack', icon: <CreditCard className="w-5 h-5" />, desc: 'Pay with debit/credit card or online' },
                 ].map(pm => (
                   <label key={pm.value} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                     paymentMethod === pm.value
@@ -421,22 +450,45 @@ const Checkout = () => {
               </div>
 
               {paymentMethod === 'mobile_money' && (
-                <div className="space-y-3 p-4 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl border border-secondary-200 dark:border-secondary-700">
-                  <div>
-                    <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Mobile Money Provider</label>
-                    <select value={provider} onChange={e => setProvider(e.target.value)}
-                      className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none">
-                      <option value="mtn">MTN Mobile Money</option>
-                      <option value="vodafone">Vodafone Cash</option>
-                      <option value="tigo">AirtelTigo Money</option>
-                    </select>
+                <div className="space-y-3.5 p-4 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800/60 text-sm">
+                  <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-bold">
+                    <Phone className="w-4 h-4 text-emerald-600" />
+                    <span>Official Mobile Money Payment Instructions</span>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-secondary-500 dark:text-secondary-400 uppercase mb-1.5">Mobile Money Number</label>
-                    <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-                      placeholder="0XX XXX XXXX"
+
+                  <div className="bg-white dark:bg-secondary-900 p-3.5 rounded-xl border border-emerald-200/70 dark:border-emerald-800/40 space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-secondary-500">Account Name:</span>
+                      <span className="font-bold text-secondary-900 dark:text-white">Francis Victor Okine</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-secondary-500">MoMo Number:</span>
+                      <span className="font-black text-sm text-primary-600 dark:text-primary-400 tracking-wider">0508208803</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-secondary-500">Network:</span>
+                      <span className="font-semibold text-secondary-800 dark:text-secondary-200">Telecel / MTN</span>
+                    </div>
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="text-secondary-500">Payment Reference:</span>
+                      <span className="font-bold text-amber-600 dark:text-amber-400">Your Order Number</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5 pt-1">
+                    <label className="block text-xs font-bold text-secondary-700 dark:text-secondary-300">
+                      Your Sender Phone / MoMo Transaction ID (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={phone}
+                      onChange={e => setPhone(e.target.value)}
+                      placeholder="e.g. 050XXXXXXX or MoMo Ref ID"
                       className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-white dark:bg-secondary-800 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none"
                     />
+                    <p className="text-xxs text-secondary-500 dark:text-secondary-400">
+                      Transfer GHS {orderTotal.toFixed(2)} to 0508208803 using your order number as reference. Once received, our team will dispatch your order immediately.
+                    </p>
                   </div>
                 </div>
               )}

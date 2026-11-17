@@ -70,6 +70,30 @@ const AdminLayout = () => {
     navigate('/login');
   };
 
+  // Automatic idle inactivity logout (60 minutes) to prevent stale 403 / empty data
+  useEffect(() => {
+    let timer;
+    const INACTIVITY_LIMIT_MS = 60 * 60 * 1000; // 60 minutes
+
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(async () => {
+        console.warn('Admin idle timeout reached. Logging out for security.');
+        await logout();
+        navigate('/login?session_expired=1');
+      }, INACTIVITY_LIMIT_MS);
+    };
+
+    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart'];
+    events.forEach(evt => window.addEventListener(evt, resetTimer, { passive: true }));
+    resetTimer();
+
+    return () => {
+      clearTimeout(timer);
+      events.forEach(evt => window.removeEventListener(evt, resetTimer));
+    };
+  }, [logout, navigate]);
+
   return (
     <div className="min-h-screen bg-secondary-50 dark:bg-secondary-950 flex transition-colors">
       

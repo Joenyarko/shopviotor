@@ -14,13 +14,16 @@ class HirePurchaseService
     public function create(int $userId, array $data): HirePurchase
     {
         $user = \App\Models\User::find($userId);
-        if (!$user || $user->student_verification_status !== 'approved') {
+        $isStudentApproved  = $user && $user->student_verification_status === 'approved';
+        $isIdentityEligible = $user && in_array($user->identity_verification_status, ['approved', 'pending']);
+
+        if (!$user || (!$isStudentApproved && !$isIdentityEligible)) {
             throw ValidationException::withMessages([
-                'student_id' => ['You must have an approved student ID to request a hire purchase.'],
+                'verification' => ['You must submit student ID verification or Ghana Card identity verification to request hire purchase financing.'],
             ]);
         }
 
-        return DB::transaction(function () use ($userId, $data) {
+        return DB::transaction(function () use ($userId, $user, $data) {
             $product = Product::where('id', $data['product_id'])->orWhere('uuid', $data['product_id'])->firstOrFail();
 
             if (!$product->available_for_hire_purchase) {
@@ -54,10 +57,17 @@ class HirePurchaseService
             $monthlyInstallment  = $balanceAfterDeposit / $durationMonths;
             $nextDueDate         = now()->addMonth();
 
+            $applicantType = $data['applicant_type'] ?? ($user->applicant_type ?? ($isStudentApproved ? 'student' : 'general'));
+
             $hirePurchase = HirePurchase::create([
                 'user_id'             => $userId,
                 'product_id'          => $product->id,
                 'status'              => HirePurchaseStatus::Active->value,
+                'applicant_type'      => $applicantType,
+                'ghana_card_number'   => $data['ghana_card_number'] ?? $user->ghana_card_number,
+                'digital_address'     => $data['digital_address'] ?? $user->digital_address,
+                'payment_method'      => $data['payment_method'] ?? 'momo',
+                'deposit_reference'   => $data['deposit_reference'] ?? null,
                 'product_price'       => $product->price,
                 'deposit_amount'      => $deposit,
                 'total_amount'        => $totalAmount,

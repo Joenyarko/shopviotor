@@ -33,7 +33,7 @@ const loadPaystackScript = () => {
  * @param {Function} options.onSuccess - Callback for successful payment
  * @param {Function} options.onClose - Callback for when the user closes the popup
  */
-export const openPaystack = async ({ email, amountGHS, reference, onSuccess, onClose }) => {
+export const openPaystack = async ({ email, amountGHS, reference, accessCode, access_code, onSuccess, onClose }) => {
   try {
     await loadPaystackScript();
   } catch (err) {
@@ -51,13 +51,15 @@ export const openPaystack = async ({ email, amountGHS, reference, onSuccess, onC
     });
     return;
   }
-  
-  const handler = window.PaystackPop.setup({
-    key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_REPLACE_WITH_YOUR_KEY',
+
+  const activeAccessCode = accessCode || access_code;
+  const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_REPLACE_WITH_YOUR_KEY';
+
+  const setupConfig = {
+    key: paystackKey,
     email,
     amount: Math.round(amountGHS * 100), // convert GHS to pesewas
     currency: 'GHS',
-    ref: reference,
     metadata: {
       custom_fields: [
         { display_name: 'Platform', variable_name: 'platform', value: 'VIOTOR' }
@@ -69,7 +71,36 @@ export const openPaystack = async ({ email, amountGHS, reference, onSuccess, onC
     onClose: () => {
       if (onClose) onClose();
     },
-  });
-  
-  handler.openIframe();
+  };
+
+  // If backend provided an access_code from /transaction/initialize, pass access_code directly (never causes duplicate reference error)
+  if (activeAccessCode) {
+    setupConfig.access_code = activeAccessCode;
+  } else if (reference) {
+    setupConfig.ref = reference;
+  }
+
+  try {
+    const handler = window.PaystackPop.setup(setupConfig);
+    handler.openIframe();
+  } catch (e) {
+    console.error('Failed to open Paystack iframe:', e);
+    // If duplicate reference or inline error, attempt fallback with a fresh unique client reference
+    if (reference) {
+      try {
+        setupConfig.ref = `${reference}_${Date.now()}`;
+        delete setupConfig.access_code;
+        const retryHandler = window.PaystackPop.setup(setupConfig);
+        retryHandler.openIframe();
+        return;
+      } catch (retryErr) {
+        console.error('Paystack retry failed:', retryErr);
+      }
+    }
+    Swal.fire({
+      icon: 'error',
+      title: 'Payment Gateway Error',
+      text: 'Could not initialize payment with Paystack. Please try paying via Mobile Money or contact support.'
+    });
+  }
 };
