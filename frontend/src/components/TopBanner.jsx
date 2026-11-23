@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Phone } from 'lucide-react';
 
 const TiktokIcon = ({ className }) => (
@@ -34,6 +35,11 @@ const TopBanner = () => {
         </div>
         
         <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-3 text-xs font-semibold mr-2 border-r border-secondary-900/20 pr-4">
+            <Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+            <span>•</span>
+            <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+          </div>
           <a href="#" className="hover:text-white transition-colors flex items-center gap-1.5">
             <InstagramIcon className="w-4 h-4" />
             <span className="text-xs hidden sm:inline-block">Instagram</span>

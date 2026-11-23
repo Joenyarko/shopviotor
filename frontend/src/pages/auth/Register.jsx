@@ -181,6 +181,17 @@ const Register = () => {
             {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Register'}
           </button>
 
+          <p className="text-xs text-center text-secondary-500 dark:text-secondary-400 mt-2">
+            By registering, you agree to ShopViotor&apos;s{' '}
+            <Link to="/terms" target="_blank" className="text-primary-600 dark:text-primary-400 font-semibold hover:underline">
+              Terms of Service
+            </Link>{' '}
+            and{' '}
+            <Link to="/privacy" target="_blank" className="text-primary-600 dark:text-primary-400 font-semibold hover:underline">
+              Privacy Policy
+            </Link>.
+          </p>
+
           <div className="relative flex items-center py-2">
             <div className="flex-grow border-t border-secondary-300 dark:border-secondary-700"></div>
             <span className="flex-shrink-0 mx-4 text-secondary-500 dark:text-secondary-400 text-xs font-semibold">OR</span>

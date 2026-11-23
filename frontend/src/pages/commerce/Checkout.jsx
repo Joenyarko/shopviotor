@@ -606,6 +606,17 @@ const Checkout = () => {
                 </div>
               )}
 
+              <div className="p-3 bg-secondary-50 dark:bg-secondary-800/60 border border-secondary-200 dark:border-secondary-700/60 rounded-xl text-xs text-secondary-600 dark:text-secondary-400 text-center">
+                By placing your order, you agree to ShopViotor&apos;s{' '}
+                <Link to="/terms" target="_blank" className="text-primary-600 dark:text-primary-400 font-bold hover:underline">
+                  Terms of Service
+                </Link>{' '}
+                and{' '}
+                <Link to="/privacy" target="_blank" className="text-primary-600 dark:text-primary-400 font-bold hover:underline">
+                  Privacy Policy
+                </Link>.
+              </div>
+
               <div className="flex gap-3 pt-2">
                 <button onClick={() => setStep(1)} className="flex-1 py-3.5 rounded-xl font-bold border border-secondary-300 dark:border-secondary-700 text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-800 transition-colors">Back</button>
                 <button onClick={handlePlaceOrder} disabled={submitting}

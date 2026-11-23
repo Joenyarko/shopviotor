@@ -4,7 +4,7 @@ import { ShieldCheck } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="bg-secondary-950 text-white mt-auto font-sans">
+    <footer className="relative z-20 bg-secondary-950 text-white mt-auto font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top Section: Newsletter */}
@@ -33,10 +33,10 @@ const Footer = () => {
         </div>
 
         {/* Middle Section: Links & Info */}
-        <div className="py-16 grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-8">
+        <div className="py-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-10 md:gap-8">
           
           {/* Brand & Socials */}
-          <div className="md:col-span-5 pr-0 md:pr-12">
+          <div className="sm:col-span-2 md:col-span-4 pr-0 md:pr-8">
             <Link to="/" className="inline-block mb-4">
               <img src="/shopviotorlogo2.png" alt="SHOP VIOTOR Logo" className="h-16 w-auto object-contain rounded-md bg-white p-1" />
             </Link>
@@ -54,33 +54,66 @@ const Footer = () => {
           </div>
 
           {/* Navigation */}
-          <div className="md:col-span-3">
+          <div className="md:col-span-2">
             <h3 className="text-xs font-bold text-primary-500 uppercase tracking-widest mb-6">Navigation</h3>
-            <ul className="space-y-4">
-              <li><Link to="/" className="text-white hover:text-primary-400 font-medium text-sm transition-colors block">Home</Link></li>
-              <li><Link to="/about" className="text-white hover:text-primary-400 font-medium text-sm transition-colors block">About</Link></li>
-              <li><Link to="/products" className="text-white hover:text-primary-400 font-medium text-sm transition-colors block">Products</Link></li>
-              <li><Link to="/contact" className="text-white hover:text-primary-400 font-medium text-sm transition-colors block">Contact</Link></li>
+            <ul className="space-y-3">
+              <li><Link to="/" className="text-white/80 hover:text-primary-400 font-medium text-sm transition-colors block">Home</Link></li>
+              <li><Link to="/about" className="text-white/80 hover:text-primary-400 font-medium text-sm transition-colors block">About Us</Link></li>
+              <li><Link to="/products" className="text-white/80 hover:text-primary-400 font-medium text-sm transition-colors block">Products</Link></li>
+              <li><Link to="/contact" className="text-white/80 hover:text-primary-400 font-medium text-sm transition-colors block">Contact</Link></li>
+              <li><Link to="/faq" className="text-white/80 hover:text-primary-400 font-medium text-sm transition-colors block">FAQs</Link></li>
+            </ul>
+          </div>
+
+          {/* Legal & Policies (Dedicated Prominent Column) */}
+          <div className="md:col-span-3">
+            <h3 className="text-xs font-bold text-primary-500 uppercase tracking-widest mb-6">Policies & Legal</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link to="/terms" className="text-white hover:text-primary-400 font-semibold text-sm transition-colors flex items-center gap-1.5">
+                  Terms of Service &rarr;
+                </Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="text-white hover:text-primary-400 font-semibold text-sm transition-colors flex items-center gap-1.5">
+                  Privacy Policy &rarr;
+                </Link>
+              </li>
+              <li>
+                <Link to="/refunds" className="text-white/80 hover:text-primary-400 font-medium text-sm transition-colors block">
+                  Returns & Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/delivery" className="text-white/80 hover:text-primary-400 font-medium text-sm transition-colors block">
+                  Shipping & Delivery Terms
+                </Link>
+              </li>
+              <li>
+                <Link to="/acceptable-use" className="text-white/80 hover:text-primary-400 font-medium text-sm transition-colors block">
+                  Acceptable Use Policy
+                </Link>
+              </li>
             </ul>
           </div>
 
           {/* Contact Info */}
-          <div className="md:col-span-4 md:text-right">
+          <div className="md:col-span-3">
             <h3 className="text-xs font-bold text-primary-500 uppercase tracking-widest mb-6">Contact Us</h3>
             
-            <div className="mb-5">
-              <span className="block text-xs text-white/50 uppercase tracking-wider mb-1">Email</span>
+            <div className="mb-4">
+              <span className="block text-xs text-white/50 uppercase tracking-wider mb-1">Customer Support Email</span>
               <a href="mailto:support@shopviotor.com" className="text-white hover:text-primary-400 text-sm transition-colors">support@shopviotor.com</a>
             </div>
             
-            <div className="mb-5">
-              <span className="block text-xs text-white/50 uppercase tracking-wider mb-1">Phone</span>
-              <p className="text-white text-sm">0500 708 204 / 0500 708 204</p>
+            <div className="mb-4">
+              <span className="block text-xs text-white/50 uppercase tracking-wider mb-1">Phone / WhatsApp</span>
+              <p className="text-white text-sm">0500 708 204 / 0508 208 803</p>
             </div>
             
             <div>
-              <span className="block text-xs text-white/50 uppercase tracking-wider mb-1">Address</span>
-              <p className="text-white text-sm">Ghana, Accra</p>
+              <span className="block text-xs text-white/50 uppercase tracking-wider mb-1">Registered Address</span>
+              <p className="text-white text-sm">Accra, Greater Accra, Ghana</p>
             </div>
           </div>
 
@@ -88,18 +121,18 @@ const Footer = () => {
 
       </div>
 
-      {/* Bottom Legal / Copyright Bar */}
-      <div className="border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4">
+      {/* Bottom Legal / Copyright Bar with Safe Bottom Clearance */}
+      <div className="border-t border-white/10 bg-secondary-950/80 pb-28 md:pb-24 pt-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4 relative z-30">
           <p className="text-xs text-white/60 text-center md:text-left">
-            &copy; {new Date().getFullYear()} All Rights Reserved &middot; Design and Developed by SHOP VIOTOR
+            &copy; {new Date().getFullYear()} All Rights Reserved &middot; SHOP VIOTOR VENTURES
           </p>
           <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-3">
-            <Link to="/delivery" className="text-xs text-white/60 hover:text-white transition-colors">Delivery</Link>
-            <Link to="/refunds" className="text-xs text-white/60 hover:text-white transition-colors">Refunds</Link>
-            <Link to="/acceptable-use" className="text-xs text-white/60 hover:text-white transition-colors">Acceptable Use</Link>
-            <Link to="/privacy" className="text-xs text-white/60 hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="text-xs text-white/60 hover:text-white transition-colors">Terms of Service</Link>
+            <Link to="/delivery" className="text-xs text-white/70 hover:text-primary-400 transition-colors">Delivery</Link>
+            <Link to="/refunds" className="text-xs text-white/70 hover:text-primary-400 transition-colors">Refunds</Link>
+            <Link to="/acceptable-use" className="text-xs text-white/70 hover:text-primary-400 transition-colors">Acceptable Use</Link>
+            <Link to="/privacy" className="text-xs font-bold text-primary-400 hover:text-white transition-colors underline underline-offset-4">Privacy Policy</Link>
+            <Link to="/terms" className="text-xs font-bold text-primary-400 hover:text-white transition-colors underline underline-offset-4">Terms of Service</Link>
           </div>
         </div>
       </div>

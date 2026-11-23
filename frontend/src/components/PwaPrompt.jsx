@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { X, Download } from 'lucide-react';
 import apiClient from '../api/client';
 
@@ -6,8 +7,16 @@ const PwaPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIos, setIsIos] = useState(false);
+  const location = useLocation();
+
+  // Never obstruct compliance/legal pages
+  const isLegalPage = ['/privacy', '/terms', '/refunds', '/delivery', '/acceptable-use'].includes(location.pathname);
 
   useEffect(() => {
+    if (sessionStorage.getItem('pwa_prompt_dismissed') === 'true') {
+      return;
+    }
+
     // Detect iOS
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIosDevice = /iphone|ipad|ipod/.test(userAgent);
@@ -15,14 +24,24 @@ const PwaPrompt = () => {
 
     if (isIosDevice && !isStandalone) {
       setIsIos(true);
-      // Show prompt after a small delay on iOS
-      setTimeout(() => setShowPrompt(true), 3000);
+      // Show prompt after a polite delay on iOS
+      const timer = setTimeout(() => {
+        if (sessionStorage.getItem('pwa_prompt_dismissed') !== 'true') {
+          setShowPrompt(true);
+        }
+      }, 6000);
+      return () => clearTimeout(timer);
     }
 
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowPrompt(true);
+      // Give users time to view initial content without immediate popup intrusion
+      setTimeout(() => {
+        if (sessionStorage.getItem('pwa_prompt_dismissed') !== 'true') {
+          setShowPrompt(true);
+        }
+      }, 6000);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -33,17 +52,16 @@ const PwaPrompt = () => {
   }, []);
 
   const handleInstall = async () => {
+    sessionStorage.setItem('pwa_prompt_dismissed', 'true');
     if (!deferredPrompt) return;
     
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
       console.log('User accepted the install prompt');
-      // Track the install in analytics
       try {
         await apiClient.post('/analytics/app-installs');
       } catch (e) {
-        // Fail silently — don't interrupt the install experience
         console.warn('Analytics tracking failed:', e);
       }
     } else {
@@ -54,13 +72,14 @@ const PwaPrompt = () => {
   };
 
   const handleDismiss = () => {
+    sessionStorage.setItem('pwa_prompt_dismissed', 'true');
     setShowPrompt(false);
   };
 
-  if (!showPrompt) return null;
+  if (!showPrompt || isLegalPage) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-8 md:bottom-8 md:w-80 bg-white dark:bg-secondary-900 shadow-2xl rounded-2xl border border-secondary-200 dark:border-secondary-800 p-4 z-[60] flex items-start gap-4 animate-bounce-short">
+    <div className="fixed bottom-24 left-4 right-4 md:left-8 md:right-auto md:bottom-8 md:w-80 bg-white dark:bg-secondary-900 shadow-2xl rounded-2xl border border-secondary-200 dark:border-secondary-800 p-4 z-[40] flex items-start gap-4 animate-bounce-short">
       <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-xl flex items-center justify-center flex-shrink-0 text-primary-600 dark:text-primary-400">
         <Download className="w-6 h-6" />
       </div>

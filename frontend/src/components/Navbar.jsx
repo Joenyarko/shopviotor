@@ -339,6 +339,16 @@ const Navbar = () => {
           </div>
 
           <div>
+            <h3 className="text-xs font-bold text-secondary-900/60 uppercase tracking-wider mb-4">Policies & Legal</h3>
+            <div className="flex flex-col space-y-1">
+              <Link to="/terms" onClick={() => setMobileMenuOpen(false)} className="py-2.5 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors text-sm">Terms of Service</Link>
+              <Link to="/privacy" onClick={() => setMobileMenuOpen(false)} className="py-2.5 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors text-sm">Privacy Policy</Link>
+              <Link to="/refunds" onClick={() => setMobileMenuOpen(false)} className="py-2.5 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors text-sm">Refund Policy</Link>
+              <Link to="/delivery" onClick={() => setMobileMenuOpen(false)} className="py-2.5 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors text-sm">Shipping & Delivery</Link>
+            </div>
+          </div>
+
+          <div>
             <h3 className="text-xs font-bold text-secondary-900/60 uppercase tracking-wider mb-4">Account</h3>
             <div className="flex flex-col space-y-1">
               {isAuthenticated ? (
