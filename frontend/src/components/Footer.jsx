@@ -41,7 +41,7 @@ const Footer = () => {
               <img src="/shopviotorlogo2.png" alt="SHOP VIOTOR Logo" className="h-16 w-auto object-contain rounded-md bg-white p-1" />
             </Link>
             <p className="text-white/70 text-sm leading-relaxed mb-6 max-w-sm">
-              The premier Ghanaian marketplace bringing hope, dignity, and practical support through meaningful commerce. Buy, sell, trade, and finance with ease.
+              The premier Ghanaian marketplace bringing hope, dignity, and practical support through meaningful commerce. Buy, sell and trade with ease.
             </p>
             <div className="flex gap-3">
               <a href="#" className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:border-white hover:bg-white/10 transition-all">

@@ -5,7 +5,6 @@ import productService from '../../services/productService';
 import preorderService from '../../services/preorderService';
 import { Package, RefreshCw, AlertCircle, ArrowLeft, Truck, MapPin, RotateCcw, ShieldCheck, Store as StoreIcon, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import { openPaystack } from '../../utils/paystack';
 import apiClient from '../../api/client';
 
 const DeliveryInfoCard = () => (
@@ -113,39 +112,31 @@ const PreOrderDetail = () => {
     e.preventDefault();
     setProcessing(true);
     try {
-      const res = await preorderService.storePreOrder({
+      await preorderService.storePreOrder({
         product_id: product.id,
         customer_details: { name, phone, address }
       });
 
-      const handleSuccess = () => {
-        Swal.fire({ text: String('Pre-order reserved successfully! You will be redirected to your dashboard.') });
-        navigate('/my-pre-orders');
-      };
+      const messageText = encodeURIComponent(
+        `Hello ShopViotor, I have submitted a pre-order reservation for "${product.name}". Name: ${name}, Phone: ${phone}. Please confirm availability and arrival details.`
+      );
 
-      if (res?.payment?.reference) {
-        openPaystack({
-          email: user.email,
-          amountGHS: res.deposit,
-          reference: res.payment.reference,
-          onSuccess: async () => {
-            try {
-              await apiClient.get(`/payments/verify/${res.payment.reference}`);
-            } catch (err) {
-              console.error('Payment verification failed', err);
-            }
-            handleSuccess();
-          },
-          onClose: () => {
-            Swal.fire({ text: 'Payment window closed. Your pre-order was created and awaits deposit payment.' });
-            navigate('/my-pre-orders');
-          }
-        });
-      } else {
-        handleSuccess();
-      }
+      await Swal.fire({
+        icon: 'success',
+        title: 'Pre-Order Reserved!',
+        text: 'Your pre-order reservation request has been received. Our team will contact you directly to confirm arrival and delivery details.',
+        showCancelButton: true,
+        confirmButtonText: 'Chat on WhatsApp',
+        cancelButtonText: 'View My Pre-Orders',
+        confirmButtonColor: '#25D366',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.open(`https://wa.me/233508208803?text=${messageText}`, '_blank');
+        }
+        navigate('/my-pre-orders');
+      });
     } catch (e) {
-      Swal.fire({ text: String(e.response?.data?.message || 'Failed to process pre-order.') });
+      Swal.fire({ text: String(e.response?.data?.message || 'Failed to process pre-order request.') });
     } finally {
       setProcessing(false);
     }
@@ -215,7 +206,7 @@ const PreOrderDetail = () => {
         <div className="w-full md:w-7/12 p-6 md:p-8">
           <h3 className="text-xl font-bold text-secondary-900 dark:text-white mb-6">Reserve Your Pre-Order</h3>
           <p className="text-sm text-secondary-500 dark:text-secondary-400 mb-8">
-            Please confirm your details. By placing a pre-order, you agree to pay the required deposit to secure your item. The remaining balance will be due upon arrival.
+            Please confirm your details below. Submitting this request reserves your item and sends your inquiry directly to our team. No online payment is taken.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -233,7 +224,7 @@ const PreOrderDetail = () => {
             </div>
             
             <button disabled={processing} type="submit" className="w-full premium-button-primary py-4 rounded-xl font-bold text-lg mt-4 disabled:opacity-50">
-              {processing ? 'Processing...' : `Pay Deposit (GHS ${depositAmount})`}
+              {processing ? 'Submitting Request...' : 'Submit Pre-Order Reservation'}
             </button>
           </form>
 

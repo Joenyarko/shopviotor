@@ -2,7 +2,7 @@ import React from 'react';
 
 const FAQ = () => {
   const faqs = [
-    { q: 'How does Barter swap work?', a: 'You submit a swap request on a product by uploading details and pictures of items you are offering to trade. The administrator values your items and gives you a cash difference quote to pay.' },
+    { q: 'How does Barter swap work?', a: 'You submit a swap request on a product by offering items to trade. If there is an agreed cash difference between the parties, it is paid directly to the other party. Shop Viotor does not receive or hold any barter payments.' },
     { q: 'What is Hire Purchase?', a: 'Hire Purchase allows eligible customers to pay a deposit on a product and take delivery, then pay off the balance in monthly installments under a signed written agreement with Shop Viotor Ventures.' },
   ];
 
@@ -22,7 +22,7 @@ const FAQ = () => {
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
-            Before a vendor can withdraw funds from their sales, they must complete our KYC (Know Your Customer) process. This involves submitting valid government-issued ID documents. Our admin team manually reviews and approves these documents to ensure the safety of our buyers.
+            Vendors must complete our verification process before they can list products on the platform. This involves submitting valid government-issued ID documents (such as a Ghana Card) and valid contact details. Our admin team reviews and approves these documents to maintain trust on the marketplace.
           </p>
         </details>
 
@@ -42,7 +42,7 @@ const FAQ = () => {
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
-            No. Vendors have an internal ledger that tracks their earnings, but this is not a peer-to-peer wallet. Funds cannot be transferred between users. The balance can only be withdrawn directly to the vendor's verified bank or mobile money account.
+            No. Shop Viotor does not operate wallets, hold balances, or support money transfers between users. Vendors are paid directly by customers to the vendor&apos;s own verified Mobile Money number.
           </p>
         </details>
         
@@ -52,7 +52,7 @@ const FAQ = () => {
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
-            If an item arrives damaged or not as described, the buyer can open a dispute within 48 hours of delivery. Shop Viotor mediates the dispute. If the vendor is at fault, the buyer returns the item and receives a full refund. Please read our Refunds Policy for more details.
+            If an item arrives damaged or not as described, the buyer can contact support within 48 hours of delivery. Shop Viotor can help mediate the issue between the parties, but any refund or replacement is arranged directly between the buyer and the vendor. For direct store purchases paid online via Paystack, standard return terms apply.
           </p>
         </details>
       </div>

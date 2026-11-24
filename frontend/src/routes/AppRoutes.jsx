@@ -191,9 +191,9 @@ const AppRoutes = () => {
         <Route path="/my-service-profile" element={<ProtectedRoute><ManageServiceProfile /></ProtectedRoute>} />
 
         <Route path="/become-a-vendor" element={<ProtectedRoute><StoreApplication /></ProtectedRoute>} />
-        <Route path="/raffles" element={<ProtectedRoute><Raffles /></ProtectedRoute>} />
-        <Route path="/raffles/:uuid" element={<ProtectedRoute><RaffleDetail /></ProtectedRoute>} />
-        <Route path="/raffles/winners" element={<ProtectedRoute><RaffleWinners /></ProtectedRoute>} />
+        <Route path="/raffles" element={<Navigate to="/" replace />} />
+        <Route path="/raffles/:uuid" element={<Navigate to="/" replace />} />
+        <Route path="/raffles/winners" element={<Navigate to="/" replace />} />
         
         {/* Commerce */}
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />

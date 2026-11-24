@@ -79,7 +79,7 @@ const Privacy = () => {
             <div className="p-4 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900 space-y-1.5">
               <span className="font-bold text-secondary-900 dark:text-white text-xs block">B. KYC & Verification Documents</span>
               <p className="text-xs text-secondary-600 dark:text-secondary-400">
-                For merchants withdrawing funds and buyers entering Hire Purchase contracts: Ghana Card number/photo, Student ID, proof of residence, or business registration certificates to prevent fraud.
+                For vendor verification and buyers entering separate Hire Purchase agreements: Ghana Card number/photo, Student ID, proof of residence, or business registration certificates to prevent fraud.
               </p>
             </div>
 

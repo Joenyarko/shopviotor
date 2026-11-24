@@ -222,7 +222,7 @@ const Landing = () => {
             </div>
             <div>
               <h3 className="font-bold text-secondary-900 dark:text-white">Direct Buy & HP Options</h3>
-              <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Get flexible Hire Purchase installment agreements right at checkouts.</p>
+              <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Hire purchase is arranged separately with Shop Viotor Ventures outside the online checkout.</p>
             </div>
           </div>
         </div>

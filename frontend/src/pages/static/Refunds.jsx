@@ -155,7 +155,7 @@ const Refunds = () => {
         {/* Section 4 */}
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
-            4. Refund Methods & Settlement Timelines
+            4. Refund Methods & Timelines
           </h2>
           <p>
             Online card and mobile money payments at checkout are processed by Paystack. For eligible orders paid through Paystack, approved refunds are credited back to the original source of payment:
