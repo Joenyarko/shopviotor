@@ -153,7 +153,7 @@ const VendorDashboard = () => {
             </div>
             <div>
               <p className="font-bold text-sm text-secondary-900 dark:text-white">Hire Purchase</p>
-              <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">Credit & financing plans</p>
+              <p className="text-xxs text-secondary-500 dark:text-secondary-400 mt-0.5">0% installment arrangements (separate agreement)</p>
             </div>
           </div>
 

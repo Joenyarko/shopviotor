@@ -36,7 +36,6 @@ class HirePurchaseService
             $durationMonths   = $data['duration_months'];
             $interestRate     = 0; // 0% interest — cash price split into installments directly with Shop Viotor Ventures
             $maxDuration      = $product->hp_max_duration_months ?? 12;
-            $minDepositPct    = $product->hp_min_deposit_percent ?? 20;
 
             if ($durationMonths > $maxDuration) {
                 throw ValidationException::withMessages([
@@ -44,10 +43,9 @@ class HirePurchaseService
                 ]);
             }
 
-            $minDeposit = $product->price * ($minDepositPct / 100);
-            if ($deposit < $minDeposit) {
+            if ($deposit < 0 || $deposit > $product->price) {
                 throw ValidationException::withMessages([
-                    'deposit_amount' => ["Minimum deposit required is " . number_format($minDeposit, 2) . " ({$minDepositPct}%)."],
+                    'deposit_amount' => ['Deposit must be between GHS 0.00 and the product price.'],
                 ]);
             }
 
@@ -62,7 +60,7 @@ class HirePurchaseService
             $hirePurchase = HirePurchase::create([
                 'user_id'             => $userId,
                 'product_id'          => $product->id,
-                'status'              => ($deposit > 0) ? HirePurchaseStatus::Pending->value : HirePurchaseStatus::Active->value,
+                'status'              => HirePurchaseStatus::Pending->value,
                 'applicant_type'      => $applicantType,
                 'ghana_card_number'   => $data['ghana_card_number'] ?? $user->ghana_card_number,
                 'digital_address'     => $data['digital_address'] ?? $user->digital_address,

@@ -214,24 +214,25 @@ const HirePurchase = () => {
   // Active target product dynamic calculations (0% interest — cash price split into installments)
   const targetProduct = selectedProduct;
   const hpInterestRate = 0;
-  const hpMinDepositPercent = targetProduct?.hp_min_deposit_percent ? parseFloat(targetProduct.hp_min_deposit_percent) : 20;
+  const hpMinDepositPercent = 0;
   const hpMaxDuration = targetProduct?.hp_max_duration_months ? parseInt(targetProduct.hp_max_duration_months) : 12;
 
   const productPrice = targetProduct ? parseFloat(targetProduct.price) : 0;
   const totalFinanced = productPrice;
   
-  const minDeposit = productPrice * (hpMinDepositPercent / 100);
+  const minDeposit = 0;
   const balanceRemaining = Math.max(0, totalFinanced - deposit);
   const monthlyInstallment = duration > 0 ? balanceRemaining / duration : 0;
+  const depositPercent = productPrice > 0 ? Math.round((deposit / productPrice) * 100) : 0;
 
   useEffect(() => {
     if (targetProduct) {
-      setDeposit(Math.round(minDeposit));
+      setDeposit(Math.round(productPrice * 0.2));
       if (duration > hpMaxDuration) {
         setDuration(hpMaxDuration);
       }
     }
-  }, [targetProduct, minDeposit, hpMaxDuration]);
+  }, [targetProduct, productPrice, hpMaxDuration]);
 
   const handleStudentSubmit = async (e) => {
     e.preventDefault();
@@ -706,9 +707,9 @@ const HirePurchase = () => {
                 {/* Terms Summary Ribbon */}
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-secondary-100 dark:border-secondary-800 text-center">
                   <div className="p-2 rounded-xl bg-secondary-50 dark:bg-secondary-800/50 border border-secondary-200/60 dark:border-secondary-700/60">
-                    <span className="text-[10px] uppercase font-bold text-secondary-400 block">Min Deposit</span>
+                    <span className="text-[10px] uppercase font-bold text-secondary-400 block">Deposit Options</span>
                     <span className="text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-400">
-                      {hpMinDepositPercent}% (GHS {minDeposit.toFixed(0)})
+                      0% – 50%
                     </span>
                   </div>
                   <div className="p-2 rounded-xl bg-secondary-50 dark:bg-secondary-800/50 border border-secondary-200/60 dark:border-secondary-700/60">
@@ -1049,22 +1050,43 @@ const HirePurchase = () => {
                 </div>
               )}
 
-              {/* Deposit slider */}
+              {/* Deposit percentage options & slider */}
               <div>
-                <div className="flex justify-between items-center mb-1">
+                <div className="flex justify-between items-center mb-2">
                   <label className="block text-sm font-bold text-secondary-900 dark:text-white">
-                    Down Payment Deposit (GHS)
+                    Choose Deposit Percentage (0% – 50%)
                   </label>
                   <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                    Min Required: GHS {minDeposit.toFixed(2)} ({hpMinDepositPercent}%)
+                    Selected: {depositPercent}% (GHS {deposit.toFixed(2)})
                   </span>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-3">
+                  {[0, 10, 20, 30, 40, 50].map((pct) => {
+                    const pctAmount = Math.round(productPrice * (pct / 100));
+                    const isSelected = deposit === pctAmount;
+                    return (
+                      <button
+                        key={pct}
+                        type="button"
+                        onClick={() => setDeposit(pctAmount)}
+                        className={`py-2 px-2 border rounded-xl font-bold text-xs transition-all flex flex-col items-center justify-center ${
+                          isSelected
+                            ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 shadow-sm'
+                            : 'border-secondary-200 dark:border-secondary-800 hover:bg-secondary-50 dark:hover:bg-secondary-800 text-secondary-700 dark:text-secondary-300'
+                        }`}
+                      >
+                        <span>{pct}%</span>
+                        <span className="text-[10px] font-medium opacity-75">GHS {pctAmount.toLocaleString()}</span>
+                      </button>
+                    );
+                  })}
                 </div>
                 <div className="mt-2.5 flex items-center gap-4">
                   <input
                     type="range"
-                    min={minDeposit}
-                    max={productPrice}
-                    value={deposit}
+                    min={0}
+                    max={Math.round(productPrice * 0.5)}
+                    value={Math.min(deposit, Math.round(productPrice * 0.5))}
                     onChange={(e) => setDeposit(parseInt(e.target.value) || 0)}
                     className="flex-grow h-2.5 bg-secondary-200 dark:bg-secondary-700 rounded-lg appearance-none cursor-pointer accent-primary-500"
                   />
@@ -1072,8 +1094,10 @@ const HirePurchase = () => {
                     <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-secondary-400">GHS</span>
                     <input
                       type="number"
+                      min={0}
+                      max={Math.round(productPrice * 0.5)}
                       value={deposit}
-                      onChange={(e) => setDeposit(Math.max(0, parseInt(e.target.value) || 0))}
+                      onChange={(e) => setDeposit(Math.min(Math.round(productPrice * 0.5), Math.max(0, parseInt(e.target.value) || 0)))}
                       className="w-32 pl-11 pr-2 py-2 border border-secondary-300 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 text-secondary-900 dark:text-white rounded-xl text-sm font-extrabold text-right focus:ring-2 focus:ring-primary-500"
                     />
                   </div>
