@@ -192,8 +192,10 @@ const AppRoutes = () => {
 
         <Route path="/become-a-vendor" element={<ProtectedRoute><StoreApplication /></ProtectedRoute>} />
         <Route path="/raffles" element={<Navigate to="/" replace />} />
+        <Route path="/raffle" element={<Navigate to="/" replace />} />
         <Route path="/raffles/:uuid" element={<Navigate to="/" replace />} />
         <Route path="/raffles/winners" element={<Navigate to="/" replace />} />
+        <Route path="/my-tickets" element={<Navigate to="/" replace />} />
         
         {/* Commerce */}
         <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
@@ -206,7 +208,7 @@ const AppRoutes = () => {
         <Route path="/vendor/products" element={<VendorProducts />} />
         <Route path="/vendor/orders" element={<VendorOrders />} />
         <Route path="/vendor/settings" element={<VendorSettings />} />
-        <Route path="/vendor/wallet" element={<VendorWallet />} />
+        <Route path="/vendor/wallet" element={<Navigate to="/vendor" replace />} />
       </Route>
 
       {/* ─── ADMIN FLOW (PROTECTED) ────────────────────────────────────────── */}
@@ -226,7 +228,7 @@ const AppRoutes = () => {
         <Route path="/admin/service-categories" element={<ServiceCategories />} />
         <Route path="/admin/service-profiles" element={<AdminServiceProfiles />} />
         <Route path="/admin/vendor-stores" element={<VendorStores />} />
-        <Route path="/admin/raffles" element={<AdminRaffles />} />
+        <Route path="/admin/raffles" element={<Navigate to="/admin" replace />} />
         <Route path="/admin/banners" element={<Banners />} />
         <Route path="/admin/popups" element={<AdminPopups />} />
         {/* <Route path="/admin/ads" element={<AdsManager />} /> */}
@@ -236,7 +238,7 @@ const AppRoutes = () => {
         <Route path="/admin/reports" element={<AdminReports />} />
         <Route path="/admin/audit-logs" element={<AuditLogs />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
-        <Route path="/admin/payouts" element={<AdminPayouts />} />
+        <Route path="/admin/payouts" element={<Navigate to="/admin" replace />} />
       </Route>
 
       {/* ─── FALLBACKS ─────────────────────────────────────────────────────── */}

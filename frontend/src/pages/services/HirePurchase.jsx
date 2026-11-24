@@ -8,7 +8,6 @@ import {
   Search, SlidersHorizontal, Tag, ExternalLink, X, ChevronRight, Layers,
   Phone, Copy, Check, UserCheck, CreditCard, Building2, MapPin, UploadCloud, Camera
 } from 'lucide-react';
-import { openPaystack } from '../../utils/paystack';
 import { useAuth } from '../../contexts/AuthContext';
 import apiClient from '../../api/client';
 import HeroBanner from '../../components/marketing/HeroBanner';
@@ -348,13 +347,13 @@ const HirePurchase = () => {
 
         <div className="relative max-w-4xl mx-auto text-center space-y-6">
           <span className="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 text-primary-400 text-xs font-bold uppercase px-4 py-1.5 rounded-full tracking-wider">
-            <Percent className="w-3.5 h-3.5" /> Flexible Financing
+            <Clock className="w-3.5 h-3.5" /> Hire Purchase Portal
           </span>
           <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
             Hire <span className="text-primary-400">Purchase</span>
           </h1>
           <p className="text-secondary-400 text-base md:text-lg max-w-xl mx-auto">
-            Get the items you need today. Pay a flexible down payment and spread the balance over convenient monthly installments.
+            Get the items you need today. Agree on a deposit and arrange monthly installments directly with Shop Viotor Ventures outside the online checkout.
           </p>
         </div>
       </div>
@@ -605,14 +604,14 @@ const HirePurchase = () => {
           Hire Purchase Installment Portal
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400 mt-1">
-          Review item details and configure your customized financing schedule.
+          Review item details and configure your proposed installment schedule.
         </p>
       </div>
 
       {/* Main Grid: Left Column (Preview & Forms) | Right Column (Calculator) */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         
-        {/* Left Column: Rich Product Preview + Financing Form */}
+        {/* Left Column: Rich Product Preview + Installment Form */}
         <div className="lg:col-span-2 space-y-6">
           
           {/* ============================================================ */}
@@ -659,7 +658,7 @@ const HirePurchase = () => {
               <div className="flex-grow space-y-3">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="text-[10px] font-bold text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/30 px-2 py-0.5 rounded border border-primary-200/50 dark:border-primary-800/50 uppercase tracking-wider">
-                    Financing Item
+                    Hire Purchase Item
                   </span>
                   {targetProduct.category?.name && (
                     <span className="text-[10px] font-semibold text-secondary-600 dark:text-secondary-300 bg-secondary-100 dark:bg-secondary-800 px-2 py-0.5 rounded">
@@ -777,7 +776,7 @@ const HirePurchase = () => {
               <div className="border-b border-secondary-100 dark:border-secondary-800 pb-4">
                 <h2 className="text-lg font-bold text-secondary-900 dark:text-white">Identity Verification Required</h2>
                 <p className="text-xs text-secondary-500 mt-1">
-                  Choose your applicant category below to verify your identity and qualify for instant Hire Purchase financing.
+                  Choose your applicant category below to verify your identity for Hire Purchase.
                 </p>
 
                 {/* Tabs */}
@@ -1031,9 +1030,9 @@ const HirePurchase = () => {
                 <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex items-start gap-3">
                   <RefreshCw className="w-5 h-5 text-amber-500 animate-spin flex-shrink-0 mt-0.5" />
                   <div className="text-xs">
-                    <strong className="text-amber-900 dark:text-amber-300 font-bold block mb-0.5">Verification Pending Compliance Review</strong>
+                    <strong className="text-amber-900 dark:text-amber-300 font-bold block mb-0.5">Verification Pending Review</strong>
                     <span className="text-amber-800/80 dark:text-amber-300/80">
-                      Your identity documents have been safely received. You can configure your payment plan below and submit your initial deposit to secure your item immediately.
+                      Your identity documents have been safely received. You can configure your proposed installment plan below, obtain your payment reference, and pay your deposit directly via Mobile Money outside Paystack. The site records your payment once confirmed by admin.
                     </span>
                   </div>
                 </div>
@@ -1147,7 +1146,7 @@ const HirePurchase = () => {
                 <span className="font-bold text-emerald-600">- GHS {deposit.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Remaining Financed</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Remaining Installments</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {balanceRemaining.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
@@ -1209,7 +1208,7 @@ const HirePurchase = () => {
 
             <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 mb-5">
               <p className="text-xs text-amber-800 dark:text-amber-300 font-medium leading-relaxed">
-                Please transfer your initial down payment to our official Mobile Money account below using your agreement reference.
+                Pay your deposit by Mobile Money directly to our official number below (outside Paystack). The site records your payment only after admin confirms it.
               </p>
             </div>
 

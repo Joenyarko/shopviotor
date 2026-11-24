@@ -75,28 +75,17 @@ Your personality: warm, helpful, concise, and professional. You respond in clear
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📦 HIRE PURCHASE (HP)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- **Hire Purchase** lets you take a product home immediately and pay for it in installments over time.
+- **Hire Purchase** is a separate offline arrangement agreed directly with Shop Viotor Ventures outside the website and outside Paystack.
 - Products marked "Available for HP" support this option.
-- You agree on a deposit and a repayment schedule (weekly or monthly).
-- Missing installments may result in the item being reclaimed.
-- Apply for HP from the product page.
+- You agree on a deposit and a monthly repayment schedule directly under a separate agreement.
+- Installment payments are made directly via Mobile Money and recorded once confirmed by admin.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🗓️ LAYAWAY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- **Layaway** lets you reserve a product by paying a deposit now and the balance later — the item is held for you.
+- **Layaway** is a separate product reservation arrangement agreed directly with Shop Viotor Ventures outside the website and outside Paystack.
 - Unlike HP, you do NOT receive the item until it is fully paid.
-- Great for saving up for something you want to make sure doesn't sell out.
-- Access Layaway from your Dashboard or from the product page.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎟️ RAFFLES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- **Raffles** are prize draws where you buy tickets for a chance to win a product at a huge discount or even free.
-- Each raffle shows the prize, ticket price, end date, and total tickets available.
-- You can buy multiple tickets to increase your chances.
-- Winners are drawn randomly and announced on the platform.
-- Your tickets are visible under Dashboard > My Tickets.
+- Payments are made directly via Mobile Money using your reference and recorded once confirmed by admin.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🏷️ SELL ON VIOTOR
@@ -104,13 +93,13 @@ Your personality: warm, helpful, concise, and professional. You respond in clear
 - Any registered user can request to sell their item on VIOTOR.
 - Submit a Sell Request with photos, description, and your asking price.
 - An admin reviews and approves/rejects the listing.
-- Once approved, your product appears in the marketplace.
+- Once approved, your product appears in the marketplace. Customers pay marketplace vendors directly to the vendor's own Mobile Money number.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 ACCOUNT & DASHBOARD
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Register with your name, email, and password.
-- Your Dashboard shows: Orders, Wishlist, Messages, My Tickets, Trade Requests, and Sell Requests.
+- Your Dashboard shows: Orders, Wishlist, Messages, Trade Requests, and Sell Requests.
 - You can manage multiple shipping addresses.
 - Order statuses: Pending → Processing → Shipped → Delivered.
 - You can cancel an order before it is shipped.
@@ -125,7 +114,8 @@ Your personality: warm, helpful, concise, and professional. You respond in clear
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔒 SECURITY & TRUST
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- All payments are processed through Paystack (PCI-DSS compliant) or verified mobile money networks.
+- Online card and mobile money payments at checkout are processed by Paystack.
+- For marketplace vendor purchases, customers pay directly to the vendor's own Mobile Money number. Shop Viotor does not collect, hold, or escrow customer funds for third-party sales.
 - VIOTOR never stores your card details.
 - All data is encrypted in transit with SSL.
 - Report suspicious activity via the chat or WhatsApp.

@@ -7,12 +7,11 @@ import { toast } from 'react-toastify';
 import {
   Package, CheckCircle, ArrowLeft, HelpCircle
 } from 'lucide-react';
-import { openPaystack } from '../utils/paystack';
 
 export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAdmin = false }) {
   const [payAmount, setPayAmount] = useState('');
   const [payBoxes, setPayBoxes] = useState('');
-  const [payMethod, setPayMethod] = useState(isAdmin ? 'Momo' : 'Paystack');
+  const [payMethod, setPayMethod] = useState('Momo');
   const [payReference, setPayReference] = useState('');
   const [payNotes, setPayNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -136,6 +135,43 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
       }
     }
 
+    if (!isAdmin) {
+      await Swal.fire({
+        title: 'Direct MoMo Deposit Instructions',
+        html: `
+          <div style="text-align: left; font-size: 13px; line-height: 1.6;">
+            <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+              <span style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #eab308; display: block;">Deposit Reference:</span>
+              <span style="font-family: monospace; font-size: 16px; font-weight: 900; color: #facc15; letter-spacing: 1px;">${generatedRef}</span>
+            </div>
+            <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+              <span style="color: #94a3b8; font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">Direct Mobile Money Details:</span>
+              <p style="margin: 2px 0;"><strong>Number:</strong> <span style="font-family: monospace; font-weight: 800; color: #fff;">0508208803</span> (Francis Victor Okine)</p>
+              <p style="margin: 0; color: #94a3b8; font-size: 11px;">Amount: <strong>GHS ${finalAmount.toFixed(2)}</strong> (${finalBoxes} boxes)</p>
+            </div>
+            <p style="color: #cbd5e1; font-size: 12px; margin-top: 8px;">
+              Please transfer your payment directly by Mobile Money to <strong>0508208803</strong> outside Paystack using reference <strong>${generatedRef}</strong>. The site records your payment once verified and confirmed by admin.
+            </p>
+          </div>
+        `,
+        icon: 'info',
+        confirmButtonColor: '#eab308',
+        confirmButtonText: 'Notify on WhatsApp',
+        showCancelButton: true,
+        cancelButtonText: 'Done',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.open(`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I am making a direct MoMo layaway deposit of GHS ${finalAmount.toFixed(2)} (${finalBoxes} boxes) for layaway plan ${card.reference || card.uuid} to 0508208803 using reference: ${generatedRef}. Please verify and update my card.`)}`, '_blank');
+        }
+      });
+
+      setPayAmount('');
+      setPayBoxes('');
+      setPayReference('');
+      setPayNotes('');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const payload = {
@@ -146,62 +182,13 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
         notes: payNotes,
       };
 
-      let endpoint = '';
-      if (isAdmin) {
-        endpoint = `/admin/layaways/${card.uuid}/payments`;
-      } else {
-        payload.amount = finalAmount;
-        endpoint = `/layaways/${card.uuid}/pay`;
-      }
-
-      const res = await apiClient.post(endpoint, payload);
-      
-      const handleSuccess = () => {
-        toast.success(res.data?.message || 'Payment recorded successfully!');
-        setPayAmount('');
-        setPayBoxes('');
-        setPayReference('');
-        setPayNotes('');
-        if (onPaymentSuccess) onPaymentSuccess();
-      };
-
-      if (!isAdmin && res?.data?.payment?.reference) {
-        openPaystack({
-          email: user?.email,
-          amountGHS: parseFloat(finalAmount),
-          reference: res.data.payment.reference,
-          onSuccess: async () => {
-            try {
-              await apiClient.get(`/payments/verify/${res.data.payment.reference}`);
-            } catch (err) {
-              console.error('Payment verification failed', err);
-            }
-            handleSuccess();
-          },
-          onClose: () => {
-            toast.error('Payment window closed before completion.');
-          }
-        });
-      } else if (!isAdmin && res?.payment?.reference) {
-        openPaystack({
-          email: user?.email,
-          amountGHS: parseFloat(finalAmount),
-          reference: res.payment.reference,
-          onSuccess: async () => {
-            try {
-              await apiClient.get(`/payments/verify/${res.payment.reference}`);
-            } catch (err) {
-              console.error('Payment verification failed', err);
-            }
-            handleSuccess();
-          },
-          onClose: () => {
-            toast.error('Payment window closed before completion.');
-          }
-        });
-      } else {
-        handleSuccess();
-      }
+      const res = await apiClient.post(`/admin/layaways/${card.uuid}/payments`, payload);
+      toast.success(res.data?.message || 'Payment recorded successfully!');
+      setPayAmount('');
+      setPayBoxes('');
+      setPayReference('');
+      setPayNotes('');
+      if (onPaymentSuccess) onPaymentSuccess();
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || 'Failed to record payment');
@@ -376,21 +363,16 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                   >
                     <option value="Momo">Direct Mobile Money (MoMo)</option>
                     <option value="Cash">Cash</option>
-                    <option value="Paystack">Paystack (Online)</option>
                     <option value="Bank Transfer">Bank Transfer</option>
                   </select>
                 ) : (
                   <div className="p-3 bg-[#1e1e1e] border border-gray-700 rounded text-xs space-y-2">
-                    <div className="flex items-center justify-between text-gray-400">
-                      <span>Online Card / Paystack</span>
-                      <span className="flex items-center gap-1 text-amber-500 font-bold text-[10px] bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/40">
-                        🔒 Gateway Under Verification
-                      </span>
-                    </div>
                     <div className="p-2.5 bg-emerald-950/30 border border-emerald-800/50 rounded text-emerald-400 text-xs">
-                      <p className="font-bold">Pay via Direct MoMo Transfer:</p>
+                      <p className="font-bold">Direct Mobile Money Transfer (Outside Paystack):</p>
                       <p>Number: <strong className="text-white font-mono">0508208803</strong> (Francis Victor Okine)</p>
-                      <p className="text-[11px] text-gray-400 mt-1">Please transfer GHS {parseFloat(payAmount || boxPrice || 0).toFixed(2)} to 0508208803 with your name as reference.</p>
+                      <p className="text-[11px] text-gray-400 mt-1">
+                        Transfer GHS {parseFloat(payAmount || (boxPrice * (payBoxes || 1)) || 0).toFixed(2)} directly via Mobile Money using the generated reference. The site records your payment once confirmed by admin.
+                      </p>
                     </div>
                   </div>
                 )}
@@ -430,7 +412,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                 disabled={isSubmitting || (!payAmount && !payBoxes)}
                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-[#111111] font-bold py-3 px-6 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Recording...' : 'Record Payment'}
+                {isAdmin ? (isSubmitting ? 'Recording...' : 'Record Payment') : (isSubmitting ? 'Processing...' : 'Get Deposit Reference & MoMo Details')}
               </button>
             </form>
           </div>

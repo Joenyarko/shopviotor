@@ -67,7 +67,7 @@ const Terms = () => {
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Direct Retail & Vendor Storefronts:</strong> An online marketplace where independent vendors and Shop Viotor showcase consumer electronics, appliances, gadgets, fashion, and home goods for direct sale. Customers pay vendors directly via Mobile Money.</li>
             <li><strong>Layaway Purchase Arrangements:</strong> A separate arrangement agreed directly between the customer and Shop Viotor Ventures outside of the online checkout, not processed through Paystack, where products are reserved and released upon receipt of full payment.</li>
-            <li><strong>Hire Purchase Arrangements:</strong> A separate offline arrangement agreed directly between eligible verified customers and Shop Viotor Ventures outside of the online checkout, not processed through Paystack, governed by a dedicated written agreement.</li>
+            <li><strong>Hire Purchase Arrangements:</strong> A separate offline arrangement agreed directly between eligible verified customers and Shop Viotor Ventures outside of the online checkout, not processed through Paystack, governed by a separate agreement.</li>
             <li><strong>Peer-to-Peer Barter Swaps:</strong> A direct negotiation platform enabling users to arrange item exchanges without Shop Viotor taking custody of goods or holding payments.</li>
             <li><strong>Service Directory:</strong> A professional directory connecting customers with local technical and trade service providers.</li>
           </ul>
@@ -115,7 +115,7 @@ const Terms = () => {
             </p>
             <p className="pt-2"><strong>B. Hire Purchase Terms:</strong></p>
             <p>
-              Hire purchase is not processed through the website or Paystack. It is a separate arrangement agreed directly between the customer and Shop Viotor Ventures outside the checkout, under a separate written agreement. It requires identity verification (Ghana Card). Physical items are handed over upon payment of the agreed deposit, while title and ownership remain with Shop Viotor Ventures until the final installment is paid in full. Defaulting on scheduled repayments gives Shop Viotor Ventures the right to repossess the item and pursue lawful recovery in accordance with the signed agreement.
+              Hire purchase is not processed through the website or Paystack. It is a separate arrangement agreed directly between the customer and Shop Viotor Ventures outside the checkout, under a separate agreement. It requires identity verification (Ghana Card). Physical items are handed over upon payment of the agreed deposit, while title and ownership remain with Shop Viotor Ventures until the final installment is paid in full. Defaulting on scheduled repayments gives Shop Viotor Ventures the right to repossess the item and pursue lawful recovery in accordance with that separate agreement.
             </p>
           </div>
         </section>
@@ -132,7 +132,7 @@ const Terms = () => {
             <li>List only genuine, non-counterfeit products with accurate condition grades (New, Open-Box, Refurbished, Pre-Owned).</li>
             <li>Ship orders within two (2) business days of receiving an order confirmation.</li>
             <li>Maintain inventory accuracy and honor advertised prices in Ghanaian Cedis (GHS).</li>
-            <li>Provide accurate and verified Mobile Money recipient details in their store setup to receive payments directly from customers.</li>
+            <li>Provide their own Mobile Money number in their store setup to receive payments directly from customers.</li>
             <li>Bear responsibility for return shipping costs if goods delivered are defective, damaged, or substantially different from the listing description.</li>
           </ul>
         </section>

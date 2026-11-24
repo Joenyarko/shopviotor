@@ -57,7 +57,7 @@ const DeliveryInfoCard = () => (
         <div className="mt-0.5"><RotateCcw className="w-6 h-6 text-primary-500" /></div>
         <div>
           <h4 className="font-semibold text-sm text-secondary-900 dark:text-white">Return Policy</h4>
-          <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Free return within 7 days for eligible items.</p>
+          <p className="text-xs text-secondary-500 dark:text-secondary-400 mt-1">Report defects within 48 hours for return review.</p>
         </div>
       </div>
       <div className="flex gap-4">
@@ -404,7 +404,7 @@ const ProductDetails = () => {
                   <div className="grid grid-cols-2 gap-3 pt-2">
                     {Boolean(product.available_for_hire_purchase) && (
                       <button onClick={() => navigate(`/hire-purchase?product=${product.id}`, { state: { targetProduct: product } })} className="w-full border-2 border-primary-100 dark:border-primary-900/30 hover:bg-primary-50 dark:hover:bg-primary-900/20 text-primary-700 dark:text-primary-400 py-3 rounded-sm font-bold flex items-center justify-center gap-2 transition-colors">
-                        <Percent className="w-4 h-4" /> Installments
+                        <Clock className="w-4 h-4" /> Hire Purchase
                       </button>
                     )}
                     {Boolean(product.available_for_trade) && (
@@ -465,7 +465,7 @@ const ProductDetails = () => {
                   ) : (
                     <>
                       {Boolean(product.available_for_trade) && <li>Eligible for direct Trade by Barter</li>}
-                      {Boolean(product.available_for_hire_purchase) && <li>Available for Pay-in-Installments (Hire Purchase)</li>}
+                      {Boolean(product.available_for_hire_purchase) && <li>Available for Hire Purchase (separate agreement)</li>}
                       {Boolean(product.condition) && <li className="capitalize">Condition: {product.condition.replace('_', ' ')}</li>}
                       {Boolean(product.is_negotiable) && <li>Price is negotiable upon contact</li>}
                       {(!product.available_for_trade && !product.available_for_hire_purchase && !product.condition && !product.is_negotiable) && (
@@ -585,7 +585,7 @@ const ProductDetails = () => {
             
             <div className="p-6 space-y-4">
               <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 p-4 rounded-xl text-sm font-medium border border-blue-100 dark:border-blue-900/30">
-                You are about to start a savings plan for <strong>{product.name}</strong>. Please review the terms set by the admin below.
+                You are about to request a layaway reservation for <strong>{product.name}</strong>. Please review the terms agreed with Shop Viotor Ventures below.
               </div>
 
               <div className="space-y-3">
@@ -606,11 +606,11 @@ const ProductDetails = () => {
               <div className="space-y-3 pt-2 border-t border-secondary-100 dark:border-secondary-800">
                 <h3 className="font-bold text-secondary-900 dark:text-white text-sm">Terms & Conditions</h3>
                 <div className="p-3 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-lg text-xs text-secondary-600 dark:text-secondary-400 max-h-32 overflow-y-auto whitespace-pre-wrap">
-                  1. All layaway plans are subject to the total amount and box counts specified by the admin.
+                  1. All layaway plans are subject to the total amount and box counts agreed with Shop Viotor Ventures.
                   2. Payments are non-refundable unless explicitly agreed upon.
-                  3. The item will be reserved for you exclusively until the layaway is fully paid.
-                  4. You may make payments at any time. Once all boxes are checked, the item will be shipped to you.
-                  5. Failure to complete payments within an exceptionally long period may result in plan cancellation based on management discretion.
+                  3. The item reservation is subject to a separate agreement with Shop Viotor Ventures.
+                  4. Payments are made directly via Mobile Money outside Paystack. Once all boxes are confirmed by admin, the item will be delivered to you.
+                  5. Failure to complete payments within an agreed period may result in plan cancellation based on management discretion.
                 </div>
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${acceptedTerms ? 'bg-blue-500 border-blue-500 text-white' : 'bg-white dark:bg-secondary-900 border-secondary-300 dark:border-secondary-700'}`}>
@@ -618,7 +618,7 @@ const ProductDetails = () => {
                   </div>
                   <input type="checkbox" className="hidden" checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} />
                   <span className="text-xs font-semibold text-secondary-700 dark:text-secondary-300 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors">
-                    I have read and accept the Layaway / Susu Terms and Conditions
+                    I have read and accept the Layaway Terms and Conditions
                   </span>
                 </label>
               </div>

@@ -87,20 +87,20 @@ const Layaway = () => {
 
       <div className="relative max-w-4xl mx-auto text-center space-y-6">
         <span className="inline-flex items-center gap-2 bg-primary-500/20 border border-primary-500/30 text-primary-400 text-xs font-bold uppercase px-4 py-1.5 rounded-full tracking-wider">
-          <TrendingUp className="w-3.5 h-3.5" /> Save Now, Receive Later
+          <Clock className="w-3.5 h-3.5" /> Direct Installment Reservation
         </span>
         <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight">
-          Layaway — The <span className="text-primary-400">Smart</span><br /> Way to Own Products
+          Layaway — Reserve & Pay <span className="text-primary-400">Directly</span>
         </h1>
         <p className="text-secondary-400 text-base md:text-lg max-w-xl mx-auto">
-          Just like a daily susu — make small, consistent payments toward a product. Once fully paid, we deliver it straight to your door!
+          Pay for products directly via Mobile Money outside Paystack. Once full payment is completed and confirmed by admin, your item is delivered.
         </p>
 
         <div className="flex flex-wrap justify-center gap-6 pt-6">
           {[
-            { icon: Lock, label: 'Item Reserved for You' },
-            { icon: Clock, label: 'Pay at Your Own Pace' },
-            { icon: CheckCircle2, label: 'Delivered When Paid' },
+            { icon: Lock, label: 'Agreed Product Reservation' },
+            { icon: Clock, label: 'Pay Directly via MoMo' },
+            { icon: CheckCircle2, label: 'Delivered Upon Full Payment' },
           ].map(({ icon: Icon, label }) => (
             <div key={label} className="flex items-center gap-2 text-sm font-semibold text-primary-400">
               <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
@@ -123,9 +123,9 @@ const Layaway = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { step: '01', title: 'Pick a Product', desc: 'Browse items available for layaway and select what you want.' },
-          { step: '02', title: 'Start Your Plan', desc: 'Make your first payment contribution — any amount you can afford.' },
-          { step: '03', title: 'Contribute Regularly', desc: 'Keep adding to your balance like a susu pot until it\'s fully paid.' },
-          { step: '04', title: 'Receive Your Item', desc: 'Once 100% is paid, we process and deliver your product immediately.' },
+          { step: '02', title: 'Request Reservation', desc: 'Request a layaway plan and agree on box schedule with Shop Viotor Ventures.' },
+          { step: '03', title: 'Pay Direct via MoMo', desc: 'Make payments directly via Mobile Money using your reference. Payments are recorded once confirmed by admin.' },
+          { step: '04', title: 'Receive Your Item', desc: 'Once full payment is completed and confirmed by admin, your product is delivered.' },
         ].map(({ step, title, desc }) => (
           <div key={step} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 space-y-3 shadow-sm">
             <span className="text-3xl font-black text-primary-500/30">{step}</span>

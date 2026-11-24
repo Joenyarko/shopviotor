@@ -30,7 +30,6 @@ const VendorLayout = () => {
     { to: '/vendor', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: '/vendor/products', label: 'My Products', icon: Package },
     { to: '/vendor/orders', label: 'Orders', icon: ShoppingCart },
-    { to: '/vendor/wallet', label: 'Wallet', icon: Wallet },
     { to: '/vendor/settings', label: 'Store Settings', icon: Settings },
   ];
 

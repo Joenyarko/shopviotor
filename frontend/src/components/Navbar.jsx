@@ -229,13 +229,6 @@ const Navbar = () => {
                       <User className="w-4 h-4" /> My Service Profile
                     </Link>
                     <Link
-                      to="/my-tickets"
-                      onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
-                    >
-                      <Ticket className="w-4 h-4" /> My Tickets
-                    </Link>
-                    <Link
                       to="/my-pre-orders"
                       onClick={() => setUserDropdownOpen(false)}
                       className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
@@ -369,7 +362,6 @@ const Navbar = () => {
                   <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors flex items-center gap-2"><User className="w-4 h-4" /> My Profile</Link>
                   <Link to="/my-service-profile" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Service Profile</Link>
                   <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Wishlist</Link>
-                  <Link to="/my-tickets" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Tickets</Link>
                   <Link to="/my-pre-orders" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Pre-Orders</Link>
                   <Link to="/my-layaways" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Layaways</Link>
                   <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }} className="w-full text-left py-3 px-4 text-accent-700 hover:bg-primary-600/30 rounded font-bold transition-colors">Logout</button>

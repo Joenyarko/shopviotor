@@ -3,7 +3,7 @@ import React from 'react';
 const FAQ = () => {
   const faqs = [
     { q: 'How does Barter swap work?', a: 'You submit a swap request on a product by offering items to trade. If there is an agreed cash difference between the parties, it is paid directly to the other party. Shop Viotor does not receive or hold any barter payments.' },
-    { q: 'What is Hire Purchase?', a: 'Hire Purchase allows eligible customers to pay a deposit on a product and take delivery, then pay off the balance in monthly installments under a signed written agreement with Shop Viotor Ventures.' },
+    { q: 'What is Hire Purchase?', a: 'Hire Purchase allows eligible customers to pay a deposit on a product and take delivery, then pay off the balance in monthly installments under a separate agreement with Shop Viotor Ventures.' },
   ];
 
   return (
@@ -32,7 +32,7 @@ const FAQ = () => {
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
-            For online purchases processed at checkout, payments are completed in full via Paystack. For marketplace vendor products, customers pay directly to the vendor&apos;s own verified Mobile Money account. Shop Viotor does not collect, hold, or escrow customer funds for third-party vendor sales.
+            For online purchases processed at checkout, payments are completed in full via Paystack. For marketplace vendor products, customers pay directly to the vendor&apos;s own Mobile Money number. Shop Viotor does not collect, hold, or escrow customer funds for third-party vendor sales.
           </p>
         </details>
 
@@ -42,7 +42,7 @@ const FAQ = () => {
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
-            No. Shop Viotor does not operate wallets, hold balances, or support money transfers between users. Vendors are paid directly by customers to the vendor&apos;s own verified Mobile Money number.
+            No. Shop Viotor does not operate wallets, hold balances, or support money transfers between users. Vendors are paid directly by customers to the vendor&apos;s own Mobile Money number.
           </p>
         </details>
         

@@ -93,12 +93,12 @@ const Refunds = () => {
 
             <p className="pt-2"><strong>B. Layaway Arrangements:</strong></p>
             <p>
-              Layaway plans are separate offline arrangements with Shop Viotor Ventures and are not processed through Paystack. Cancellation and refund terms are governed strictly by the individual written agreement agreed upon with Shop Viotor Ventures.
+              Layaway plans are separate offline arrangements with Shop Viotor Ventures and are not processed through Paystack. Cancellation and refund terms are governed strictly by the separate agreement agreed upon with Shop Viotor Ventures.
             </p>
 
             <p className="pt-2"><strong>C. Hire Purchase Agreements:</strong></p>
             <p>
-              Hire Purchase contracts are independent written agreements agreed directly between the customer and Shop Viotor Ventures, not processed through Paystack. Any termination or adjustment is governed strictly by the signed contract.
+              Hire Purchase contracts are separate agreements agreed directly between the customer and Shop Viotor Ventures, not processed through Paystack. Any termination or adjustment is governed strictly by that separate agreement.
             </p>
           </div>
         </section>

@@ -416,7 +416,7 @@ const Orders = () => {
 
             <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 mb-5">
               <p className="text-xs text-amber-800 dark:text-amber-300 font-medium leading-relaxed">
-                Send the exact amount below directly to our verified Mobile Money number. Once sent, our team will verify your reference and dispatch your order.
+                Send the exact amount below directly to our own Mobile Money number. Once sent, our team will verify your reference and dispatch your order.
               </p>
             </div>
 

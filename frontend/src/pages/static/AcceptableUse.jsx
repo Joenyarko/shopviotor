@@ -87,7 +87,7 @@ const AcceptableUse = () => {
           <p>Merchants selling products or services on Shop Viotor agree to:</p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Truth in Advertising:</strong> Provide accurate specifications, genuine product photographs, and clear disclosure of item condition (Brand New, Open Box, Refurbished, or Pre-Owned).</li>
-            <li><strong>Accurate Payment Information:</strong> Provide accurate, verified Mobile Money recipient details in their store setup to receive payments directly from customers.</li>
+            <li><strong>Accurate Payment Information:</strong> Provide their own Mobile Money number in their store setup to receive payments directly from customers.</li>
             <li><strong>Prompt Dispatch:</strong> Prepare and hand over orders to verified logistics couriers within 48 hours of order placement.</li>
             <li><strong>Authenticity Guarantee:</strong> Vendors bear sole legal liability for intellectual property violations and counterfeit claims.</li>
           </ul>
