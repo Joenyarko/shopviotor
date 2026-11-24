@@ -705,7 +705,7 @@ const HirePurchase = () => {
                 </div>
 
                 {/* Terms Summary Ribbon */}
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-secondary-100 dark:border-secondary-800 text-center">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-secondary-100 dark:border-secondary-800 text-center">
                   <div className="p-2 rounded-xl bg-secondary-50 dark:bg-secondary-800/50 border border-secondary-200/60 dark:border-secondary-700/60">
                     <span className="text-[10px] uppercase font-bold text-secondary-400 block">Deposit Options</span>
                     <span className="text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-400">
@@ -716,12 +716,6 @@ const HirePurchase = () => {
                     <span className="text-[10px] uppercase font-bold text-secondary-400 block">Max Duration</span>
                     <span className="text-xs sm:text-sm font-extrabold text-primary-600 dark:text-primary-400">
                       {hpMaxDuration} Months
-                    </span>
-                  </div>
-                  <div className="p-2 rounded-xl bg-secondary-50 dark:bg-secondary-800/50 border border-secondary-200/60 dark:border-secondary-700/60">
-                    <span className="text-[10px] uppercase font-bold text-secondary-400 block">Extra Charges</span>
-                    <span className="text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-400">
-                      0% Interest
                     </span>
                   </div>
                 </div>
@@ -1146,12 +1140,48 @@ const HirePurchase = () => {
           <aside className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 transition-colors sticky top-24 shadow-sm space-y-5">
             <div className="border-b border-secondary-100 dark:border-secondary-800 pb-3">
               <h2 className="text-base font-bold text-secondary-900 dark:text-white">Installment Calculator</h2>
-              <span className="text-xs text-secondary-400">0% interest — cash price split into installments</span>
+              <span className="text-xs text-secondary-400">Choose your deposit percentage (0% – 50%)</span>
+            </div>
+
+            {/* Interactive Deposit Percentage Selector (available before ID verification) */}
+            <div className="space-y-2.5 pb-4 border-b border-secondary-100 dark:border-secondary-800">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-bold text-secondary-700 dark:text-secondary-300">Your Deposit (%)</span>
+                <span className="font-extrabold text-emerald-600 dark:text-emerald-400">{depositPercent}% (GHS {deposit.toFixed(2)})</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[0, 10, 20, 30, 40, 50].map((pct) => {
+                  const pctAmount = Math.round(productPrice * (pct / 100));
+                  const isSelected = deposit === pctAmount;
+                  return (
+                    <button
+                      key={pct}
+                      type="button"
+                      onClick={() => setDeposit(pctAmount)}
+                      className={`py-1.5 px-2 border rounded-lg font-bold text-xs transition-all ${
+                        isSelected
+                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 shadow-sm'
+                          : 'border-secondary-200 dark:border-secondary-800 hover:bg-secondary-50 dark:hover:bg-secondary-800 text-secondary-700 dark:text-secondary-300'
+                      }`}
+                    >
+                      {pct}%
+                    </button>
+                  );
+                })}
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={Math.round(productPrice * 0.5)}
+                value={Math.min(deposit, Math.round(productPrice * 0.5))}
+                onChange={(e) => setDeposit(parseInt(e.target.value) || 0)}
+                className="w-full h-2 bg-secondary-200 dark:bg-secondary-700 rounded-lg appearance-none cursor-pointer accent-primary-500"
+              />
             </div>
 
             <div className="space-y-3.5 text-sm pb-4 border-b border-secondary-100 dark:border-secondary-800">
               <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Product Price (0% Interest)</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Product Price</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {productPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
