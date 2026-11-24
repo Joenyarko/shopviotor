@@ -36,6 +36,7 @@ const HirePurchase = () => {
   // Plan configuration state
   const [deposit, setDeposit] = useState(0);
   const [duration, setDuration] = useState(6); // 6 months default
+  const [paymentSchedule, setPaymentSchedule] = useState('monthly'); // 'monthly' | 'weekly' | 'daily'
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
@@ -211,19 +212,38 @@ const HirePurchase = () => {
       });
   }, [hpProducts, selectedCategory, searchQuery, sortBy]);
 
-  // Active target product dynamic calculations (0% interest — cash price split into installments)
+  // Active target product dynamic calculations (5% on remaining balance after deposit)
   const targetProduct = selectedProduct;
-  const hpInterestRate = 0;
+  const hpInterestRate = 5;
   const hpMinDepositPercent = 0;
   const hpMaxDuration = targetProduct?.hp_max_duration_months ? parseInt(targetProduct.hp_max_duration_months) : 12;
 
   const productPrice = targetProduct ? parseFloat(targetProduct.price) : 0;
-  const totalFinanced = productPrice;
-  
   const minDeposit = 0;
-  const balanceRemaining = Math.max(0, totalFinanced - deposit);
+  const baseRemaining = Math.max(0, productPrice - deposit);
+  const installmentCharge = baseRemaining * (hpInterestRate / 100);
+  const balanceRemaining = baseRemaining + installmentCharge;
+  const totalFinanced = deposit + balanceRemaining;
+
+  const totalWeeks = duration * 4;
+  const totalDays = duration * 30;
   const monthlyInstallment = duration > 0 ? balanceRemaining / duration : 0;
+  const weeklyInstallment = totalWeeks > 0 ? balanceRemaining / totalWeeks : 0;
+  const dailyInstallment = totalDays > 0 ? balanceRemaining / totalDays : 0;
   const depositPercent = productPrice > 0 ? Math.round((deposit / productPrice) * 100) : 0;
+
+  const activeScheduleAmount =
+    paymentSchedule === 'weekly' ? weeklyInstallment
+    : paymentSchedule === 'daily' ? dailyInstallment
+    : monthlyInstallment;
+  const activeScheduleLabel =
+    paymentSchedule === 'weekly' ? `per week for ${totalWeeks} weeks`
+    : paymentSchedule === 'daily' ? `per day for ${totalDays} days`
+    : `per month for ${duration} months`;
+  const activeScheduleHeading =
+    paymentSchedule === 'weekly' ? 'Estimated Weekly Payment'
+    : paymentSchedule === 'daily' ? 'Estimated Daily Payment'
+    : 'Estimated Monthly Payment';
 
   useEffect(() => {
     if (targetProduct) {
@@ -321,6 +341,7 @@ const HirePurchase = () => {
         duration_months: duration,
         interest_rate: hpInterestRate,
         payment_method: 'momo',
+        notes: `Preferred payment schedule: ${paymentSchedule.toUpperCase()} (GHS ${activeScheduleAmount.toFixed(2)} ${activeScheduleLabel})`,
       };
 
       const res = await hpService.createAgreement(payload);
@@ -499,7 +520,8 @@ const HirePurchase = () => {
               const minDepPct = product.hp_min_deposit_percent ? parseFloat(product.hp_min_deposit_percent) : 20;
               const minDepAmount = price * (minDepPct / 100);
               const maxDur = product.hp_max_duration_months ? parseInt(product.hp_max_duration_months) : 12;
-              const estMonthly = maxDur > 0 ? (price - minDepAmount) / maxDur : 0;
+              const estRemaining = Math.max(0, price - minDepAmount) * 1.05;
+              const estMonthly = maxDur > 0 ? estRemaining / maxDur : 0;
 
               return (
                 <div
@@ -1179,18 +1201,53 @@ const HirePurchase = () => {
               />
             </div>
 
-            <div className="space-y-3.5 text-sm pb-4 border-b border-secondary-100 dark:border-secondary-800">
+            {/* Payment Schedule Selector: Monthly / Weekly / Daily */}
+            <div className="space-y-2 pb-4 border-b border-secondary-100 dark:border-secondary-800">
+              <span className="text-xs font-bold text-secondary-700 dark:text-secondary-300 block">Choose Payment Schedule</span>
+              <div className="grid grid-cols-3 gap-1.5">
+                {[
+                  { id: 'monthly', label: 'Monthly', sub: `${duration} mo`, amt: monthlyInstallment, unit: '/mo' },
+                  { id: 'weekly', label: 'Weekly', sub: `${totalWeeks} wks`, amt: weeklyInstallment, unit: '/wk' },
+                  { id: 'daily', label: 'Daily', sub: `${totalDays} days`, amt: dailyInstallment, unit: '/day' },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setPaymentSchedule(opt.id)}
+                    className={`p-2 border rounded-xl text-center transition-all flex flex-col items-center justify-center ${
+                      paymentSchedule === opt.id
+                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/40 text-primary-700 dark:text-primary-300 shadow-sm'
+                        : 'border-secondary-200 dark:border-secondary-800 hover:bg-secondary-50 dark:hover:bg-secondary-800 text-secondary-700 dark:text-secondary-300'
+                    }`}
+                  >
+                    <span className="text-[11px] font-bold">{opt.label}</span>
+                    <span className="text-[9px] text-secondary-400">{opt.sub}</span>
+                    <span className="text-[11px] font-extrabold mt-0.5">GHS {opt.amt.toFixed(0)}<span className="text-[9px] font-normal">{opt.unit}</span></span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3 text-sm pb-4 border-b border-secondary-100 dark:border-secondary-800">
               <div className="flex justify-between">
                 <span className="text-secondary-500 dark:text-secondary-400">Product Price</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {productPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Initial Down Payment</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Initial Down Payment ({depositPercent}%)</span>
                 <span className="font-bold text-emerald-600">- GHS {deposit.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
+                <span className="text-secondary-500 dark:text-secondary-400">Balance After Deposit</span>
+                <span className="font-semibold text-secondary-900 dark:text-white">GHS {baseRemaining.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-secondary-500 dark:text-secondary-400">Installment Charge ({hpInterestRate}%)</span>
+                <span className="font-semibold text-secondary-900 dark:text-white">+ GHS {installmentCharge.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-secondary-500 dark:text-secondary-400">Remaining Installments</span>
-                <span className="font-semibold text-secondary-900 dark:text-white">GHS {balanceRemaining.toFixed(2)}</span>
+                <span className="font-bold text-secondary-900 dark:text-white">GHS {balanceRemaining.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-secondary-500 dark:text-secondary-400">Duration</span>
@@ -1200,13 +1257,13 @@ const HirePurchase = () => {
 
             <div className="pt-1 text-center bg-primary-50/50 dark:bg-primary-950/20 p-4 rounded-xl border border-primary-100 dark:border-primary-900/30">
               <span className="block text-xxs text-secondary-500 dark:text-secondary-400 uppercase font-bold tracking-wider mb-1">
-                Estimated Monthly Payment
+                {activeScheduleHeading}
               </span>
               <span className="text-3xl font-black text-primary-600 dark:text-primary-400">
-                GHS {monthlyInstallment.toFixed(2)}
+                GHS {activeScheduleAmount.toFixed(2)}
               </span>
               <span className="text-xs font-medium text-secondary-500 dark:text-secondary-400 block mt-0.5">
-                per month for {duration} months
+                {activeScheduleLabel}
               </span>
             </div>
 
