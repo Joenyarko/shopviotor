@@ -41,22 +41,13 @@ class HirePurchaseController extends Controller
 
         $hp = $this->hpService->create($request->user()->id, $data);
 
-        $paymentData = null;
-        if ($data['deposit_amount'] > 0) {
-            $paymentData = $this->paymentService->initiate([
-                'payable_type' => HirePurchase::class,
-                'payable_id'   => $hp->id,
-                'user_id'      => $request->user()->id,
-                'email'        => $request->user()->email,
-                'amount'       => $data['deposit_amount'],
-                'method'       => \App\Enums\PaymentMethod::Paystack,
-            ]);
-        }
-
+        // Hire purchase deposits are paid directly by Mobile Money outside Paystack.
+        // The agreement stores its HIR-... deposit_reference and remains pending until admin confirms.
         return response()->json([
-            'message' => 'Hire purchase agreement created successfully.',
-            'data'    => new HirePurchaseResource($hp),
-            'payment' => $paymentData,
+            'message'           => 'Hire purchase deposit reference generated. Pay directly via Mobile Money outside Paystack; status updates once confirmed by admin.',
+            'data'              => new HirePurchaseResource($hp),
+            'deposit_reference' => $hp->deposit_reference,
+            'payment'           => null,
         ], 201);
     }
 

@@ -198,11 +198,11 @@ const LayawayDetail = () => {
               <div className="space-y-3 pt-4 border-t border-secondary-200 dark:border-secondary-800">
                 <h3 className="font-bold text-secondary-900 dark:text-white">Terms & Conditions</h3>
                 <div className="p-4 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-xl text-sm text-secondary-600 dark:text-secondary-400 max-h-48 overflow-y-auto whitespace-pre-wrap">
-                  1. All layaway plans are subject to the total amount and box counts specified by the admin.
-                  2. Payments are non-refundable unless explicitly agreed upon.
-                  3. The item will be reserved for you exclusively until the layaway is fully paid.
-                  4. You may make payments at any time. Once all boxes are checked, the item will be shipped to you.
-                  5. Failure to complete payments within an exceptionally long period may result in plan cancellation based on management discretion.
+                  1. All layaway plans are subject to the total amount and box counts agreed with Shop Viotor Ventures.
+                  2. Cancellation and refund terms are governed by the separate agreement agreed upon with Shop Viotor Ventures.
+                  3. The item reservation is subject to a separate agreement with Shop Viotor Ventures.
+                  4. Payments are made directly via Mobile Money outside Paystack. Once all boxes are confirmed by admin, the item will be delivered to you.
+                  5. Failure to complete payments within an agreed period may result in plan cancellation based on management discretion.
                 </div>
                 <label className="flex items-start gap-3 cursor-pointer group">
                   <div className={`mt-0.5 w-5 h-5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${acceptedTerms ? 'bg-primary-500 border-primary-500 text-secondary-900' : 'bg-white dark:bg-secondary-900 border-secondary-300 dark:border-secondary-700'}`}>
@@ -210,7 +210,7 @@ const LayawayDetail = () => {
                   </div>
                   <input type="checkbox" className="hidden" checked={acceptedTerms} onChange={e => setAcceptedTerms(e.target.checked)} />
                   <span className="text-sm font-semibold text-secondary-700 dark:text-secondary-300 group-hover:text-secondary-900 dark:group-hover:text-white transition-colors">
-                    I have read and accept the Layaway / Susu Terms and Conditions
+                    I have read and accept the Layaway Terms and Conditions
                   </span>
                 </label>
               </div>

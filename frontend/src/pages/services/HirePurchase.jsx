@@ -211,15 +211,14 @@ const HirePurchase = () => {
       });
   }, [hpProducts, selectedCategory, searchQuery, sortBy]);
 
-  // Active target product dynamic calculations
+  // Active target product dynamic calculations (0% interest — cash price split into installments)
   const targetProduct = selectedProduct;
-  const hpInterestRate = targetProduct?.hp_interest_rate ? parseFloat(targetProduct.hp_interest_rate) : 0;
+  const hpInterestRate = 0;
   const hpMinDepositPercent = targetProduct?.hp_min_deposit_percent ? parseFloat(targetProduct.hp_min_deposit_percent) : 20;
   const hpMaxDuration = targetProduct?.hp_max_duration_months ? parseInt(targetProduct.hp_max_duration_months) : 12;
 
   const productPrice = targetProduct ? parseFloat(targetProduct.price) : 0;
-  const interestAmount = productPrice * (hpInterestRate / 100);
-  const totalFinanced = productPrice + interestAmount;
+  const totalFinanced = productPrice;
   
   const minDeposit = productPrice * (hpMinDepositPercent / 100);
   const balanceRemaining = Math.max(0, totalFinanced - deposit);
@@ -499,9 +498,7 @@ const HirePurchase = () => {
               const minDepPct = product.hp_min_deposit_percent ? parseFloat(product.hp_min_deposit_percent) : 20;
               const minDepAmount = price * (minDepPct / 100);
               const maxDur = product.hp_max_duration_months ? parseInt(product.hp_max_duration_months) : 12;
-              const interest = product.hp_interest_rate ? parseFloat(product.hp_interest_rate) : 0;
-              const estTotal = price + (price * (interest / 100));
-              const estMonthly = maxDur > 0 ? (estTotal - minDepAmount) / maxDur : 0;
+              const estMonthly = maxDur > 0 ? (price - minDepAmount) / maxDur : 0;
 
               return (
                 <div
@@ -721,9 +718,9 @@ const HirePurchase = () => {
                     </span>
                   </div>
                   <div className="p-2 rounded-xl bg-secondary-50 dark:bg-secondary-800/50 border border-secondary-200/60 dark:border-secondary-700/60">
-                    <span className="text-[10px] uppercase font-bold text-secondary-400 block">Interest Rate</span>
-                    <span className="text-xs sm:text-sm font-extrabold text-secondary-900 dark:text-white">
-                      {hpInterestRate}%
+                    <span className="text-[10px] uppercase font-bold text-secondary-400 block">Extra Charges</span>
+                    <span className="text-xs sm:text-sm font-extrabold text-emerald-600 dark:text-emerald-400">
+                      0% Interest
                     </span>
                   </div>
                 </div>
@@ -1111,7 +1108,7 @@ const HirePurchase = () => {
                 disabled={loading}
                 className="w-full premium-button-primary py-3.5 rounded-xl font-extrabold text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary-500/25 active:scale-98 transition-transform"
               >
-                {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Create HP Agreement & Pay Deposit'}
+                {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Get Deposit Reference'}
               </button>
 
             </form>
@@ -1125,21 +1122,13 @@ const HirePurchase = () => {
           <aside className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 transition-colors sticky top-24 shadow-sm space-y-5">
             <div className="border-b border-secondary-100 dark:border-secondary-800 pb-3">
               <h2 className="text-base font-bold text-secondary-900 dark:text-white">Installment Calculator</h2>
-              <span className="text-xs text-secondary-400">Live payment plan estimate</span>
+              <span className="text-xs text-secondary-400">0% interest — cash price split into installments</span>
             </div>
 
             <div className="space-y-3.5 text-sm pb-4 border-b border-secondary-100 dark:border-secondary-800">
               <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Principal Price</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Product Price (0% Interest)</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {productPrice.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Interest Cost ({hpInterestRate}%)</span>
-                <span className="font-semibold text-secondary-900 dark:text-white">GHS {interestAmount.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Total Obligation</span>
-                <span className="font-semibold text-secondary-900 dark:text-white">GHS {totalFinanced.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-secondary-500 dark:text-secondary-400">Initial Down Payment</span>

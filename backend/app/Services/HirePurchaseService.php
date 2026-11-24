@@ -19,7 +19,7 @@ class HirePurchaseService
 
         if (!$user || (!$isStudentApproved && !$isIdentityEligible)) {
             throw ValidationException::withMessages([
-                'verification' => ['You must submit student ID verification or Ghana Card identity verification to request hire purchase financing.'],
+                'verification' => ['You must submit student ID verification or Ghana Card identity verification to request a hire purchase arrangement.'],
             ]);
         }
 
@@ -34,7 +34,7 @@ class HirePurchaseService
 
             $deposit          = $data['deposit_amount'];
             $durationMonths   = $data['duration_months'];
-            $interestRate     = $product->hp_interest_rate ?? 0;
+            $interestRate     = 0; // 0% interest — cash price split into installments directly with Shop Viotor Ventures
             $maxDuration      = $product->hp_max_duration_months ?? 12;
             $minDepositPct    = $product->hp_min_deposit_percent ?? 20;
 

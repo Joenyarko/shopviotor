@@ -84,7 +84,7 @@ const Terms = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
               <span className="font-bold text-secondary-900 dark:text-white block text-xs">Direct Mobile Money</span>
-              <p className="text-xs text-secondary-500 mt-1">Direct transfers to verified vendor MoMo numbers (MTN MoMo, Telecel Cash, AT Money).</p>
+              <p className="text-xs text-secondary-500 mt-1">Direct transfers to the vendor&apos;s own Mobile Money number (MTN MoMo, Telecel Cash, AT Money).</p>
             </div>
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
               <span className="font-bold text-secondary-900 dark:text-white block text-xs">Online Checkout (Paystack)</span>
@@ -115,7 +115,7 @@ const Terms = () => {
             </p>
             <p className="pt-2"><strong>B. Hire Purchase Terms:</strong></p>
             <p>
-              Hire purchase is not processed through the website or Paystack. It is a separate arrangement agreed directly between the customer and Shop Viotor Ventures outside the checkout, under a separate agreement. It requires identity verification (Ghana Card). Physical items are handed over upon payment of the agreed deposit, while title and ownership remain with Shop Viotor Ventures until the final installment is paid in full. Defaulting on scheduled repayments gives Shop Viotor Ventures the right to repossess the item and pursue lawful recovery in accordance with that separate agreement.
+              Hire purchase is not processed through the website checkout or Paystack, and carries 0% interest (the cash price of Shop Viotor Ventures&apos; own goods split into agreed installments). It is a separate arrangement agreed directly between the customer and Shop Viotor Ventures outside the checkout, under a separate agreement. Installment payments are made directly via Mobile Money and recorded only after admin confirmation. It requires identity verification (Ghana Card). Physical items are handed over upon payment of the agreed deposit, while title and ownership remain with Shop Viotor Ventures until the final installment is paid in full. Defaulting on scheduled repayments gives Shop Viotor Ventures the right to repossess the item and pursue lawful recovery in accordance with that separate agreement. Any future interest-bearing credit or financing service would only be offered after obtaining the required regulatory licence.
             </p>
           </div>
         </section>

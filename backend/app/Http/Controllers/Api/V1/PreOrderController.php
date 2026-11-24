@@ -66,35 +66,12 @@ class PreOrderController extends Controller
             ]);
         });
 
-        // ─── Payment for deposit ───────────────────────────────────────────────
-        $isLocalTesting = app()->environment(['local', 'testing']) && empty(config('services.paystack.secret_key'));
-        $paymentData = null;
-
-        if ($deposit > 0 && !$isLocalTesting) {
-            $paymentData = app(\App\Services\PaymentService::class)->initiate([
-                'payable_type' => PreOrder::class,
-                'payable_id'   => $preOrder->id,
-                'user_id'      => $request->user()->id,
-                'email'        => $request->user()->email,
-                'amount'       => $deposit,
-                'method'       => \App\Enums\PaymentMethod::Paystack,
-            ]);
-        }
-
-        // In local testing mode without keys: auto-record the deposit as "mock paid" so developers can test locally
-        if ($deposit > 0 && $isLocalTesting) {
-            $preOrder->update([
-                'deposit_paid'      => $deposit,
-                'balance_remaining' => $balance,
-            ]);
-        }
-
+        // Pre-orders are reservation requests only — no online or Paystack payment is taken.
         return response()->json([
-            'message'    => 'Pre-order placed successfully.' . ($isLocalTesting && $deposit > 0 ? ' (Testing Mode — deposit auto-credited)' : ''),
+            'message'    => 'Pre-order reservation request submitted. Our team will confirm availability and payment details with you directly.',
             'data'       => $preOrder->fresh()->load('product'),
             'deposit'    => $deposit,
-            'payment'    => $paymentData,
-            'mode'       => $isLocalTesting ? 'testing' : 'live',
+            'payment'    => null,
         ], 201);
     }
 }

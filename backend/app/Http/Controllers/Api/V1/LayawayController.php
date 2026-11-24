@@ -226,18 +226,33 @@ class LayawayController extends Controller
             ], 422);
         }
 
-        $paymentData = app(\App\Services\PaymentService::class)->initiate([
+        // Direct Mobile Money deposit outside Paystack — save a pending reference for admin confirmation.
+        $reference = 'LAY-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5));
+
+        $payment = \App\Models\Payment::create([
             'payable_type' => LayawayCard::class,
             'payable_id'   => $card->id,
             'user_id'      => $request->user()->id,
-            'email'        => $request->user()->email,
+            'reference'    => $reference,
+            'method'       => \App\Enums\PaymentMethod::MobileMoney,
+            'gateway'      => 'mobile_money',
             'amount'       => $amount,
-            'method'       => \App\Enums\PaymentMethod::Paystack,
+            'currency'     => 'GHS',
+            'status'       => 'pending',
+            'notes'        => "Direct MoMo layaway deposit ({$boxesCovered} boxes) — awaiting admin confirmation",
         ]);
 
         return response()->json([
-            'message' => 'Payment initiated successfully.',
-            'payment' => $paymentData,
+            'message' => 'Deposit reference generated. Pay directly via Mobile Money outside Paystack; the site records your payment once confirmed by admin.',
+            'payment' => [
+                'id'            => $payment->id,
+                'uuid'          => $payment->uuid,
+                'reference'     => $payment->reference,
+                'amount'        => (float) $payment->amount,
+                'boxes_covered' => $boxesCovered,
+                'method'        => 'mobile_money',
+                'status'        => 'pending',
+            ],
         ]);
     }
 
@@ -245,7 +260,7 @@ class LayawayController extends Controller
     {
         return response()->json([
             'data' => [
-                'layaway_terms' => "1. All layaway plans are subject to the total amount and box counts specified by the admin.\n2. Payments are non-refundable unless explicitly agreed upon.\n3. The item will be reserved for you exclusively until the layaway is fully paid.\n4. You may make payments at any time. Once all boxes are checked, the item will be shipped to you.\n5. Failure to complete payments within an exceptionally long period may result in plan cancellation based on management discretion."
+                'layaway_terms' => "1. All layaway plans are subject to the total amount and box counts agreed with Shop Viotor Ventures.\n2. Cancellation and refund terms are governed by the separate agreement agreed upon with Shop Viotor Ventures.\n3. The item reservation is subject to a separate agreement with Shop Viotor Ventures.\n4. Payments are made directly via Mobile Money outside Paystack. Once all boxes are confirmed by admin, the item will be delivered to you.\n5. Failure to complete payments within an agreed period may result in plan cancellation based on management discretion."
             ]
         ]);
     }

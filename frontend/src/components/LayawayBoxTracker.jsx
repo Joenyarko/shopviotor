@@ -136,39 +136,53 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
     }
 
     if (!isAdmin) {
-      await Swal.fire({
-        title: 'Direct MoMo Deposit Instructions',
-        html: `
-          <div style="text-align: left; font-size: 13px; line-height: 1.6;">
-            <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
-              <span style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #eab308; display: block;">Deposit Reference:</span>
-              <span style="font-family: monospace; font-size: 16px; font-weight: 900; color: #facc15; letter-spacing: 1px;">${generatedRef}</span>
-            </div>
-            <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
-              <span style="color: #94a3b8; font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">Direct Mobile Money Details:</span>
-              <p style="margin: 2px 0;"><strong>Number:</strong> <span style="font-family: monospace; font-weight: 800; color: #fff;">0508208803</span> (Francis Victor Okine)</p>
-              <p style="margin: 0; color: #94a3b8; font-size: 11px;">Amount: <strong>GHS ${finalAmount.toFixed(2)}</strong> (${finalBoxes} boxes)</p>
-            </div>
-            <p style="color: #cbd5e1; font-size: 12px; margin-top: 8px;">
-              Please transfer your payment directly by Mobile Money to <strong>0508208803</strong> outside Paystack using reference <strong>${generatedRef}</strong>. The site records your payment once verified and confirmed by admin.
-            </p>
-          </div>
-        `,
-        icon: 'info',
-        confirmButtonColor: '#eab308',
-        confirmButtonText: 'Notify on WhatsApp',
-        showCancelButton: true,
-        cancelButtonText: 'Done',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.open(`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I am making a direct MoMo layaway deposit of GHS ${finalAmount.toFixed(2)} (${finalBoxes} boxes) for layaway plan ${card.reference || card.uuid} to 0508208803 using reference: ${generatedRef}. Please verify and update my card.`)}`, '_blank');
-        }
-      });
+      setIsSubmitting(true);
+      try {
+        const res = await apiClient.post(`/layaways/${card.uuid}/pay`, {
+          amount: finalAmount,
+        });
+        const serverRef = res?.data?.payment?.reference || res?.payment?.reference || generatedRef;
 
-      setPayAmount('');
-      setPayBoxes('');
-      setPayReference('');
-      setPayNotes('');
+        await Swal.fire({
+          title: 'Direct MoMo Deposit Instructions',
+          html: `
+            <div style="text-align: left; font-size: 13px; line-height: 1.6;">
+              <div style="background: rgba(234, 179, 8, 0.12); border: 1px solid rgba(234, 179, 8, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: #eab308; display: block;">Deposit Reference:</span>
+                <span style="font-family: monospace; font-size: 16px; font-weight: 900; color: #facc15; letter-spacing: 1px;">${serverRef}</span>
+              </div>
+              <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
+                <span style="color: #94a3b8; font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">Direct Mobile Money Details:</span>
+                <p style="margin: 2px 0;"><strong>Number:</strong> <span style="font-family: monospace; font-weight: 800; color: #fff;">0508208803</span> (Francis Victor Okine)</p>
+                <p style="margin: 0; color: #94a3b8; font-size: 11px;">Amount: <strong>GHS ${finalAmount.toFixed(2)}</strong> (${finalBoxes} boxes)</p>
+              </div>
+              <p style="color: #cbd5e1; font-size: 12px; margin-top: 8px;">
+                Please transfer your payment directly by Mobile Money to <strong>0508208803</strong> outside Paystack using reference <strong>${serverRef}</strong>. The site records your payment once verified and confirmed by admin.
+              </p>
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonColor: '#eab308',
+          confirmButtonText: 'Notify on WhatsApp',
+          showCancelButton: true,
+          cancelButtonText: 'Done',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.open(`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I am making a direct MoMo layaway deposit of GHS ${finalAmount.toFixed(2)} (${finalBoxes} boxes) for layaway plan ${card.reference || card.uuid} to 0508208803 using reference: ${serverRef}. Please verify and update my card.`)}`, '_blank');
+          }
+        });
+
+        setPayAmount('');
+        setPayBoxes('');
+        setPayReference('');
+        setPayNotes('');
+        if (onPaymentSuccess) onPaymentSuccess();
+      } catch (err) {
+        console.error(err);
+        toast.error(err.response?.data?.message || 'Failed to generate deposit reference');
+      } finally {
+        setIsSubmitting(false);
+      }
       return;
     }
 

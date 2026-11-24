@@ -607,7 +607,7 @@ const ProductDetails = () => {
                 <h3 className="font-bold text-secondary-900 dark:text-white text-sm">Terms & Conditions</h3>
                 <div className="p-3 bg-secondary-50 dark:bg-secondary-950 border border-secondary-200 dark:border-secondary-800 rounded-lg text-xs text-secondary-600 dark:text-secondary-400 max-h-32 overflow-y-auto whitespace-pre-wrap">
                   1. All layaway plans are subject to the total amount and box counts agreed with Shop Viotor Ventures.
-                  2. Payments are non-refundable unless explicitly agreed upon.
+                  2. Cancellation and refund terms are governed by the separate agreement agreed upon with Shop Viotor Ventures.
                   3. The item reservation is subject to a separate agreement with Shop Viotor Ventures.
                   4. Payments are made directly via Mobile Money outside Paystack. Once all boxes are confirmed by admin, the item will be delivered to you.
                   5. Failure to complete payments within an agreed period may result in plan cancellation based on management discretion.

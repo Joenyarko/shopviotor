@@ -106,9 +106,10 @@ Route::prefix('v1')->group(function () {
     Route::get('/promo-popups/active', [PromoPopupController::class, 'active']);
     Route::get('/pickup-locations', [PickupLocationController::class, 'index']);
 
-    Route::get('/raffles', [RaffleController::class, 'index']);
-    Route::get('/raffles/winners', [RaffleController::class, 'winners']);
-    Route::get('/raffles/{uuid}', [RaffleController::class, 'show'])->whereUuid('uuid');
+    // Raffles PAUSED (pending NLA licence) — all raffle endpoints disabled.
+    // Route::get('/raffles', [RaffleController::class, 'index']);
+    // Route::get('/raffles/winners', [RaffleController::class, 'winners']);
+    // Route::get('/raffles/{uuid}', [RaffleController::class, 'show'])->whereUuid('uuid');
 
     // Webhooks
     Route::post('/payments/webhook/{gateway}', [PaymentController::class, 'webhook']);
@@ -166,10 +167,13 @@ Route::prefix('v1')->group(function () {
         Route::post('/trade-requests/{uuid}/accept', [TradeRequestController::class, 'acceptValuation']);
 
         Route::apiResource('hire-purchases', HirePurchaseController::class)->only(['index', 'store', 'show']);
-        Route::post('/hire-purchases/{uuid}/installments/{id}/pay', [HirePurchaseController::class, 'payInstallment']);
+        // DISABLED: customers no longer pay installments online. Installments are paid
+        // directly by Mobile Money and confirmed by admin (admin confirm-payment route).
+        // Route::post('/hire-purchases/{uuid}/installments/{id}/pay', [HirePurchaseController::class, 'payInstallment']);
 
-        Route::get('/raffles/my-tickets', [RaffleController::class, 'myTickets']);
-        Route::post('/raffles/{uuid}/purchase-ticket', [RaffleController::class, 'purchaseTicket'])->middleware('throttle:20,1');
+        // Raffles PAUSED (pending NLA licence)
+        // Route::get('/raffles/my-tickets', [RaffleController::class, 'myTickets']);
+        // Route::post('/raffles/{uuid}/purchase-ticket', [RaffleController::class, 'purchaseTicket'])->middleware('throttle:20,1');
 
         // Customer Support Chat
         Route::apiResource('messages', MessageController::class)->only(['index', 'store', 'show']);
@@ -193,8 +197,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/pre-orders', [\App\Http\Controllers\Api\V1\PreOrderController::class, 'index']);
         Route::post('/pre-orders', [\App\Http\Controllers\Api\V1\PreOrderController::class, 'store']);
 
-        // Raffles
-        Route::get('/raffles/my-tickets', [RaffleController::class, 'myTickets']);
+        // Raffles PAUSED (pending NLA licence)
+        // Route::get('/raffles/my-tickets', [RaffleController::class, 'myTickets']);
 
         // NOTE: /stores/apply, /stores/my-store, /stores/my-store/update
         // are now registered ABOVE the {slug} route with auth:sanctum middleware.
@@ -211,13 +215,14 @@ Route::prefix('v1')->group(function () {
             Route::post('/orders/{uuid}/status', [VendorOrderController::class, 'updateStatus']);
             Route::post('/orders/{uuid}/confirm-payment', [VendorOrderController::class, 'confirmPayment']);
             
-            // Wallet & Payouts
-            Route::get('/wallet', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'index']);
-            Route::get('/wallet/transactions', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'transactions']);
-            Route::get('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'payouts']);
-            Route::post('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'requestPayout'])->middleware('throttle:5,1');
-            Route::get('/payouts/banks', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'banks']);
-            Route::get('/payouts/resolve-account', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'resolveAccount']);
+            // Wallet & Payouts DISABLED — vendors are paid directly by customers to
+            // their own Mobile Money number. Shop Viotor holds no vendor balances.
+            // Route::get('/wallet', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'index']);
+            // Route::get('/wallet/transactions', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'transactions']);
+            // Route::get('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'payouts']);
+            // Route::post('/payouts', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'requestPayout'])->middleware('throttle:5,1');
+            // Route::get('/payouts/banks', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'banks']);
+            // Route::get('/payouts/resolve-account', [\App\Http\Controllers\Api\V1\Vendor\VendorWalletController::class, 'resolveAccount']);
         });
 
         // ─── ADMIN ROUTES ─────────────────────────────────────────────────────────
@@ -277,13 +282,13 @@ Route::prefix('v1')->group(function () {
             Route::delete('/orders/{uuid}', [AdminOrderController::class, 'destroy']);
             Route::post('/orders/{uuid}/restore', [AdminOrderController::class, 'restore']);
 
-            // Raffles (Admin)
-            Route::get('/raffles/winners', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'winners']);
-            Route::delete('/raffles/winners/{id}', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'deleteWinner']);
-            Route::get('/raffles/{uuid}/tickets', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'tickets']);
-            Route::post('/raffles/{uuid}/draw', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'draw']);
-            Route::post('/raffles/{uuid}/issue-ticket', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'issueTicketManual']);
-            Route::apiResource('raffles', \App\Http\Controllers\Api\V1\Admin\RaffleController::class)->except(['show']);
+            // Raffles (Admin) PAUSED (pending NLA licence)
+            // Route::get('/raffles/winners', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'winners']);
+            // Route::delete('/raffles/winners/{id}', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'deleteWinner']);
+            // Route::get('/raffles/{uuid}/tickets', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'tickets']);
+            // Route::post('/raffles/{uuid}/draw', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'draw']);
+            // Route::post('/raffles/{uuid}/issue-ticket', [\App\Http\Controllers\Api\V1\Admin\RaffleController::class, 'issueTicketManual']);
+            // Route::apiResource('raffles', \App\Http\Controllers\Api\V1\Admin\RaffleController::class)->except(['show']);
 
             // Sell Requests
             Route::get('/sell-requests', [AdminSellRequestController::class, 'index']);
@@ -343,9 +348,9 @@ Route::prefix('v1')->group(function () {
             Route::post('/stores/{uuid}/commission', [AdminStoreController::class, 'updateCommission']);
             Route::post('/stores/{uuid}/permissions', [AdminStoreController::class, 'updatePermissions']);
 
-            // Payouts (Admin)
-            Route::get('/payouts', [\App\Http\Controllers\Api\V1\Admin\AdminPayoutController::class, 'index']);
-            Route::post('/payouts/{uuid}/process', [\App\Http\Controllers\Api\V1\Admin\AdminPayoutController::class, 'process']);
+            // Payouts (Admin) DISABLED — no Paystack transfers/disbursements to vendors.
+            // Route::get('/payouts', [\App\Http\Controllers\Api\V1\Admin\AdminPayoutController::class, 'index']);
+            // Route::post('/payouts/{uuid}/process', [\App\Http\Controllers\Api\V1\Admin\AdminPayoutController::class, 'process']);
 
             // Settings (Admin)
             Route::get('/settings', [\App\Http\Controllers\Api\V1\Admin\SettingController::class, 'getSettings']);

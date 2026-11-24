@@ -34,7 +34,7 @@ const Dashboard = React.lazy(() => import('../pages/customer/Dashboard'));
 const Wishlist = React.lazy(() => import('../pages/customer/Wishlist'));
 const Messages = React.lazy(() => import('../pages/customer/Messages'));
 const Orders = React.lazy(() => import('../pages/customer/Orders'));
-const MyTickets = React.lazy(() => import('../pages/customer/MyTickets'));
+// Disabled: MyTickets (raffles paused pending NLA licence)
 const SellRequest = React.lazy(() => import('../pages/services/SellRequest'));
 const BarterRequest = React.lazy(() => import('../pages/services/BarterRequest'));
 const HirePurchase = React.lazy(() => import('../pages/services/HirePurchase'));
@@ -42,9 +42,7 @@ const Layaway = React.lazy(() => import('../pages/services/Layaway'));
 const PreOrders = React.lazy(() => import('../pages/services/PreOrders'));
 const PreOrderDetail = React.lazy(() => import('../pages/services/PreOrderDetail'));
 const MyPreOrders = React.lazy(() => import('../pages/customer/MyPreOrders'));
-const Raffles = React.lazy(() => import('../pages/services/Raffles'));
-const RaffleDetail = React.lazy(() => import('../pages/services/RaffleDetail'));
-const RaffleWinners = React.lazy(() => import('../pages/services/RaffleWinners'));
+// Disabled: Raffles, RaffleDetail, RaffleWinners (paused pending NLA licence)
 const Checkout = React.lazy(() => import('../pages/commerce/Checkout'));
 const PaymentCallback = React.lazy(() => import('../pages/commerce/PaymentCallback'));
 const Cart = React.lazy(() => import('../pages/commerce/Cart'));
@@ -57,7 +55,7 @@ const AdminOrders = React.lazy(() => import('../pages/admin/Orders'));
 const AdminPayments = React.lazy(() => import('../pages/admin/Payments'));
 const AdminTradeRequests = React.lazy(() => import('../pages/admin/TradeRequests'));
 const AdminSellRequests = React.lazy(() => import('../pages/admin/SellRequests'));
-const AdminRaffles = React.lazy(() => import('../pages/admin/Raffles'));
+// Disabled: AdminRaffles (paused pending NLA licence)
 const Banners = React.lazy(() => import('../pages/admin/Banners'));
 const AdminReports = React.lazy(() => import('../pages/admin/Reports'));
 const AuditLogs = React.lazy(() => import('../pages/admin/AuditLogs'));
@@ -80,8 +78,7 @@ const VendorDashboard = React.lazy(() => import('../pages/vendor/VendorDashboard
 const VendorProducts = React.lazy(() => import('../pages/vendor/VendorProducts'));
 const VendorOrders = React.lazy(() => import('../pages/vendor/VendorOrders'));
 const VendorSettings = React.lazy(() => import('../pages/vendor/VendorSettings'));
-const VendorWallet = React.lazy(() => import('../pages/vendor/VendorWallet'));
-const AdminPayouts = React.lazy(() => import('../pages/admin/AdminPayouts'));
+// Disabled: VendorWallet, AdminPayouts (no vendor wallets or Paystack transfers)
 const StoreApplication = React.lazy(() => import('../pages/vendor/StoreApplication'));
 const StoreList = React.lazy(() => import('../pages/catalog/StoreList'));
 const StoreFront = React.lazy(() => import('../pages/catalog/StoreFront'));
@@ -174,7 +171,6 @@ const AppRoutes = () => {
         <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
         <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
-        <Route path="/my-tickets" element={<ProtectedRoute><MyTickets /></ProtectedRoute>} />
         
         {/* Marketplace Services */}
         <Route path="/sell" element={<ProtectedRoute><SellRequest /></ProtectedRoute>} />
