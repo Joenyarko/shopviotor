@@ -38,7 +38,7 @@ const PreOrders = () => {
           Pre-Order <span className="text-primary-400">Hub</span>
         </h1>
         <p className="text-secondary-400 text-base md:text-lg max-w-xl mx-auto">
-          Reserve the hottest upcoming items before they drop. Pay a deposit now, and secure your order.
+          Reserve upcoming items before they drop. Submit your inquiry to secure arrival details with no online payment taken.
         </p>
       </div>
     </div>
@@ -84,7 +84,7 @@ const PreOrders = () => {
                       <span className="font-bold text-sm text-secondary-900 dark:text-white">GHS {parseFloat(product.price).toLocaleString('en-US')}</span>
                     </div>
                     <div className="flex justify-between items-end">
-                      <span className="text-[10px] uppercase font-bold text-orange-600 dark:text-orange-400">Deposit Req.</span>
+                      <span className="text-[10px] uppercase font-bold text-orange-600 dark:text-orange-400">Est. Deposit</span>
                       <span className="font-bold text-lg text-orange-600 dark:text-orange-400 leading-none">GHS {parseFloat(deposit).toLocaleString('en-US')}</span>
                     </div>
                     <Link to={`/pre-orders/${product.id}`} className="premium-button-primary w-full py-2 rounded-lg text-xs font-bold flex justify-center items-center gap-1.5 mt-3 shadow-sm">

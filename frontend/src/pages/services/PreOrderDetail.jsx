@@ -187,7 +187,7 @@ const PreOrderDetail = () => {
               </span>
             </div>
             <div className="flex justify-between items-center bg-primary-50 dark:bg-primary-900/20 p-4 rounded-xl mt-2">
-              <span className="font-bold text-primary-700 dark:text-primary-400">Required Deposit</span>
+              <span className="font-bold text-primary-700 dark:text-primary-400">Estimated Deposit</span>
               <span className="text-xl font-extrabold text-primary-700 dark:text-primary-400">GHS {depositAmount}</span>
             </div>
             </div>
