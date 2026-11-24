@@ -23,7 +23,7 @@ const AcceptableUse = () => {
           Acceptable Use Policy (AUP)
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400">
-          Last Updated & Effective: November 14, 2026 | Compliant with Paystack Merchant Guidelines & Bank of Ghana Standards
+          Last Updated & Effective: November 24, 2026 | Operating under Ghana Commercial and Consumer Protection Laws
         </p>
       </div>
 
@@ -34,7 +34,7 @@ const AcceptableUse = () => {
           Zero Tolerance for Illegal & Deceptive Activities
         </h3>
         <p className="text-sm text-secondary-700 dark:text-secondary-300 leading-relaxed">
-          Shop Viotor Ventures enforces a strict Acceptable Use Policy to maintain a secure, ethical, and trustworthy marketplace in Ghana. This policy governs all buyers, merchants, service providers, and barter traders. Any attempt to use our platform or payment systems for prohibited goods, counterfeit trade, money laundering, or fraudulent activities will result in immediate termination, funds forfeiture, and referral to law enforcement.
+          Shop Viotor Ventures enforces a strict Acceptable Use Policy to maintain a secure, ethical, and trustworthy marketplace in Ghana. This policy governs all buyers, merchants, service providers, and barter traders. Any attempt to use our platform or payment systems for prohibited goods, counterfeit trade, money laundering, or fraudulent activities will result in immediate termination and referral to law enforcement.
         </p>
       </div>
 
@@ -72,7 +72,7 @@ const AcceptableUse = () => {
                 <li>Counterfeit, knock-off, replica, or bootleg trademarked goods.</li>
                 <li>Hacked software, cracked licenses, IPTV illicit streams, and card skimmers.</li>
                 <li>Adult, pornographic, or sexually explicit content.</li>
-                <li>Unregistered lotteries, betting schemes, or unlicensed loan services.</li>
+                <li>Unregistered lotteries, betting schemes, or unlicensed financial services.</li>
                 <li>Fake government credentials, counterfeit currency, or forged documentation.</li>
               </ul>
             </div>
@@ -87,7 +87,7 @@ const AcceptableUse = () => {
           <p>Merchants selling products or services on Shop Viotor agree to:</p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Truth in Advertising:</strong> Provide accurate specifications, genuine product photographs, and clear disclosure of item condition (Brand New, Open Box, Refurbished, or Pre-Owned).</li>
-            <li><strong>Mandatory KYC Verification:</strong> Provide a valid National ID (Ghana Card) and registered commercial business verification prior to receiving payouts from their wallet balance.</li>
+            <li><strong>Accurate Payment Information:</strong> Provide accurate, verified Mobile Money recipient details in their store setup to receive payments directly from customers.</li>
             <li><strong>Prompt Dispatch:</strong> Prepare and hand over orders to verified logistics couriers within 48 hours of order placement.</li>
             <li><strong>Authenticity Guarantee:</strong> Vendors bear sole legal liability for intellectual property violations and counterfeit claims.</li>
           </ul>
@@ -102,26 +102,26 @@ const AcceptableUse = () => {
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Payment & Chargeback Fraud:</strong> Using stolen cards, unapproved Mobile Money accounts, or initiating dishonest chargeback claims for delivered and verified goods.</li>
             <li><strong>Barter Integrity Violations:</strong> Sending misrepresented, defective, or empty packages in peer-to-peer barter exchanges.</li>
-            <li><strong>Hire Purchase Defaulting:</strong> Evading scheduled repayments, selling, or pawning hire purchase items before full legal ownership is acquired.</li>
+            <li><strong>Contractual Default:</strong> Defaulting on agreed commitments or attempting to pawn items under separate hire purchase agreements before acquiring full legal ownership.</li>
           </ul>
         </section>
 
-        {/* Section 4 - Platform Wallet & Financial Compliance (Crucial for Paystack/BoG) */}
+        {/* Section 4 - Marketplace Financial Disclosure */}
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
-            4. Internal Wallet & Ledger Policy (Regulatory Notice)
+            4. Marketplace Architecture & Non-Banking Disclosure
           </h2>
           <div className="p-4 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900 space-y-2 text-xs">
             <span className="font-bold text-secondary-900 dark:text-white text-xs block flex items-center gap-1.5">
-              <Wallet className="w-4 h-4 text-primary-500" /> Non-Banking Regulatory Disclosure
+              <Wallet className="w-4 h-4 text-primary-500" /> Commercial Marketplace Disclosure
             </span>
             <p className="text-secondary-600 dark:text-secondary-400 leading-relaxed">
-              Shop Viotor operates an internal sales ledger to track merchant earnings from verified physical retail transactions. Shop Viotor is <strong>not a deposit-taking bank or remittance service</strong> under the Banks and Specialised Deposit-Taking Institutions Act, 2016 (Act 930) of Ghana.
+              Shop Viotor is an online marketplace platform and is <strong>not a bank, deposit-taking institution, payment service provider, or money remittance entity</strong> under the laws of Ghana. 
             </p>
             <ul className="list-disc pl-5 space-y-1 text-secondary-600 dark:text-secondary-400">
-              <li><strong>No Peer-to-Peer Transfers:</strong> Users cannot transfer internal balances between accounts.</li>
-              <li><strong>No External Top-Ups:</strong> Internal balances cannot be loaded with external deposits; they are earned exclusively through successful verified sales.</li>
-              <li><strong>Direct Merchant Withdrawal:</strong> Funds in a vendor's balance can only be withdrawn directly to the merchant's verified Ghanaian Mobile Money wallet or bank account.</li>
+              <li><strong>Direct Vendor Payments:</strong> Customers purchasing from third-party merchants pay vendors directly to the vendor&apos;s own Mobile Money account. Shop Viotor does not collect, hold, or escrow customer funds on behalf of vendors.</li>
+              <li><strong>Online Checkout:</strong> Standard online purchases processed via the platform checkout are handled directly by Paystack, paid in full at the time of purchase.</li>
+              <li><strong>No Custodial Wallets:</strong> Shop Viotor does not hold customer deposits or operate peer-to-peer money transfers.</li>
             </ul>
           </div>
         </section>
@@ -137,8 +137,8 @@ const AcceptableUse = () => {
           <ul className="list-disc pl-5 space-y-1.5">
             <li>Immediate removal and delisting of non-compliant product listings.</li>
             <li>Permanent suspension or banning of user and merchant accounts.</li>
-            <li>Freezing of escrow settlements linked to fraudulent or contested transactions.</li>
-            <li>Mandatory referral of counterfeiters and fraudsters to the Ghana Police Service (CID), the Cyber Security Authority (CSA), and payment networks.</li>
+            <li>Cancellation of unfulfilled orders associated with fraudulent activities.</li>
+            <li>Mandatory referral of counterfeiters and fraudsters to the Ghana Police Service (CID), the Cyber Security Authority (CSA), and relevant authorities.</li>
           </ul>
         </section>
 

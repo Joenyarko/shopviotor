@@ -24,7 +24,7 @@ const Delivery = () => {
           Shipping & Delivery Policy
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400">
-          Last Updated & Effective: November 14, 2026 | Nationwide Coverage Across All 16 Regions of Ghana
+          Last Updated & Effective: November 24, 2026 | Nationwide Coverage Across All 16 Regions of Ghana
         </p>
       </div>
 
@@ -35,7 +35,7 @@ const Delivery = () => {
           Reliable Doorstep & Hub Delivery Across Ghana
         </h3>
         <p className="text-sm text-secondary-700 dark:text-secondary-300 leading-relaxed">
-          Shop Viotor partners with reputable dispatch riders and licensed nationwide parcel services to guarantee safe, timely, and trackable delivery. Every order is covered by our <strong>Escrow Protection</strong>, ensuring your funds are held safely until your package arrives safely at your doorstep or chosen pickup point.
+          Shop Viotor coordinates with reputable dispatch riders and licensed nationwide parcel services to guarantee safe, timely, and trackable delivery. Our customer support team actively assists buyers and merchants with tracking and order fulfillment.
         </p>
       </div>
 
@@ -73,7 +73,7 @@ const Delivery = () => {
             2. Estimated Delivery Timeframes
           </h2>
           <p>
-            Delivery time starts from the moment your payment is cleared and the vendor packages the order:
+            Delivery time starts from the moment your payment is cleared and the package is handed over to the courier:
           </p>
 
           <div className="border border-secondary-200 dark:border-secondary-800 rounded-xl overflow-hidden pt-1">
@@ -111,7 +111,7 @@ const Delivery = () => {
           </div>
 
           <p className="text-xs text-secondary-500 italic mt-1">
-            *Note: For <strong>Layaway Plans</strong>, items are dispatched only after 100% of installment payments have been completed. For <strong>Hire Purchase</strong>, items are dispatched upon successful KYC verification and deposit clearance.
+            *Note: Layaway and Hire Purchase arrangements are separate offline agreements with Shop Viotor Ventures; items are dispatched strictly according to the terms of those specific agreements.
           </p>
         </section>
 
@@ -135,7 +135,7 @@ const Delivery = () => {
                 <MapPin className="w-4 h-4 text-primary-500" /> Official Shop Viotor Pickup Hubs
               </span>
               <p className="text-xs text-secondary-600 dark:text-secondary-400">
-                Collect orders at your convenience from our Accra Central / ATU Campus Commercial Hub with zero or reduced delivery charges upon presenting your Order Reference and valid ID.
+                Collect orders at your convenience from our Accra Central / ATU Campus Commercial Hub upon presenting your Order Reference and valid ID.
               </p>
             </div>
           </div>
@@ -147,7 +147,7 @@ const Delivery = () => {
             4. Shipping Fees & Transparent Pricing
           </h2>
           <p>
-            Shipping fees are calculated automatically during checkout based on product weight, physical dimensions, and delivery distance. All shipping charges are displayed clearly in Ghanaian Cedis (<strong>GHS</strong>) before you proceed to payment via Paystack. There are no hidden fees or surprise delivery surcharges upon arrival.
+            Shipping fees are calculated during checkout based on product weight, physical dimensions, and delivery distance. All shipping charges are displayed clearly in Ghanaian Cedis (<strong>GHS</strong>) before you proceed to payment. There are no hidden fees or surprise delivery surcharges upon arrival.
           </p>
         </section>
 
@@ -157,12 +157,12 @@ const Delivery = () => {
             5. Package Inspection Upon Delivery
           </h2>
           <p>
-            To protect your purchase under our <strong>Escrow Guarantee</strong>, please follow these guidelines when receiving your package:
+            To protect your purchase and ensure eligibility for return or dispute resolution, please follow these guidelines when receiving your package:
           </p>
           <ul className="list-disc pl-5 space-y-1.5">
             <li>Check the external packaging for signs of severe damage, tearing, or tampering before accepting.</li>
             <li>Verify that the product model, color, and included accessories match your order confirmation.</li>
-            <li>If the package arrives visibly damaged, reject delivery or document the condition with clear photos and contact Shop Viotor Support within <strong>48 hours</strong>.</li>
+            <li>If the package arrives visibly damaged, document the condition with clear photos and contact Shop Viotor Support within <strong>48 hours</strong>.</li>
           </ul>
         </section>
 
@@ -177,7 +177,7 @@ const Delivery = () => {
           <ul className="list-disc pl-5 space-y-1.5">
             <li>The rider will attempt up to two (2) phone calls to your registered number.</li>
             <li>The courier will hold the item at the local regional hub for up to three (3) business days to arrange a re-delivery.</li>
-            <li>If the recipient remains unreachable after three attempts, the package will be returned to the vendor and refunded minus the standard courier cost.</li>
+            <li>If the recipient remains unreachable after repeated attempts, the package will be returned to the sender.</li>
           </ul>
         </section>
 

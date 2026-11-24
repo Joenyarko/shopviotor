@@ -25,7 +25,7 @@ const Terms = () => {
           Terms of Service
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400">
-          Last Updated & Effective: November 14, 2026 | Operating under the laws of the Republic of Ghana
+          Last Updated & Effective: November 24, 2026 | Operating under the laws of the Republic of Ghana
         </p>
       </div>
 
@@ -36,7 +36,7 @@ const Terms = () => {
           Key Commercial Summary
         </h3>
         <p className="text-sm text-secondary-700 dark:text-secondary-300 leading-relaxed">
-          Shop Viotor Ventures is a business registered under the laws of the Republic of Ghana. We operate a multi-service marketplace connecting verified buyers, merchants, and service providers. All financial transactions on our platform are processed through PCI-DSS Level 1 compliant infrastructure (including <strong>Paystack</strong> and accredited Mobile Money networks) with built-in buyer escrow protection.
+          Shop Viotor Ventures is a registered business under the laws of the Republic of Ghana. We operate a multi-vendor digital marketplace connecting buyers, independent merchants, and service providers. Online card and mobile money payments at checkout are processed by <strong>Paystack</strong>. For vendor sales, customers pay vendors directly to the vendor&apos;s own Mobile Money account; Shop Viotor does not collect, hold, or release customer funds on behalf of vendors.
         </p>
       </div>
 
@@ -49,10 +49,10 @@ const Terms = () => {
             1. Acceptance of Terms & Eligibility
           </h2>
           <p>
-            By accessing, browsing, registering for an account, or transacting on the Shop Viotor website (<span className="text-secondary-900 dark:text-white font-semibold">www.shopviotor.com</span>) and its associated API endpoints, you expressly acknowledge and agree to be bound by these Terms of Service, our Privacy Policy, Shipping & Delivery Policy, and Returns & Refund Policy.
+            By accessing, browsing, registering for an account, or transacting on the Shop Viotor website (<span className="text-secondary-900 dark:text-white font-semibold">www.shopviotor.com</span>) and its associated platform services, you expressly acknowledge and agree to be bound by these Terms of Service, our Privacy Policy, Shipping & Delivery Policy, and Returns & Refund Policy.
           </p>
           <p>
-            You must be at least <strong>18 years of age</strong> or possess the consent of a legal parent/guardian to use our services and make binding financial commitments. By creating an account, you represent and warrant that all information you provide is true, accurate, current, and complete.
+            You must be at least <strong>18 years of age</strong> or possess the consent of a legal parent/guardian to use our services and make binding commercial transactions. By creating an account, you represent and warrant that all information you provide is true, accurate, current, and complete.
           </p>
         </section>
 
@@ -62,60 +62,60 @@ const Terms = () => {
             2. Scope of Services & Marketplace Architecture
           </h2>
           <p>
-            Shop Viotor serves as an integrated digital commerce platform providing:
+            Shop Viotor serves as an integrated digital commerce marketplace providing:
           </p>
           <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Direct Retail & Vendor Storefronts:</strong> Verified third-party vendors and Shop Viotor direct inventories offer consumer electronics, gadgets, appliances, fashion, and home goods for direct online sale.</li>
-            <li><strong>Layaway Purchase Plans:</strong> A structured savings model enabling buyers to reserve products and complete payments in periodic installments before physical dispatch.</li>
-            <li><strong>Hire Purchase Solutions:</strong> A credit financing service where eligible customers (including students and working professionals verified via KYC) receive goods upon deposit and complete scheduled monthly repayments.</li>
-            <li><strong>Peer-to-Peer Barter Swaps:</strong> A platform for users to propose, negotiate, and execute physical item trades with escrow verification.</li>
-            <li><strong>Community Raffles & Service Profiles:</strong> Regulated promotional drawings and a professional directory for certified technical service providers.</li>
+            <li><strong>Direct Retail & Vendor Storefronts:</strong> An online marketplace where independent vendors and Shop Viotor showcase consumer electronics, appliances, gadgets, fashion, and home goods for direct sale. Customers pay vendors directly via Mobile Money.</li>
+            <li><strong>Layaway Purchase Arrangements:</strong> A separate arrangement agreed directly between the customer and Shop Viotor Ventures outside of the online checkout, not processed through Paystack, where products are reserved and released upon receipt of full payment.</li>
+            <li><strong>Hire Purchase Arrangements:</strong> A separate offline arrangement agreed directly between eligible verified customers and Shop Viotor Ventures outside of the online checkout, not processed through Paystack, governed by a dedicated written agreement.</li>
+            <li><strong>Peer-to-Peer Barter Swaps:</strong> A direct negotiation platform enabling users to arrange item exchanges without Shop Viotor taking custody of goods or holding payments.</li>
+            <li><strong>Service Directory:</strong> A professional directory connecting customers with local technical and trade service providers.</li>
           </ul>
         </section>
 
         {/* Section 3 */}
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
-            3. Payments, Escrow & Payment Processor Compliance
+            3. Payments & Payment Processor Compliance
           </h2>
           <p>
-            Shop Viotor supports secure electronic payments in Ghanaian Cedis (<strong>GHS</strong>) via accredited payment partner <strong>Paystack Payments Limited</strong> and certified Ghanaian telecommunication networks:
+            Shop Viotor supports transparent electronic payment options in Ghanaian Cedis (<strong>GHS</strong>):
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
-              <span className="font-bold text-secondary-900 dark:text-white block text-xs">Mobile Money</span>
-              <p className="text-xs text-secondary-500 mt-1">MTN MoMo, Telecel Cash, and AT Money instant checkout.</p>
+              <span className="font-bold text-secondary-900 dark:text-white block text-xs">Direct Mobile Money</span>
+              <p className="text-xs text-secondary-500 mt-1">Direct transfers to verified vendor MoMo numbers (MTN MoMo, Telecel Cash, AT Money).</p>
             </div>
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
-              <span className="font-bold text-secondary-900 dark:text-white block text-xs">Debit & Credit Cards</span>
-              <p className="text-xs text-secondary-500 mt-1">Visa and Mastercard payments via encrypted Paystack popup.</p>
+              <span className="font-bold text-secondary-900 dark:text-white block text-xs">Online Checkout (Paystack)</span>
+              <p className="text-xs text-secondary-500 mt-1">Debit/credit cards and Mobile Money for standard retail orders paid in full at checkout.</p>
             </div>
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
-              <span className="font-bold text-secondary-900 dark:text-white block text-xs">Escrow Security</span>
-              <p className="text-xs text-secondary-500 mt-1">Funds locked in escrow until verified buyer delivery.</p>
+              <span className="font-bold text-secondary-900 dark:text-white block text-xs">No Custodial Holding</span>
+              <p className="text-xs text-secondary-500 mt-1">Shop Viotor does not collect, hold, or escrow customer money for vendor sales.</p>
             </div>
           </div>
           <p className="pt-2">
-            <strong>Escrow Protection Mechanism:</strong> When a customer completes checkout, funds are debited from the customer's account and held in a secure settlement account. Vendor payouts are not released until the delivery of the product is confirmed by the buyer or the 48-hour post-delivery dispute window lapses without dispute.
+            <strong>Payment Processing & Direct Vendor Transfers:</strong> Online card and mobile money payments at checkout are processed by Paystack for standard retail orders paid in full. When purchasing from third-party marketplace vendors, payments are made directly by the customer to the vendor&apos;s designated Mobile Money number. Shop Viotor does not collect, hold, or release customer funds on behalf of vendors.
           </p>
           <p>
-            <strong>Payment Security Guarantee:</strong> Shop Viotor does not store or process complete debit/credit card numbers or Mobile Money PINs on our servers. All sensitive cardholder and mobile wallet authentication is handled through Paystack's PCI-DSS Level 1 compliant gateway.
+            <strong>Payment Security:</strong> Online card and mobile money payments at checkout are processed by Paystack. Shop Viotor does not store or process complete debit/credit card numbers or Mobile Money PINs on its servers.
           </p>
         </section>
 
         {/* Section 4 */}
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
-            4. Layaway & Hire Purchase Obligations
+            4. Layaway & Hire Purchase Arrangements
           </h2>
           <div className="space-y-2">
             <p><strong>A. Layaway Terms:</strong></p>
             <p>
-              When a buyer initiates a Layaway plan, the target product is reserved for the duration of the agreed schedule (typically up to 90 days). The product will only be released or dispatched once 100% of the purchase price has been received. If a customer chooses to cancel an ongoing layaway plan before completion, a refund of paid amounts will be issued minus an administrative restocking fee not exceeding 10% of the product price.
+              Layaway is not processed through the website checkout or Paystack. It is a separate arrangement agreed directly between the customer and Shop Viotor Ventures outside of the website checkout (for example via WhatsApp or in person). The item is reserved and is released only after full payment is received. Any cancellation or refund terms are handled directly according to the specific agreement established with Shop Viotor Ventures.
             </p>
-            <p><strong>B. Hire Purchase Terms:</strong></p>
+            <p className="pt-2"><strong>B. Hire Purchase Terms:</strong></p>
             <p>
-              Hire purchase requires mandatory Know Your Customer (KYC) identity verification (Ghana Card, institutional or student ID, and valid phone contact). The buyer receives immediate physical possession upon payment of the initial down deposit. Title and ownership of the goods remain with Shop Viotor Ventures until the final installment is paid in full. Defaulting on scheduled repayments gives Shop Viotor the legal right to repossess the item and pursue lawful debt recovery.
+              Hire purchase is not processed through the website or Paystack. It is a separate arrangement agreed directly between the customer and Shop Viotor Ventures outside the checkout, under a separate written agreement. It requires identity verification (Ghana Card). Physical items are handed over upon payment of the agreed deposit, while title and ownership remain with Shop Viotor Ventures until the final installment is paid in full. Defaulting on scheduled repayments gives Shop Viotor Ventures the right to repossess the item and pursue lawful recovery in accordance with the signed agreement.
             </p>
           </div>
         </section>
@@ -132,7 +132,7 @@ const Terms = () => {
             <li>List only genuine, non-counterfeit products with accurate condition grades (New, Open-Box, Refurbished, Pre-Owned).</li>
             <li>Ship orders within two (2) business days of receiving an order confirmation.</li>
             <li>Maintain inventory accuracy and honor advertised prices in Ghanaian Cedis (GHS).</li>
-            <li>Submit valid business registration or Ghana Card verification prior to requesting wallet payouts.</li>
+            <li>Provide accurate and verified Mobile Money recipient details in their store setup to receive payments directly from customers.</li>
             <li>Bear responsibility for return shipping costs if goods delivered are defective, damaged, or substantially different from the listing description.</li>
           </ul>
         </section>
@@ -143,7 +143,7 @@ const Terms = () => {
             6. Prohibited Activities & Account Termination
           </h2>
           <p>
-            Users and vendors may not engage in fraud, price gouging, money laundering, chargeback extortion, unauthorized scraping, or the sale of prohibited items (including weapons, illegal substances, stolen items, or counterfeit electronics). Shop Viotor reserves the right to immediately freeze accounts, cancel orders, withhold settlement funds, and report criminal conduct to the Ghana Police Service and cybercrime authorities.
+            Users and vendors may not engage in fraud, price gouging, money laundering, chargeback extortion, unauthorized scraping, or the sale of prohibited items (including weapons, illegal substances, stolen items, or counterfeit electronics). Shop Viotor reserves the right to immediately suspend accounts, cancel unfulfilled orders, delist violating products, and report criminal conduct to the Ghana Police Service and relevant authorities.
           </p>
         </section>
 
@@ -153,7 +153,7 @@ const Terms = () => {
             7. Limitation of Liability
           </h2>
           <p>
-            To the maximum extent permitted by Ghanaian law, Shop Viotor Ventures, its directors, and affiliates shall not be liable for any indirect, incidental, or consequential damages resulting from platform downtime, courier transit delays, or disputes between buyers and independent vendors beyond our direct escrow protection. Our maximum aggregate liability for any claim shall not exceed the actual transaction amount paid by the customer.
+            To the maximum extent permitted by Ghanaian law, Shop Viotor Ventures, its directors, and affiliates shall not be liable for any indirect, incidental, or consequential damages resulting from platform downtime, courier transit delays, or disputes between buyers and independent vendors. For vendor sales, customers pay vendors directly and Shop Viotor does not collect, hold, or release vendor funds. Our maximum aggregate liability for any direct purchase fulfilled by Shop Viotor shall not exceed the actual transaction amount paid by the customer.
           </p>
         </section>
 

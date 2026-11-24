@@ -127,7 +127,7 @@ const Privacy = () => {
           <p>We process your data strictly for legitimate operational purposes:</p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Fulfilling Orders:</strong> Processing payment checkouts, dispatching goods via verified logistics riders, and delivering confirmation notices.</li>
-            <li><strong>Escrow Mediation:</strong> Holding buyer funds safely and resolving returns, cancellations, and product disputes.</li>
+            <li><strong>Order Support & Mediation:</strong> Assisting buyers and vendors with delivery confirmation, returns, and dispute resolution.</li>
             <li><strong>Hire Purchase & Credit Management:</strong> Performing background risk assessment and managing monthly installment schedules.</li>
             <li><strong>Identity Verification & Anti-Fraud:</strong> Validating vendor payout accounts and screening out fraudulent barter proposals.</li>
             <li><strong>Customer Support:</strong> Assisting you via WhatsApp, email, or telephone regarding order tracking, refunds, and technical inquiries.</li>

@@ -332,7 +332,6 @@ const Navbar = () => {
               <Link to="/professionals" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Buy ATU</Link>
               <Link to="/barter" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Trade by Barter</Link>
               <Link to="/hire-purchase" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Hire Purchase</Link>
-              <Link to="/raffles" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Raffles</Link>
               <Link to="/layaway" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Layaway</Link>
               <Link to="/pre-orders" onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center col-span-2 py-3 bg-white hover:bg-secondary-50 text-secondary-900 rounded text-sm font-medium transition-colors shadow-sm">Pre-Orders</Link>
             </div>

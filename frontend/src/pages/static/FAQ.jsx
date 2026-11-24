@@ -3,8 +3,7 @@ import React from 'react';
 const FAQ = () => {
   const faqs = [
     { q: 'How does Barter swap work?', a: 'You submit a swap request on a product by uploading details and pictures of items you are offering to trade. The administrator values your items and gives you a cash difference quote to pay.' },
-    { q: 'What is Hire Purchase?', a: 'Hire Purchase allows you to pay a deposit on a product and take delivery, then pay off the balance in monthly installments.' },
-    { q: 'How do I claim a Raffle prize?', a: 'Once a raffle ends and a winner is picked, you will receive an email and system notification with a code. Use that code to claim your prize.' },
+    { q: 'What is Hire Purchase?', a: 'Hire Purchase allows eligible customers to pay a deposit on a product and take delivery, then pay off the balance in monthly installments under a signed written agreement with Shop Viotor Ventures.' },
   ];
 
   return (
@@ -29,11 +28,11 @@ const FAQ = () => {
 
         <details className="group bg-secondary-50 dark:bg-secondary-900/50 p-4 rounded-xl cursor-pointer">
           <summary className="font-bold text-secondary-900 dark:text-white list-none flex justify-between items-center">
-            Do you receive payments on behalf of vendors?
+            How do payments work on Shop Viotor?
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
-            Yes. To protect both buyers and sellers, Shop Viotor receives all payments and holds them in secure escrow. Funds are only released to the vendor's internal balance after the buyer has received the item and the 48-hour dispute window has closed without issue.
+            For online purchases processed at checkout, payments are completed in full via Paystack. For marketplace vendor products, customers pay directly to the vendor&apos;s own verified Mobile Money account. Shop Viotor does not collect, hold, or escrow customer funds for third-party vendor sales.
           </p>
         </details>
 

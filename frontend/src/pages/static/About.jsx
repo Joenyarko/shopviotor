@@ -1,14 +1,13 @@
 import React from 'react';
 
-import { ShoppingBag, ArrowRightLeft, CreditCard, Banknote, Ticket, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, ArrowRightLeft, CreditCard, Banknote, ShieldCheck } from 'lucide-react';
 
 const About = () => {
   const services = [
-    { icon: ShoppingBag, title: 'Direct Sales', desc: 'A traditional e-commerce marketplace where verified vendors can list new or pre-owned goods for direct purchase.' },
+    { icon: ShoppingBag, title: 'Direct Sales', desc: 'An online marketplace where verified vendors list new or pre-owned goods for direct purchase.' },
     { icon: ArrowRightLeft, title: 'Barter Swaps', desc: 'Users can list items they wish to trade and negotiate swaps directly with other users via our built-in chat system.' },
-    { icon: CreditCard, title: 'Layaway Plans', desc: 'Allowing buyers to reserve items and pay in small, manageable installments over time before taking delivery.' },
-    { icon: Banknote, title: 'Hire Purchase', desc: 'Enabling customers to acquire goods immediately while paying the balance in structured installments (subject to KYC).' },
-    { icon: Ticket, title: 'Raffles', desc: 'Exciting community events where users can purchase tickets for a chance to win high-value items.' },
+    { icon: CreditCard, title: 'Layaway Plans', desc: 'Allowing buyers to arrange product reservations and complete payments over time before taking delivery.' },
+    { icon: Banknote, title: 'Hire Purchase', desc: 'Enabling customers to acquire goods under separate direct agreements with structured repayments (subject to KYC).' },
   ];
 
   return (
@@ -23,7 +22,7 @@ const About = () => {
             Redefining <span className="text-primary-400">Commerce</span> in Ghana
           </h1>
           <p className="text-secondary-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            Shop Viotor is an enterprise-scale online classifieds and marketplace application designed specifically for direct-to-consumer trades and specialized services.
+            Shop Viotor is an enterprise-scale online marketplace application designed specifically for direct-to-consumer trades and specialized services.
           </p>
         </div>
       </div>
@@ -32,10 +31,10 @@ const About = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-2">
           <h2 className="text-3xl font-extrabold text-secondary-900 dark:text-white">Our Core Services</h2>
-          <p className="text-secondary-500 dark:text-secondary-400">Comprehensive solutions for every type of trade.</p>
+          <p className="text-secondary-500 dark:text-secondary-400">Comprehensive solutions for commerce across Ghana.</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {services.map((svc, i) => (
             <div key={i} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 hover:shadow-xl hover:border-primary-500/50 transition-all group">
               <div className="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-950/30 flex items-center justify-center text-primary-600 mb-4 group-hover:scale-110 transition-transform">
@@ -57,7 +56,7 @@ const About = () => {
           <div className="space-y-4 flex-1 text-center md:text-left">
             <h2 className="text-2xl font-bold text-secondary-900 dark:text-white">How We Operate Safely</h2>
             <p className="text-secondary-600 dark:text-secondary-400 leading-relaxed max-w-3xl">
-              Shop Viotor serves as a trusted intermediary. We process payments securely via our payment partners and hold funds in escrow until goods are delivered or services are rendered. This protects both the buyer and the vendor, ensuring a consistently safe trading environment for all Ghanaians.
+              Shop Viotor operates as a modern digital marketplace connecting buyers with verified merchants. Online payments for standard checkout are processed securely via Paystack, while vendor orders are paid directly to verified vendor Mobile Money accounts. We enforce strict merchant standards and prompt customer support to ensure a safe, reliable trading environment for all Ghanaians.
             </p>
           </div>
         </div>

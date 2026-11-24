@@ -47,7 +47,7 @@ const MainLayout = () => {
               <NavLink to="/hire-purchase" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Hire Purchase</NavLink>
               <NavLink to="/layaway" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Layaway</NavLink>
               <NavLink to="/pre-orders" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Pre-Orders</NavLink>
-              <NavLink to="/raffles" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Raffles</NavLink>
+              {/* <NavLink to="/raffles" className={({ isActive }) => isActive ? "block px-4 py-2.5 text-sm bg-primary-500/10 text-primary-400" : "block px-4 py-2.5 text-sm text-secondary-300 hover:bg-secondary-800 hover:text-white"}>Raffles</NavLink> */}
               </div>
             </div>
           </div>
