@@ -372,6 +372,24 @@ class LayawayController extends Controller
         $customerPhone = $card->user?->phone ?? $card->user?->phone_number ?? 'N/A';
         $customerCity = $card->pickup_point ?? 'N/A';
 
+        $pendingPayments = \App\Models\Payment::where('payable_type', LayawayCard::class)
+            ->where('payable_id', $card->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->get()
+            ->map(function ($p) use ($card) {
+                $boxPrice = (float) $card->box_price;
+                return [
+                    'uuid'          => $p->uuid,
+                    'reference'     => $p->reference,
+                    'amount'        => (float) $p->amount,
+                    'boxes_covered' => $boxPrice > 0 ? (int) round((float) $p->amount / $boxPrice) : 0,
+                    'method'        => $p->method?->value ?? (string) $p->method,
+                    'status'        => $p->status?->value ?? (string) $p->status,
+                    'created_at'    => $p->created_at?->toISOString(),
+                ];
+            });
+
         return response()->json([
             'data' => [
                 'uuid' => $card->uuid,
@@ -389,6 +407,7 @@ class LayawayController extends Controller
                 'completion_percentage' => $card->total_boxes > 0 ? round(($boxesChecked / $card->total_boxes) * 100, 2) : 0,
                 'status' => $card->status,
                 'is_plan_card' => !is_null($card->layaway_plan_card_id),
+                'pending_payments' => $pendingPayments,
                 'payments' => $card->payments->map(function ($payment) {
                     return [
                         'uuid' => $payment->uuid,

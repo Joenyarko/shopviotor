@@ -16,6 +16,40 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
   const [payNotes, setPayNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [confirmingPendingUuid, setConfirmingPendingUuid] = useState(null);
+
+  const handleConfirmPendingPayment = async (pending) => {
+    const res = await Swal.fire({
+      title: 'Confirm Customer MoMo Deposit?',
+      html: `
+        <div style="text-align: left; font-size: 13px; line-height: 1.6;">
+          <p><strong>Reference:</strong> <span style="font-family: monospace; color: #eab308; font-weight: 800;">${pending.reference}</span></p>
+          <p><strong>Amount:</strong> <strong style="color: #10b981;">GHS ${parseFloat(pending.amount).toFixed(2)}</strong></p>
+          <p><strong>Boxes to Tick:</strong> <strong>${pending.boxes_covered} boxes</strong></p>
+          <p style="margin-top: 8px; color: #94a3b8; font-size: 12px;">Confirming will immediately tick ${pending.boxes_covered} box(es) on this customer's card.</p>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, Confirm & Tick Boxes',
+    });
+    if (!res.isConfirmed) return;
+
+    setConfirmingPendingUuid(pending.uuid);
+    try {
+      await apiClient.post(`/admin/payments/${pending.uuid}/confirm`);
+      toast.success(`Confirmed ${pending.reference} — ${pending.boxes_covered} box(es) ticked!`);
+      if (onPaymentSuccess) onPaymentSuccess();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to confirm deposit');
+    } finally {
+      setConfirmingPendingUuid(null);
+    }
+  };
+
   // Constants
   const totalBoxes = card.total_boxes;
   const boxesChecked = card.boxes_checked;
@@ -430,6 +464,48 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
               </button>
             </form>
           </div>
+
+          {/* Pending Customer MoMo Deposits (Admin Only) */}
+          {isAdmin && card.pending_payments && card.pending_payments.length > 0 && (
+            <div className="bg-amber-950/30 rounded-xl p-6 border border-amber-500/40 shadow-lg space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-amber-400 flex items-center gap-2">
+                  <span>⏳</span> Pending Customer MoMo Deposits ({card.pending_payments.length})
+                </h3>
+              </div>
+              <p className="text-xs text-gray-400">
+                The customer generated these deposit references. Once you verify receipt on MoMo, click confirm to automatically tick their boxes.
+              </p>
+              <div className="space-y-2">
+                {card.pending_payments.map((pending) => (
+                  <div
+                    key={pending.uuid}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#1a1a1a] border border-gray-800 rounded-lg p-3"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="text-xs font-mono font-extrabold text-yellow-400 select-all">
+                        {pending.reference}
+                      </div>
+                      <div className="text-xs text-gray-300">
+                        <strong>GHS {parseFloat(pending.amount).toFixed(2)}</strong> • {pending.boxes_covered} box(es)
+                      </div>
+                      <div className="text-[11px] text-gray-500">
+                        {pending.created_at ? new Date(pending.created_at).toLocaleString() : ''}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={confirmingPendingUuid === pending.uuid}
+                      onClick={() => handleConfirmPendingPayment(pending)}
+                      className="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {confirmingPendingUuid === pending.uuid ? 'Confirming...' : `Confirm & Tick ${pending.boxes_covered} Box(es)`}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Payment History Table */}
           <div className="bg-[#1a1a1a] rounded-xl p-6 border border-gray-800 shadow-lg flex-1">

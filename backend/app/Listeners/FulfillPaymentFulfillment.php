@@ -69,9 +69,9 @@ class FulfillPaymentFulfillment
                 'uuid'           => \Illuminate\Support\Str::uuid()->toString(),
                 'amount'         => $payment->amount,
                 'boxes_covered'  => $boxesCovered,
-                'payment_method' => $payment->method->value ?? 'Paystack',
+                'payment_method' => $payment->method->value ?? 'mobile_money',
                 'reference'      => $payment->reference,
-                'notes'          => 'Online payment via PaymentService',
+                'notes'          => 'Direct MoMo deposit confirmed by admin',
                 'color_code'     => $colorCode,
             ]);
 
