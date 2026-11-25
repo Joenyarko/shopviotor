@@ -32,6 +32,7 @@ const AdminLayaway = () => {
   const [dashboard, setDashboard] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(false);
   const [confirmingDepositUuid, setConfirmingDepositUuid] = useState(null);
+  const [paymentRefSearch, setPaymentRefSearch] = useState('');
 
   const handleConfirmPendingDeposit = async (dep) => {
     const res = await Swal.fire({
@@ -898,31 +899,64 @@ const AdminLayaway = () => {
         )}
 
         {/* PAYMENTS TAB (Dedicated Layaway Deposit Confirmations) */}
-        {activeTab === 'payments' && (
+        {activeTab === 'payments' && (() => {
+          const allPending = dashboard?.pending_deposits || [];
+          const q = paymentRefSearch.trim().toLowerCase();
+          const filteredPending = q
+            ? allPending.filter((dep) =>
+                (dep.reference || '').toLowerCase().includes(q) ||
+                (dep.customer_name || '').toLowerCase().includes(q) ||
+                (dep.customer_phone || '').toLowerCase().includes(q) ||
+                (dep.product_name || '').toLowerCase().includes(q)
+              )
+            : allPending;
+
+          return (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Layaway Payments & Confirmations</h1>
                 <p className="text-sm text-gray-500 mt-1">
                   Verify customer Mobile Money deposit references and confirm to automatically tick boxes on their card.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={loadDashboard}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors"
-              >
-                <RefreshCw className={`w-4 h-4 ${loadingDashboard ? 'animate-spin' : ''}`} /> Refresh
-              </button>
+              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                <form
+                  onSubmit={(e) => { e.preventDefault(); }}
+                  className="flex gap-2 flex-1 md:flex-initial"
+                >
+                  <input
+                    type="text"
+                    value={paymentRefSearch}
+                    onChange={(e) => setPaymentRefSearch(e.target.value)}
+                    placeholder="Search reference (e.g. LAY-...)"
+                    className="bg-white border border-gray-300 text-gray-900 px-4 py-2 rounded-lg focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 text-sm w-full md:w-64"
+                  />
+                  <button
+                    type="submit"
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg flex items-center gap-1.5 text-sm font-bold transition-colors"
+                    title="Search payment references"
+                  >
+                    <Search className="w-4 h-4" /> Search
+                  </button>
+                </form>
+                <button
+                  type="button"
+                  onClick={loadDashboard}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loadingDashboard ? 'animate-spin' : ''}`} /> Refresh
+                </button>
+              </div>
             </div>
 
             {loadingDashboard ? (
               <div className="flex justify-center py-16"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
-            ) : dashboard?.pending_deposits && dashboard.pending_deposits.length > 0 ? (
+            ) : filteredPending.length > 0 ? (
               <div className="bg-amber-50 border border-amber-300 rounded-2xl p-6 shadow-sm space-y-4">
                 <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-amber-600" />
-                  Pending Customer MoMo Deposits ({dashboard.pending_deposits.length})
+                  Pending Customer MoMo Deposits ({filteredPending.length})
                 </h2>
                 <div className="overflow-x-auto bg-white rounded-xl border border-amber-200">
                   <table className="w-full text-left text-sm">
@@ -937,7 +971,7 @@ const AdminLayaway = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                      {dashboard.pending_deposits.map((dep) => (
+                      {filteredPending.map((dep) => (
                         <tr key={dep.uuid} className="hover:bg-amber-50/40">
                           <td className="p-3 font-mono font-extrabold text-amber-700 select-all">{dep.reference}</td>
                           <td className="p-3">
@@ -982,12 +1016,17 @@ const AdminLayaway = () => {
             ) : (
               <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center space-y-2">
                 <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto" />
-                <p className="text-base font-bold text-gray-900">No Pending Layaway Deposits</p>
-                <p className="text-sm text-gray-500">When a customer initiates a Mobile Money deposit on their layaway card, their reference will appear here for confirmation.</p>
+                <p className="text-base font-bold text-gray-900">
+                  {q ? `No pending deposits matching "${paymentRefSearch}"` : 'No Pending Layaway Deposits'}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {q ? 'Try clearing your search or check a different reference code.' : 'When a customer initiates a Mobile Money deposit on their layaway card, their reference will appear here for confirmation.'}
+                </p>
               </div>
             )}
           </div>
-        )}
+          );
+        })()}
 
         {/* LOCATIONS TAB */}
         {activeTab === 'locations' && (
