@@ -34,7 +34,7 @@ class HirePurchaseService
 
             $deposit          = $data['deposit_amount'];
             $durationMonths   = $data['duration_months'];
-            $interestRate     = 5; // 5% on actual product price
+            $interestRate     = 5; // 5% per month on actual product price
             $maxDuration      = $product->hp_max_duration_months ?? 12;
 
             if ($durationMonths > $maxDuration) {
@@ -49,7 +49,7 @@ class HirePurchaseService
                 ]);
             }
 
-            $totalInterest       = $product->price * ($interestRate / 100);
+            $totalInterest       = $product->price * ($interestRate / 100) * $durationMonths;
             $totalAmount         = $product->price + $totalInterest;
             $balanceAfterDeposit = max(0, $totalAmount - $deposit);
             $monthlyInstallment  = $balanceAfterDeposit / $durationMonths;

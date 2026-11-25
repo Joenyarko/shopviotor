@@ -212,15 +212,16 @@ const HirePurchase = () => {
       });
   }, [hpProducts, selectedCategory, searchQuery, sortBy]);
 
-  // Active target product dynamic calculations (5% on actual product price)
+  // Active target product dynamic calculations (5% per month on actual product price)
   const targetProduct = selectedProduct;
-  const hpInterestRate = 5;
+  const hpInterestRate = 5; // 5% per month
   const hpMinDepositPercent = 0;
   const hpMaxDuration = targetProduct?.hp_max_duration_months ? parseInt(targetProduct.hp_max_duration_months) : 12;
 
   const productPrice = targetProduct ? parseFloat(targetProduct.price) : 0;
   const minDeposit = 0;
-  const installmentCharge = productPrice * (hpInterestRate / 100);
+  const totalInterestPercent = hpInterestRate * duration;
+  const installmentCharge = productPrice * (hpInterestRate / 100) * duration;
   const totalFinanced = productPrice + installmentCharge;
   const balanceRemaining = Math.max(0, totalFinanced - deposit);
 
@@ -519,7 +520,7 @@ const HirePurchase = () => {
               const minDepPct = product.hp_min_deposit_percent ? parseFloat(product.hp_min_deposit_percent) : 20;
               const minDepAmount = price * (minDepPct / 100);
               const maxDur = product.hp_max_duration_months ? parseInt(product.hp_max_duration_months) : 12;
-              const estTotal = price + (price * 0.05);
+              const estTotal = price + (price * 0.05 * maxDur);
               const estMonthly = maxDur > 0 ? Math.max(0, estTotal - minDepAmount) / maxDur : 0;
 
               return (
@@ -1233,7 +1234,7 @@ const HirePurchase = () => {
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {productPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Interest ({hpInterestRate}%)</span>
+                <span className="text-secondary-500 dark:text-secondary-400">Interest ({hpInterestRate}%/mo × {duration} mo = {totalInterestPercent}%)</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">+ GHS {installmentCharge.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
