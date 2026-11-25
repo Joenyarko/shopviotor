@@ -24,7 +24,7 @@ const Privacy = () => {
           Privacy Policy
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400">
-          Last Updated & Effective: November 14, 2026 | Compliant with Ghana Data Protection Act, 2012 (Act 843)
+          Last Updated & Effective: November 25, 2026 | Compliant with Ghana Data Protection Act, 2012 (Act 843)
         </p>
       </div>
 
@@ -35,7 +35,7 @@ const Privacy = () => {
           Our Privacy & Payment Security Commitment
         </h3>
         <p className="text-sm text-secondary-700 dark:text-secondary-300 leading-relaxed">
-          At Shop Viotor Ventures, we consider the privacy and security of your personal and financial information paramount. We adhere strictly to the <strong>Data Protection Act, 2012 (Act 843) of the Republic of Ghana</strong>. We do <strong>not</strong> store or have access to your complete debit/credit card numbers or Mobile Money PINs; all digital payments are handled through PCI-DSS Level 1 certified payment processor <strong>Paystack</strong>.
+          At Shop Viotor Ventures, we consider the privacy and security of your personal and financial information paramount. We adhere strictly to the <strong>Data Protection Act, 2012 (Act 843) of the Republic of Ghana</strong>. We do <strong>not</strong> store or have access to your complete debit/credit card numbers or Mobile Money PINs. Once activated, online card and mobile money payments for standard retail checkout orders paid in full are processed by <strong>Paystack</strong>.
         </p>
       </div>
 
@@ -102,19 +102,19 @@ const Privacy = () => {
         {/* Section 3 - Payment Card Privacy */}
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
-            3. Financial & Payment Card Data Security (Paystack PCI-DSS)
+            3. Online Checkout Payment Security
           </h2>
           <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 space-y-2">
             <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300 font-bold text-sm">
               <Lock className="w-4 h-4" /> Zero Cardholder Data Retention
             </div>
             <p className="text-xs text-secondary-700 dark:text-secondary-300 leading-relaxed">
-              When you pay using your Visa, Mastercard, or Mobile Money (MTN, Telecel, AT), your financial details are entered directly into an encrypted interface managed by our payment processor, <strong>Paystack Payments Limited</strong>. Paystack is certified to <strong>PCI-DSS Level 1</strong>, the highest regulatory security standard in the global payments industry.
+              Once activated, online card and mobile money payments for standard retail orders paid in full at checkout are processed by <strong>Paystack</strong>. For third-party marketplace vendor purchases, customers pay directly to the vendor&apos;s own Mobile Money number; Shop Viotor does not collect or hold vendor funds.
             </p>
             <ul className="list-disc pl-5 text-xs text-secondary-600 dark:text-secondary-400 space-y-1">
               <li>Shop Viotor <strong>never</strong> receives, views, or records your complete card PAN, CVV, or Mobile Money PIN.</li>
-              <li>Transactions are protected using end-to-end 256-bit TLS encryption.</li>
-              <li>Shop Viotor receives only an encrypted reference code and confirmation of payment success.</li>
+              <li>Checkout communications are protected using TLS encryption.</li>
+              <li>For online checkout orders, Shop Viotor receives only a transaction reference and payment confirmation status.</li>
             </ul>
           </div>
         </section>
@@ -126,10 +126,10 @@ const Privacy = () => {
           </h2>
           <p>We process your data strictly for legitimate operational purposes:</p>
           <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Fulfilling Orders:</strong> Processing payment checkouts, dispatching goods via verified logistics riders, and delivering confirmation notices.</li>
+            <li><strong>Fulfilling Orders:</strong> Processing standard online checkouts, dispatching goods via logistics riders, and delivering confirmation notices.</li>
             <li><strong>Order Support & Mediation:</strong> Assisting buyers and vendors with delivery confirmation, returns, and dispute resolution.</li>
-            <li><strong>Hire Purchase & Credit Management:</strong> Performing background risk assessment and managing monthly installment schedules.</li>
-            <li><strong>Identity Verification & Anti-Fraud:</strong> Validating vendor payout accounts and screening out fraudulent barter proposals.</li>
+            <li><strong>Separate Offline Arrangements:</strong> Verifying identity for separate Hire Purchase or Layaway arrangements agreed directly with Shop Viotor Ventures outside online checkout.</li>
+            <li><strong>Identity Verification & Anti-Fraud:</strong> Verifying vendor identities before listing approval and screening out fraudulent barter proposals.</li>
             <li><strong>Customer Support:</strong> Assisting you via WhatsApp, email, or telephone regarding order tracking, refunds, and technical inquiries.</li>
           </ul>
         </section>
@@ -144,7 +144,7 @@ const Privacy = () => {
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Logistics & Courier Partners:</strong> Only your name, shipping address, and telephone number are disclosed to courier riders to ensure accurate doorstep delivery.</li>
-            <li><strong>Payment Gateways (Paystack):</strong> Transmitting transaction amounts, currency, and customer email for encrypted payment clearing.</li>
+            <li><strong>Online Checkout Payment Processor (Paystack):</strong> Once activated, transmitting transaction amounts, currency, and customer email strictly for standard online checkout orders paid in full.</li>
             <li><strong>Law Enforcement & Regulatory Authorities:</strong> Only when compelled by court orders, lawful subpoenas, or under Ghana anti-money laundering investigations.</li>
           </ul>
         </section>

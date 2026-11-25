@@ -37,6 +37,7 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/sitemap\.xml$/, /^\/robots\.txt$/],
         skipWaiting: true,
         clientsClaim: true,
+        cleanupOutdatedCaches: true,
       }
     })
   ],

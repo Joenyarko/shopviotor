@@ -34,7 +34,7 @@ class HirePurchaseService
 
             $deposit          = $data['deposit_amount'];
             $durationMonths   = $data['duration_months'];
-            $interestRate     = 5; // 5% on remaining balance after deposit
+            $interestRate     = 0; // 0% interest — cash price split into installments directly with Shop Viotor Ventures
             $maxDuration      = $product->hp_max_duration_months ?? 12;
 
             if ($durationMonths > $maxDuration) {
@@ -50,9 +50,9 @@ class HirePurchaseService
             }
 
             $baseRemaining       = max(0, $product->price - $deposit);
-            $totalInterest       = $baseRemaining * ($interestRate / 100);
-            $balanceAfterDeposit = $baseRemaining + $totalInterest;
-            $totalAmount         = $deposit + $balanceAfterDeposit;
+            $totalInterest       = 0;
+            $balanceAfterDeposit = $baseRemaining;
+            $totalAmount         = $product->price;
             $monthlyInstallment  = $balanceAfterDeposit / $durationMonths;
             $nextDueDate         = now()->addMonth();
 

@@ -25,7 +25,7 @@ const Terms = () => {
           Terms of Service
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400">
-          Last Updated & Effective: November 24, 2026 | Operating under the laws of the Republic of Ghana
+          Last Updated & Effective: November 25, 2026 | Operating under the laws of the Republic of Ghana
         </p>
       </div>
 
@@ -36,7 +36,7 @@ const Terms = () => {
           Key Commercial Summary
         </h3>
         <p className="text-sm text-secondary-700 dark:text-secondary-300 leading-relaxed">
-          Shop Viotor Ventures is a registered business under the laws of the Republic of Ghana. We operate a multi-vendor digital marketplace connecting buyers, independent merchants, and service providers. Online card and mobile money payments at checkout are processed by <strong>Paystack</strong>. For vendor sales, customers pay vendors directly to the vendor&apos;s own Mobile Money account; Shop Viotor does not collect, hold, or release customer funds on behalf of vendors.
+          Shop Viotor Ventures is a registered business under the laws of the Republic of Ghana. We operate a multi-vendor digital marketplace connecting buyers, independent merchants, and service providers. Once activated, online card and mobile money payments at checkout for standard retail orders paid in full are processed by <strong>Paystack</strong>. For vendor sales, customers pay vendors directly to the vendor&apos;s own Mobile Money number; Shop Viotor does not collect, hold, or release customer funds on behalf of vendors.
         </p>
       </div>
 
@@ -65,9 +65,9 @@ const Terms = () => {
             Shop Viotor serves as an integrated digital commerce marketplace providing:
           </p>
           <ul className="list-disc pl-5 space-y-2">
-            <li><strong>Direct Retail & Vendor Storefronts:</strong> An online marketplace where independent vendors and Shop Viotor showcase consumer electronics, appliances, gadgets, fashion, and home goods for direct sale. Customers pay vendors directly via Mobile Money.</li>
-            <li><strong>Layaway Purchase Arrangements:</strong> A separate arrangement agreed directly between the customer and Shop Viotor Ventures outside of the online checkout, not processed through Paystack, where products are reserved and released upon receipt of full payment.</li>
-            <li><strong>Hire Purchase Arrangements:</strong> A separate offline arrangement agreed directly between eligible verified customers and Shop Viotor Ventures outside of the online checkout, not processed through Paystack, governed by a separate agreement.</li>
+            <li><strong>Direct Retail & Vendor Storefronts:</strong> An online marketplace where independent vendors and Shop Viotor showcase consumer electronics, appliances, gadgets, fashion, and home goods for direct sale. Customers pay third-party vendors directly to the vendor&apos;s own Mobile Money number.</li>
+            <li><strong>Layaway Reservations:</strong> A separate reservation arrangement agreed directly between the customer and Shop Viotor Ventures outside the online checkout and outside Paystack, paid directly by Mobile Money, where the item is released only after full payment is confirmed.</li>
+            <li><strong>Hire Purchase Arrangements:</strong> A separate offline arrangement agreed directly between eligible verified customers and Shop Viotor Ventures at the cash price (0% interest), outside the online checkout and not processed through Paystack, governed by a separate agreement.</li>
             <li><strong>Peer-to-Peer Barter Swaps:</strong> A direct negotiation platform enabling users to arrange item exchanges without Shop Viotor taking custody of goods or holding payments.</li>
             <li><strong>Service Directory:</strong> A professional directory connecting customers with local technical and trade service providers.</li>
           </ul>
@@ -76,7 +76,7 @@ const Terms = () => {
         {/* Section 3 */}
         <section className="space-y-3">
           <h2 className="text-xl font-bold text-secondary-900 dark:text-white flex items-center gap-2">
-            3. Payments & Payment Processor Compliance
+            3. Payments & Payment Processing
           </h2>
           <p>
             Shop Viotor supports transparent electronic payment options in Ghanaian Cedis (<strong>GHS</strong>):
@@ -88,18 +88,18 @@ const Terms = () => {
             </div>
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
               <span className="font-bold text-secondary-900 dark:text-white block text-xs">Online Checkout (Paystack)</span>
-              <p className="text-xs text-secondary-500 mt-1">Debit/credit cards and Mobile Money for standard retail orders paid in full at checkout.</p>
+              <p className="text-xs text-secondary-500 mt-1">Once activated, debit/credit cards and Mobile Money for standard retail orders paid in full at checkout.</p>
             </div>
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
-              <span className="font-bold text-secondary-900 dark:text-white block text-xs">No Custodial Holding</span>
-              <p className="text-xs text-secondary-500 mt-1">Shop Viotor does not collect, hold, or escrow customer money for vendor sales.</p>
+              <span className="font-bold text-secondary-900 dark:text-white block text-xs">No Holding of Customer Funds</span>
+              <p className="text-xs text-secondary-500 mt-1">Shop Viotor does not collect, hold, or release customer money for third-party vendor sales.</p>
             </div>
           </div>
           <p className="pt-2">
-            <strong>Payment Processing & Direct Vendor Transfers:</strong> Online card and mobile money payments at checkout are processed by Paystack for standard retail orders paid in full. When purchasing from third-party marketplace vendors, payments are made directly by the customer to the vendor&apos;s designated Mobile Money number. Shop Viotor does not collect, hold, or release customer funds on behalf of vendors.
+            <strong>Payment Processing & Direct Vendor Transfers:</strong> Paystack applies only to standard online checkout of regular retail orders paid in full, once activated. When purchasing from third-party marketplace vendors, payments are made directly by the customer to the vendor&apos;s own Mobile Money number. Shop Viotor does not collect, hold, or release customer funds on behalf of vendors.
           </p>
           <p>
-            <strong>Payment Security:</strong> Online card and mobile money payments at checkout are processed by Paystack. Shop Viotor does not store or process complete debit/credit card numbers or Mobile Money PINs on its servers.
+            <strong>Payment Security:</strong> Once activated, online card and mobile money payments at checkout are processed by Paystack. Shop Viotor does not store or process complete debit/credit card numbers or Mobile Money PINs on its servers.
           </p>
         </section>
 
@@ -111,11 +111,11 @@ const Terms = () => {
           <div className="space-y-2">
             <p><strong>A. Layaway Terms:</strong></p>
             <p>
-              Layaway is not processed through the website checkout or Paystack. It is a separate arrangement agreed directly between the customer and Shop Viotor Ventures outside of the website checkout (for example via WhatsApp or in person). The item is reserved and is released only after full payment is received. Any cancellation or refund terms are handled directly according to the specific agreement established with Shop Viotor Ventures.
+              Layaway is a product reservation arrangement agreed directly between the customer and Shop Viotor Ventures outside the online checkout and outside Paystack. Payments are made directly by Mobile Money using the customer&apos;s reference and are recorded only after admin confirmation. The item is released only after full payment is received. Cancellation and refund terms are governed strictly by the separate agreement agreed upon with Shop Viotor Ventures.
             </p>
             <p className="pt-2"><strong>B. Hire Purchase Terms:</strong></p>
             <p>
-              Hire purchase is not processed through the website checkout or Paystack. It is a separate arrangement agreed directly between the customer and Shop Viotor Ventures outside the checkout, under a separate agreement. Installment payments are made directly via Mobile Money and recorded only after admin confirmation. It requires identity verification (Ghana Card). Physical items are handed over upon payment of the agreed deposit, while title and ownership remain with Shop Viotor Ventures until the final installment is paid in full. Defaulting on scheduled repayments gives Shop Viotor Ventures the right to repossess the item and pursue lawful recovery in accordance with that separate agreement.
+              Hire purchase is a separate agreement arranged directly between the customer and Shop Viotor Ventures at the standard cash price (0% interest), outside the website checkout and not processed through Paystack. Payments are made directly via Mobile Money and recorded only after admin confirmation. Eligibility requires identity verification (Ghana Card). Ownership transfers to the customer upon completion of full payment in accordance with that separate agreement.
             </p>
           </div>
         </section>
