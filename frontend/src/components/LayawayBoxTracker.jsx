@@ -246,19 +246,19 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
   };
 
   return (
-    <div className="bg-[#111111] text-gray-200 min-h-screen p-4 md:p-8 font-sans">
+    <div className="bg-[#111111] text-gray-200 min-h-screen p-4 md:p-8 font-sans overflow-x-hidden">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3">
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-[#111111] px-4 py-2 rounded transition-colors"
+            className="flex items-center gap-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-[#111111] px-3 py-2 rounded text-sm transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to Management
+            <ArrowLeft className="w-4 h-4" /> Back
           </button>
-          <h1 className="text-2xl md:text-3xl font-bold text-yellow-500 flex items-center gap-2">
-            <Package className="w-8 h-8" /> Box Payment Tracking
+          <h1 className="text-xl md:text-3xl font-bold text-yellow-500 flex items-center gap-2">
+            <Package className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" /> Box Payment Tracking
           </h1>
         </div>
         {isAdmin && (
@@ -308,13 +308,13 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
             </div>
           </div>
           <div className="mt-6 flex justify-end">
-             <div className="flex items-center gap-3 bg-[#262626] rounded-full pl-2 pr-6 py-1">
+             <div className="flex items-center gap-3 bg-[#262626] rounded-full pl-2 pr-4 py-1 max-w-full overflow-hidden">
                 {card.product_image ? (
-                  <img src={card.product_image} alt={card.product_name} className="w-10 h-10 rounded-full object-cover border border-gray-600" />
+                  <img src={card.product_image} alt={card.product_name} className="w-10 h-10 rounded-full object-cover border border-gray-600 flex-shrink-0" />
                 ) : (
-                  <Package className="w-10 h-10 p-2 bg-gray-700 rounded-full" />
+                  <Package className="w-10 h-10 p-2 bg-gray-700 rounded-full flex-shrink-0" />
                 )}
-                <span className="font-semibold text-white">{card.product_name}</span>
+                <span className="font-semibold text-white truncate">{card.product_name}</span>
              </div>
           </div>
         </div>
@@ -339,14 +339,14 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
            <div className="bg-[#1a1a1a] rounded-xl p-4 flex flex-col justify-center items-center border border-gray-800 shadow-lg relative overflow-hidden">
              <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
              <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider">Amount Paid</p>
-             <p className="text-2xl font-bold text-white">GHS{card.amount_paid?.toFixed(2)}</p>
+             <p className="text-lg sm:text-2xl font-bold text-white break-all text-center">GHS {card.amount_paid?.toFixed(2)}</p>
            </div>
 
            {/* Amount Remaining */}
            <div className="bg-[#1a1a1a] rounded-xl p-4 flex flex-col justify-center items-center border border-gray-800 shadow-lg relative overflow-hidden">
              <div className="absolute top-0 left-0 w-1 h-full bg-yellow-500"></div>
              <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider">Remaining</p>
-             <p className="text-2xl font-bold text-white">GHS{card.amount_remaining?.toFixed(2)}</p>
+             <p className="text-lg sm:text-2xl font-bold text-white break-all text-center">GHS {card.amount_remaining?.toFixed(2)}</p>
            </div>
         </div>
       </div>

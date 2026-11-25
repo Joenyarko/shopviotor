@@ -113,47 +113,89 @@ const MyLayaways = () => {
           </Link>
         </div>
       ) : (
-        <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xxs">
-                <th className="p-4 text-left">Product</th>
-                <th className="p-4 text-left">Boxes</th>
-                <th className="p-4 text-left">Amount Paid</th>
-                <th className="p-4 text-left">Status</th>
-                <th className="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
-              {layaways.map(l => (
-                <tr key={l.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
-                  <td className="p-4 font-semibold text-secondary-900 dark:text-white">
+        <>
+          {/* Mobile Card Layout (no horizontal scroll) */}
+          <div className="md:hidden space-y-3">
+            {layaways.map(l => (
+              <div
+                key={l.uuid}
+                className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-4 shadow-sm space-y-3"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-bold text-secondary-900 dark:text-white text-sm leading-snug">
                     {l.product_name}
-                  </td>
-                  <td className="p-4 text-secondary-900 dark:text-white">
-                    <span className="font-bold text-green-500">{l.boxes_checked}</span> / {l.total_boxes}
-                  </td>
-                  <td className="p-4 text-secondary-900 dark:text-white font-bold">
-                    GHS {l.amount_paid?.toLocaleString()}
-                  </td>
-                  <td className="p-4">
-                    <span className={`text-xxs font-bold px-2.5 py-0.5 rounded-full ${l.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-primary-100 text-primary-700'}`}>
-                      {l.status}
+                  </h3>
+                  <span className={`text-xxs font-bold px-2.5 py-0.5 rounded-full flex-shrink-0 capitalize ${l.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-primary-100 text-primary-700'}`}>
+                    {l.status}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs bg-secondary-50 dark:bg-secondary-800/50 rounded-xl p-3">
+                  <div>
+                    <span className="text-secondary-500 dark:text-secondary-400 block">Boxes Checked</span>
+                    <span className="font-bold text-secondary-900 dark:text-white text-sm">
+                      <span className="text-green-600 dark:text-green-400">{l.boxes_checked}</span> / {l.total_boxes}
                     </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button 
-                      onClick={() => handleSelectLayaway(l.uuid)} 
-                      className="px-3 py-1.5 bg-primary-50 dark:bg-primary-950/20 text-primary-600 hover:bg-primary-100 dark:hover:bg-primary-900/40 rounded-lg text-xs font-bold"
-                    >
-                      View Tracker
-                    </button>
-                  </td>
+                  </div>
+                  <div>
+                    <span className="text-secondary-500 dark:text-secondary-400 block">Amount Paid</span>
+                    <span className="font-bold text-secondary-900 dark:text-white text-sm">
+                      GHS {l.amount_paid?.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleSelectLayaway(l.uuid)}
+                  className="w-full py-2.5 bg-primary-500 hover:bg-primary-600 text-secondary-950 rounded-xl text-xs font-extrabold transition-colors"
+                >
+                  View Tracker & Make Deposit
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table Layout */}
+          <div className="hidden md:block bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xxs">
+                  <th className="p-4 text-left">Product</th>
+                  <th className="p-4 text-left">Boxes</th>
+                  <th className="p-4 text-left">Amount Paid</th>
+                  <th className="p-4 text-left">Status</th>
+                  <th className="p-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
+                {layaways.map(l => (
+                  <tr key={l.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
+                    <td className="p-4 font-semibold text-secondary-900 dark:text-white">
+                      {l.product_name}
+                    </td>
+                    <td className="p-4 text-secondary-900 dark:text-white">
+                      <span className="font-bold text-green-500">{l.boxes_checked}</span> / {l.total_boxes}
+                    </td>
+                    <td className="p-4 text-secondary-900 dark:text-white font-bold">
+                      GHS {l.amount_paid?.toLocaleString()}
+                    </td>
+                    <td className="p-4">
+                      <span className={`text-xxs font-bold px-2.5 py-0.5 rounded-full ${l.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-primary-100 text-primary-700'}`}>
+                        {l.status}
+                      </span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <button 
+                        onClick={() => handleSelectLayaway(l.uuid)} 
+                        className="px-3 py-1.5 bg-primary-50 dark:bg-primary-950/20 text-primary-600 hover:bg-primary-100 dark:hover:bg-primary-900/40 rounded-lg text-xs font-bold"
+                      >
+                        View Tracker
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );
