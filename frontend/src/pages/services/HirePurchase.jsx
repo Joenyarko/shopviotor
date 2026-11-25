@@ -212,7 +212,7 @@ const HirePurchase = () => {
       });
   }, [hpProducts, selectedCategory, searchQuery, sortBy]);
 
-  // Active target product dynamic calculations (5% on remaining balance after deposit)
+  // Active target product dynamic calculations (5% on actual product price)
   const targetProduct = selectedProduct;
   const hpInterestRate = 5;
   const hpMinDepositPercent = 0;
@@ -220,10 +220,9 @@ const HirePurchase = () => {
 
   const productPrice = targetProduct ? parseFloat(targetProduct.price) : 0;
   const minDeposit = 0;
-  const baseRemaining = Math.max(0, productPrice - deposit);
-  const installmentCharge = baseRemaining * (hpInterestRate / 100);
-  const balanceRemaining = baseRemaining + installmentCharge;
-  const totalFinanced = deposit + balanceRemaining;
+  const installmentCharge = productPrice * (hpInterestRate / 100);
+  const totalFinanced = productPrice + installmentCharge;
+  const balanceRemaining = Math.max(0, totalFinanced - deposit);
 
   const totalWeeks = duration * 4;
   const totalDays = duration * 30;
@@ -520,8 +519,8 @@ const HirePurchase = () => {
               const minDepPct = product.hp_min_deposit_percent ? parseFloat(product.hp_min_deposit_percent) : 20;
               const minDepAmount = price * (minDepPct / 100);
               const maxDur = product.hp_max_duration_months ? parseInt(product.hp_max_duration_months) : 12;
-              const estRemaining = Math.max(0, price - minDepAmount) * 1.05;
-              const estMonthly = maxDur > 0 ? estRemaining / maxDur : 0;
+              const estTotal = price + (price * 0.05);
+              const estMonthly = maxDur > 0 ? Math.max(0, estTotal - minDepAmount) / maxDur : 0;
 
               return (
                 <div
@@ -1234,16 +1233,16 @@ const HirePurchase = () => {
                 <span className="font-semibold text-secondary-900 dark:text-white">GHS {productPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Initial Down Payment ({depositPercent}%)</span>
-                <span className="font-bold text-emerald-600">- GHS {deposit.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-secondary-500 dark:text-secondary-400">Balance After Deposit</span>
-                <span className="font-semibold text-secondary-900 dark:text-white">GHS {baseRemaining.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-secondary-500 dark:text-secondary-400">Interest ({hpInterestRate}%)</span>
                 <span className="font-semibold text-secondary-900 dark:text-white">+ GHS {installmentCharge.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-secondary-500 dark:text-secondary-400">Total Price</span>
+                <span className="font-semibold text-secondary-900 dark:text-white">GHS {totalFinanced.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-secondary-500 dark:text-secondary-400">Initial Down Payment ({depositPercent}%)</span>
+                <span className="font-bold text-emerald-600">- GHS {deposit.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-secondary-500 dark:text-secondary-400">Remaining Installments</span>
