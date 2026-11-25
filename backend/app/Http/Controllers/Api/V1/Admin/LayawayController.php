@@ -67,8 +67,20 @@ class LayawayController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = User::whereHas('layawayCards')
-            ->with(['layawayCards.product:id,name', 'layawayCards.payments:id,layaway_card_id,amount,boxes_covered']);
+        $trashed = $request->boolean('trashed');
+
+        if ($trashed) {
+            $query = User::whereHas('layawayCards', function ($q) {
+                $q->onlyTrashed();
+            })->with([
+                'layawayCards' => function ($q) {
+                    $q->onlyTrashed()->with(['product:id,name', 'layawayPlanCard:id,name', 'payments:id,layaway_card_id,amount,boxes_covered']);
+                }
+            ]);
+        } else {
+            $query = User::whereHas('layawayCards')
+                ->with(['layawayCards.product:id,name', 'layawayCards.layawayPlanCard:id,name', 'layawayCards.payments:id,layaway_card_id,amount,boxes_covered']);
+        }
 
         if ($request->search) {
             $search = $request->search;
@@ -88,21 +100,23 @@ class LayawayController extends Controller
                 $boxesChecked = $card->payments->sum('boxes_covered');
                 return [
                     'uuid' => $card->uuid,
-                    'product_name' => $card->product->name ?? 'N/A',
+                    'product_name' => $card->product?->name ?? $card->layawayPlanCard?->name ?? 'Layaway Plan',
                     'total_boxes' => $card->total_boxes,
                     'boxes_checked' => (int) $boxesChecked,
                     'amount_paid' => (float) $totalPaid,
-                    'amount_remaining' => (float) (($card->total_boxes * $card->box_price) - $totalPaid),
+                    'amount_remaining' => (float) max(0, ($card->total_boxes * $card->box_price) - $totalPaid),
                     'status' => $card->status,
+                    'pickup_point' => $card->pickup_point,
+                    'deleted_at' => $card->deleted_at?->toISOString(),
                     'created_at' => $card->created_at->toISOString(),
                 ];
             });
 
             return [
                 'id' => $user->id,
-                'customer_name' => $user->full_name ?? 'N/A',
+                'customer_name' => $user->full_name ?? trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: 'N/A',
                 'customer_phone' => $user->phone ?? 'N/A',
-                'customer_city' => 'N/A',
+                'customer_city' => $cards->first()['pickup_point'] ?? 'N/A',
                 'total_layaways' => $cards->count(),
                 'layaways' => $cards
             ];
@@ -574,6 +588,26 @@ class LayawayController extends Controller
         return response()->json([
             'message' => "Successfully added {$request->boxes_to_add} extra boxes to the layaway card.",
             'total_boxes' => $card->total_boxes
+        ]);
+    }
+
+    public function destroy(string $uuid): JsonResponse
+    {
+        $card = LayawayCard::where('uuid', $uuid)->firstOrFail();
+        $card->delete();
+
+        return response()->json([
+            'message' => 'Layaway card moved to trash (soft deleted).',
+        ]);
+    }
+
+    public function restore(string $uuid): JsonResponse
+    {
+        $card = LayawayCard::onlyTrashed()->where('uuid', $uuid)->firstOrFail();
+        $card->restore();
+
+        return response()->json([
+            'message' => 'Layaway card restored successfully.',
         ]);
     }
 }

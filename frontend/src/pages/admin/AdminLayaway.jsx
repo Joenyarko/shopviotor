@@ -74,6 +74,7 @@ const AdminLayaway = () => {
   const [loadingCustomers, setLoadingCustomers] = useState(false);
   const [customerSearch, setCustomerSearch] = useState('');
   const [customerPage, setCustomerPage] = useState(1);
+  const [showTrashedCustomers, setShowTrashedCustomers] = useState(false);
 
   // Sales
   const [sales, setSales] = useState([]);
@@ -171,7 +172,7 @@ const AdminLayaway = () => {
     if (activeTab === 'cards') loadCards();
     if (activeTab === 'locations') loadLocations();
     if (activeTab === 'settings') loadTerms();
-  }, [activeTab, customerPage, salesPage, inventoryPage, cardPage, selectedCardId, inventorySort, cardSort, inventoryCategory]);
+  }, [activeTab, customerPage, showTrashedCustomers, salesPage, inventoryPage, cardPage, selectedCardId, inventorySort, cardSort, inventoryCategory]);
 
   useEffect(() => {
     productService.getCategories().then(r => setCategories(r.data?.data || r.data || [])).catch(console.error);
@@ -191,11 +192,60 @@ const AdminLayaway = () => {
   const loadCustomers = async () => {
     setLoadingCustomers(true);
     try {
-      const res = await layawayService.adminGetLayaways({ page: customerPage, search: customerSearch, per_page: 9 });
+      const res = await layawayService.adminGetLayaways({
+        page: customerPage,
+        search: customerSearch,
+        per_page: 10,
+        trashed: showTrashedCustomers ? 1 : 0,
+      });
       setCustomers(res.data || []);
       setCustomersMeta(res.meta || null);
     } catch (e) { console.error(e); }
     finally { setLoadingCustomers(false); }
+  };
+
+  const handleDeleteLayawayCard = async (uuid, productName) => {
+    const confirm = await Swal.fire({
+      title: 'Soft Delete Layaway Card?',
+      text: `Move "${productName || 'this layaway card'}" to Deleted? You can restore it later.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, Soft Delete',
+    });
+    if (!confirm.isConfirmed) return;
+    try {
+      await layawayService.adminDeleteLayaway(uuid);
+      toast.success('Layaway card moved to Deleted.');
+      setSelectedCustomerPlans(prev => prev.filter(p => p.uuid !== uuid));
+      loadCustomers();
+      loadDashboard();
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Failed to delete layaway card');
+    }
+  };
+
+  const handleRestoreLayawayCard = async (uuid, productName) => {
+    const confirm = await Swal.fire({
+      title: 'Restore Layaway Card?',
+      text: `Restore "${productName || 'this layaway card'}" back to Active?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'Yes, Restore',
+    });
+    if (!confirm.isConfirmed) return;
+    try {
+      await layawayService.adminRestoreLayaway(uuid);
+      toast.success('Layaway card restored!');
+      setSelectedCustomerPlans(prev => prev.filter(p => p.uuid !== uuid));
+      loadCustomers();
+      loadDashboard();
+    } catch (e) {
+      toast.error(e.response?.data?.message || 'Failed to restore layaway card');
+    }
   };
 
   const loadSales = async () => {
@@ -1014,7 +1064,25 @@ const AdminLayaway = () => {
         {activeTab === 'customers' && (
           <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h1 className="text-3xl font-bold text-yellow-600">Customer Management</h1>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-3xl font-bold text-yellow-600">Customer Management</h1>
+                <div className="inline-flex rounded-lg border border-gray-200 bg-gray-100 p-0.5 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => { setShowTrashedCustomers(false); setCustomerPage(1); }}
+                    className={`px-3 py-1.5 rounded-md transition-colors ${!showTrashedCustomers ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}
+                  >
+                    Active
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowTrashedCustomers(true); setCustomerPage(1); }}
+                    className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1 ${showTrashedCustomers ? 'bg-red-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-800'}`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Deleted
+                  </button>
+                </div>
+              </div>
               <div className="flex gap-3 w-full md:w-auto items-center">
                 <form onSubmit={handleCustomerSearch} className="flex gap-2 flex-1 md:flex-initial">
                   <input
@@ -1039,80 +1107,127 @@ const AdminLayaway = () => {
 
             {loadingCustomers ? (
               <div className="flex justify-center py-20"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
+            ) : customers.length === 0 ? (
+              <div className="bg-white border border-gray-200 rounded-xl p-12 text-center text-gray-500 font-medium">
+                {showTrashedCustomers ? 'No soft-deleted layaway cards found.' : 'No layaway customers found.'}
+              </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {customers.map(c => {
-                    const latestLayaway = c.layaways && c.layaways.length > 0 ? c.layaways[0] : null;
-                    const progress = latestLayaway && latestLayaway.total_boxes > 0
-                      ? ((latestLayaway.boxes_checked / latestLayaway.total_boxes) * 100).toFixed(2)
-                      : 0;
+                <div className="bg-white border border-gray-200 rounded-2xl overflow-x-auto shadow-sm">
+                  <table className="w-full min-w-[780px] text-left text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-bold tracking-wider">
+                        <th className="p-4">Customer</th>
+                        <th className="p-4">Plan / Product</th>
+                        <th className="p-4">Progress</th>
+                        <th className="p-4">Paid / Balance</th>
+                        <th className="p-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {customers.map(c => {
+                        const latestLayaway = c.layaways && c.layaways.length > 0 ? c.layaways[0] : null;
+                        const progress = latestLayaway && latestLayaway.total_boxes > 0
+                          ? ((latestLayaway.boxes_checked / latestLayaway.total_boxes) * 100).toFixed(1)
+                          : 0;
 
-                    return (
-                      <div key={c.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <div className="p-5 flex-1">
-                          <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-xl font-bold text-gray-900 truncate">{c.customer_name}</h3>
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 border border-gray-200 text-xs font-bold rounded capitalize">
-                              {c.total_layaways} Plan(s)
-                            </span>
-                          </div>
-
-                          <div className="space-y-2 text-sm text-gray-600 mb-6">
-                            <p className="flex items-center gap-2">
-                              <span className="text-yellow-500">📞</span> {c.customer_phone || 'N/A'}
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <span className="text-pink-500">📍</span> {c.customer_city || 'N/A'}
-                            </p>
-                            <p className="flex items-center gap-2">
-                              <Package className="w-4 h-4 text-blue-500" /> {c.total_layaways === 1 ? latestLayaway?.product_name : 'Multiple Products'}
-                            </p>
-                          </div>
-
-                          {c.total_layaways === 1 && latestLayaway && (
-                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                              <div className="flex justify-between text-xs font-medium text-gray-600 mb-2">
-                                <span>Progress: {latestLayaway.boxes_checked}/{latestLayaway.total_boxes} boxes</span>
-                                <span>{progress}%</span>
+                        return (
+                          <tr key={c.id} className="hover:bg-gray-50/70 transition-colors">
+                            <td className="p-4">
+                              <div className="font-bold text-gray-900">{c.customer_name}</div>
+                              <div className="text-xs text-gray-500">{c.customer_phone || 'N/A'} {c.customer_city && c.customer_city !== 'N/A' ? `• ${c.customer_city}` : ''}</div>
+                            </td>
+                            <td className="p-4">
+                              {c.total_layaways === 1 ? (
+                                <span className="font-medium text-gray-800">{latestLayaway?.product_name || 'Layaway Plan'}</span>
+                              ) : (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">
+                                  {c.total_layaways} Plans
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-4">
+                              {c.total_layaways === 1 && latestLayaway ? (
+                                <div className="w-40 space-y-1">
+                                  <div className="flex justify-between text-xs text-gray-600 font-semibold">
+                                    <span>{latestLayaway.boxes_checked}/{latestLayaway.total_boxes} boxes</span>
+                                    <span>{progress}%</span>
+                                  </div>
+                                  <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                    <div className="bg-yellow-500 h-2 rounded-full" style={{ width: `${progress}%` }} />
+                                  </div>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-500 italic">Multiple plans</span>
+                              )}
+                            </td>
+                            <td className="p-4">
+                              {c.total_layaways === 1 && latestLayaway ? (
+                                <div className="text-xs space-y-0.5">
+                                  <div className="font-bold text-emerald-700">Paid: GHS {latestLayaway.amount_paid.toFixed(2)}</div>
+                                  <div className="text-gray-500">Bal: GHS {latestLayaway.amount_remaining.toFixed(2)}</div>
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-500">—</span>
+                              )}
+                            </td>
+                            <td className="p-4 text-right">
+                              <div className="inline-flex items-center gap-2">
+                                {!showTrashedCustomers && (
+                                  <button
+                                    onClick={() => handleSelectCustomer(c)}
+                                    className="px-3 py-1.5 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold rounded-lg transition-colors"
+                                  >
+                                    {c.total_layaways > 1 ? `View ${c.total_layaways} Plans` : 'View / Edit'}
+                                  </button>
+                                )}
+                                {showTrashedCustomers && c.total_layaways > 1 && (
+                                  <button
+                                    onClick={() => handleSelectCustomer(c)}
+                                    className="px-3 py-1.5 bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold rounded-lg transition-colors"
+                                  >
+                                    Select ({c.total_layaways})
+                                  </button>
+                                )}
+                                {c.total_layaways === 1 && latestLayaway && !showTrashedCustomers && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteLayawayCard(latestLayaway.uuid, latestLayaway.product_name)}
+                                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors"
+                                    title="Soft Delete Card"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                )}
+                                {c.total_layaways === 1 && latestLayaway && showTrashedCustomers && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRestoreLayawayCard(latestLayaway.uuid, latestLayaway.product_name)}
+                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors"
+                                  >
+                                    <RotateCcw className="w-3.5 h-3.5" /> Restore
+                                  </button>
+                                )}
                               </div>
-                              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden mb-4">
-                                <div
-                                  className="bg-gradient-to-r from-yellow-500 to-yellow-400 h-3 rounded-full"
-                                  style={{ width: `${progress}%` }}
-                                ></div>
-                              </div>
-                              <div className="flex justify-between text-xs font-bold">
-                                <span className="text-yellow-600">Paid: GHS{latestLayaway.amount_paid.toFixed(2)}</span>
-                                <span className="text-gray-500">Bal: GHS{latestLayaway.amount_remaining.toFixed(2)}</span>
-                              </div>
-                            </div>
-                          )}
-                          {c.total_layaways > 1 && (
-                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex justify-center items-center h-28">
-                              <p className="text-gray-500 text-sm font-medium">Click to select plan</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-4 bg-gray-50 border-t border-gray-200">
-                          <button
-                            onClick={() => handleSelectCustomer(c)}
-                            className="w-full py-2 bg-white hover:bg-yellow-500 hover:text-white text-gray-800 font-bold rounded-lg transition-colors border border-gray-300 hover:border-yellow-500 shadow-sm"
-                          >
-                            {c.total_layaways > 1 ? `View ${c.total_layaways} Plans` : 'View / Edit Plan'}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
 
                 {/* Pagination */}
-                <DotPagination
-                  currentPage={customerPage}
-                  totalPages={customersMeta?.last_page || 1}
-                  onPageChange={setCustomerPage}
-                />
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                  <p className="text-xs text-gray-500 font-medium">
+                    Page {customerPage} of {customersMeta?.last_page || 1} ({customersMeta?.total || customers.length} customer{((customersMeta?.total || customers.length) === 1) ? '' : 's'})
+                  </p>
+                  <DotPagination
+                    currentPage={customerPage}
+                    totalPages={customersMeta?.last_page || 1}
+                    onPageChange={setCustomerPage}
+                  />
+                </div>
               </>
             )}
           </div>
@@ -1528,15 +1643,37 @@ const AdminLayaway = () => {
                         <span className="text-xs font-bold text-gray-600 bg-gray-200 px-2 py-1 rounded">Bal: GHS{plan.amount_remaining.toFixed(2)}</span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => {
-                        setCustomerModalOpen(false);
-                        handleSelectLayaway(plan.uuid);
-                      }}
-                      className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg transition-colors whitespace-nowrap w-full sm:w-auto"
-                    >
-                      View Tracker
-                    </button>
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      {!plan.deleted_at ? (
+                        <>
+                          <button
+                            onClick={() => {
+                              setCustomerModalOpen(false);
+                              handleSelectLayaway(plan.uuid);
+                            }}
+                            className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg transition-colors whitespace-nowrap flex-1 sm:flex-initial"
+                          >
+                            View Tracker
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteLayawayCard(plan.uuid, plan.product_name)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg border border-red-200 transition-colors"
+                            title="Soft Delete Card"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleRestoreLayawayCard(plan.uuid, plan.product_name)}
+                          className="inline-flex items-center gap-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-colors whitespace-nowrap w-full sm:w-auto justify-center"
+                        >
+                          <RotateCcw className="w-4 h-4" /> Restore
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })}

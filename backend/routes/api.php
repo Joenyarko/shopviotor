@@ -317,6 +317,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/layaways', [AdminLayawayController::class, 'index']);
             Route::post('/layaways', [AdminLayawayController::class, 'store']);
             Route::get('/layaways/{uuid}', [AdminLayawayController::class, 'show']);
+            Route::delete('/layaways/{uuid}', [AdminLayawayController::class, 'destroy']);
+            Route::post('/layaways/{uuid}/restore', [AdminLayawayController::class, 'restore']);
             Route::post('/layaways/{uuid}/payments', [AdminLayawayController::class, 'storePayment']);
             Route::post('/layaways/{uuid}/payments/{payment}/reverse', [AdminLayawayController::class, 'reversePayment']);
             Route::post('/layaways/{uuid}/add-boxes', [AdminLayawayController::class, 'addBoxes']);

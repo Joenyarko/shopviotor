@@ -3,12 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 use App\Traits\LogsActivity;
 
 class LayawayCard extends Model
 {
-    use LogsActivity;
+    use LogsActivity, SoftDeletes;
     protected $fillable = [
         'uuid', 'user_id', 'product_id', 'layaway_plan_card_id', 'total_boxes', 'box_price', 'status', 'pickup_point'
     ];
