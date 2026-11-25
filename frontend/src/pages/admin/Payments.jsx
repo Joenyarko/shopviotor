@@ -43,14 +43,22 @@ const Payments = () => {
     fetchPayments();
   }, []);
 
-  const handleConfirmManual = async (uuid) => {
-    const __confirmResult = await Swal.fire({ title: 'Are you sure?', text: 'Confirm manual receipt of bank transfer?', icon: 'warning', showCancelButton: true });
+  const handleConfirmManual = async (p) => {
+    const __confirmResult = await Swal.fire({
+      title: 'Confirm Payment Received?',
+      text: `Confirm manual receipt of GHS ${parseFloat(p.amount || 0).toFixed(2)} (Ref: ${p.reference})? Any linked order or layaway card boxes will be updated automatically.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      confirmButtonText: 'Yes, Confirm Paid',
+    });
     if (!__confirmResult.isConfirmed) return;
     try {
-      await adminService.post(`/admin/payments/${uuid}/confirm`);
+      await adminService.post(`/admin/payments/${p.uuid}/confirm`);
+      Swal.fire({ icon: 'success', title: 'Confirmed!', text: `Payment ${p.reference} marked as completed.`, timer: 2000, showConfirmButton: false });
       fetchPayments();
     } catch (e) {
-      Swal.fire({ text: String(e.message || 'Verification failed.') });
+      Swal.fire('Error', e.response?.data?.message || e.message || 'Verification failed.', 'error');
     }
   };
 
@@ -148,13 +156,13 @@ const Payments = () => {
                   </td>
                   <td className="p-4 text-secondary-500 dark:text-secondary-400">{p.paid_at ? new Date(p.paid_at).toLocaleString() : 'Pending'}</td>
                   <td className="p-4 text-right">
-                    {p.method === 'bank_transfer' && p.status === 'pending' && (
+                    {p.status === 'pending' && (
                       <button
-                        onClick={() => handleConfirmManual(p.uuid)}
-                        className="p-1 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 rounded-lg"
-                        title="Confirm Bank Payment Received"
+                        onClick={() => handleConfirmManual(p)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-sm"
+                        title="Confirm Payment Received"
                       >
-                        <CheckCircle className="w-5 h-5" />
+                        <CheckCircle className="w-4 h-4" /> Confirm
                       </button>
                     )}
                   </td>

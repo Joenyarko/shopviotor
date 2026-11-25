@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import layawayService from '../../services/layawayService';
 import productService from '../../services/productService';
+import apiClient from '../../api/client';
 import Swal from 'sweetalert2';
 import { Package, RefreshCw, LayoutDashboard, Users, CreditCard, Box, Settings, Search, CheckCircle, AlertTriangle, ArrowLeft, History, Eye, X, Filter, Calendar, RotateCcw, Plus, Edit, Trash2, Upload, MapPin } from 'lucide-react';
 import LayawayBoxTracker from '../../components/LayawayBoxTracker';
@@ -30,6 +31,42 @@ const AdminLayaway = () => {
   // Dashboard
   const [dashboard, setDashboard] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(false);
+  const [confirmingDepositUuid, setConfirmingDepositUuid] = useState(null);
+
+  const handleConfirmPendingDeposit = async (dep) => {
+    const res = await Swal.fire({
+      title: 'Confirm Layaway MoMo Deposit?',
+      html: `
+        <div style="text-align: left; font-size: 13px; line-height: 1.6;">
+          <p><strong>Customer:</strong> ${dep.customer_name} (${dep.customer_phone})</p>
+          <p><strong>Card / Product:</strong> ${dep.product_name}</p>
+          <p><strong>Reference:</strong> <span style="font-family: monospace; color: #b45309; font-weight: 800;">${dep.reference}</span></p>
+          <p><strong>Amount:</strong> <strong style="color: #059669;">GHS ${parseFloat(dep.amount).toFixed(2)}</strong></p>
+          <p><strong>Boxes to Tick:</strong> <strong>${dep.boxes_covered} box(es)</strong></p>
+          <p style="margin-top: 8px; color: #64748b; font-size: 12px;">Confirming will immediately tick ${dep.boxes_covered} box(es) on both the admin card and the customer's storefront card.</p>
+        </div>
+      `,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: `Yes, Confirm & Tick ${dep.boxes_covered} Box(es)`,
+    });
+    if (!res.isConfirmed) return;
+
+    setConfirmingDepositUuid(dep.uuid);
+    try {
+      await apiClient.post(`/admin/payments/${dep.uuid}/confirm`);
+      toast.success(`Confirmed ${dep.reference} — ${dep.boxes_covered} box(es) ticked!`);
+      loadDashboard();
+      if (customers.length > 0) loadCustomers();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to confirm deposit');
+    } finally {
+      setConfirmingDepositUuid(null);
+    }
+  };
 
   // Customers (Plans)
   const [customers, setCustomers] = useState([]);
@@ -732,6 +769,74 @@ const AdminLayaway = () => {
                 </div>
               </div>
             ) : null}
+
+            {/* Pending Customer MoMo Deposits (Direct Confirmation) */}
+            {dashboard?.pending_deposits && dashboard.pending_deposits.length > 0 && (
+              <div className="bg-amber-50 border border-amber-300 rounded-2xl p-6 shadow-sm space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-amber-600" />
+                      Pending Customer MoMo Deposits ({dashboard.pending_deposits.length})
+                    </h2>
+                    <p className="text-xs text-amber-800 mt-0.5">
+                      Customers generated these deposit references on the storefront. Once you receive the MoMo transfer, click Confirm to automatically tick their boxes.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto bg-white rounded-xl border border-amber-200">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-amber-100/70 text-xs uppercase text-amber-900 font-bold border-b border-amber-200">
+                      <tr>
+                        <th className="p-3">Reference</th>
+                        <th className="p-3">Customer</th>
+                        <th className="p-3">Card / Product</th>
+                        <th className="p-3">Amount & Boxes</th>
+                        <th className="p-3 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {dashboard.pending_deposits.map((dep) => (
+                        <tr key={dep.uuid} className="hover:bg-amber-50/40">
+                          <td className="p-3 font-mono font-extrabold text-amber-700 select-all">{dep.reference}</td>
+                          <td className="p-3">
+                            <div className="font-semibold text-gray-900">{dep.customer_name}</div>
+                            <div className="text-xs text-gray-500">{dep.customer_phone}</div>
+                          </td>
+                          <td className="p-3 text-gray-700 font-medium">{dep.product_name}</td>
+                          <td className="p-3">
+                            <div className="font-bold text-gray-900">GHS {parseFloat(dep.amount).toFixed(2)}</div>
+                            <div className="text-xs text-emerald-700 font-semibold">{dep.boxes_covered} box(es)</div>
+                          </td>
+                          <td className="p-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {dep.card_uuid && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelectLayaway(dep.card_uuid)}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors"
+                                >
+                                  View Card
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                disabled={confirmingDepositUuid === dep.uuid}
+                                onClick={() => handleConfirmPendingDeposit(dep)}
+                                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors disabled:opacity-50"
+                              >
+                                {confirmingDepositUuid === dep.uuid ? 'Confirming...' : `Confirm & Tick ${dep.boxes_covered} Box(es)`}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

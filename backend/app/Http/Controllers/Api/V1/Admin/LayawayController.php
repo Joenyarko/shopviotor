@@ -25,13 +25,42 @@ class LayawayController extends Controller
                 $q->where('created_at', '>=', now()->subDays(30));
             })->count();
 
+        $pendingDeposits = \App\Models\Payment::where('payable_type', LayawayCard::class)
+            ->where('status', 'pending')
+            ->with(['user', 'payable.product:id,name', 'payable.layawayPlanCard:id,name'])
+            ->latest()
+            ->get()
+            ->map(function ($p) {
+                $card = $p->payable;
+                $boxPrice = $card ? (float) $card->box_price : 0;
+                $customerName = 'Customer';
+                if ($p->user) {
+                    $customerName = trim(($p->user->first_name ?? '') . ' ' . ($p->user->last_name ?? ''));
+                    if (empty($customerName)) {
+                        $customerName = $p->user->name ?? $p->user->email ?? 'Customer';
+                    }
+                }
+                return [
+                    'uuid'          => $p->uuid,
+                    'reference'     => $p->reference,
+                    'amount'        => (float) $p->amount,
+                    'boxes_covered' => $boxPrice > 0 ? (int) round((float) $p->amount / $boxPrice) : 0,
+                    'customer_name' => $customerName,
+                    'customer_phone'=> $p->user?->phone ?? 'N/A',
+                    'card_uuid'     => $card?->uuid,
+                    'product_name'  => $card?->product?->name ?? $card?->layawayPlanCard?->name ?? 'Layaway Plan',
+                    'created_at'    => $p->created_at?->toISOString(),
+                ];
+            });
+
         return response()->json([
             'data' => [
                 'total_revenue' => (float) $totalRevenue,
                 'total_customers' => $totalCustomers,
                 'active_plans' => $activePlans,
                 'completed_plans' => $completedPlans,
-                'defaulting_plans' => $defaultingPlans
+                'defaulting_plans' => $defaultingPlans,
+                'pending_deposits' => $pendingDeposits,
             ]
         ]);
     }
