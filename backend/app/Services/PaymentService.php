@@ -129,28 +129,45 @@ class PaymentService
 
     public function adminConfirm(Payment $payment, int $adminId): Payment
     {
-        // SECURITY: Idempotency guard
-        if ($payment->status === 'completed') {
+        // SECURITY: Idempotency guard (handles both PaymentStatus enum and raw string)
+        $currentStatus = $payment->status instanceof \BackedEnum ? $payment->status->value : (string) $payment->status;
+        if ($currentStatus === 'completed') {
             return $payment->fresh();
         }
 
-        $payment->update([
-            'status'         => 'completed',
-            'paid_at'        => now(),
-            'gateway_status' => 'manually_confirmed',
-        ]);
+        DB::transaction(function () use ($payment, $adminId) {
+            $payment->update([
+                'status'         => \App\Enums\PaymentStatus::Completed,
+                'paid_at'        => now(),
+                'gateway_status' => 'manually_confirmed',
+            ]);
 
-        // Audit trail using Spatie Activity Log (already installed)
-        activity('payment')
-            ->performedOn($payment)
-            ->withProperties([
-                'admin_id'     => $adminId,
-                'confirmed_at' => now()->toISOString(),
-                'action'       => 'manual_admin_confirmation',
-            ])
-            ->log('Admin manually confirmed payment');
+            // Fulfill synchronously (ticks layaway boxes, confirms order, etc.)
+            app(\App\Listeners\FulfillPaymentFulfillment::class)->handle(new PaymentReceived($payment));
+        });
 
-        event(new PaymentReceived($payment));
+        // Audit trail (non-fatal if activity_log table is not migrated)
+        try {
+            if (function_exists('activity')) {
+                activity('payment')
+                    ->performedOn($payment)
+                    ->withProperties([
+                        'admin_id'     => $adminId,
+                        'confirmed_at' => now()->toISOString(),
+                        'action'       => 'manual_admin_confirmation',
+                    ])
+                    ->log('Admin manually confirmed payment');
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Payment audit log skipped: ' . $e->getMessage());
+        }
+
+        // Send receipt email (non-fatal if mail/queue is not configured)
+        try {
+            app(\App\Listeners\SendPaymentReceipt::class)->handle(new PaymentReceived($payment->fresh()));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Payment receipt email skipped: ' . $e->getMessage());
+        }
 
         return $payment->fresh();
     }

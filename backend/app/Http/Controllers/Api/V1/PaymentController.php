@@ -149,13 +149,24 @@ class PaymentController extends Controller
 
     public function adminConfirm(Request $request, string $uuid): JsonResponse
     {
-        $payment = \App\Models\Payment::where('uuid', $uuid)->firstOrFail();
-        $payment = $this->paymentService->adminConfirm($payment, $request->user()->id);
+        try {
+            $payment = \App\Models\Payment::where('uuid', $uuid)->firstOrFail();
+            $payment = $this->paymentService->adminConfirm($payment, $request->user()->id);
 
-        return response()->json([
-            'message' => 'Payment marked as completed.',
-            'data'    => new PaymentResource($payment),
-        ]);
+            return response()->json([
+                'message' => 'Payment marked as completed.',
+                'data'    => new PaymentResource($payment),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Admin payment confirmation failed: ' . $e->getMessage(), [
+                'uuid'  => $uuid,
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'message' => 'Failed to confirm payment: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function clearTestPayments(): JsonResponse

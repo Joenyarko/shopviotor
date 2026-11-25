@@ -164,7 +164,7 @@ const AdminLayaway = () => {
   useEffect(() => {
     if (selectedCardId) return; // Don't load tabs if in detail view
 
-    if (activeTab === 'dashboard') loadDashboard();
+    if (activeTab === 'dashboard' || activeTab === 'payments') loadDashboard();
     if (activeTab === 'customers') loadCustomers();
     if (activeTab === 'sales') loadSales();
     if (activeTab === 'inventory') loadInventory();
@@ -175,6 +175,7 @@ const AdminLayaway = () => {
 
   useEffect(() => {
     productService.getCategories().then(r => setCategories(r.data?.data || r.data || [])).catch(console.error);
+    loadDashboard();
   }, []);
 
   // Loaders
@@ -696,6 +697,7 @@ const AdminLayaway = () => {
     { id: 'cards', label: 'Cards', icon: <CreditCard className="w-5 h-5" /> },
     { id: 'locations', label: 'Locations', icon: <MapPin className="w-5 h-5" /> },
     { id: 'customers', label: 'Customers', icon: <Users className="w-5 h-5" /> },
+    { id: 'payments', label: 'Payments', icon: <CheckCircle className="w-5 h-5" />, badge: dashboard?.pending_deposits?.length || 0 },
     { id: 'sales', label: 'Sales', icon: <CreditCard className="w-5 h-5" /> },
     { id: 'settings', label: 'Settings', icon: <Settings className="w-5 h-5" /> },
   ];
@@ -722,6 +724,11 @@ const AdminLayaway = () => {
                   }`}
               >
                 {item.icon} {item.label}
+                {item.badge > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 text-[10px] font-extrabold rounded-full bg-red-600 text-white">
+                    {item.badge}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -835,6 +842,98 @@ const AdminLayaway = () => {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* PAYMENTS TAB (Dedicated Layaway Deposit Confirmations) */}
+        {activeTab === 'payments' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Layaway Payments & Confirmations</h1>
+                <p className="text-sm text-gray-500 mt-1">
+                  Verify customer Mobile Money deposit references and confirm to automatically tick boxes on their card.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={loadDashboard}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors"
+              >
+                <RefreshCw className={`w-4 h-4 ${loadingDashboard ? 'animate-spin' : ''}`} /> Refresh
+              </button>
+            </div>
+
+            {loadingDashboard ? (
+              <div className="flex justify-center py-16"><RefreshCw className="w-8 h-8 text-yellow-500 animate-spin" /></div>
+            ) : dashboard?.pending_deposits && dashboard.pending_deposits.length > 0 ? (
+              <div className="bg-amber-50 border border-amber-300 rounded-2xl p-6 shadow-sm space-y-4">
+                <h2 className="text-lg font-bold text-amber-900 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  Pending Customer MoMo Deposits ({dashboard.pending_deposits.length})
+                </h2>
+                <div className="overflow-x-auto bg-white rounded-xl border border-amber-200">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-amber-100/70 text-xs uppercase text-amber-900 font-bold border-b border-amber-200">
+                      <tr>
+                        <th className="p-3">Reference</th>
+                        <th className="p-3">Customer</th>
+                        <th className="p-3">Card / Product</th>
+                        <th className="p-3">Amount & Boxes</th>
+                        <th className="p-3">Requested At</th>
+                        <th className="p-3 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {dashboard.pending_deposits.map((dep) => (
+                        <tr key={dep.uuid} className="hover:bg-amber-50/40">
+                          <td className="p-3 font-mono font-extrabold text-amber-700 select-all">{dep.reference}</td>
+                          <td className="p-3">
+                            <div className="font-semibold text-gray-900">{dep.customer_name}</div>
+                            <div className="text-xs text-gray-500">{dep.customer_phone}</div>
+                          </td>
+                          <td className="p-3 text-gray-700 font-medium">{dep.product_name}</td>
+                          <td className="p-3">
+                            <div className="font-bold text-gray-900">GHS {parseFloat(dep.amount).toFixed(2)}</div>
+                            <div className="text-xs text-emerald-700 font-semibold">{dep.boxes_covered} box(es)</div>
+                          </td>
+                          <td className="p-3 text-xs text-gray-500">
+                            {dep.created_at ? new Date(dep.created_at).toLocaleString() : '—'}
+                          </td>
+                          <td className="p-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              {dep.card_uuid && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSelectLayaway(dep.card_uuid)}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-semibold border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors"
+                                >
+                                  View Card
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                disabled={confirmingDepositUuid === dep.uuid}
+                                onClick={() => handleConfirmPendingDeposit(dep)}
+                                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors disabled:opacity-50"
+                              >
+                                {confirmingDepositUuid === dep.uuid ? 'Confirming...' : `Confirm & Tick ${dep.boxes_covered} Box(es)`}
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center space-y-2">
+                <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto" />
+                <p className="text-base font-bold text-gray-900">No Pending Layaway Deposits</p>
+                <p className="text-sm text-gray-500">When a customer initiates a Mobile Money deposit on their layaway card, their reference will appear here for confirmation.</p>
               </div>
             )}
           </div>
