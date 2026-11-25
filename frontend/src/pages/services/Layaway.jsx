@@ -137,7 +137,7 @@ const Layaway = () => {
 
       {/* Filter Tabs */}
       <div className="flex flex-col md:flex-row items-center justify-between border-b border-secondary-200 dark:border-secondary-800 !mb-8 !mt-8 pb-4 gap-4">
-        <div className="flex space-x-6 sm:space-x-12 overflow-x-auto w-full md:w-auto hide-scrollbar">
+        <div className="flex items-center space-x-5 sm:space-x-10 overflow-x-auto w-full md:w-auto hide-scrollbar">
           <button
             onClick={() => setViewMode('all')}
             className={`pb-1 font-bold text-sm border-b-2 transition-colors whitespace-nowrap ${viewMode === 'all' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 dark:text-secondary-400 hover:text-secondary-800 dark:hover:text-white'}`}
@@ -156,6 +156,12 @@ const Layaway = () => {
           >
             Physical Products
           </button>
+          <Link
+            to="/my-layaways"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-500 hover:bg-primary-600 text-secondary-950 font-bold text-xs sm:text-sm transition-colors whitespace-nowrap shadow-sm"
+          >
+            My Plans <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
         
         <form onSubmit={handleGlobalSearch} className="flex gap-2 w-full md:w-auto">
