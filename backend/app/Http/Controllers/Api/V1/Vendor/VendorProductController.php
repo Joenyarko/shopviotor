@@ -57,7 +57,12 @@ class VendorProductController extends Controller
             'shipping_type'       => 'nullable|in:default,free,custom',
             'custom_shipping_fee' => 'nullable|numeric|min:0',
             'images'              => 'nullable|array|max:5',
-            'images.*'            => 'image|max:10240',
+            'images.*'            => 'image|mimes:jpeg,jpg,png,webp,gif|max:10240',
+        ], [
+            'images.max'      => 'You can upload up to 5 product images at a time.',
+            'images.*.image'  => 'One of the selected files is not a valid photo. Please upload JPG, PNG, or WEBP images.',
+            'images.*.mimes'  => 'Unsupported image format. Please upload JPG, PNG, WEBP, or GIF photos only (not AVIF/HEIC).',
+            'images.*.max'    => 'Each product image must be 10MB or smaller.',
         ]);
 
         // Resolve category UUID to ID
@@ -138,7 +143,12 @@ class VendorProductController extends Controller
             'shipping_type'       => 'sometimes|in:default,free,custom',
             'custom_shipping_fee' => 'nullable|numeric|min:0',
             'images'              => 'nullable|array|max:5',
-            'images.*'            => 'image|max:10240',
+            'images.*'            => 'image|mimes:jpeg,jpg,png,webp,gif|max:10240',
+        ], [
+            'images.max'      => 'You can upload up to 5 product images at a time.',
+            'images.*.image'  => 'One of the selected files is not a valid photo. Please upload JPG, PNG, or WEBP images.',
+            'images.*.mimes'  => 'Unsupported image format. Please upload JPG, PNG, WEBP, or GIF photos only (not AVIF/HEIC).',
+            'images.*.max'    => 'Each product image must be 10MB or smaller.',
         ]);
 
         $updateData = $request->only(['name', 'price', 'compare_price', 'description', 'stock_quantity', 'condition']);

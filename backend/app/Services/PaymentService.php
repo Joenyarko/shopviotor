@@ -116,7 +116,8 @@ class PaymentService
             ]);
 
             if ($result['success']) {
-                event(new PaymentReceived($payment));
+                // Fulfill synchronously inside the transaction so order status updates immediately
+                app(\App\Listeners\FulfillPaymentFulfillment::class)->handle(new PaymentReceived($payment));
             }
 
             return $payment->fresh(['payable', 'transactions']);

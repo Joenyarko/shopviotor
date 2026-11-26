@@ -216,8 +216,10 @@ const Checkout = () => {
           access_code: res.payment.access_code || res.payment.data?.access_code,
           onSuccess: async (response) => {
             try {
-              await orderService.verifyPayment(response.reference);
-            } catch {}
+              await orderService.verifyPayment(response?.reference || res.payment.reference);
+            } catch (e) {
+              console.error('Paystack verification callback error:', e);
+            }
             clearCart();
             setOrderSuccess(res.order || res.data?.order);
           },

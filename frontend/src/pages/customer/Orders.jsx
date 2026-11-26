@@ -299,41 +299,55 @@ const Orders = () => {
                 </div>
 
                 {/* Compact Payment Action Toolbar (If Unpaid) */}
-                {isUnpaid && (
-                  <div className="mt-3 pt-3 border-t border-amber-100 dark:border-amber-950/40 flex flex-wrap items-center justify-between gap-2.5">
-                    <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 font-medium">
-                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span>Action required: Complete payment to process shipment</span>
-                    </div>
+                {isUnpaid && (() => {
+                  const isDirectMomo = order.payment?.method === 'mobile_money' || order.payment?.method === 'momo';
+                  return (
+                    <div className="mt-3 pt-3 border-t border-amber-100 dark:border-amber-950/40 flex flex-wrap items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 font-medium">
+                        {isDirectMomo ? (
+                          <>
+                            <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span>Awaiting confirmation: If you&apos;ve paid via MoMo, please wait while the seller confirms your payment.</span>
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span>Action required: Complete payment to process shipment</span>
+                          </>
+                        )}
+                      </div>
 
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedMomoOrder(order)}
-                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1.5 shadow-sm transition-colors"
-                      >
-                        <Phone className="w-3.5 h-3.5" /> Pay via MoMo
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handlePayOnline(order)}
-                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-primary-500 hover:bg-primary-600 text-secondary-950 flex items-center gap-1.5 shadow-sm transition-colors"
-                        title="Pay securely with Card or Mobile Money via Paystack"
-                      >
-                        <CreditCard className="w-3.5 h-3.5" /> Pay via Paystack
-                      </button>
-                      {order.status === 'pending' && (
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => handleCancelOrder(order)}
-                          className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+                          onClick={() => setSelectedMomoOrder(order)}
+                          className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1.5 shadow-sm transition-colors"
                         >
-                          Cancel
+                          <Phone className="w-3.5 h-3.5" /> {isDirectMomo ? 'MoMo Details' : 'Pay via MoMo'}
                         </button>
-                      )}
+                        {!isDirectMomo && (
+                          <button
+                            type="button"
+                            onClick={() => handlePayOnline(order)}
+                            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-primary-500 hover:bg-primary-600 text-secondary-950 flex items-center gap-1.5 shadow-sm transition-colors"
+                            title="Pay securely with Card or Mobile Money via Paystack"
+                          >
+                            <CreditCard className="w-3.5 h-3.5" /> Pay via Paystack
+                          </button>
+                        )}
+                        {order.status === 'pending' && (
+                          <button
+                            type="button"
+                            onClick={() => handleCancelOrder(order)}
+                            className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
               </div>
             );

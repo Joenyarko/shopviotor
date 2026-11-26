@@ -92,8 +92,33 @@ const VendorProducts = () => {
   };
 
   const handleImageSelect = (e) => {
-    const files = Array.from(e.target.files);
-    const combined = [...imageFiles, ...files].slice(0, 5);
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const maxBytes = 10 * 1024 * 1024;
+    const rawFiles = Array.from(e.target.files || []);
+    const validFiles = [];
+
+    for (const file of rawFiles) {
+      if (!allowedTypes.includes((file.type || '').toLowerCase())) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Unsupported Photo Format',
+          text: `"${file.name}" is not a supported format. Please upload JPG, PNG, or WEBP images only.`,
+        });
+        continue;
+      }
+      if (file.size > maxBytes) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Image Too Large',
+          text: `"${file.name}" is larger than 10MB. Please choose a smaller photo.`,
+        });
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+    const combined = [...imageFiles, ...validFiles].slice(0, 5);
     setImageFiles(combined);
     setImagePreviews(combined.map(f => URL.createObjectURL(f)));
   };

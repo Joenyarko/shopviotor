@@ -30,10 +30,10 @@ class FulfillPaymentFulfillment
         }
 
         if ($payment->payable_type === Order::class) {
-            // Mark order as confirmed/paid via OrderService to trigger commission splits
-            $this->orderService->updateStatus($payable, 'confirmed');
+            // Mark order as processing/paid immediately so customer sees Processing & tracking bar
+            $this->orderService->updateStatus($payable, 'processing');
             $payable->update(['paid_at' => now()]);
-            Log::info("Order #{$payable->order_number} marked as confirmed via payment {$payment->reference}");
+            Log::info("Order #{$payable->order_number} marked as processing/paid via payment {$payment->reference}");
 
         } elseif ($payment->payable_type === HirePurchase::class) {
             // HP deposit confirmed — mark deposit_paid_at
