@@ -157,13 +157,13 @@ const VendorProducts = () => {
       resetForm();
       loadProducts();
     } catch (err) {
-      // Parse Laravel validation errors (422) or other messages
-      const errData = err.response?.data;
-      if (err.response?.status === 422 && errData?.errors) {
-        const firstField = Object.keys(errData.errors)[0];
-        const firstMsg = errData.errors[firstField]?.[0] || 'Validation failed.';
-        // Navigate to the relevant step
-        if (['name','price','compare_price','stock_quantity','condition','category_id','description'].includes(firstField)) {
+      // apiClient rejects with { status, message, errors, raw }
+      const status = err?.status || err?.response?.status;
+      const errors = err?.errors || err?.response?.data?.errors;
+      if (status === 422 && errors) {
+        const firstField = Object.keys(errors)[0];
+        const firstMsg = errors[firstField]?.[0] || err?.message || 'Validation failed.';
+        if (['name','price','compare_price','stock_quantity','condition','category_id','description','shipping_type','custom_shipping_fee'].includes(firstField)) {
           setActiveTab('basic');
         } else if (['available_for_layaway','layaway_boxes','available_for_hire_purchase','available_for_preorder','available_for_trade'].includes(firstField)) {
           setActiveTab('capabilities');
@@ -172,7 +172,7 @@ const VendorProducts = () => {
         }
         Swal.fire({ icon: 'warning', title: 'Please fix the following', text: firstMsg });
       } else {
-        Swal.fire({ icon: 'error', title: 'Error', text: errData?.message || 'Failed to save product. Please try again.' });
+        Swal.fire({ icon: 'error', title: 'Error', text: err?.message || err?.response?.data?.message || 'Failed to save product. Please try again.' });
       }
     } finally {
       setProcessing(false);

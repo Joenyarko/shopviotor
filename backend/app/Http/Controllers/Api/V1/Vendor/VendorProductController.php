@@ -53,11 +53,11 @@ class VendorProductController extends Controller
             'description'         => 'nullable|string',
             'stock_quantity'      => 'required|integer|min:0',
             'condition'           => 'required|in:new,used,refurbished',
-            'category_id'         => 'required|string',
+            'category_id'         => 'required',
             'shipping_type'       => 'nullable|in:default,free,custom',
             'custom_shipping_fee' => 'nullable|numeric|min:0',
             'images'              => 'nullable|array|max:5',
-            'images.*'            => 'image|max:4096',
+            'images.*'            => 'image|max:10240',
         ]);
 
         // Resolve category UUID to ID
@@ -134,11 +134,11 @@ class VendorProductController extends Controller
             'description'         => 'nullable|string',
             'stock_quantity'      => 'sometimes|integer|min:0',
             'condition'           => 'sometimes|in:new,used,refurbished',
-            'category_id'         => 'sometimes|string',
+            'category_id'         => 'sometimes',
             'shipping_type'       => 'sometimes|in:default,free,custom',
             'custom_shipping_fee' => 'nullable|numeric|min:0',
             'images'              => 'nullable|array|max:5',
-            'images.*'            => 'image|max:4096',
+            'images.*'            => 'image|max:10240',
         ]);
 
         $updateData = $request->only(['name', 'price', 'compare_price', 'description', 'stock_quantity', 'condition']);

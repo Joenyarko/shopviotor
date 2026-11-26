@@ -67,7 +67,7 @@ const VendorOrders = () => {
       Swal.fire({
         icon: 'error',
         title: 'Update Failed',
-        text: err.response?.data?.message || 'Failed to update order status.',
+        text: err?.message || err?.response?.data?.message || 'Failed to update order status.',
       });
     } finally {
       setUpdating(false);
@@ -128,7 +128,7 @@ const VendorOrders = () => {
       Swal.fire({
         icon: 'error',
         title: 'Confirmation Failed',
-        text: err.response?.data?.message || 'Could not confirm payment. Please try again.',
+        text: err?.message || err?.response?.data?.message || 'Could not confirm payment. Please try again.',
       });
     } finally {
       setLoading(false);

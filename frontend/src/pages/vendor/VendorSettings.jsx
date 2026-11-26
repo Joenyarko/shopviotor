@@ -132,7 +132,7 @@ const VendorSettings = () => {
       Swal.fire({
         icon: 'error',
         title: 'Update Failed',
-        text: err.response?.data?.message || 'Failed to save store settings.',
+        text: err?.message || err?.response?.data?.message || 'Failed to save store settings.',
       });
     } finally {
       setSaving(false);
