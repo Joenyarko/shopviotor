@@ -75,7 +75,7 @@ const VendorProducts = () => {
     setPrice(p.price || '');
     setComparePrice(p.compare_price || '');
     setDescription(p.description || '');
-    setStockQty(p.stock_quantity || '');
+    setStockQty(p.stock_quantity ?? '');
     setCondition(p.condition || 'new');
     setCategoryId(p.category_id || p.category?.id || '');
     setShippingType(p.shipping_type || 'default');

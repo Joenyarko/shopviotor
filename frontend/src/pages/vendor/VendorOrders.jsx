@@ -283,7 +283,7 @@ const VendorOrders = () => {
                       </td>
                       <td className="p-5 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          {(order.status?.value === 'pending' || order.status === 'pending' || !order.paid_at) && (
+                          {(order.status?.value !== 'cancelled' && order.status !== 'cancelled') && (order.status?.value === 'pending' || order.status === 'pending' || !order.paid_at) && (
                             <button
                               onClick={() => handleConfirmPayment(order)}
                               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition-all shadow-sm"
@@ -373,8 +373,12 @@ const VendorOrders = () => {
                   <div key={item.id} className="p-4 flex items-center justify-between gap-4 bg-white dark:bg-secondary-900">
                     <div className="flex items-center gap-3.5">
                       <div className="w-12 h-12 rounded-xl bg-secondary-100 dark:bg-secondary-800 flex items-center justify-center shrink-0 overflow-hidden">
-                        {item.product?.images?.[0]?.image_path ? (
-                          <img src={`/storage/${item.product.images[0].image_path}`} alt={item.product_name} className="w-full h-full object-cover" />
+                        {(item.product?.primary_image || item.product?.images?.[0]?.url || item.product?.images?.[0]?.image_path) ? (
+                          <img
+                            src={item.product?.primary_image || item.product?.images?.[0]?.url || `/storage/${item.product.images[0].image_path}`}
+                            alt={item.product_name}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <Package className="w-6 h-6 text-secondary-400" />
                         )}
@@ -393,7 +397,7 @@ const VendorOrders = () => {
             </div>
 
             {/* MoMo Payment Confirmation Banner */}
-            {(!selectedOrder.paid_at || selectedOrder.status === 'pending' || selectedOrder.status?.value === 'pending') && (
+            {(selectedOrder.status !== 'cancelled' && selectedOrder.status?.value !== 'cancelled') && (!selectedOrder.paid_at || selectedOrder.status === 'pending' || selectedOrder.status?.value === 'pending') && (
               <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <div className="font-bold text-sm text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">

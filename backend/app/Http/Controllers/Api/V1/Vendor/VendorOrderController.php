@@ -123,6 +123,23 @@ class VendorOrderController extends Controller
             ->whereHas('items.product', fn($q) => $q->where('store_id', $store->id))
             ->firstOrFail();
 
+        $orderStatus = $order->status instanceof \BackedEnum ? $order->status->value : (string) $order->status;
+        if ($orderStatus === 'cancelled') {
+            return response()->json(['message' => 'Cannot confirm payment for a cancelled order.'], 422);
+        }
+        if (!is_null($order->paid_at)) {
+            return response()->json(['message' => 'This order is already marked as paid.'], 422);
+        }
+
+        $hasOtherStoreItems = $order->items()
+            ->whereHas('product', fn($q) => $q->where('store_id', '!=', $store->id)->orWhereNull('store_id'))
+            ->exists();
+        if ($hasOtherStoreItems) {
+            return response()->json([
+                'message' => 'This order contains products from other stores. Please contact Shop Viotor admin to confirm payment.',
+            ], 403);
+        }
+
         $data = $request->validate([
             'transaction_id' => ['nullable', 'string', 'max:100'],
             'payment_method' => ['nullable', 'string', 'max:50'],

@@ -116,6 +116,9 @@ const VendorSettings = () => {
       });
 
       await vendorService.updateMyStore(payload);
+      setLogoFile(null);
+      setBannerFiles([]);
+      setRemovedBanners([]);
       Swal.fire({
         icon: 'success',
         title: 'Settings Saved',
@@ -157,7 +160,6 @@ const VendorSettings = () => {
     );
   }
 
-  const permissions = store.permissions || {};
   const commissionRate = store.commission_rate ?? 5;
 
   return (
@@ -361,11 +363,11 @@ const VendorSettings = () => {
                 <h3 className="text-lg font-black text-secondary-900 dark:text-white flex items-center gap-2">
                   Direct Mobile Money (MoMo) Receiving Details
                   <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300">
-                    Direct Payout
+                    {store.has_paystack_subaccount ? 'Paystack Split + MoMo' : 'Direct MoMo'}
                   </span>
                 </h3>
                 <p className="text-xs text-secondary-500 mt-0.5">
-                  Customers who purchase products from your store will transfer directly to these MoMo details during our payment gateway verification period.
+                  Customers who choose Direct Mobile Money transfer straight to these MoMo details. {store.has_paystack_subaccount ? 'Your store also has Paystack automatic split settlement active.' : 'Contact Shop Viotor admin to link a Paystack Subaccount for online card/MoMo split settlements.'}
                 </p>
               </div>
             </div>
@@ -446,36 +448,36 @@ const VendorSettings = () => {
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className={`p-4 rounded-2xl border ${permissions.allow_layaway ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
+            <div className={`p-4 rounded-2xl border ${store.can_offer_layaway ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-black uppercase tracking-wider">Layaway</span>
-                {permissions.allow_layaway ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
+                {store.can_offer_layaway ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
               </div>
-              <div className="text-sm font-bold">{permissions.allow_layaway ? 'Enabled' : 'Disabled'}</div>
+              <div className="text-sm font-bold">{store.can_offer_layaway ? 'Enabled' : 'Disabled'}</div>
             </div>
 
-            <div className={`p-4 rounded-2xl border ${permissions.allow_hire_purchase ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
+            <div className={`p-4 rounded-2xl border ${store.can_offer_hire_purchase ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-black uppercase tracking-wider">Hire Purchase</span>
-                {permissions.allow_hire_purchase ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
+                {store.can_offer_hire_purchase ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
               </div>
-              <div className="text-sm font-bold">{permissions.allow_hire_purchase ? 'Enabled' : 'Disabled'}</div>
+              <div className="text-sm font-bold">{store.can_offer_hire_purchase ? 'Enabled' : 'Disabled'}</div>
             </div>
 
-            <div className={`p-4 rounded-2xl border ${permissions.allow_barter ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
+            <div className={`p-4 rounded-2xl border ${store.can_offer_preorders ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-black uppercase tracking-wider">Barter Trade</span>
-                {permissions.allow_barter ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
+                <span className="text-xs font-black uppercase tracking-wider">Pre-Orders</span>
+                {store.can_offer_preorders ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
               </div>
-              <div className="text-sm font-bold">{permissions.allow_barter ? 'Enabled' : 'Disabled'}</div>
+              <div className="text-sm font-bold">{store.can_offer_preorders ? 'Enabled' : 'Disabled'}</div>
             </div>
 
-            <div className={`p-4 rounded-2xl border ${permissions.allow_raffles ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
+            <div className={`p-4 rounded-2xl border ${store.can_offer_trades ? 'bg-primary-500/10 border-primary-500/30 text-primary-300' : 'bg-secondary-800/40 border-secondary-800 text-secondary-500'}`}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-black uppercase tracking-wider">Raffles</span>
-                {permissions.allow_raffles ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
+                <span className="text-xs font-black uppercase tracking-wider">Trade-In / Barter</span>
+                {store.can_offer_trades ? <CheckCircle2 className="w-4 h-4 text-primary-400" /> : <Lock className="w-4 h-4" />}
               </div>
-              <div className="text-sm font-bold">{permissions.allow_raffles ? 'Enabled' : 'Disabled'}</div>
+              <div className="text-sm font-bold">{store.can_offer_trades ? 'Enabled' : 'Disabled'}</div>
             </div>
           </div>
         </div>

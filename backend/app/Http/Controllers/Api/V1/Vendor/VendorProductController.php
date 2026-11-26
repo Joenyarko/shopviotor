@@ -47,20 +47,26 @@ class VendorProductController extends Controller
         }
 
         $request->validate([
-            'name'          => 'required|string|max:255',
-            'price'         => 'required|numeric|min:0',
-            'description'   => 'nullable|string',
-            'stock_quantity' => 'required|integer|min:0',
-            'condition'     => 'required|in:new,used,refurbished',
-            'category_id'   => 'required|string',
-            'images'        => 'nullable|array|max:5',
-            'images.*'      => 'image|max:4096',
+            'name'                => 'required|string|max:255',
+            'price'               => 'required|numeric|min:0',
+            'compare_price'       => 'nullable|numeric|min:0',
+            'description'         => 'nullable|string',
+            'stock_quantity'      => 'required|integer|min:0',
+            'condition'           => 'required|in:new,used,refurbished',
+            'category_id'         => 'required|string',
+            'shipping_type'       => 'nullable|in:default,free,custom',
+            'custom_shipping_fee' => 'nullable|numeric|min:0',
+            'images'              => 'nullable|array|max:5',
+            'images.*'            => 'image|max:4096',
         ]);
 
         // Resolve category UUID to ID
         $category = Category::where('uuid', $request->category_id)
             ->orWhere('id', $request->category_id)
             ->first();
+
+        $shippingType = $request->input('shipping_type', 'default');
+        $customShippingFee = $shippingType === 'custom' ? (float) $request->input('custom_shipping_fee', 0) : null;
 
         $isLayaway = $store->can_offer_layaway && $request->boolean('available_for_layaway');
         $boxes = $isLayaway ? $request->input('layaway_total_boxes', $request->input('layaway_boxes')) : null;
@@ -81,6 +87,8 @@ class VendorProductController extends Controller
             'stock_quantity'              => $request->stock_quantity,
             'condition'                   => $request->condition,
             'category_id'                 => $category?->id,
+            'shipping_type'               => $shippingType,
+            'custom_shipping_fee'         => $customShippingFee,
             'available_for_layaway'       => $isLayaway,
             'layaway_boxes'               => $boxes ? (int)$boxes : null,
             'layaway_total_boxes'         => $boxes ? (int)$boxes : null,
@@ -111,21 +119,46 @@ class VendorProductController extends Controller
     public function update(Request $request, string $uuid): JsonResponse
     {
         $store = $this->getStore();
-        if (!$store) return response()->json(['message' => 'No active store found.'], 403);
+        if (!$store || $store->status !== 'active') {
+            return response()->json(['message' => 'Your store must be active to update products.'], 403);
+        }
 
         $product = Product::where('uuid', $uuid)
             ->where('store_id', $store->id)
             ->firstOrFail();
 
         $request->validate([
-            'name'           => 'sometimes|string|max:255',
-            'price'          => 'sometimes|numeric|min:0',
-            'description'    => 'nullable|string',
-            'stock_quantity' => 'sometimes|integer|min:0',
-            'condition'      => 'sometimes|in:new,used,refurbished',
+            'name'                => 'sometimes|string|max:255',
+            'price'               => 'sometimes|numeric|min:0',
+            'compare_price'       => 'nullable|numeric|min:0',
+            'description'         => 'nullable|string',
+            'stock_quantity'      => 'sometimes|integer|min:0',
+            'condition'           => 'sometimes|in:new,used,refurbished',
+            'category_id'         => 'sometimes|string',
+            'shipping_type'       => 'sometimes|in:default,free,custom',
+            'custom_shipping_fee' => 'nullable|numeric|min:0',
+            'images'              => 'nullable|array|max:5',
+            'images.*'            => 'image|max:4096',
         ]);
 
         $updateData = $request->only(['name', 'price', 'compare_price', 'description', 'stock_quantity', 'condition']);
+
+        if ($request->filled('category_id')) {
+            $category = Category::where('uuid', $request->category_id)
+                ->orWhere('id', $request->category_id)
+                ->first();
+            if ($category) {
+                $updateData['category_id'] = $category->id;
+            }
+        }
+
+        if ($request->has('shipping_type')) {
+            $shippingType = $request->input('shipping_type', 'default');
+            $updateData['shipping_type'] = $shippingType;
+            $updateData['custom_shipping_fee'] = $shippingType === 'custom'
+                ? (float) $request->input('custom_shipping_fee', 0)
+                : null;
+        }
         
         if ($request->has('available_for_layaway')) {
             $isLayaway = $store->can_offer_layaway && $request->boolean('available_for_layaway');
@@ -169,6 +202,10 @@ class VendorProductController extends Controller
     public function destroy(string $uuid): JsonResponse
     {
         $store = $this->getStore();
+        if (!$store) {
+            return response()->json(['message' => 'No active store found.'], 403);
+        }
+
         $product = Product::where('uuid', $uuid)->where('store_id', $store->id)->firstOrFail();
         $product->delete();
 

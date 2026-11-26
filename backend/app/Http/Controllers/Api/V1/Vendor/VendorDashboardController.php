@@ -24,30 +24,42 @@ class VendorDashboardController extends Controller
         $activeProducts = Product::where('store_id', $store->id)->where('status', 'active')->count();
 
         $orderItems = OrderItem::whereIn('product_id', $productIds)
-            ->with('order')
+            ->with(['order', 'product'])
             ->get();
 
         $totalOrders  = $orderItems->pluck('order_id')->unique()->count();
-        $totalRevenue = $orderItems->sum(fn($item) => $item->price * $item->quantity);
+        $totalRevenue = $orderItems
+            ->filter(function ($item) {
+                $status = $item->order?->status instanceof \BackedEnum
+                    ? $item->order->status->value
+                    : (string) ($item->order?->status ?? '');
+                return !in_array($status, ['cancelled', 'pending'], true) || !is_null($item->order?->paid_at);
+            })
+            ->sum(fn($item) => $item->price * $item->quantity);
 
         $recentOrders = $orderItems
             ->sortByDesc(fn($item) => $item->created_at)
             ->take(5)
             ->map(fn($item) => [
                 'order_uuid'  => $item->order?->uuid,
-                'product'     => $item->product?->name,
+                'product'     => $item->product?->name ?? $item->product_name,
                 'quantity'    => $item->quantity,
                 'total'       => (float) ($item->price * $item->quantity),
-                'status'      => $item->order?->status,
+                'status'      => $item->order?->status instanceof \BackedEnum ? $item->order->status->value : $item->order?->status,
                 'created_at'  => $item->created_at->toISOString(),
             ])->values();
 
         return response()->json([
             'data' => [
                 'store'           => [
-                    'name'   => $store->name,
-                    'slug'   => $store->slug,
-                    'status' => $store->status,
+                    'name'                    => $store->name,
+                    'slug'                    => $store->slug,
+                    'status'                  => $store->status,
+                    'can_offer_layaway'       => (bool) $store->can_offer_layaway,
+                    'can_offer_hire_purchase' => (bool) $store->can_offer_hire_purchase,
+                    'can_offer_preorders'     => (bool) $store->can_offer_preorders,
+                    'can_offer_trades'        => (bool) $store->can_offer_trades,
+                    'has_paystack_subaccount' => !empty($store->paystack_subaccount_code),
                 ],
                 'stats'           => [
                     'total_products'  => $totalProducts,
