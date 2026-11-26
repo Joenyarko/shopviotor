@@ -89,8 +89,31 @@ class PaymentController extends Controller
                 if ($reference) {
                     try {
                         $this->paymentService->verify($reference);
-                    } catch (\Exception $e) {
-                        Log::error('Webhook verification failed', ['ref' => $reference, 'error' => $e->getMessage()]);
+                    } catch (\UnexpectedValueException $e) {
+                        // Amount or currency mismatch — log critical and alert admin; return 200 so Paystack does not retry endlessly
+                        Log::critical('SECURITY: Paystack webhook amount/currency mismatch!', [
+                            'ref'   => $reference,
+                            'error' => $e->getMessage(),
+                            'data'  => $data,
+                        ]);
+                        try {
+                            \Illuminate\Support\Facades\Mail::raw(
+                                "CRITICAL PAYMENT ALERT\n\nReference: {$reference}\nError: {$e->getMessage()}\nTime: " . now()->toDateTimeString() . "\n\nPlease review this transaction in Paystack and Admin Orders immediately.",
+                                function ($message) use ($reference) {
+                                    $message->to('info@shopviotor.com')
+                                        ->subject("[CRITICAL] Paystack Mismatch Alert - {$reference}");
+                                }
+                            );
+                        } catch (\Throwable $mailErr) {
+                            Log::error('Failed to send mismatch alert email', ['error' => $mailErr->getMessage()]);
+                        }
+                    } catch (\Throwable $e) {
+                        // Temporary / network / Paystack API error — return 500 so Paystack retries the webhook
+                        Log::error('Webhook verification temporary failure (returning 500 for retry)', [
+                            'ref'   => $reference,
+                            'error' => $e->getMessage(),
+                        ]);
+                        return response()->json(['status' => 'retry'], 500);
                     }
                 }
             } elseif ($event === 'refund.processed') {
@@ -129,47 +152,6 @@ class PaymentController extends Controller
                     } catch (\Throwable $e) {
                         Log::error('Webhook refund sync failed', ['ref' => $reference, 'error' => $e->getMessage()]);
                     }
-                }
-            } elseif ($event === 'transfer.success') {
-                $reference = $data['reference'] ?? null;
-                $transferCode = $data['transfer_code'] ?? null;
-                $payout = \App\Models\PayoutRequest::where('transfer_reference', $reference)
-                    ->orWhere('transfer_code', $transferCode)
-                    ->first();
-
-                if ($payout) {
-                    $payout->update([
-                        'transfer_status' => 'success',
-                        'status'          => 'paid',
-                    ]);
-                    $payout->store?->transactions()
-                        ->where('reference_type', \App\Models\PayoutRequest::class)
-                        ->where('reference_id', $payout->id)
-                        ->update(['status' => 'completed']);
-                }
-            } elseif ($event === 'transfer.failed' || $event === 'transfer.reversed') {
-                $reference = $data['reference'] ?? null;
-                $transferCode = $data['transfer_code'] ?? null;
-                $payout = \App\Models\PayoutRequest::where('transfer_reference', $reference)
-                    ->orWhere('transfer_code', $transferCode)
-                    ->first();
-
-                if ($payout && $payout->status !== 'rejected') {
-                    $payout->update([
-                        'transfer_status' => 'failed',
-                        'status'          => 'rejected',
-                        'admin_notes'     => 'Paystack Transfer failed or reversed: ' . ($data['gateway_response'] ?? 'Unknown error'),
-                    ]);
-
-                    $wallet = \App\Models\StoreWallet::where('store_id', $payout->store_id)->first();
-                    if ($wallet) {
-                        $wallet->increment('available_balance', $payout->amount);
-                    }
-
-                    $payout->store?->transactions()
-                        ->where('reference_type', \App\Models\PayoutRequest::class)
-                        ->where('reference_id', $payout->id)
-                        ->update(['status' => 'cancelled']);
                 }
             }
         }
@@ -225,15 +207,5 @@ class PaymentController extends Controller
                 'message' => 'Paystack verification failed: ' . $e->getMessage(),
             ], 400);
         }
-    }
-
-    public function clearTestPayments(): JsonResponse
-    {
-        \App\Models\PaymentTransaction::query()->delete();
-        \App\Models\Payment::query()->delete();
-
-        return response()->json([
-            'message' => 'All test payment audits have been cleared successfully.'
-        ]);
     }
 }

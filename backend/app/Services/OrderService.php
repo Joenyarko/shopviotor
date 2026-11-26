@@ -158,7 +158,7 @@ class OrderService
 
         $order->update($updates);
 
-        // Handle Inventory, Coupons, and Vendor Commissions upon cancellation
+        // Handle Inventory and Coupons upon cancellation (vendor wallets disabled)
         if ($oldStatus !== 'cancelled' && $status === 'cancelled') {
             // Restore inventory to products
             foreach ($order->items as $item) {
@@ -169,32 +169,52 @@ class OrderService
             if ($order->coupon_id) {
                 Coupon::where('id', $order->coupon_id)->where('usage_count', '>', 0)->decrement('usage_count');
             }
+        }
 
-            if (in_array($oldStatus, ['pending', 'confirmed', 'processing', 'shipped'])) {
-                $this->cancelCommissions($order);
-            }
-        } elseif ($oldStatus !== 'confirmed' && $status === 'confirmed') {
-            $this->createPendingCommissions($order);
-        } elseif ($oldStatus !== 'delivered' && $status === 'delivered') {
-            $this->completeCommissions($order);
+        // Notify customer by email on meaningful status transitions (non-fatal)
+        if ($oldStatus !== $status && in_array($status, ['processing', 'shipped', 'delivered', 'cancelled'], true)) {
+            $this->sendStatusUpdateEmail($order, $status, $note);
         }
 
         return $order->fresh();
     }
 
+    private function sendStatusUpdateEmail(Order $order, string $status, ?string $note = null): void
+    {
+        try {
+            $order->loadMissing('user');
+            if ($order->user && $order->user->email) {
+                \Illuminate\Support\Facades\Mail::to($order->user->email)
+                    ->send(new \App\Mail\OrderStatusUpdatedMail($order, $status, $note));
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Order status email skipped: ' . $e->getMessage(), [
+                'order_number' => $order->order_number,
+                'status'       => $status,
+            ]);
+        }
+    }
+
     public function confirmManualPayment(Order $order, string $method = 'momo', ?string $transactionId = null, ?string $notes = null): Order
     {
         return DB::transaction(function () use ($order, $method, $transactionId, $notes) {
-            $formattedNote = trim(($order->admin_notes ? $order->admin_notes . "\n" : "") . ($notes ?? "Payment confirmed by admin via MoMo"));
+            $lockedOrder = Order::where('id', $order->id)->lockForUpdate()->firstOrFail();
 
-            $order->update([
+            // Idempotency guard: if already paid, return without modifying anything
+            if (!is_null($lockedOrder->paid_at)) {
+                return $lockedOrder->fresh(['payment', 'items.product', 'user', 'address']);
+            }
+
+            $formattedNote = trim(($lockedOrder->admin_notes ? $lockedOrder->admin_notes . "\n" : "") . ($notes ?? "Payment confirmed by admin via MoMo"));
+
+            $lockedOrder->update([
                 'status'      => \App\Enums\OrderStatus::Processing,
                 'paid_at'     => now(),
                 'admin_notes' => $formattedNote,
             ]);
 
             // Create or update associated Payment record
-            $payment = $order->payment;
+            $payment = $lockedOrder->payment;
             if ($payment) {
                 $payment->update([
                     'status'            => \App\Enums\PaymentStatus::Completed,
@@ -204,116 +224,24 @@ class OrderService
                     'paid_at'           => now(),
                 ]);
             } else {
-                $order->payment()->create([
-                    'user_id'           => $order->user_id,
-                    'amount'            => $order->total,
-                    'currency'          => $order->currency ?? 'GHS',
+                $lockedOrder->payment()->create([
+                    'user_id'           => $lockedOrder->user_id,
+                    'amount'            => $lockedOrder->total,
+                    'currency'          => $lockedOrder->currency ?? 'GHS',
                     'method'            => \App\Enums\PaymentMethod::MobileMoney,
                     'status'            => \App\Enums\PaymentStatus::Completed,
-                    'reference'         => $order->order_number,
+                    'reference'         => $lockedOrder->order_number,
                     'gateway_reference' => $transactionId,
                     'notes'             => $notes,
                     'paid_at'           => now(),
                 ]);
             }
 
-            // Vendor commissions (if applicable)
-            $this->createPendingCommissions($order);
+            $result = $lockedOrder->fresh(['payment', 'items.product', 'user', 'address']);
+            $this->sendStatusUpdateEmail($result, 'processing', 'Your payment has been confirmed and your order is now being processed.');
 
-            return $order->fresh(['payment', 'items.product', 'user', 'address']);
+            return $result;
         });
-    }
-
-    private function createPendingCommissions(Order $order): void
-    {
-        $items = $order->items()->with('product.store.wallet')->get();
-
-        foreach ($items as $item) {
-            $store = $item->product?->store;
-            if (!$store) continue;
-
-            $commissionRate = $store->commission_rate ?? 0;
-            $adminCut = ($item->total * $commissionRate) / 100;
-            $vendorCut = $item->total - $adminCut;
-
-                // DEADLOCK PREVENTION: Always lock wallet rows in consistent store_id order
-                $wallet = $store->wallet()->lockForUpdate()->first();
-                if (!$wallet) {
-                    $wallet = $store->wallet()->create([
-                        'store_id'         => $store->id,
-                        'available_balance' => 0,
-                        'pending_balance'   => 0,
-                        'total_earned'      => 0,
-                    ]);
-                }
-
-                // Add to pending balance
-                $wallet->increment('pending_balance', $vendorCut);
-
-                // Create pending transaction
-                $store->transactions()->create([
-                    'type'             => 'credit',
-                    'amount'           => $vendorCut,
-                    'commission_amount' => $adminCut,
-                    'description'      => "Sale of {$item->product_name} (x{$item->quantity}) from Order {$order->order_number}",
-                    'status'           => 'pending',
-                    'reference_type'   => Order::class,
-                    'reference_id'     => $order->id,
-                ]);
-        }
-    }
-
-    private function completeCommissions(Order $order): void
-    {
-        // DEADLOCK PREVENTION: Sort by store_id (via store relationship) to ensure
-        // all concurrent processes lock wallet rows in the same order.
-        $transactions = \App\Models\StoreTransaction::where('reference_type', Order::class)
-            ->where('reference_id', $order->id)
-            ->where('status', 'pending')
-            ->with('store.wallet')
-            ->get()
-            ->sortBy('store_id'); // Consistent lock ordering
-
-        foreach ($transactions as $txn) {
-            if (!$txn->store?->wallet) continue;
-
-            DB::transaction(function () use ($txn) {
-                // Re-fetch wallet inside transaction with row lock
-                $wallet = \App\Models\StoreWallet::where('store_id', $txn->store_id)
-                    ->lockForUpdate()
-                    ->first();
-
-                if (!$wallet) return;
-
-                $wallet->decrement('pending_balance', $txn->amount);
-                $wallet->increment('available_balance', $txn->amount);
-                $wallet->increment('total_earned', $txn->amount);
-                $txn->update(['status' => 'completed']);
-            });
-        }
-    }
-
-    private function cancelCommissions(Order $order): void
-    {
-        // DEADLOCK PREVENTION: Sort by store_id for consistent lock ordering
-        $transactions = \App\Models\StoreTransaction::where('reference_type', Order::class)
-            ->where('reference_id', $order->id)
-            ->where('status', 'pending')
-            ->get()
-            ->sortBy('store_id');
-
-        foreach ($transactions as $txn) {
-            DB::transaction(function () use ($txn) {
-                $wallet = \App\Models\StoreWallet::where('store_id', $txn->store_id)
-                    ->lockForUpdate()
-                    ->first();
-
-                if (!$wallet) return;
-
-                $wallet->decrement('pending_balance', $txn->amount);
-                $txn->update(['status' => 'cancelled']);
-            });
-        }
     }
 
     public function cancelOrder(Order $order, int $userId, ?string $reason = null): Order

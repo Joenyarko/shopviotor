@@ -24,7 +24,7 @@ class PaystackGateway implements PaymentGatewayInterface
     public function initiate(array $data): array
     {
         $payload = [
-            'amount' => (int) ($data['amount'] * 100), // convert to pesewas/kobo
+            'amount' => (int) round($data['amount'] * 100), // convert to pesewas/kobo
             'email' => $data['email'],
             'reference' => $data['reference'],
             'currency' => $data['currency'] ?? 'GHS',
@@ -92,7 +92,7 @@ class PaystackGateway implements PaymentGatewayInterface
             'Content-Type'  => 'application/json',
         ])->post("{$this->baseUrl}/refund", [
             'transaction' => $reference,
-            'amount'      => (int) ($amount * 100),
+            'amount'      => (int) round($amount * 100),
         ]);
 
         $result = $response->json();

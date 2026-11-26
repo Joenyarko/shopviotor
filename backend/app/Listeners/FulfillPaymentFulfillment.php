@@ -30,6 +30,16 @@ class FulfillPaymentFulfillment
         }
 
         if ($payment->payable_type === Order::class) {
+            $orderStatus = $payable->status instanceof \BackedEnum ? $payable->status->value : (string) $payable->status;
+            if ($orderStatus === 'cancelled') {
+                Log::critical("ADMIN REVIEW REQUIRED: Payment {$payment->reference} received for already-cancelled Order #{$payable->order_number}");
+                $flagNote = "[ADMIN REVIEW REQUIRED] Payment {$payment->reference} (GHS {$payment->amount}) received after order was cancelled on " . now()->toDateTimeString();
+                $payable->update([
+                    'admin_notes' => trim(($payable->admin_notes ? $payable->admin_notes . "\n" : '') . $flagNote),
+                ]);
+                return;
+            }
+
             // Mark order as processing/paid immediately so customer sees Processing & tracking bar
             $this->orderService->updateStatus($payable, 'processing');
             $payable->update(['paid_at' => now()]);
@@ -79,14 +89,6 @@ class FulfillPaymentFulfillment
                 $payable->update(['status' => 'completed']);
             }
             Log::info("LayawayCard #{$payable->id} payment confirmed for {$boxesCovered} boxes via payment {$payment->reference}");
-            
-        } elseif ($payment->payable_type === \App\Models\Raffle::class) {
-            $quantity = (int) round($payment->amount / $payable->ticket_price);
-            $raffleService = app(\App\Services\RaffleService::class);
-            for ($i = 0; $i < $quantity; $i++) {
-                $raffleService->purchaseTicket($user->id, $payable, $payment->reference . '-' . $i);
-            }
-            Log::info("Raffle #{$payable->id} purchased {$quantity} tickets via payment {$payment->reference}");
         }
     }
 }

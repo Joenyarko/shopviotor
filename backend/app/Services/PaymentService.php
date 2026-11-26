@@ -80,7 +80,7 @@ class PaymentService
                         'expected_currency' => $expectedCurrency,
                         'received_currency' => $receivedCurrency,
                     ]);
-                    throw new \RuntimeException(
+                    throw new \UnexpectedValueException(
                         "Payment currency mismatch: expected {$expectedCurrency}, gateway returned {$receivedCurrency}."
                     );
                 }
@@ -92,7 +92,7 @@ class PaymentService
                         'expected_amount' => $payment->amount,
                         'received_amount' => $result['amount'],
                     ]);
-                    throw new \RuntimeException(
+                    throw new \UnexpectedValueException(
                         "Payment amount mismatch: expected GHS {$payment->amount}, gateway returned GHS {$result['amount']}."
                     );
                 }
@@ -145,22 +145,33 @@ class PaymentService
 
     public function adminConfirm(Payment $payment, int $adminId): Payment
     {
-        // SECURITY: Idempotency guard (handles both PaymentStatus enum and raw string)
-        $currentStatus = $payment->status instanceof \BackedEnum ? $payment->status->value : (string) $payment->status;
-        if ($currentStatus === 'completed') {
-            return $payment->fresh();
-        }
+        $alreadyCompleted = false;
 
-        DB::transaction(function () use ($payment, $adminId) {
-            $payment->update([
+        DB::transaction(function () use ($payment, &$alreadyCompleted) {
+            // SECURITY: Reload with row lock inside transaction so concurrent admin clicks cannot fulfill twice
+            $locked = Payment::where('id', $payment->id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $currentStatus = $locked->status instanceof \BackedEnum ? $locked->status->value : (string) $locked->status;
+            if ($currentStatus === 'completed') {
+                $alreadyCompleted = true;
+                return;
+            }
+
+            $locked->update([
                 'status'         => \App\Enums\PaymentStatus::Completed,
                 'paid_at'        => now(),
                 'gateway_status' => 'manually_confirmed',
             ]);
 
             // Fulfill synchronously (ticks layaway boxes, confirms order, etc.)
-            app(\App\Listeners\FulfillPaymentFulfillment::class)->handle(new PaymentReceived($payment));
+            app(\App\Listeners\FulfillPaymentFulfillment::class)->handle(new PaymentReceived($locked));
         });
+
+        if ($alreadyCompleted) {
+            return $payment->fresh();
+        }
 
         // Audit trail (non-fatal if activity_log table is not migrated)
         try {
