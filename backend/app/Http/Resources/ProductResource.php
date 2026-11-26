@@ -73,9 +73,10 @@ class ProductResource extends JsonResource
                     'phone'             => $this->store->phone,
                     'whatsapp'          => $this->store->whatsapp,
                     'momo_number'       => $this->store->momo_number,
-                    'momo_account_name' => $this->store->momo_account_name,
-                    'momo_network'      => $this->store->momo_network,
-                    'is_verified'       => $this->store->is_verified,
+                    'momo_account_name'       => $this->store->momo_account_name,
+                    'momo_network'            => $this->store->momo_network,
+                    'has_paystack_subaccount' => !empty($this->store->paystack_subaccount_code),
+                    'is_verified'             => $this->store->is_verified,
                 ];
             }),
             'created_at'                  => $this->created_at,

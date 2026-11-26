@@ -38,6 +38,7 @@ const vendorService = {
   adminRestoreStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/restore`),
   adminVerifyStore: (uuid) => apiClient.post(`/admin/stores/${uuid}/verify`),
   adminUpdateCommission: (uuid, rate) => apiClient.post(`/admin/stores/${uuid}/commission`, { commission_rate: rate }),
+  adminUpdateSubaccount: (uuid, paystack_subaccount_code) => apiClient.post(`/admin/stores/${uuid}/subaccount`, { paystack_subaccount_code: paystack_subaccount_code || null }),
   adminUpdatePermissions: (uuid, permissions) => apiClient.post(`/admin/stores/${uuid}/permissions`, permissions),
   
   // Admin Payouts

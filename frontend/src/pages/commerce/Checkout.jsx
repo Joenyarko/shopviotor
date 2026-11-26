@@ -42,8 +42,37 @@ const Checkout = () => {
   const [defaultShipping, setDefaultShipping] = useState(30.00);
   const [recipientInfo, setRecipientInfo] = useState(null);
 
-  // Detect if any cart items belong to a vendor store
-  const vendorStore = cart.find(item => item.store && (item.store.momo_number || item.store.name))?.store || null;
+  // Detect vendor store(s) in cart & whether Paystack split checkout is available
+  const vendorStoresInCart = [];
+  const seenStoreKeys = new Set();
+  cart.forEach(item => {
+    if (item.store && (item.store.id || item.store.name)) {
+      const key = String(item.store.id || item.store.name);
+      if (!seenStoreKeys.has(key)) {
+        seenStoreKeys.add(key);
+        vendorStoresInCart.push(item.store);
+      }
+    }
+  });
+  const hasShopViotorItem = cart.some(item => !item.store || (!item.store.id && !item.store.name));
+  const vendorStore = vendorStoresInCart[0] || null;
+  const isMixedSellerCart = vendorStoresInCart.length > 1 || (vendorStoresInCart.length === 1 && hasShopViotorItem);
+  const isPaystackEligible = vendorStoresInCart.length === 0
+    ? true
+    : (!isMixedSellerCart && Boolean(vendorStore?.has_paystack_subaccount));
+
+  const paystackDisabledReason = isMixedSellerCart
+    ? 'Paystack is only available when checking out from one store at a time. Use Direct MoMo or checkout per store.'
+    : vendorStore && !vendorStore.has_paystack_subaccount
+      ? `${vendorStore.name} accepts Direct Mobile Money only (paid directly to the vendor).`
+      : '';
+
+  useEffect(() => {
+    if (!isPaystackEligible && paymentMethod === 'paystack') {
+      setPaymentMethod('mobile_money');
+    }
+  }, [isPaystackEligible, paymentMethod]);
+
   const momoRecipient = vendorStore ? {
     isVendor: true,
     storeName: vendorStore.name || 'Vendor Store',
@@ -509,8 +538,23 @@ const Checkout = () => {
 
               <div className="space-y-3">
                 {[
-                  { value: 'paystack', label: 'Paystack (Online Card & Mobile Money)', icon: <CreditCard className="w-5 h-5" />, desc: 'Pay securely in full with Visa, Mastercard, or Mobile Money via Paystack', disabled: false },
-                  { value: 'mobile_money', label: momoRecipient.isVendor ? `Direct Mobile Money (${momoRecipient.storeName})` : 'Direct Mobile Money (Merchant ID 715041)', icon: <Phone className="w-5 h-5" />, desc: momoRecipient.isVendor ? `Pay directly to ${momoRecipient.storeName}'s Mobile Money number` : 'Direct transfer to Merchant ID 715041 (Shop Viotor Ventures)', disabled: false },
+                  {
+                    value: 'paystack',
+                    label: 'Paystack (Online Card & Mobile Money)',
+                    icon: <CreditCard className="w-5 h-5" />,
+                    desc: isPaystackEligible
+                      ? (vendorStore ? `Pay securely via Paystack — auto-settled directly to ${vendorStore.name}` : 'Pay securely in full with Visa, Mastercard, or Mobile Money via Paystack')
+                      : paystackDisabledReason,
+                    disabled: !isPaystackEligible,
+                    badge: !isPaystackEligible ? 'Direct MoMo Only' : null,
+                  },
+                  {
+                    value: 'mobile_money',
+                    label: momoRecipient.isVendor ? `Direct Mobile Money (${momoRecipient.storeName})` : 'Direct Mobile Money (Merchant ID 715041)',
+                    icon: <Phone className="w-5 h-5" />,
+                    desc: momoRecipient.isVendor ? `Pay directly to ${momoRecipient.storeName}'s Mobile Money number` : 'Direct transfer to Merchant ID 715041 (Shop Viotor Ventures)',
+                    disabled: false,
+                  },
                 ].map(pm => (
                   <div
                     key={pm.value}
@@ -539,7 +583,7 @@ const Checkout = () => {
                         <p className={`font-semibold text-sm ${pm.disabled ? 'text-secondary-500 dark:text-secondary-400' : ''}`}>{pm.label}</p>
                         {pm.disabled && (
                           <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 flex items-center gap-1">
-                            <Lock className="w-3 h-3" /> Offline
+                            <Lock className="w-3 h-3" /> {pm.badge || 'Unavailable'}
                           </span>
                         )}
                       </div>

@@ -31,6 +31,11 @@ class PaystackGateway implements PaymentGatewayInterface
             'metadata' => $data['metadata'] ?? [],
         ];
 
+        // Route vendor orders through their Paystack Subaccount for automatic split settlement
+        if (!empty($data['subaccount'])) {
+            $payload['subaccount'] = $data['subaccount'];
+        }
+
         // Paystack callback URL - point to our frontend callback route
         $payload['callback_url'] = rtrim((string) config('app.frontend_url'), '/') . '/payments/callback/paystack?reference=' . $data['reference'];
 

@@ -12,6 +12,8 @@ const VendorStores = () => {
   const [processing, setProcessing] = useState(false);
   const [commissionInput, setCommissionInput] = useState('');
   const [editingCommission, setEditingCommission] = useState(false);
+  const [subaccountInput, setSubaccountInput] = useState('');
+  const [editingSubaccount, setEditingSubaccount] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const itemsPerPage = 8;
@@ -93,6 +95,29 @@ const VendorStores = () => {
       loadStores();
     } catch (e) { Swal.fire({ text: String(e.message || 'Failed.') }); }
     finally { setProcessing(false); }
+  };
+
+  const handleSaveSubaccount = async (uuid) => {
+    setProcessing(true);
+    try {
+      const cleaned = subaccountInput.trim();
+      const res = await vendorService.adminUpdateSubaccount(uuid, cleaned || null);
+      const savedCode = res.data?.paystack_subaccount_code ?? (cleaned || null);
+      setSelectedStore(prev => prev ? { ...prev, paystack_subaccount_code: savedCode } : null);
+      setEditingSubaccount(false);
+      Swal.fire({
+        icon: 'success',
+        title: savedCode ? 'Paystack Subaccount Linked' : 'Subaccount Removed',
+        text: savedCode ? `Paystack split checkout enabled (${savedCode}).` : 'Store set back to Direct Mobile Money only.',
+        timer: 2200,
+        showConfirmButton: false,
+      });
+      loadStores();
+    } catch (e) {
+      Swal.fire({ icon: 'error', title: 'Invalid Subaccount Code', text: e.response?.data?.message || e.message || 'Must start with ACCT_...' });
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const handleTogglePermission = async (uuid, permissionKey, currentValue) => {
@@ -205,7 +230,7 @@ const VendorStores = () => {
                             <Check className="w-4 h-4" />
                           </button>
                         )}
-                        <button onClick={() => { setSelectedStore(store); setCommissionInput(store.commission_rate); setEditingCommission(false); }} className="p-1.5 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 rounded-lg">
+                        <button onClick={() => { setSelectedStore(store); setCommissionInput(store.commission_rate); setEditingCommission(false); setSubaccountInput(store.paystack_subaccount_code || ''); setEditingSubaccount(false); }} className="p-1.5 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/20 rounded-lg">
                           <Eye className="w-4 h-4" />
                         </button>
                       </td>
@@ -282,6 +307,42 @@ const VendorStores = () => {
                     </div>
                   ) : (
                     <span className="font-bold text-secondary-900 dark:text-white">{selectedStore.commission_rate}%</span>
+                  )}
+                </div>
+
+                {/* Paystack Subaccount Code (Split Checkout) */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xxs text-secondary-500 uppercase font-bold tracking-wider">Paystack Subaccount</span>
+                    <button onClick={() => setEditingSubaccount(v => !v)} className="text-primary-600 hover:text-primary-700" title="Edit Paystack Subaccount Code">
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  {editingSubaccount ? (
+                    <div className="space-y-1.5">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="ACCT_xxxxxxxxxx"
+                          value={subaccountInput}
+                          onChange={e => setSubaccountInput(e.target.value)}
+                          className="flex-1 p-2 border border-secondary-300 dark:border-secondary-700 rounded-lg bg-secondary-50 dark:bg-secondary-800 text-xs font-mono"
+                        />
+                        <button onClick={() => handleSaveSubaccount(selectedStore.uuid)} disabled={processing} className="premium-button-primary px-3 py-2 rounded-lg text-xs font-bold">
+                          Save
+                        </button>
+                      </div>
+                      <p className="text-[10px] text-secondary-500">Leave blank to restrict store to Direct Mobile Money only.</p>
+                    </div>
+                  ) : selectedStore.paystack_subaccount_code ? (
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                        {selectedStore.paystack_subaccount_code}
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-600">Split Active</span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-amber-600 dark:text-amber-400 font-semibold">Not linked (Direct MoMo only)</span>
                   )}
                 </div>
 

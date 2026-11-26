@@ -349,6 +349,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/stores/{uuid}/restore', [AdminStoreController::class, 'restore']);
             Route::post('/stores/{uuid}/verify', [AdminStoreController::class, 'verify']);
             Route::post('/stores/{uuid}/commission', [AdminStoreController::class, 'updateCommission']);
+            Route::post('/stores/{uuid}/subaccount', [AdminStoreController::class, 'updateSubaccount']);
             Route::post('/stores/{uuid}/permissions', [AdminStoreController::class, 'updatePermissions']);
 
             // Payouts (Admin) DISABLED — no Paystack transfers/disbursements to vendors.

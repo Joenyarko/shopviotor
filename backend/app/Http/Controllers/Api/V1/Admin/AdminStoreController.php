@@ -28,8 +28,9 @@ class AdminStoreController extends Controller
             'slug'             => $s->slug,
             'status'           => $s->status,
             'is_verified'      => (bool) $s->is_verified,
-            'commission_rate'         => (float) $s->commission_rate,
-            'can_offer_layaway'       => (bool) $s->can_offer_layaway,
+            'commission_rate'          => (float) $s->commission_rate,
+            'paystack_subaccount_code' => $s->paystack_subaccount_code,
+            'can_offer_layaway'        => (bool) $s->can_offer_layaway,
             'can_offer_hire_purchase' => (bool) $s->can_offer_hire_purchase,
             'can_offer_preorders'     => (bool) $s->can_offer_preorders,
             'can_offer_trades'        => (bool) $s->can_offer_trades,
@@ -138,6 +139,27 @@ class AdminStoreController extends Controller
         $store->update(['commission_rate' => $request->commission_rate]);
 
         return response()->json(['message' => 'Commission rate updated.', 'commission_rate' => $request->commission_rate]);
+    }
+
+    /**
+     * Update Paystack Subaccount code (ACCT_...) for automatic split settlements.
+     */
+    public function updateSubaccount(Request $request, string $uuid): JsonResponse
+    {
+        $validated = $request->validate([
+            'paystack_subaccount_code' => ['nullable', 'string', 'max:100', 'regex:/^ACCT_[A-Za-z0-9]+$/'],
+        ], [
+            'paystack_subaccount_code.regex' => 'Subaccount code must start with ACCT_ (e.g. ACCT_xxxxxxxxxx).',
+        ]);
+
+        $store = Store::where('uuid', $uuid)->firstOrFail();
+        $code = $validated['paystack_subaccount_code'] ? trim($validated['paystack_subaccount_code']) : null;
+        $store->update(['paystack_subaccount_code' => $code]);
+
+        return response()->json([
+            'message'                  => $code ? 'Paystack subaccount linked.' : 'Paystack subaccount removed.',
+            'paystack_subaccount_code' => $store->paystack_subaccount_code,
+        ]);
     }
 
     /**

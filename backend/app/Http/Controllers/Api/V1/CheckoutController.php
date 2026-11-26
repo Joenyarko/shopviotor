@@ -33,6 +33,39 @@ class CheckoutController extends Controller
             }
         }
 
+        // ─── Paystack Subaccount Split / Compliance Guard ─────────────────────
+        // Vendor products may only use Paystack if the vendor has a linked Paystack Subaccount
+        // (and the cart is not mixed across different sellers), so Shop Viotor never holds vendor funds.
+        $paystackSubaccount = null;
+        if (($data['payment_method'] ?? '') === 'paystack') {
+            $productIds = collect($data['items'])->pluck('product_id')->all();
+            $products = \App\Models\Product::with('store')
+                ->where(function ($q) use ($productIds) {
+                    $q->whereIn('uuid', $productIds)->orWhereIn('id', $productIds);
+                })
+                ->get();
+
+            $hasShopViotorItem = $products->contains(fn ($p) => is_null($p->store_id));
+            $vendorStores = $products->pluck('store')->filter()->unique('id')->values();
+
+            if ($vendorStores->isNotEmpty()) {
+                if ($hasShopViotorItem || $vendorStores->count() > 1) {
+                    return response()->json([
+                        'message' => 'Please checkout items from one vendor at a time for Paystack, or use Direct Mobile Money.',
+                    ], 422);
+                }
+
+                $vendorStore = $vendorStores->first();
+                if (empty($vendorStore->paystack_subaccount_code)) {
+                    return response()->json([
+                        'message' => "{$vendorStore->name} accepts Direct Mobile Money only. Please select Direct Mobile Money to pay the vendor directly.",
+                    ], 422);
+                }
+
+                $paystackSubaccount = $vendorStore->paystack_subaccount_code;
+            }
+        }
+
         $order = $this->orderService->placeOrder($user->id, $data);
 
         $paymentData = $this->paymentService->initiate([
@@ -44,6 +77,7 @@ class CheckoutController extends Controller
             'method'       => $data['payment_method'],
             'phone'        => $data['payment_phone'] ?? null,
             'provider'     => $data['payment_provider'] ?? null,
+            'subaccount'   => $paystackSubaccount,
         ]);
 
         $responseBody = [

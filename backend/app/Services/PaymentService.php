@@ -32,13 +32,14 @@ class PaymentService
             $gateway = PaymentGatewayFactory::make($data['method']);
 
             $gatewayData = $gateway->initiate([
-                'email'     => $data['email'],
-                'amount'    => $data['amount'],
-                'reference' => $payment->reference,
-                'currency'  => $data['currency'] ?? 'GHS',
-                'phone'     => $data['phone'] ?? null,
-                'provider'  => $data['provider'] ?? null,
-                'metadata'  => [
+                'email'      => $data['email'],
+                'amount'     => $data['amount'],
+                'reference'  => $payment->reference,
+                'currency'   => $data['currency'] ?? 'GHS',
+                'phone'      => $data['phone'] ?? null,
+                'provider'   => $data['provider'] ?? null,
+                'subaccount' => $data['subaccount'] ?? null,
+                'metadata'   => [
                     'payment_id'   => $payment->id,
                     'payable_type' => $data['payable_type'],
                     'payable_id'   => $data['payable_id'],
