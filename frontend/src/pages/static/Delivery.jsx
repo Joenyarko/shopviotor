@@ -24,7 +24,7 @@ const Delivery = () => {
           Shipping & Delivery Policy
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400">
-          Last Updated & Effective: November 24, 2026 | Nationwide Coverage Across All 16 Regions of Ghana
+          Last Updated & Effective: November 26, 2026 | Nationwide Coverage Across All 16 Regions of Ghana
         </p>
       </div>
 
@@ -126,7 +126,7 @@ const Delivery = () => {
                 <Truck className="w-4 h-4 text-primary-500" /> Doorstep Courier Delivery
               </span>
               <p className="text-xs text-secondary-600 dark:text-secondary-400">
-                Direct delivery to your residential or workplace address by verified dispatch riders. You will receive an SMS/call when the rider is en route with your package.
+                Direct delivery to your residential or workplace address by verified dispatch riders. Unless a flat shipping fee is included at checkout, delivery fees are paid directly to the dispatch rider upon delivery and vary by your location and distance.
               </p>
             </div>
 

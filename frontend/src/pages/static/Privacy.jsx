@@ -24,7 +24,7 @@ const Privacy = () => {
           Privacy Policy
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400">
-          Last Updated & Effective: November 25, 2026 | Compliant with Ghana Data Protection Act, 2012 (Act 843)
+          Last Updated & Effective: November 26, 2026 | Compliant with Ghana Data Protection Act, 2012 (Act 843)
         </p>
       </div>
 
@@ -109,7 +109,7 @@ const Privacy = () => {
               <Lock className="w-4 h-4" /> Zero Cardholder Data Retention
             </div>
             <p className="text-xs text-secondary-700 dark:text-secondary-300 leading-relaxed">
-              Once activated, online card and mobile money payments for standard retail orders paid in full at checkout are processed by <strong>Paystack</strong>. For third-party marketplace vendor purchases, customers pay directly to the vendor&apos;s own Mobile Money number; Shop Viotor does not collect or hold vendor funds.
+              Online card and mobile money payments for standard retail orders paid in full at checkout are processed securely by <strong>Paystack</strong>. Direct Mobile Money payments to Shop Viotor Ventures use registered <strong>Merchant ID 715041 (Shop Viotor Ventures)</strong>. For third-party marketplace vendor purchases, customers pay directly to the vendor&apos;s own Mobile Money number (or via Paystack automatic split settlement where enabled); Shop Viotor does not collect or hold vendor funds.
             </p>
             <ul className="list-disc pl-5 text-xs text-secondary-600 dark:text-secondary-400 space-y-1">
               <li>Shop Viotor <strong>never</strong> receives, views, or records your complete card PAN, CVV, or Mobile Money PIN.</li>
@@ -144,7 +144,7 @@ const Privacy = () => {
           </p>
           <ul className="list-disc pl-5 space-y-2">
             <li><strong>Logistics & Courier Partners:</strong> Only your name, shipping address, and telephone number are disclosed to courier riders to ensure accurate doorstep delivery.</li>
-            <li><strong>Online Checkout Payment Processor (Paystack):</strong> Once activated, transmitting transaction amounts, currency, and customer email strictly for standard online checkout orders paid in full.</li>
+            <li><strong>Online Checkout Payment Processor (Paystack):</strong> Transmitting transaction amounts, currency (GHS), and customer email strictly for standard online checkout orders paid in full.</li>
             <li><strong>Law Enforcement & Regulatory Authorities:</strong> Only when compelled by court orders, lawful subpoenas, or under Ghana anti-money laundering investigations.</li>
           </ul>
         </section>

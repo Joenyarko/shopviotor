@@ -32,7 +32,7 @@ const FAQ = () => {
             <span className="text-primary-500 group-open:rotate-180 transition-transform">▼</span>
           </summary>
           <p className="mt-4 text-secondary-600 dark:text-secondary-400 text-sm">
-            For online purchases processed at checkout, payments are completed in full via Paystack. For marketplace vendor products, customers pay directly to the vendor&apos;s own Mobile Money number. Shop Viotor does not collect, hold, or escrow customer funds for third-party vendor sales.
+            For standard retail purchases at online checkout, you can pay securely in full via <strong>Paystack</strong> (Visa, Mastercard, or Mobile Money) or via Direct Mobile Money to <strong>Merchant ID 715041 (Shop Viotor Ventures)</strong>. Layaway, Hire Purchase, and Pre-Order deposits are paid directly via Mobile Money to <strong>Merchant ID 715041</strong>. For third-party marketplace vendor products, customers pay directly to the vendor&apos;s own Mobile Money number (or via Paystack automatic split settlement where enabled). Shop Viotor does not hold vendor funds.
           </p>
         </details>
 

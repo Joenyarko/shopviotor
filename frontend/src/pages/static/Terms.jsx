@@ -25,7 +25,7 @@ const Terms = () => {
           Terms of Service
         </h1>
         <p className="text-sm text-secondary-500 dark:text-secondary-400">
-          Last Updated & Effective: November 25, 2026 | Operating under the laws of the Republic of Ghana
+          Last Updated & Effective: November 26, 2026 | Operating under the laws of the Republic of Ghana
         </p>
       </div>
 
@@ -111,11 +111,11 @@ const Terms = () => {
           <div className="space-y-2">
             <p><strong>A. Layaway Terms:</strong></p>
             <p>
-              Layaway is a product reservation arrangement agreed directly between the customer and Shop Viotor Ventures outside the online checkout and outside Paystack. Payments are made directly by Mobile Money using the customer&apos;s reference and are recorded only after admin confirmation. The item is released only after full payment is received. Cancellation and refund terms are governed strictly by the separate agreement agreed upon with Shop Viotor Ventures.
+              Layaway is a product reservation arrangement agreed directly between the customer and Shop Viotor Ventures outside the online checkout and outside Paystack. Payments are made directly by Mobile Money to <strong>Merchant ID 715041 (Shop Viotor Ventures)</strong> using the customer&apos;s reference and are recorded only after admin confirmation. The item is released only after full payment is received. Cancellation and refund terms are governed strictly by the separate agreement agreed upon with Shop Viotor Ventures.
             </p>
             <p className="pt-2"><strong>B. Hire Purchase Terms:</strong></p>
             <p>
-              Hire purchase is a separate agreement arranged directly between the customer and Shop Viotor Ventures at the standard cash price (0% interest), outside the website checkout and not processed through Paystack. Payments are made directly via Mobile Money and recorded only after admin confirmation. Eligibility requires identity verification (Ghana Card). Ownership transfers to the customer upon completion of full payment in accordance with that separate agreement.
+              Hire purchase is a separate agreement arranged directly between the customer and Shop Viotor Ventures outside the website checkout and not processed through Paystack. Deposits and scheduled installments (daily, weekly, or monthly, with applicable monthly installment charge disclosed before confirmation) are paid directly via Mobile Money to <strong>Merchant ID 715041 (Shop Viotor Ventures)</strong> and tracked in your customer portal once confirmed by admin. Eligibility requires identity verification (Ghana Card or Student ID). Ownership transfers to the customer upon completion of full payment in accordance with that separate agreement.
             </p>
           </div>
         </section>
