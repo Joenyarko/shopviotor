@@ -8,8 +8,12 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('raffles:process')->everyMinute();
+// Raffles paused pending NLA licence
+// Schedule::command('raffles:process')->everyMinute();
 Schedule::command('hp:check-overdue')->daily();
+
+// Hourly: cancel orders still pending and unpaid after 24 hours and return stock
+Schedule::command('orders:cancel-expired')->hourly()->withoutOverlapping();
 
 // Daily database backup at 2:00 AM server time
 Schedule::command('db:backup')->dailyAt('02:00');

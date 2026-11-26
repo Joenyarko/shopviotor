@@ -64,15 +64,21 @@ class OrderService
     private function validateAndPriceItems(array $items): array
     {
         return collect($items)->map(function ($item) {
+            $rawId = $item['product_id'];
+            $query = Product::active()->inStock();
+
+            if (is_string($rawId) && \Illuminate\Support\Str::isUuid($rawId)) {
+                $query->where('uuid', $rawId);
+            } elseif (ctype_digit((string) $rawId)) {
+                $query->where('id', (int) $rawId);
+            } else {
+                throw ValidationException::withMessages([
+                    "items.{$rawId}" => ['Invalid product identifier.'],
+                ]);
+            }
+
             // lockForUpdate prevents race conditions on concurrent checkouts
-            $product = Product::active()
-                ->inStock()
-                ->where(function ($q) use ($item) {
-                    $q->where('uuid', $item['product_id'])
-                      ->orWhere('id', $item['product_id']);
-                })
-                ->lockForUpdate()
-                ->first();
+            $product = $query->lockForUpdate()->first();
 
             if (!$product) {
                 throw ValidationException::withMessages([

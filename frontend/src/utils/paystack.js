@@ -57,7 +57,16 @@ export const openPaystack = async ({ email, amountGHS, reference, accessCode, ac
   }
 
   const activeAccessCode = accessCode || access_code;
-  const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_REPLACE_WITH_YOUR_KEY';
+  const paystackKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+
+  if (!activeAccessCode && !paystackKey) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Payment Configuration Error',
+      text: 'Paystack public key is not configured. Please use Direct Mobile Money or contact support.'
+    });
+    return;
+  }
 
   try {
     const popup = new window.PaystackPop();

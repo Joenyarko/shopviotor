@@ -84,11 +84,11 @@ const Terms = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
               <span className="font-bold text-secondary-900 dark:text-white block text-xs">Direct Mobile Money</span>
-              <p className="text-xs text-secondary-500 mt-1">Direct transfers to the vendor&apos;s own Mobile Money number (MTN MoMo, Telecel Cash, AT Money).</p>
+              <p className="text-xs text-secondary-500 mt-1">Direct transfers to Shop Viotor Ventures (<strong>Merchant ID: 715041</strong>) or to a third-party vendor&apos;s own Mobile Money number.</p>
             </div>
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
               <span className="font-bold text-secondary-900 dark:text-white block text-xs">Online Checkout (Paystack)</span>
-              <p className="text-xs text-secondary-500 mt-1">Once activated, debit/credit cards and Mobile Money for standard retail orders paid in full at checkout.</p>
+              <p className="text-xs text-secondary-500 mt-1">Debit/credit cards and Mobile Money via Paystack for standard retail orders paid in full at checkout.</p>
             </div>
             <div className="p-3 rounded-xl border border-secondary-200 dark:border-secondary-800 bg-secondary-50 dark:bg-secondary-900">
               <span className="font-bold text-secondary-900 dark:text-white block text-xs">No Holding of Customer Funds</span>
@@ -96,10 +96,10 @@ const Terms = () => {
             </div>
           </div>
           <p className="pt-2">
-            <strong>Payment Processing & Direct Vendor Transfers:</strong> Paystack applies only to standard online checkout of regular retail orders paid in full, once activated. When purchasing from third-party marketplace vendors, payments are made directly by the customer to the vendor&apos;s own Mobile Money number. Shop Viotor does not collect, hold, or release customer funds on behalf of vendors.
+            <strong>Payment Processing & Direct Vendor Transfers:</strong> Paystack applies only to standard online checkout of regular retail orders paid in full. Direct Mobile Money payments to Shop Viotor Ventures go to registered <strong>Merchant ID 715041 (Shop Viotor Ventures)</strong>. When purchasing from third-party marketplace vendors, payments are made directly by the customer to the vendor&apos;s own Mobile Money number. Shop Viotor does not collect, hold, or release customer funds on behalf of vendors.
           </p>
           <p>
-            <strong>Payment Security:</strong> Once activated, online card and mobile money payments at checkout are processed by Paystack. Shop Viotor does not store or process complete debit/credit card numbers or Mobile Money PINs on its servers.
+            <strong>Payment Security:</strong> Online card and mobile money payments at checkout are processed by Paystack. Shop Viotor does not store or process complete debit/credit card numbers or Mobile Money PINs on its servers.
           </p>
         </section>
 
