@@ -1190,7 +1190,7 @@ const Orders = () => {
                   className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-white dark:bg-secondary-800 text-xs text-secondary-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
                 <p className="text-[10px] text-secondary-500 mt-1">
-                  Reference found on your 0508208803 payment SMS alert.
+                  Reference found on your Merchant ID 715041 (Shop Viotor Ventures) payment SMS alert.
                 </p>
               </div>
 
@@ -1200,7 +1200,7 @@ const Orders = () => {
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Verified payment via Telecel Cash to Francis Victor Okine"
+                  placeholder="e.g. Verified payment to Merchant ID 715041 (Shop Viotor Ventures)"
                   value={momoNoteInput}
                   onChange={(e) => setMomoNoteInput(e.target.value)}
                   className="w-full p-2.5 border border-secondary-300 dark:border-secondary-700 rounded-xl bg-white dark:bg-secondary-800 text-xs text-secondary-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"

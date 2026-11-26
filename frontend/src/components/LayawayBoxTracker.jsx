@@ -147,9 +147,9 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
               <p style="font-size: 15px; margin-top: 4px;"><strong>Total Amount:</strong> <strong style="color: #10b981; font-size: 17px;">GHS ${finalAmount.toFixed(2)}</strong></p>
             </div>
             <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 12px;">
-              <span style="color: #94a3b8; font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">MoMo Destination:</span>
-              <p style="margin: 2px 0;"><strong>Number:</strong> <span style="font-family: monospace; font-weight: 800; color: #fff;">0508208803</span> (Francis Victor Okine)</p>
-              <p style="margin: 0; color: #94a3b8; font-size: 11px;">Network: Telecel / MTN</p>
+              <span style="color: #94a3b8; font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">MoMo Merchant Destination:</span>
+              <p style="margin: 2px 0;"><strong>Merchant ID:</strong> <span style="font-family: monospace; font-weight: 800; color: #fff;">715041</span> (Shop Viotor Ventures)</p>
+              <p style="margin: 0; color: #94a3b8; font-size: 11px;">Registered Business Merchant SIM</p>
             </div>
             <p style="color: #94a3b8; font-size: 11px; margin-top: 10px;">
               Verify that the customer transferred <strong>GHS ${finalAmount.toFixed(2)}</strong> with reference <strong>${generatedRef}</strong> before recording.
@@ -186,12 +186,12 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                 <span style="font-family: monospace; font-size: 16px; font-weight: 900; color: #facc15; letter-spacing: 1px;">${serverRef}</span>
               </div>
               <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 12px;">
-                <span style="color: #94a3b8; font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">Direct Mobile Money Details:</span>
-                <p style="margin: 2px 0;"><strong>Number:</strong> <span style="font-family: monospace; font-weight: 800; color: #fff;">0508208803</span> (Francis Victor Okine)</p>
+                <span style="color: #94a3b8; font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">Direct Mobile Money Merchant Details:</span>
+                <p style="margin: 2px 0;"><strong>Merchant ID:</strong> <span style="font-family: monospace; font-weight: 800; color: #fff;">715041</span> (Shop Viotor Ventures)</p>
                 <p style="margin: 0; color: #94a3b8; font-size: 11px;">Amount: <strong>GHS ${finalAmount.toFixed(2)}</strong> (${finalBoxes} boxes)</p>
               </div>
               <p style="color: #cbd5e1; font-size: 12px; margin-top: 8px;">
-                Please transfer your payment directly by Mobile Money to <strong>0508208803</strong> outside Paystack using reference <strong>${serverRef}</strong>. The site records your payment once verified and confirmed by admin.
+                Please pay directly via Mobile Money to Merchant ID <strong>715041</strong> (<strong>Shop Viotor Ventures</strong>) outside Paystack using reference <strong>${serverRef}</strong>. The site records your payment once verified and confirmed by admin.
               </p>
             </div>
           `,
@@ -202,7 +202,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
           cancelButtonText: 'Done',
         }).then((result) => {
           if (result.isConfirmed) {
-            window.open(`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I am making a direct MoMo layaway deposit of GHS ${finalAmount.toFixed(2)} (${finalBoxes} boxes) for layaway plan ${card.reference || card.uuid} to 0508208803 using reference: ${serverRef}. Please verify and update my card.`)}`, '_blank');
+            window.open(`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I am making a direct MoMo layaway deposit of GHS ${finalAmount.toFixed(2)} (${finalBoxes} boxes) for layaway plan ${card.reference || card.uuid} to Merchant ID 715041 (Shop Viotor Ventures) using reference: ${serverRef}. Please verify and update my card.`)}`, '_blank');
           }
         });
 
@@ -417,7 +417,7 @@ export default function LayawayBoxTracker({ card, onPaymentSuccess, onBack, isAd
                   <div className="p-3 bg-[#1e1e1e] border border-gray-700 rounded text-xs space-y-2">
                     <div className="p-2.5 bg-emerald-950/30 border border-emerald-800/50 rounded text-emerald-400 text-xs">
                       <p className="font-bold">Direct Mobile Money Transfer (Outside Paystack):</p>
-                      <p>Number: <strong className="text-white font-mono">0508208803</strong> (Francis Victor Okine)</p>
+                      <p>Merchant ID: <strong className="text-white font-mono">715041</strong> (Shop Viotor Ventures)</p>
                       <p className="text-[11px] text-gray-400 mt-1">
                         Transfer GHS {parseFloat(payAmount || (boxPrice * (payBoxes || 1)) || 0).toFixed(2)} directly via Mobile Money using the generated reference. The site records your payment once confirmed by admin.
                       </p>

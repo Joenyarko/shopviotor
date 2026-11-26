@@ -156,7 +156,7 @@ const AdminPreOrders = () => {
         </div>
       `,
       input: 'text',
-      inputLabel: 'MoMo Transaction ID / Reference (from SMS to 0508208803)',
+      inputLabel: 'MoMo Transaction ID / Reference (from SMS to Merchant ID 715041)',
       inputPlaceholder: 'e.g. 1928374650 or MoMo SMS ref',
       showCancelButton: true,
       confirmButtonText: 'Confirm Deposit & Mark Processing',

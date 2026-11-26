@@ -46,7 +46,7 @@ const Orders = () => {
   }, []);
 
   const handleCopyNumber = () => {
-    navigator.clipboard.writeText('0508208803');
+    navigator.clipboard.writeText('715041');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -86,7 +86,7 @@ const Orders = () => {
         Swal.fire({
           icon: 'info',
           title: 'Payment Incomplete',
-          text: 'Payment window was closed. You can transfer directly via Mobile Money to 0508208803.',
+          text: 'Payment window was closed. You can try Paystack again or transfer directly via Mobile Money to Merchant ID 715041 (Shop Viotor Ventures).',
         });
       }
     });
@@ -316,16 +316,11 @@ const Orders = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => Swal.fire({
-                          title: 'Paystack Under Live Verification',
-                          text: 'Card / Paystack payment is temporarily locked while our live credentials are being verified. Please use "Pay via MoMo" to transfer directly to 0508208803.',
-                          icon: 'info',
-                          confirmButtonColor: '#eab308'
-                        })}
-                        className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-secondary-100 dark:bg-secondary-800 text-secondary-500 dark:text-secondary-400 flex items-center gap-1.5 cursor-not-allowed opacity-80"
-                        title="Online Card / Paystack is temporarily locked"
+                        onClick={() => handlePayOnline(order)}
+                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-primary-500 hover:bg-primary-600 text-secondary-950 flex items-center gap-1.5 shadow-sm transition-colors"
+                        title="Pay securely with Card or Mobile Money via Paystack"
                       >
-                        <Lock className="w-3.5 h-3.5 text-amber-500" /> Pay Online 🔒
+                        <CreditCard className="w-3.5 h-3.5" /> Pay via Paystack
                       </button>
                       {order.status === 'pending' && (
                         <button
@@ -429,14 +424,14 @@ const Orders = () => {
               </div>
 
               <div className="flex justify-between items-center p-3 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl">
-                <span className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Account Name:</span>
-                <span className="text-xs font-bold text-secondary-900 dark:text-white">Francis Victor Okine</span>
+                <span className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Merchant Name:</span>
+                <span className="text-xs font-bold text-secondary-900 dark:text-white">Shop Viotor Ventures</span>
               </div>
 
               <div className="flex justify-between items-center p-3 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl">
                 <div>
-                  <div className="text-xs font-medium text-secondary-600 dark:text-secondary-400">MoMo Number:</div>
-                  <div className="text-sm font-bold text-secondary-900 dark:text-white font-mono">0508208803</div>
+                  <div className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Merchant ID:</div>
+                  <div className="text-sm font-bold text-secondary-900 dark:text-white font-mono">715041</div>
                 </div>
                 <button
                   type="button"

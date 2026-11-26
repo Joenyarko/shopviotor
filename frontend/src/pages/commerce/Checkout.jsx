@@ -23,7 +23,7 @@ const Checkout = () => {
   const [step, setStep] = useState(0); // 0=Address, 1=Review, 2=Payment
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('mobile_money');
+  const [paymentMethod, setPaymentMethod] = useState('paystack');
   const [phone, setPhone] = useState('');
   const [provider, setProvider] = useState('mtn');
   const [addingAddress, setAddingAddress] = useState(false);
@@ -48,15 +48,15 @@ const Checkout = () => {
     isVendor: true,
     storeName: vendorStore.name || 'Vendor Store',
     accountName: vendorStore.momo_account_name || vendorStore.name,
-    number: vendorStore.momo_number || vendorStore.phone || '0508208803',
+    number: vendorStore.momo_number || vendorStore.phone || '715041',
     network: vendorStore.momo_network || 'MTN / Telecel / AT',
     whatsapp: vendorStore.whatsapp || vendorStore.phone || vendorStore.momo_number || '0508208803',
   } : {
     isVendor: false,
-    storeName: 'Shop Viotor Official',
-    accountName: 'Francis Victor Okine',
-    number: '0508208803',
-    network: 'Telecel / MTN',
+    storeName: 'Shop Viotor Ventures',
+    accountName: 'Shop Viotor Ventures',
+    number: '715041',
+    network: 'MoMo Merchant ID',
     whatsapp: '0508208803',
   };
 
@@ -191,7 +191,7 @@ const Checkout = () => {
             setOrderSuccess(res.order || res.data?.order);
           },
           onClose: () => {
-            setErrorMsg('Payment window closed. Your order was created — you can pay later from your Orders page or transfer via MoMo to 0508208803.');
+            setErrorMsg('Payment window closed. Your order was created — you can pay later from your Orders page or transfer via MoMo to Merchant ID 715041 (Shop Viotor Ventures).');
             setSubmitting(false);
           },
         });
@@ -507,8 +507,8 @@ const Checkout = () => {
 
               <div className="space-y-3">
                 {[
-                  { value: 'mobile_money', label: 'Direct Mobile Money (MoMo Transfer)', icon: <Phone className="w-5 h-5" />, desc: 'Instant transfer to 0508208803 (Francis Victor Okine)', disabled: false },
-                  { value: 'paystack', label: 'Online Card / Paystack', icon: <Lock className="w-5 h-5 text-amber-500" />, desc: 'Gateway verification in progress — please pay via Direct MoMo', disabled: true },
+                  { value: 'paystack', label: 'Paystack (Online Card & Mobile Money)', icon: <CreditCard className="w-5 h-5" />, desc: 'Pay securely in full with Visa, Mastercard, or Mobile Money via Paystack', disabled: false },
+                  { value: 'mobile_money', label: momoRecipient.isVendor ? `Direct Mobile Money (${momoRecipient.storeName})` : 'Direct Mobile Money (Merchant ID 715041)', icon: <Phone className="w-5 h-5" />, desc: momoRecipient.isVendor ? `Pay directly to ${momoRecipient.storeName}'s Mobile Money number` : 'Direct transfer to Merchant ID 715041 (Shop Viotor Ventures)', disabled: false },
                 ].map(pm => (
                   <div
                     key={pm.value}
@@ -563,11 +563,11 @@ const Checkout = () => {
 
                   <div className="bg-white dark:bg-secondary-900 p-3.5 rounded-xl border border-emerald-200/70 dark:border-emerald-800/40 space-y-2">
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-secondary-500">Account Name:</span>
+                      <span className="text-secondary-500">{momoRecipient.isVendor ? 'Account Name:' : 'Merchant Name:'}</span>
                       <span className="font-bold text-secondary-900 dark:text-white">{momoRecipient.accountName}</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
-                      <span className="text-secondary-500">MoMo Number:</span>
+                      <span className="text-secondary-500">{momoRecipient.isVendor ? 'MoMo Number:' : 'Merchant ID:'}</span>
                       <span className="font-black text-sm text-primary-600 dark:text-primary-400 tracking-wider">{momoRecipient.number}</span>
                     </div>
                     <div className="flex justify-between items-center text-xs">

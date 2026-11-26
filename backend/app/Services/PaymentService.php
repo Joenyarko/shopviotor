@@ -60,7 +60,8 @@ class PaymentService
                 ->firstOrFail();
 
             // SECURITY: Idempotency guard — if already completed, return early without re-firing events
-            if ($payment->status === 'completed') {
+            $currentStatus = $payment->status instanceof \BackedEnum ? $payment->status->value : (string) $payment->status;
+            if ($currentStatus === 'completed') {
                 Log::info('Payment already verified, skipping re-processing.', ['reference' => $reference]);
                 return $payment->load(['payable', 'transactions']);
             }

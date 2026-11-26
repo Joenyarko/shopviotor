@@ -319,7 +319,7 @@ const HirePurchase = () => {
   };
 
   const handleCopyMomoNumber = () => {
-    navigator.clipboard.writeText('0508208803');
+    navigator.clipboard.writeText('715041');
     setMomoCopied(true);
     setTimeout(() => setMomoCopied(false), 2000);
   };
@@ -1321,14 +1321,14 @@ const HirePurchase = () => {
               </div>
 
               <div className="flex justify-between items-center p-3 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl">
-                <span className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Account Name:</span>
-                <span className="text-xs font-bold text-secondary-900 dark:text-white">Francis Victor Okine</span>
+                <span className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Merchant Name:</span>
+                <span className="text-xs font-bold text-secondary-900 dark:text-white">Shop Viotor Ventures</span>
               </div>
 
               <div className="flex justify-between items-center p-3 bg-secondary-50 dark:bg-secondary-800/50 rounded-xl">
                 <div>
-                  <div className="text-xs font-medium text-secondary-600 dark:text-secondary-400">MoMo Number:</div>
-                  <div className="text-sm font-bold text-secondary-900 dark:text-white font-mono">0508208803</div>
+                  <div className="text-xs font-medium text-secondary-600 dark:text-secondary-400">Merchant ID:</div>
+                  <div className="text-sm font-bold text-secondary-900 dark:text-white font-mono">715041</div>
                 </div>
                 <button
                   type="button"
@@ -1357,7 +1357,7 @@ const HirePurchase = () => {
                 Close Window
               </button>
               <a
-                href={`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I have initialized a Hire Purchase agreement for "${targetProduct?.name}" and made a deposit payment of GHS ${deposit.toFixed(2)} to 0508208803 (Ref: ${createdAgreement?.deposit_reference || (createdAgreement?.uuid ? 'HIR-' + createdAgreement.uuid.slice(0, 8).toUpperCase() : 'HIR-DEPOSIT')}). Please confirm and approve.`)}`}
+                href={`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I have initialized a Hire Purchase agreement for "${targetProduct?.name}" and made a deposit payment of GHS ${deposit.toFixed(2)} to Merchant ID 715041 (Shop Viotor Ventures) (Ref: ${createdAgreement?.deposit_reference || (createdAgreement?.uuid ? 'HIR-' + createdAgreement.uuid.slice(0, 8).toUpperCase() : 'HIR-DEPOSIT')}). Please confirm and approve.`)}`}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 transition-colors"

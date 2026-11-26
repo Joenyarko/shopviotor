@@ -193,7 +193,7 @@ const AdminHirePurchase = () => {
         </div>
       `,
       input: 'text',
-      inputLabel: 'MoMo Transaction ID (from SMS alert to 0508208803)',
+      inputLabel: 'MoMo Transaction ID (from SMS alert to Merchant ID 715041)',
       inputValue: defaultRef,
       showCancelButton: true,
       confirmButtonText: 'Confirm & Activate Agreement',
