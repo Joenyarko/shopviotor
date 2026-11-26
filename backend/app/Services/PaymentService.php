@@ -69,8 +69,21 @@ class PaymentService
             $gateway = PaymentGatewayFactory::make($payment->method->value);
             $result  = $gateway->verify($reference);
 
-            // SECURITY: Verify the gateway amount matches the expected payment amount
+            // SECURITY: Verify the gateway amount AND currency match the expected payment
             if ($result['success']) {
+                $expectedCurrency = strtoupper((string) ($payment->currency ?? 'GHS'));
+                $receivedCurrency = strtoupper((string) ($result['currency'] ?? ''));
+                if ($receivedCurrency && $receivedCurrency !== $expectedCurrency) {
+                    Log::error('SECURITY: Payment currency mismatch detected!', [
+                        'reference'         => $reference,
+                        'expected_currency' => $expectedCurrency,
+                        'received_currency' => $receivedCurrency,
+                    ]);
+                    throw new \RuntimeException(
+                        "Payment currency mismatch: expected {$expectedCurrency}, gateway returned {$receivedCurrency}."
+                    );
+                }
+
                 $amountDiff = abs((float) $result['amount'] - (float) $payment->amount);
                 if ($amountDiff > 0.01) { // Allow 1 pesewa tolerance for floating point
                     Log::error('SECURITY: Payment amount mismatch detected!', [

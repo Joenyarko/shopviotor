@@ -21,7 +21,7 @@ class HirePurchaseController extends Controller
     public function index(Request $request): JsonResponse
     {
         $hps = HirePurchase::where('user_id', $request->user()->id)
-            ->with(['product.primaryImage'])
+            ->with(['product.primaryImage', 'installments' => fn ($q) => $q->orderBy('installment_number')])
             ->latest()
             ->paginate($request->input('per_page', 15));
 
@@ -33,10 +33,11 @@ class HirePurchaseController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'product_id'      => ['required', 'string'],
-            'deposit_amount'  => ['required', 'numeric', 'min:0'],
-            'duration_months' => ['required', 'integer', 'min:1', 'max:120'],
-            'notes'           => ['nullable', 'string', 'max:500'],
+            'product_id'       => ['required', 'string'],
+            'deposit_amount'   => ['required', 'numeric', 'min:0'],
+            'duration_months'  => ['required', 'integer', 'min:1', 'max:120'],
+            'payment_schedule' => ['nullable', 'in:monthly,weekly,daily'],
+            'notes'            => ['nullable', 'string', 'max:500'],
         ]);
 
         $hp = $this->hpService->create($request->user()->id, $data);

@@ -339,6 +339,7 @@ const HirePurchase = () => {
         product_id: targetProduct.id || targetProduct.uuid,
         deposit_amount: deposit,
         duration_months: duration,
+        payment_schedule: paymentSchedule,
         interest_rate: hpInterestRate,
         payment_method: 'momo',
         notes: `Preferred payment schedule: ${paymentSchedule.toUpperCase()} (GHS ${activeScheduleAmount.toFixed(2)} ${activeScheduleLabel})`,
@@ -415,7 +416,14 @@ const HirePurchase = () => {
             </div>
 
             {/* Sort & Quick Stats */}
-            <div className="flex items-center gap-3 justify-between sm:justify-end">
+            <div className="flex items-center gap-2.5 justify-between sm:justify-end">
+              <Link
+                to="/my-hire-purchases"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-secondary-950 text-xs font-extrabold shadow-sm transition-colors shrink-0"
+              >
+                <Clock className="w-3.5 h-3.5" /> My Plans
+              </Link>
+
               <span className="text-xs text-secondary-500 dark:text-secondary-400 hidden lg:inline">
                 <strong>{filteredProducts.length}</strong> items available
               </span>
@@ -1348,22 +1356,31 @@ const HirePurchase = () => {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Link
+                  to="/my-hire-purchases"
+                  onClick={() => setShowMomoModal(false)}
+                  className="w-full py-2.5 rounded-xl font-bold text-xs bg-primary-500 hover:bg-primary-600 text-secondary-950 flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                >
+                  <Clock className="w-3.5 h-3.5" /> Track My Plan
+                </Link>
+                <a
+                  href={`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I have initialized a Hire Purchase agreement for "${targetProduct?.name}" and made a deposit payment of GHS ${deposit.toFixed(2)} to Merchant ID 715041 (Shop Viotor Ventures) (Ref: ${createdAgreement?.deposit_reference || (createdAgreement?.uuid ? 'HIR-' + createdAgreement.uuid.slice(0, 8).toUpperCase() : 'HIR-DEPOSIT')}). Please confirm and approve.`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  Notify on WhatsApp
+                </a>
+              </div>
               <button
                 type="button"
                 onClick={() => setShowMomoModal(false)}
-                className="w-full py-2.5 rounded-xl font-bold text-xs bg-secondary-100 hover:bg-secondary-200 dark:bg-secondary-800 dark:hover:bg-secondary-700 text-secondary-800 dark:text-white transition-colors"
+                className="w-full py-2 rounded-xl font-semibold text-xs bg-secondary-100 hover:bg-secondary-200 dark:bg-secondary-800 dark:hover:bg-secondary-700 text-secondary-700 dark:text-secondary-300 transition-colors"
               >
                 Close Window
               </button>
-              <a
-                href={`https://wa.me/233508208803?text=${encodeURIComponent(`Hello ShopViotor, I have initialized a Hire Purchase agreement for "${targetProduct?.name}" and made a deposit payment of GHS ${deposit.toFixed(2)} to Merchant ID 715041 (Shop Viotor Ventures) (Ref: ${createdAgreement?.deposit_reference || (createdAgreement?.uuid ? 'HIR-' + createdAgreement.uuid.slice(0, 8).toUpperCase() : 'HIR-DEPOSIT')}). Please confirm and approve.`)}`}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-2.5 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center gap-1.5 transition-colors"
-              >
-                Notify on WhatsApp
-              </a>
             </div>
           </div>
         </div>

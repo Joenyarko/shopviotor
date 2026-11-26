@@ -38,6 +38,7 @@ const Orders = React.lazy(() => import('../pages/customer/Orders'));
 const SellRequest = React.lazy(() => import('../pages/services/SellRequest'));
 const BarterRequest = React.lazy(() => import('../pages/services/BarterRequest'));
 const HirePurchase = React.lazy(() => import('../pages/services/HirePurchase'));
+const MyHirePurchases = React.lazy(() => import('../pages/customer/MyHirePurchases'));
 const Layaway = React.lazy(() => import('../pages/services/Layaway'));
 const PreOrders = React.lazy(() => import('../pages/services/PreOrders'));
 const PreOrderDetail = React.lazy(() => import('../pages/services/PreOrderDetail'));
@@ -176,6 +177,7 @@ const AppRoutes = () => {
         <Route path="/sell" element={<ProtectedRoute><SellRequest /></ProtectedRoute>} />
         <Route path="/barter" element={<ProtectedRoute><BarterRequest /></ProtectedRoute>} />
         <Route path="/hire-purchase" element={<ProtectedRoute><HirePurchase /></ProtectedRoute>} />
+        <Route path="/my-hire-purchases" element={<ProtectedRoute><MyHirePurchases /></ProtectedRoute>} />
         <Route path="/layaway" element={<ProtectedRoute><Layaway /></ProtectedRoute>} />
         <Route path="/layaway/start" element={<ProtectedRoute><LayawayDetail /></ProtectedRoute>} />
         <Route path="/my-layaways" element={<ProtectedRoute><MyLayaways /></ProtectedRoute>} />

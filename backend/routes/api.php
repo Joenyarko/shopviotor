@@ -363,7 +363,9 @@ Route::prefix('v1')->group(function () {
             // Payments (Admin)
             Route::get('/payments', [\App\Http\Controllers\Api\V1\PaymentController::class, 'adminIndex']);
             Route::post('/payments/{uuid}/confirm', [\App\Http\Controllers\Api\V1\PaymentController::class, 'adminConfirm']);
-            Route::delete('/payments/clear-history', [\App\Http\Controllers\Api\V1\PaymentController::class, 'clearTestPayments']);
+            Route::post('/payments/{uuid}/verify', [\App\Http\Controllers\Api\V1\PaymentController::class, 'adminVerify']);
+            // Disabled in production to prevent accidental wiping of live payment audits:
+            // Route::delete('/payments/clear-history', [\App\Http\Controllers\Api\V1\PaymentController::class, 'clearTestPayments']);
 
             // Admin Marketing
         Route::apiResource('marketing/campaigns', AdminCampaignController::class)->parameters(['campaigns' => 'uuid']);

@@ -53,11 +53,26 @@ class HirePurchaseService
             $totalAmount         = $product->price + $totalInterest;
             $balanceAfterDeposit = max(0, $totalAmount - $deposit);
             $monthlyInstallment  = $balanceAfterDeposit / $durationMonths;
-            $nextDueDate         = now()->addMonth();
+
+            $schedule = in_array($data['payment_schedule'] ?? 'monthly', ['monthly', 'weekly', 'daily'], true)
+                ? ($data['payment_schedule'] ?? 'monthly')
+                : 'monthly';
+
+            $installmentCount = match ($schedule) {
+                'weekly' => $durationMonths * 4,
+                'daily'  => $durationMonths * 30,
+                default  => $durationMonths,
+            };
+            $installmentAmount = $installmentCount > 0 ? ($balanceAfterDeposit / $installmentCount) : 0;
+            $nextDueDate = match ($schedule) {
+                'weekly' => now()->addWeek(),
+                'daily'  => now()->addDay(),
+                default  => now()->addMonth(),
+            };
 
             $applicantType = $data['applicant_type'] ?? ($user->applicant_type ?? ($isStudentApproved ? 'student' : 'general'));
 
-            $hirePurchase = HirePurchase::create([
+            $createData = [
                 'user_id'             => $userId,
                 'product_id'          => $product->id,
                 'status'              => HirePurchaseStatus::Pending->value,
@@ -76,17 +91,37 @@ class HirePurchaseService
                 'late_fee'            => $data['late_fee'] ?? 0,
                 'next_due_date'       => $nextDueDate,
                 'notes'               => $data['notes'] ?? null,
-            ]);
+            ];
 
-            // Generate installment schedule
-            for ($i = 1; $i <= $durationMonths; $i++) {
-                HirePurchaseInstallment::create([
+            if (\Illuminate\Support\Facades\Schema::hasColumn('hire_purchases', 'payment_schedule')) {
+                $createData['payment_schedule'] = $schedule;
+            }
+
+            $hirePurchase = HirePurchase::create($createData);
+
+            // Generate installment schedule matching chosen frequency (monthly / weekly / daily)
+            $installmentRows = [];
+            $now = now();
+            for ($i = 1; $i <= $installmentCount; $i++) {
+                $dueDate = match ($schedule) {
+                    'weekly' => $now->copy()->addWeeks($i),
+                    'daily'  => $now->copy()->addDays($i),
+                    default  => $now->copy()->addMonths($i),
+                };
+
+                $installmentRows[] = [
                     'hire_purchase_id'   => $hirePurchase->id,
                     'installment_number' => $i,
-                    'amount_due'         => round($monthlyInstallment, 2),
-                    'due_date'           => now()->addMonths($i),
+                    'amount_due'         => round($installmentAmount, 2),
+                    'due_date'           => $dueDate->toDateString(),
                     'status'             => 'pending',
-                ]);
+                    'created_at'         => $now,
+                    'updated_at'         => $now,
+                ];
+            }
+
+            if (!empty($installmentRows)) {
+                HirePurchaseInstallment::insert($installmentRows);
             }
 
             return $hirePurchase->load('installments');

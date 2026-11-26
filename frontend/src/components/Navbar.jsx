@@ -242,6 +242,13 @@ const Navbar = () => {
                     >
                       <Package className="w-4 h-4" /> My Layaways
                     </Link>
+                    <Link
+                      to="/my-hire-purchases"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-secondary-700 dark:text-secondary-200 hover:bg-secondary-100 dark:hover:bg-secondary-700"
+                    >
+                      <Package className="w-4 h-4" /> My Hire Purchase
+                    </Link>
                     <button
                       onClick={() => {
                         setUserDropdownOpen(false);
@@ -364,6 +371,7 @@ const Navbar = () => {
                   <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Wishlist</Link>
                   <Link to="/my-pre-orders" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Pre-Orders</Link>
                   <Link to="/my-layaways" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Layaways</Link>
+                  <Link to="/my-hire-purchases" onClick={() => setMobileMenuOpen(false)} className="py-3 px-4 text-secondary-900 hover:bg-primary-600/30 rounded font-medium transition-colors">My Hire Purchase</Link>
                   <button onClick={() => { setMobileMenuOpen(false); handleLogout(); }} className="w-full text-left py-3 px-4 text-accent-700 hover:bg-primary-600/30 rounded font-bold transition-colors">Logout</button>
                 </>
               ) : (

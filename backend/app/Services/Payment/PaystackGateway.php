@@ -31,8 +31,8 @@ class PaystackGateway implements PaymentGatewayInterface
             'metadata' => $data['metadata'] ?? [],
         ];
 
-        // Paystack callback URL - point to our frontend verification endpoint
-        $payload['callback_url'] = config('app.frontend_url') . '/payment/verify?reference=' . $data['reference'];
+        // Paystack callback URL - point to our frontend callback route
+        $payload['callback_url'] = rtrim((string) config('app.frontend_url'), '/') . '/payments/callback/paystack?reference=' . $data['reference'];
 
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->secretKey,
