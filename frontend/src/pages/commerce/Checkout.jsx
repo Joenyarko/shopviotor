@@ -60,12 +60,13 @@ const Checkout = () => {
     whatsapp: '0508208803',
   };
 
-  // Fees
+  // Fees (default missing shipping_type to 'default' to match backend OrderService)
   const shippingFee = cart.reduce((total, item) => {
     const p = item.product || item;
-    if (p.shipping_type === 'free') return total;
-    if (p.shipping_type === 'custom') return total + (parseFloat(p.custom_shipping_fee || 0) * item.quantity);
-    if (p.shipping_type === 'default') return total + (defaultShipping * item.quantity); // Fallback to settings
+    const shipType = p.shipping_type || 'default';
+    if (shipType === 'free') return total;
+    if (shipType === 'custom') return total + (parseFloat(p.custom_shipping_fee || 0) * item.quantity);
+    if (shipType === 'default') return total + (defaultShipping * item.quantity);
     return total;
   }, 0);
   
@@ -177,10 +178,11 @@ const Checkout = () => {
       const res = await orderService.checkout(payload, idempotencyKey);
 
       if (paymentMethod === 'paystack' && res?.payment?.reference) {
+        const serverTotal = parseFloat(res?.order?.total || res?.data?.order?.total || res?.data?.total || orderTotal);
         // Popup flow
         openPaystack({
           email: user.email,
-          amountGHS: orderTotal,
+          amountGHS: serverTotal,
           reference: res.payment.reference,
           access_code: res.payment.access_code || res.payment.data?.access_code,
           onSuccess: async (response) => {
