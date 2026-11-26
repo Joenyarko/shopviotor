@@ -657,8 +657,12 @@ const Checkout = () => {
                 <span>GHS {cartSubtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-secondary-500 dark:text-secondary-400">
-                <span>Shipping</span>
-                <span>GHS {shippingFee.toFixed(2)}</span>
+                <span>Delivery Fee</span>
+                {shippingFee > 0 ? (
+                  <span>GHS {shippingFee.toFixed(2)}</span>
+                ) : (
+                  <span className="font-semibold text-amber-600 dark:text-amber-400">Paid on delivery</span>
+                )}
               </div>
               <div className="flex justify-between text-secondary-500 dark:text-secondary-400">
                 <span>Tax ({taxRate * 100}%)</span>
@@ -669,6 +673,11 @@ const Checkout = () => {
               <span>Total</span>
               <span className="text-primary-600 dark:text-primary-400">GHS {orderTotal.toFixed(2)}</span>
             </div>
+            {shippingFee === 0 && (
+              <p className="mt-3 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-xl p-2.5 leading-relaxed">
+                Delivery fee is paid directly to the dispatch rider upon delivery and varies by your location/distance.
+              </p>
+            )}
             <div className="mt-4 flex items-center gap-2 text-xs text-secondary-400">
               <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
               Secure 256-bit SSL encrypted checkout
