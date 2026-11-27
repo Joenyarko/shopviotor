@@ -303,7 +303,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/trade-requests/{uuid}/value', [AdminTradeRequestController::class, 'valueItems']);
             Route::post('/trade-requests/{uuid}/reject', [AdminTradeRequestController::class, 'reject']);
 
-            // Hire Purchase
+            // Hire Purchase (register /applications before /{uuid} wildcard)
+            Route::get('/hire-purchases/applications', [AdminHirePurchaseController::class, 'applications']);
+            Route::post('/hire-purchases/applications/{userUuid}/approve', [AdminHirePurchaseController::class, 'approveApplication']);
+            Route::post('/hire-purchases/applications/{userUuid}/reject', [AdminHirePurchaseController::class, 'rejectApplication']);
             Route::get('/hire-purchases', [AdminHirePurchaseController::class, 'index']);
             Route::get('/hire-purchases/{uuid}', [AdminHirePurchaseController::class, 'show']);
             Route::post('/hire-purchases/{uuid}/status', [AdminHirePurchaseController::class, 'updateStatus']);

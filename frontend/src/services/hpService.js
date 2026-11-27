@@ -14,6 +14,9 @@ const hpService = {
   adminUpdateStatus: (uuid, status) => apiClient.post(`/admin/hire-purchases/${uuid}/status`, { status }),
   adminConfirmDeposit: (uuid, data = {}) => apiClient.post(`/admin/hire-purchases/${uuid}/confirm-deposit`, data),
   adminConfirmInstallment: (uuid, installmentId, data = {}) => apiClient.post(`/admin/hire-purchases/${uuid}/installments/${installmentId}/confirm-payment`, data),
+  adminGetKycApplications: () => apiClient.get('/admin/hire-purchases/applications'),
+  adminApproveKycApplication: (userUuid) => apiClient.post(`/admin/hire-purchases/applications/${userUuid}/approve`),
+  adminRejectKycApplication: (userUuid, reason) => apiClient.post(`/admin/hire-purchases/applications/${userUuid}/reject`, { reason }),
 };
 
 export default hpService;

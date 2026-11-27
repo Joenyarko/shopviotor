@@ -15,11 +15,11 @@ class HirePurchaseService
     {
         $user = \App\Models\User::find($userId);
         $isStudentApproved  = $user && $user->student_verification_status === 'approved';
-        $isIdentityEligible = $user && in_array($user->identity_verification_status, ['approved', 'pending']);
+        $isIdentityApproved = $user && $user->identity_verification_status === 'approved';
 
-        if (!$user || (!$isStudentApproved && !$isIdentityEligible)) {
+        if (!$user || (!$isStudentApproved && !$isIdentityApproved)) {
             throw ValidationException::withMessages([
-                'verification' => ['You must submit student ID verification or Ghana Card identity verification to request a hire purchase arrangement.'],
+                'verification' => ['Your Hire Purchase identity application must be approved by Admin before you can configure a plan and start payments.'],
             ]);
         }
 

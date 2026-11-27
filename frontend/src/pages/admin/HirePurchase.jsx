@@ -40,9 +40,15 @@ const getAllCategoryIds = (cat) => {
 };
 
 const AdminHirePurchase = () => {
-  const [activeTab, setActiveTab] = useState('applications'); // 'applications' | 'products'
+  const [activeTab, setActiveTab] = useState('kyc_applications'); // 'kyc_applications' | 'applications' | 'products'
   
-  // Applications State
+  // KYC Applications State
+  const [kycApps, setKycApps] = useState([]);
+  const [loadingKyc, setLoadingKyc] = useState(true);
+  const [selectedKyc, setSelectedKyc] = useState(null);
+  const [kycStatusFilter, setKycStatusFilter] = useState('all');
+
+  // Order Plans State
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState(null);
@@ -146,7 +152,81 @@ const AdminHirePurchase = () => {
     }
   };
 
+  const loadKycApplications = async () => {
+    setLoadingKyc(true);
+    try {
+      const response = await hpService.adminGetKycApplications();
+      const list = response.data?.data || response.data || [];
+      setKycApps(Array.isArray(list) ? list : []);
+    } catch (e) {
+      console.error('Failed to load KYC applications:', e);
+    } finally {
+      setLoadingKyc(false);
+    }
+  };
+
+  const handleApproveKyc = async (applicant) => {
+    const confirm = await Swal.fire({
+      title: 'Approve Application?',
+      text: `Approve ${applicant.name}'s identity verification so they can configure a Hire Purchase plan and start payments?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10b981',
+      confirmButtonText: 'Yes, Approve',
+    });
+    if (!confirm.isConfirmed) return;
+    setProcessing(true);
+    try {
+      await hpService.adminApproveKycApplication(applicant.uuid);
+      Swal.fire({ icon: 'success', title: 'Approved!', text: `${applicant.name} is now approved for Hire Purchase.`, timer: 2000, showConfirmButton: false });
+      setSelectedKyc(prev => prev && prev.uuid === applicant.uuid ? { ...prev, status: 'approved', verification_rejection_reason: null } : prev);
+      loadKycApplications();
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err?.message || 'Failed to approve application.' });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleRejectKyc = async (applicant) => {
+    const { value: reason } = await Swal.fire({
+      title: `Reject ${applicant.name}'s Application`,
+      input: 'textarea',
+      inputLabel: 'Reason for rejection (shown to customer so they can fix & reapply)',
+      inputPlaceholder: 'e.g. Ghana Card photo is blurry, please upload a clearer front image and matching selfie.',
+      inputAttributes: { rows: 3 },
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      confirmButtonText: 'Reject Application',
+      inputValidator: (value) => {
+        if (!value || value.trim().length < 5) {
+          return 'Please enter a clear reason (at least 5 characters).';
+        }
+      },
+    });
+    if (!reason) return;
+    setProcessing(true);
+    try {
+      const res = await hpService.adminRejectKycApplication(applicant.uuid, reason.trim());
+      const attempts = res?.verification_attempts ?? res?.data?.verification_attempts ?? ((applicant.verification_attempts || 0) + 1);
+      Swal.fire({
+        icon: 'info',
+        title: 'Application Rejected',
+        text: `Rejection recorded (${attempts}/3 attempts used). Customer can reapply if attempts remain.`,
+        timer: 2500,
+        showConfirmButton: false,
+      });
+      setSelectedKyc(prev => prev && prev.uuid === applicant.uuid ? { ...prev, status: 'rejected', verification_attempts: attempts, verification_rejection_reason: reason.trim() } : prev);
+      loadKycApplications();
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err?.message || 'Failed to reject application.' });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   useEffect(() => {
+    loadKycApplications();
     loadApplications();
     loadHpProducts();
     productService.getCategories().then(r => setCategories(r.data?.data || r.data || [])).catch(console.error);
@@ -397,10 +477,19 @@ const AdminHirePurchase = () => {
         </div>
       </div>
 
-      <div className="flex border-b border-secondary-200 dark:border-secondary-800">
+      <div className="flex border-b border-secondary-200 dark:border-secondary-800 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('kyc_applications')}
+          className={`px-5 py-3 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'kyc_applications' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200'}`}
+        >
+          <span>Applications</span>
+          <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-bold">
+            {kycApps.filter(k => k.status === 'pending').length} pending
+          </span>
+        </button>
         <button
           onClick={() => { setActiveTab('applications'); setPage(1); }}
-          className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'applications' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200'}`}
+          className={`px-5 py-3 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'applications' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200'}`}
         >
           <span>Order Plans</span>
           <span className="px-2 py-0.5 rounded-full text-xs bg-primary-100 dark:bg-primary-950/40 text-primary-700 dark:text-primary-300 font-bold">
@@ -409,7 +498,7 @@ const AdminHirePurchase = () => {
         </button>
         <button
           onClick={() => { setActiveTab('products'); setProdPage(1); }}
-          className={`px-6 py-3 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'products' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200'}`}
+          className={`px-5 py-3 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap ${activeTab === 'products' ? 'border-primary-500 text-primary-600 dark:text-primary-400' : 'border-transparent text-secondary-500 hover:text-secondary-700 dark:text-secondary-400 dark:hover:text-secondary-200'}`}
         >
           <span>HP Products</span>
           <span className="px-2 py-0.5 rounded-full text-xs bg-secondary-100 dark:bg-secondary-800 text-secondary-600 dark:text-secondary-400 font-bold">
@@ -417,6 +506,196 @@ const AdminHirePurchase = () => {
           </span>
         </button>
       </div>
+
+      {activeTab === 'kyc_applications' && (() => {
+        const filteredKyc = kycApps.filter(k => {
+          const q = searchTerm.toLowerCase();
+          const matchQ = !q || (k.name || '').toLowerCase().includes(q) || (k.email || '').toLowerCase().includes(q) || (k.phone || '').toLowerCase().includes(q) || (k.ghana_card_number || '').toLowerCase().includes(q);
+          if (!matchQ) return false;
+          if (kycStatusFilter === 'all') return true;
+          return k.status === kycStatusFilter;
+        });
+
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+              {[
+                { id: 'all', label: 'All Applications', count: kycApps.length },
+                { id: 'pending', label: 'Pending Review', count: kycApps.filter(k => k.status === 'pending').length },
+                { id: 'approved', label: 'Approved', count: kycApps.filter(k => k.status === 'approved').length },
+                { id: 'rejected', label: 'Rejected', count: kycApps.filter(k => k.status === 'rejected').length },
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setKycStatusFilter(t.id)}
+                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                    kycStatusFilter === t.id
+                      ? 'bg-primary-500 text-white shadow-sm'
+                      : 'bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 text-secondary-600 dark:text-secondary-400 hover:bg-secondary-50'
+                  }`}
+                >
+                  <span>{t.label}</span>
+                  <span className={`text-[10px] px-1.5 rounded-full ${kycStatusFilter === t.id ? 'bg-black/20 text-white' : 'bg-secondary-100 dark:bg-secondary-800'}`}>{t.count}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                {loadingKyc ? (
+                  <div className="flex justify-center py-12"><RefreshCw className="w-8 h-8 text-primary-500 animate-spin" /></div>
+                ) : filteredKyc.length === 0 ? (
+                  <div className="p-8 border border-secondary-200 dark:border-secondary-800 rounded-2xl text-center bg-white dark:bg-secondary-900 text-secondary-500 font-semibold">
+                    No customer verification applications found.
+                  </div>
+                ) : (
+                  <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-x-auto shadow-sm">
+                    <table className="w-full min-w-[640px] text-left border-collapse text-sm">
+                      <thead>
+                        <tr className="bg-secondary-50 dark:bg-secondary-850 border-b border-secondary-200 dark:border-secondary-800 text-secondary-500 font-bold uppercase tracking-wider text-xxs">
+                          <th className="p-4">Applicant</th>
+                          <th className="p-4">ID Type / PIN</th>
+                          <th className="p-4">Status</th>
+                          <th className="p-4">Rejections</th>
+                          <th className="p-4 text-right">Review</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
+                        {filteredKyc.map(k => (
+                          <tr key={k.uuid} className={`hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30 ${selectedKyc?.uuid === k.uuid ? 'bg-primary-50/40 dark:bg-primary-950/20' : ''}`}>
+                            <td className="p-4">
+                              <div className="font-bold text-secondary-900 dark:text-white">{k.name || 'Customer'}</div>
+                              <div className="text-xs text-secondary-500">{k.phone || k.email}</div>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-secondary-100 dark:bg-secondary-800 text-secondary-700 dark:text-secondary-300">
+                                {k.applicant_type === 'student' ? 'Student ID' : 'Ghana Card'}
+                              </span>
+                              <div className="text-xs font-mono text-secondary-600 dark:text-secondary-400 mt-1">
+                                {k.applicant_type === 'student' ? (k.student_id || '—') : (k.ghana_card_number || '—')}
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <span className={`text-xxs px-2.5 py-1 rounded-full font-bold uppercase ${
+                                k.status === 'approved' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400'
+                                : k.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400'
+                                : 'bg-amber-100 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400'
+                              }`}>
+                                {k.status}
+                              </span>
+                            </td>
+                            <td className="p-4 text-xs font-bold text-secondary-600 dark:text-secondary-400">
+                              {k.verification_attempts || 0} / 3
+                            </td>
+                            <td className="p-4 text-right">
+                              <button
+                                onClick={() => setSelectedKyc(k)}
+                                className="px-3 py-1.5 rounded-lg text-xs font-bold bg-primary-500 hover:bg-primary-600 text-secondary-950 inline-flex items-center gap-1 shadow-sm"
+                              >
+                                <Eye className="w-3.5 h-3.5" /> Inspect
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Applicant Details & Document Viewer */}
+              <div>
+                {selectedKyc ? (
+                  <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-5 shadow-sm space-y-4">
+                    <div className="flex items-start justify-between border-b border-secondary-100 dark:border-secondary-800 pb-3">
+                      <div>
+                        <h3 className="font-extrabold text-secondary-900 dark:text-white">{selectedKyc.name}</h3>
+                        <p className="text-xs text-secondary-500">{selectedKyc.email} &bull; {selectedKyc.phone || 'No phone'}</p>
+                      </div>
+                      <button onClick={() => setSelectedKyc(null)} className="text-secondary-400 hover:text-secondary-700"><X className="w-4 h-4" /></button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2.5 text-xs">
+                      {selectedKyc.applicant_type === 'student' ? (
+                        <>
+                          <div><span className="text-secondary-400 block">Student ID</span><span className="font-mono font-bold">{selectedKyc.student_id || '—'}</span></div>
+                          <div><span className="text-secondary-400 block">Course</span><span className="font-bold">{selectedKyc.student_course || '—'}</span></div>
+                          <div><span className="text-secondary-400 block">Level</span><span className="font-bold">{selectedKyc.student_level || '—'}</span></div>
+                        </>
+                      ) : (
+                        <>
+                          <div><span className="text-secondary-400 block">Ghana Card PIN</span><span className="font-mono font-bold">{selectedKyc.ghana_card_number || '—'}</span></div>
+                          <div><span className="text-secondary-400 block">Digital Address</span><span className="font-bold">{selectedKyc.digital_address || '—'}</span></div>
+                          <div><span className="text-secondary-400 block">Occupation</span><span className="font-bold">{selectedKyc.occupation || '—'}</span></div>
+                          <div><span className="text-secondary-400 block">Monthly Income</span><span className="font-bold">{selectedKyc.monthly_income ? `GHS ${Number(selectedKyc.monthly_income).toLocaleString()}` : '—'}</span></div>
+                          <div className="col-span-2"><span className="text-secondary-400 block">Next of Kin</span><span className="font-bold">{selectedKyc.next_of_kin_name || '—'} ({selectedKyc.next_of_kin_relation || '—'}) &bull; {selectedKyc.next_of_kin_phone || '—'}</span></div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Uploaded KYC Documents */}
+                    <div className="space-y-2 pt-2 border-t border-secondary-100 dark:border-secondary-800">
+                      <span className="text-[11px] font-extrabold uppercase text-secondary-500">Submitted Documents</span>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { label: 'Ghana Card Front', url: selectedKyc.ghana_card_front_url },
+                          { label: 'Ghana Card Back', url: selectedKyc.ghana_card_back_url },
+                          { label: 'Live Selfie', url: selectedKyc.selfie_url },
+                          { label: 'Student ID Card', url: selectedKyc.student_id_picture_url },
+                        ].filter(d => d.url).map(doc => (
+                          <a
+                            key={doc.label}
+                            href={doc.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="group block rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800"
+                          >
+                            <img src={doc.url} alt={doc.label} className="w-full h-24 object-cover group-hover:scale-105 transition-transform" />
+                            <div className="px-2 py-1 text-[10px] font-bold text-center text-primary-600 dark:text-primary-400 truncate">
+                              {doc.label} ↗
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+
+                    {selectedKyc.verification_rejection_reason && (
+                      <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-xs text-red-700 dark:text-red-300">
+                        <strong>Last Rejection Reason ({selectedKyc.verification_attempts || 0}/3):</strong> {selectedKyc.verification_rejection_reason}
+                      </div>
+                    )}
+
+                    <div className="flex gap-2 pt-2">
+                      {selectedKyc.status !== 'approved' && (
+                        <button
+                          onClick={() => handleApproveKyc(selectedKyc)}
+                          disabled={processing}
+                          className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          <CheckCircle className="w-4 h-4" /> Approve
+                        </button>
+                      )}
+                      {selectedKyc.status !== 'rejected' && (
+                        <button
+                          onClick={() => handleRejectKyc(selectedKyc)}
+                          disabled={processing}
+                          className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                        >
+                          <X className="w-4 h-4" /> Reject
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-8 border border-dashed border-secondary-300 dark:border-secondary-700 rounded-2xl text-center text-xs text-secondary-500">
+                    Click <strong>Inspect</strong> on an applicant to view their Ghana Card, Selfie, and approve or reject their application.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {activeTab === 'applications' && (
         <div className="space-y-4">

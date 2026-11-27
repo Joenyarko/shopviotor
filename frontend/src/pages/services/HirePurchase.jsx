@@ -793,8 +793,75 @@ const HirePurchase = () => {
                 <button onClick={handleClearSelectedProduct} className="premium-button-secondary px-6 rounded-xl text-sm py-2.5">Choose Another Item</button>
               </div>
             </div>
-          ) : (!user?.student_verification_status || (user.student_verification_status !== 'approved' && user.identity_verification_status !== 'approved' && user.student_verification_status !== 'pending' && user.identity_verification_status !== 'pending')) ? (
+          ) : (user?.student_verification_status === 'pending' || user?.identity_verification_status === 'pending') && user?.student_verification_status !== 'approved' && user?.identity_verification_status !== 'approved' ? (
+            <div className="bg-white dark:bg-secondary-900 border border-amber-200 dark:border-amber-800/60 rounded-2xl p-8 text-center space-y-4 shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto">
+                <Clock className="w-8 h-8" />
+              </div>
+              <h2 className="text-xl font-extrabold text-secondary-900 dark:text-white">Application Under Admin Review</h2>
+              <p className="text-sm text-secondary-600 dark:text-secondary-400 max-w-md mx-auto leading-relaxed">
+                Your identity verification documents have been received. Once Shop Viotor Admin reviews and approves your application, you will be able to lock in your plan and start making payments.
+              </p>
+              <div className="pt-2 flex flex-wrap justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="px-5 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-secondary-950 text-xs font-extrabold inline-flex items-center gap-1.5"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" /> Check Approval Status
+                </button>
+                <a
+                  href="https://wa.me/233508208803?text=Hello%20Shop%20Viotor%2C%20I%20just%20submitted%20my%20Hire%20Purchase%20identity%20application.%20Kindly%20review."
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold inline-flex items-center gap-1.5"
+                >
+                  <Phone className="w-3.5 h-3.5" /> Follow Up on WhatsApp
+                </a>
+              </div>
+            </div>
+          ) : (user?.student_verification_status === 'rejected' || user?.identity_verification_status === 'rejected') && (user?.verification_attempts || 0) >= 3 ? (
+            <div className="bg-white dark:bg-secondary-900 border border-red-200 dark:border-red-900/60 rounded-2xl p-8 text-center space-y-4 shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
+                <AlertCircle className="w-8 h-8" />
+              </div>
+              <h2 className="text-xl font-extrabold text-secondary-900 dark:text-white">Maximum Application Attempts Reached (3/3)</h2>
+              {user?.verification_rejection_reason && (
+                <div className="max-w-md mx-auto p-3.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-xs text-red-700 dark:text-red-300 text-left">
+                  <strong className="block mb-0.5">Last Rejection Reason:</strong>
+                  {user.verification_rejection_reason}
+                </div>
+              )}
+              <p className="text-sm text-secondary-600 dark:text-secondary-400 max-w-md mx-auto">
+                You have used all 3 re-application attempts. Please contact Shop Viotor support for manual assistance.
+              </p>
+              <a
+                href="https://wa.me/233508208803?text=Hello%20Shop%20Viotor%2C%20my%20Hire%20Purchase%20verification%20reached%203%20attempts.%20Please%20assist."
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold"
+              >
+                <Phone className="w-3.5 h-3.5" /> Contact Support on WhatsApp
+              </a>
+            </div>
+          ) : (user?.student_verification_status !== 'approved' && user?.identity_verification_status !== 'approved') ? (
             <div className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm">
+              {(user?.student_verification_status === 'rejected' || user?.identity_verification_status === 'rejected') && (
+                <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 space-y-1.5 text-xs text-red-700 dark:text-red-300">
+                  <div className="flex items-center justify-between">
+                    <strong className="text-sm font-extrabold flex items-center gap-1.5">
+                      <AlertCircle className="w-4 h-4" /> Previous Application Rejected
+                    </strong>
+                    <span className="px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/50 font-bold text-[10px]">
+                      {Math.max(0, 3 - (user?.verification_attempts || 0))} of 3 retries left
+                    </span>
+                  </div>
+                  {user?.verification_rejection_reason && (
+                    <p><strong>Reason:</strong> {user.verification_rejection_reason}</p>
+                  )}
+                  <p className="text-red-600/90 dark:text-red-400">Please address the reason above and submit your updated details below to reapply.</p>
+                </div>
+              )}
               <div className="border-b border-secondary-100 dark:border-secondary-800 pb-4">
                 <h2 className="text-lg font-bold text-secondary-900 dark:text-white">Identity Verification Required</h2>
                 <p className="text-xs text-secondary-500 mt-1">

@@ -58,6 +58,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'next_of_kin_phone',
         'next_of_kin_relation',
         'identity_verification_status',
+        'verification_attempts',
+        'verification_rejection_reason',
         'dojah_reference',
         'dojah_raw_response',
         'google_id',
@@ -121,6 +123,17 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getFullNameAttribute(): string
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    public static function normalizeAssetUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+        if (\Illuminate\Support\Str::startsWith($path, ['http://', 'https://', 'data:'])) {
+            return $path;
+        }
+        return rtrim((string) config('app.url'), '/') . '/' . ltrim($path, '/');
     }
 
     public function getAvatarUrlAttribute(): ?string

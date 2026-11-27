@@ -176,31 +176,56 @@ class AuthController extends Controller
         ]);
     }
 
+    private function storeKycFile($file, string $folder): string
+    {
+        try {
+            if (method_exists($file, 'storeOnCloudinary')) {
+                return $file->storeOnCloudinary($folder)->getSecurePath();
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Cloudinary KYC upload fallback to local disk: ' . $e->getMessage());
+        }
+
+        $path = $file->store($folder, 'public');
+        return rtrim((string) config('app.url'), '/') . '/storage/' . ltrim($path, '/');
+    }
+
     public function submitStudentVerification(Request $request): JsonResponse
     {
+        $user = $request->user();
+        if (($user->verification_attempts ?? 0) >= 3 && $user->student_verification_status === 'rejected') {
+            return response()->json([
+                'message' => 'You have reached the maximum number of re-application attempts (3). Please contact Shop Viotor support.',
+            ], 422);
+        }
+
         $request->validate([
-            'student_id' => 'required|string|max:255|unique:users,student_id,' . $request->user()->id,
+            'student_id' => 'required|string|max:255|unique:users,student_id,' . $user->id,
             'student_name' => 'required|string|max:255',
             'student_course' => 'required|string|max:255',
             'student_level' => 'required|string|max:255',
-            'student_id_picture' => 'required|image|max:5120',
+            'student_id_picture' => 'required|image|max:10240',
         ]);
 
-        $user = $request->user();
-        $path = $request->file('student_id_picture')->store('student-ids', 'public');
+        $imageUrl = $this->storeKycFile($request->file('student_id_picture'), 'identity/student-ids');
 
-        $user->update([
+        $updateData = [
+            'applicant_type'               => 'student',
             'student_id'                   => $request->student_id,
             'student_name'                 => $request->student_name,
             'student_course'               => $request->student_course,
             'student_level'                => $request->student_level,
-            'student_id_picture_url'       => '/storage/' . $path,
+            'student_id_picture_url'       => $imageUrl,
             'student_verification_status'  => 'pending',
-        ]);
+        ];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'verification_rejection_reason')) {
+            $updateData['verification_rejection_reason'] = null;
+        }
+        $user->update($updateData);
 
         return response()->json([
-            'message' => 'Student ID submitted successfully and is pending approval.',
-            'user'    => new UserResource($user),
+            'message' => 'Student ID submitted successfully and is pending admin approval.',
+            'user'    => new UserResource($user->fresh()),
         ]);
     }
 
@@ -211,6 +236,13 @@ class AuthController extends Controller
         Request $request,
         \App\Services\Verification\DojahVerificationService $dojahService
     ): JsonResponse {
+        $user = $request->user();
+        if (($user->verification_attempts ?? 0) >= 3 && $user->identity_verification_status === 'rejected') {
+            return response()->json([
+                'message' => 'You have reached the maximum number of re-application attempts (3). Please contact Shop Viotor support.',
+            ], 422);
+        }
+
         $request->validate([
             'ghana_card_number'   => ['required', 'string', 'regex:/^GHA-\d{9}-\d$/i'],
             'digital_address'     => ['required', 'string', 'max:50'],
@@ -220,36 +252,33 @@ class AuthController extends Controller
             'next_of_kin_name'    => ['required', 'string', 'max:150'],
             'next_of_kin_phone'   => ['required', 'string', 'max:25'],
             'next_of_kin_relation'=> ['required', 'string', 'max:100'],
-            'ghana_card_front'    => ['required', 'image', 'max:5120'],
-            'ghana_card_back'     => ['nullable', 'image', 'max:5120'],
+            'ghana_card_front'    => ['required', 'image', 'max:10240'],
+            'ghana_card_back'     => ['nullable', 'image', 'max:10240'],
             'selfie_image'        => ['required'], // can be image file or base64 data url
         ]);
 
-        $user = $request->user();
-
-        // 1. Store Ghana Card Front
-        $frontPath = $request->file('ghana_card_front')->store('identity/ghana-cards', 'public');
-        $backPath  = null;
+        // 1. Store Ghana Card Front & Back (Cloudinary preferred, full API URL fallback)
+        $frontUrl = $this->storeKycFile($request->file('ghana_card_front'), 'identity/ghana-cards');
+        $backUrl  = null;
         if ($request->hasFile('ghana_card_back')) {
-            $backPath = $request->file('ghana_card_back')->store('identity/ghana-cards', 'public');
+            $backUrl = $this->storeKycFile($request->file('ghana_card_back'), 'identity/ghana-cards');
         }
 
         // 2. Process & Store Selfie (File or Base64 Webcam snapshot)
         $selfieUrl = null;
         if ($request->hasFile('selfie_image')) {
-            $selfiePath = $request->file('selfie_image')->store('identity/selfies', 'public');
-            $selfieUrl  = '/storage/' . $selfiePath;
+            $selfieUrl = $this->storeKycFile($request->file('selfie_image'), 'identity/selfies');
         } elseif (is_string($request->selfie_image) && str_starts_with($request->selfie_image, 'data:image')) {
             $imageParts = explode(';base64,', $request->selfie_image);
             if (isset($imageParts[1])) {
                 $imageDecoded = base64_decode($imageParts[1]);
                 $fileName = 'identity/selfies/' . uniqid('selfie_') . '.jpg';
                 \Illuminate\Support\Facades\Storage::disk('public')->put($fileName, $imageDecoded);
-                $selfieUrl = '/storage/' . $fileName;
+                $selfieUrl = rtrim((string) config('app.url'), '/') . '/storage/' . $fileName;
             }
         }
 
-        // 3. Perform Dojah verification
+        // 3. Perform Dojah verification (always queued for admin review unless explicitly auto-approved)
         $cardPin = strtoupper(trim($request->ghana_card_number));
         $dojahCardResult = $dojahService->verifyGhanaCard($cardPin);
         
@@ -258,14 +287,13 @@ class AuthController extends Controller
             $dojahFaceResult = $dojahService->verifyFacialMatch($selfieUrl);
         }
 
-        $isDojahApproved = ($dojahCardResult['status'] ?? '') === 'success' && ($dojahFaceResult['match'] ?? false);
-        $finalStatus     = $isDojahApproved ? 'approved' : 'pending';
+        $finalStatus = 'pending';
 
-        $user->update([
+        $updateData = [
             'applicant_type'               => 'general',
             'ghana_card_number'            => $cardPin,
-            'ghana_card_front_url'         => '/storage/' . $frontPath,
-            'ghana_card_back_url'          => $backPath ? ('/storage/' . $backPath) : null,
+            'ghana_card_front_url'         => $frontUrl,
+            'ghana_card_back_url'          => $backUrl,
             'selfie_url'                   => $selfieUrl,
             'digital_address'              => $request->digital_address,
             'occupation'                   => $request->occupation,
@@ -281,12 +309,14 @@ class AuthController extends Controller
                 'face_match'        => $dojahFaceResult,
                 'submitted_at'      => now()->toIso8601String(),
             ],
-        ]);
+        ];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'verification_rejection_reason')) {
+            $updateData['verification_rejection_reason'] = null;
+        }
+        $user->update($updateData);
 
         return response()->json([
-            'message' => $isDojahApproved 
-                ? 'Ghana Card & biometric verification approved successfully.' 
-                : 'Identity details submitted successfully. Queued for verification.',
+            'message' => 'Identity application submitted successfully. Please wait for Admin approval before starting your payment plan.',
             'status'  => $finalStatus,
             'user'    => new UserResource($user->fresh()),
         ]);

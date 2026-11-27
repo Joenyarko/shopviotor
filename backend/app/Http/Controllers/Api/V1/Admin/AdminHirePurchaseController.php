@@ -32,13 +32,13 @@ class AdminHirePurchaseController extends Controller
                     'student_name'                 => $hp->user->student_name,
                     'student_course'               => $hp->user->student_course,
                     'student_level'                => $hp->user->student_level,
-                    'student_id_picture_url'       => $hp->user->student_id_picture_url,
+                    'student_id_picture_url'       => \App\Models\User::normalizeAssetUrl($hp->user->student_id_picture_url),
                     'student_verification_status'  => $hp->user->student_verification_status,
                     'applicant_type'               => $hp->user->applicant_type,
                     'ghana_card_number'            => $hp->user->ghana_card_number,
-                    'ghana_card_front_url'         => $hp->user->ghana_card_front_url,
-                    'ghana_card_back_url'          => $hp->user->ghana_card_back_url,
-                    'selfie_url'                   => $hp->user->selfie_url,
+                    'ghana_card_front_url'         => \App\Models\User::normalizeAssetUrl($hp->user->ghana_card_front_url),
+                    'ghana_card_back_url'          => \App\Models\User::normalizeAssetUrl($hp->user->ghana_card_back_url),
+                    'selfie_url'                   => \App\Models\User::normalizeAssetUrl($hp->user->selfie_url),
                     'digital_address'              => $hp->user->digital_address,
                     'occupation'                   => $hp->user->occupation,
                     'employer_name'                => $hp->user->employer_name,
@@ -99,13 +99,13 @@ class AdminHirePurchaseController extends Controller
                     'student_name'                 => $hp->user->student_name,
                     'student_course'               => $hp->user->student_course,
                     'student_level'                => $hp->user->student_level,
-                    'student_id_picture_url'       => $hp->user->student_id_picture_url,
+                    'student_id_picture_url'       => \App\Models\User::normalizeAssetUrl($hp->user->student_id_picture_url),
                     'student_verification_status'  => $hp->user->student_verification_status,
                     'applicant_type'               => $hp->user->applicant_type,
                     'ghana_card_number'            => $hp->user->ghana_card_number,
-                    'ghana_card_front_url'         => $hp->user->ghana_card_front_url,
-                    'ghana_card_back_url'          => $hp->user->ghana_card_back_url,
-                    'selfie_url'                   => $hp->user->selfie_url,
+                    'ghana_card_front_url'         => \App\Models\User::normalizeAssetUrl($hp->user->ghana_card_front_url),
+                    'ghana_card_back_url'          => \App\Models\User::normalizeAssetUrl($hp->user->ghana_card_back_url),
+                    'selfie_url'                   => \App\Models\User::normalizeAssetUrl($hp->user->selfie_url),
                     'digital_address'              => $hp->user->digital_address,
                     'occupation'                   => $hp->user->occupation,
                     'employer_name'                => $hp->user->employer_name,
@@ -307,5 +307,116 @@ class AdminHirePurchaseController extends Controller
                 'message' => 'Failed to confirm installment: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * List all customer KYC / Student ID applications for Hire Purchase review.
+     */
+    public function applications(Request $request): JsonResponse
+    {
+        $users = \App\Models\User::where(function ($q) {
+                $q->whereIn('identity_verification_status', ['pending', 'approved', 'rejected'])
+                  ->orWhereIn('student_verification_status', ['pending', 'approved', 'rejected']);
+            })
+            ->latest('updated_at')
+            ->get();
+
+        $data = $users->map(function ($u) {
+            $isStudent = in_array($u->student_verification_status, ['pending', 'approved', 'rejected'], true)
+                && ($u->applicant_type === 'student' || !in_array($u->identity_verification_status, ['pending', 'approved', 'rejected'], true));
+
+            $status = $isStudent
+                ? ($u->student_verification_status ?? 'pending')
+                : ($u->identity_verification_status ?? 'pending');
+
+            return [
+                'uuid'                          => $u->uuid,
+                'name'                          => trim($u->first_name . ' ' . $u->last_name),
+                'email'                         => $u->email,
+                'phone'                         => $u->phone,
+                'applicant_type'                => $isStudent ? 'student' : 'general',
+                'status'                        => $status,
+                'verification_attempts'         => (int) ($u->verification_attempts ?? 0),
+                'verification_rejection_reason' => $u->verification_rejection_reason,
+                'ghana_card_number'             => $u->ghana_card_number,
+                'ghana_card_front_url'          => \App\Models\User::normalizeAssetUrl($u->ghana_card_front_url),
+                'ghana_card_back_url'           => \App\Models\User::normalizeAssetUrl($u->ghana_card_back_url),
+                'selfie_url'                    => \App\Models\User::normalizeAssetUrl($u->selfie_url),
+                'digital_address'               => $u->digital_address,
+                'occupation'                    => $u->occupation,
+                'employer_name'                 => $u->employer_name,
+                'monthly_income'                => $u->monthly_income,
+                'next_of_kin_name'              => $u->next_of_kin_name,
+                'next_of_kin_phone'             => $u->next_of_kin_phone,
+                'next_of_kin_relation'          => $u->next_of_kin_relation,
+                'student_id'                    => $u->student_id,
+                'student_name'                  => $u->student_name,
+                'student_course'                => $u->student_course,
+                'student_level'                 => $u->student_level,
+                'student_id_picture_url'        => \App\Models\User::normalizeAssetUrl($u->student_id_picture_url),
+                'updated_at'                    => $u->updated_at?->toISOString(),
+            ];
+        });
+
+        return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Approve a customer's Hire Purchase KYC / Student verification application.
+     */
+    public function approveApplication(string $userUuid): JsonResponse
+    {
+        $user = \App\Models\User::where('uuid', $userUuid)->firstOrFail();
+
+        $updates = [];
+        if (in_array($user->identity_verification_status, ['pending', 'rejected'], true) || $user->ghana_card_number) {
+            $updates['identity_verification_status'] = 'approved';
+        }
+        if (in_array($user->student_verification_status, ['pending', 'rejected'], true) || $user->student_id) {
+            $updates['student_verification_status'] = 'approved';
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'verification_rejection_reason')) {
+            $updates['verification_rejection_reason'] = null;
+        }
+
+        $user->update($updates);
+
+        return response()->json([
+            'message' => 'Application approved. Customer can now configure a Hire Purchase plan and start payments.',
+        ]);
+    }
+
+    /**
+     * Reject a customer's Hire Purchase KYC / Student application with a reason (max 3 retries).
+     */
+    public function rejectApplication(Request $request, string $userUuid): JsonResponse
+    {
+        $request->validate([
+            'reason' => ['required', 'string', 'min:5', 'max:500'],
+        ]);
+
+        $user = \App\Models\User::where('uuid', $userUuid)->firstOrFail();
+        $nextAttempts = min(3, (int) ($user->verification_attempts ?? 0) + 1);
+
+        $updates = [];
+        if (in_array($user->identity_verification_status, ['pending', 'approved'], true) || $user->ghana_card_number) {
+            $updates['identity_verification_status'] = 'rejected';
+        }
+        if (in_array($user->student_verification_status, ['pending', 'approved'], true) || $user->student_id) {
+            $updates['student_verification_status'] = 'rejected';
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'verification_attempts')) {
+            $updates['verification_attempts'] = $nextAttempts;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'verification_rejection_reason')) {
+            $updates['verification_rejection_reason'] = trim($request->reason);
+        }
+
+        $user->update($updates);
+
+        return response()->json([
+            'message'               => 'Application rejected with reason.',
+            'verification_attempts' => $nextAttempts,
+        ]);
     }
 }
