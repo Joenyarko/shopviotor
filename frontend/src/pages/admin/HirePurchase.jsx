@@ -215,7 +215,7 @@ const AdminHirePurchase = () => {
       handleSelectApp(app);
     } catch (err) {
       console.error(err);
-      Swal.fire({ text: err.response?.data?.message || 'Failed to confirm deposit.', icon: 'error' });
+      Swal.fire({ text: err?.message || err?.response?.data?.message || 'Failed to confirm deposit.', icon: 'error' });
     } finally {
       setProcessing(false);
     }
@@ -527,7 +527,7 @@ const AdminHirePurchase = () => {
                           </td>
                           <td className="p-4 text-right">
                             <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                              {!app.deposit_paid_at && app.status !== 'rejected' && (
+                              {!app.deposit_paid_at && app.status === 'pending' && (
                                 <button
                                   onClick={() => handleConfirmDeposit(app)}
                                   disabled={processing}
@@ -691,7 +691,7 @@ const AdminHirePurchase = () => {
                   
                   <div className="pt-4 border-t border-secondary-100 dark:border-secondary-800 space-y-2">
                     {/* Confirm Deposit Button if unpaid */}
-                    {!selectedApp.deposit_paid_at && selectedApp.status !== 'rejected' && (
+                    {!selectedApp.deposit_paid_at && selectedApp.status === 'pending' && (
                       <button 
                         onClick={() => handleConfirmDeposit(selectedApp)}
                         disabled={processing} 

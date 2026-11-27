@@ -60,7 +60,9 @@ class AdminHirePurchaseController extends Controller
                 'balance_remaining'   => $hp->balance_remaining,
                 'monthly_installment' => $hp->monthly_installment,
                 'duration_months'     => $hp->duration_months,
+                'payment_schedule'    => $hp->payment_schedule ?? 'monthly',
                 'interest_rate'       => $hp->interest_rate,
+                'deposit_paid_at'     => $hp->deposit_paid_at,
                 'next_due_date'       => $hp->next_due_date,
                 'notes'               => $hp->notes,
                 'created_at'          => $hp->created_at,
@@ -125,7 +127,9 @@ class AdminHirePurchaseController extends Controller
                 'balance_remaining'   => $hp->balance_remaining,
                 'monthly_installment' => $hp->monthly_installment,
                 'duration_months'     => $hp->duration_months,
+                'payment_schedule'    => $hp->payment_schedule ?? 'monthly',
                 'interest_rate'       => $hp->interest_rate,
+                'deposit_paid_at'     => $hp->deposit_paid_at,
                 'next_due_date'       => $hp->next_due_date,
                 'notes'               => $hp->notes,
                 'created_at'          => $hp->created_at,
@@ -170,35 +174,63 @@ class AdminHirePurchaseController extends Controller
             'notes'          => 'nullable|string|max:500',
         ]);
 
-        $hp = HirePurchase::where('uuid', $uuid)->firstOrFail();
+        try {
+            $alreadyConfirmed = false;
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($hp, $request) {
-            $txId = $request->transaction_id ?? $hp->deposit_reference ?? ('HIR-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5)));
+            $hp = \Illuminate\Support\Facades\DB::transaction(function () use ($uuid, $request, &$alreadyConfirmed) {
+                $locked = HirePurchase::where('uuid', $uuid)->lockForUpdate()->firstOrFail();
 
-            $hp->update([
-                'status'            => HirePurchaseStatus::Active,
-                'deposit_paid_at'   => now(),
-                'deposit_reference' => $txId,
-                'notes'             => trim(($hp->notes ? $hp->notes . "\n" : "") . ($request->notes ?? "Deposit confirmed by admin via MoMo (Ref: {$txId})")),
+                if (!is_null($locked->deposit_paid_at)) {
+                    $alreadyConfirmed = true;
+                    return $locked;
+                }
+
+                $rawTxId = trim((string) ($request->transaction_id ?: $locked->deposit_reference ?: ('HIR-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5)))));
+
+                // Ensure payments.reference uniqueness even if the same reference was previously used
+                $paymentRef = $rawTxId;
+                if (\App\Models\Payment::withTrashed()->where('reference', $paymentRef)->exists()) {
+                    $paymentRef = $rawTxId . '-' . strtoupper(\Illuminate\Support\Str::random(4));
+                }
+
+                $locked->update([
+                    'status'            => HirePurchaseStatus::Active,
+                    'deposit_paid_at'   => now(),
+                    'deposit_reference' => $rawTxId,
+                    'notes'             => trim(($locked->notes ? $locked->notes . "\n" : '') . ($request->notes ?: "Deposit confirmed by admin via MoMo (Ref: {$rawTxId})")),
+                ]);
+
+                $locked->payments()->create([
+                    'user_id'           => $locked->user_id,
+                    'amount'            => $locked->deposit_amount ?? 0,
+                    'currency'          => 'GHS',
+                    'method'            => \App\Enums\PaymentMethod::MobileMoney,
+                    'status'            => \App\Enums\PaymentStatus::Completed,
+                    'reference'         => $paymentRef,
+                    'gateway_reference' => $request->transaction_id ?: null,
+                    'notes'             => 'Hire purchase deposit confirmed by admin',
+                    'paid_at'           => now(),
+                ]);
+
+                return $locked;
+            });
+
+            return response()->json([
+                'message' => $alreadyConfirmed
+                    ? 'Deposit was already confirmed.'
+                    : 'Deposit payment confirmed and agreement activated.',
+                'data'    => $hp->fresh(['user', 'product', 'installments']),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('HP confirmDeposit failed: ' . $e->getMessage(), [
+                'uuid'  => $uuid,
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            $hp->payments()->create([
-                'user_id'           => $hp->user_id,
-                'amount'            => $hp->deposit_amount,
-                'currency'          => 'GHS',
-                'method'            => \App\Enums\PaymentMethod::MobileMoney,
-                'status'            => \App\Enums\PaymentStatus::Completed,
-                'reference'         => $txId,
-                'gateway_reference' => $request->transaction_id,
-                'notes'             => 'Hire purchase deposit confirmed by admin',
-                'paid_at'           => now(),
-            ]);
-        });
-
-        return response()->json([
-            'message' => 'Deposit payment confirmed and agreement activated.',
-            'data'    => $hp->fresh(['user', 'product', 'installments']),
-        ]);
+            return response()->json([
+                'message' => 'Failed to confirm deposit: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function confirmInstallment(Request $request, string $uuid, int $installmentId): JsonResponse
@@ -209,45 +241,71 @@ class AdminHirePurchaseController extends Controller
             'notes'          => 'nullable|string|max:500',
         ]);
 
-        $hp = HirePurchase::where('uuid', $uuid)->firstOrFail();
-        $installment = $hp->installments()->findOrFail($installmentId);
+        try {
+            $alreadyPaid = false;
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($hp, $installment, $request) {
-            $amount = $request->amount_paid ?: $installment->amount_due;
-            $txId = $request->transaction_id ?? ('HIR-INST-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5)));
+            $hp = \Illuminate\Support\Facades\DB::transaction(function () use ($uuid, $installmentId, $request, &$alreadyPaid) {
+                $locked = HirePurchase::where('uuid', $uuid)->lockForUpdate()->firstOrFail();
+                $installment = $locked->installments()->where('id', $installmentId)->lockForUpdate()->firstOrFail();
 
-            $installment->update([
-                'status'            => 'paid',
-                'amount_paid'       => $amount,
-                'paid_at'           => now(),
-                'payment_reference' => $txId,
+                if ($installment->status === 'paid') {
+                    $alreadyPaid = true;
+                    return $locked;
+                }
+
+                $amount = $request->amount_paid ?: $installment->amount_due;
+                $txId = trim((string) ($request->transaction_id ?: ('HIR-INST-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(5)))));
+                $paymentRef = $txId;
+                if (\App\Models\Payment::withTrashed()->where('reference', $paymentRef)->exists()) {
+                    $paymentRef = $txId . '-' . strtoupper(\Illuminate\Support\Str::random(4));
+                }
+
+                $installment->update([
+                    'status'            => 'paid',
+                    'amount_paid'       => $amount,
+                    'paid_at'           => now(),
+                    'payment_reference' => $txId,
+                ]);
+
+                $newBalance = max(0, (float) $locked->balance_remaining - (float) $amount);
+                $isComplete = $newBalance <= 0 || $locked->installments()->where('status', '!=', 'paid')->count() === 0;
+
+                $locked->update([
+                    'balance_remaining' => $newBalance,
+                    'status'            => $isComplete ? HirePurchaseStatus::Completed : $locked->status,
+                    'completed_at'      => $isComplete ? now() : $locked->completed_at,
+                ]);
+
+                $locked->payments()->create([
+                    'user_id'           => $locked->user_id,
+                    'amount'            => $amount,
+                    'currency'          => 'GHS',
+                    'method'            => \App\Enums\PaymentMethod::MobileMoney,
+                    'status'            => \App\Enums\PaymentStatus::Completed,
+                    'reference'         => $paymentRef,
+                    'gateway_reference' => $request->transaction_id ?: null,
+                    'notes'             => "Installment #{$installment->installment_number} payment confirmed by admin",
+                    'paid_at'           => now(),
+                ]);
+
+                return $locked;
+            });
+
+            return response()->json([
+                'message' => $alreadyPaid
+                    ? 'Installment was already marked as paid.'
+                    : 'Installment payment confirmed successfully.',
+                'data'    => $hp->fresh(['user', 'product', 'installments']),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('HP confirmInstallment failed: ' . $e->getMessage(), [
+                'uuid'          => $uuid,
+                'installmentId' => $installmentId,
             ]);
 
-            $newBalance = max(0, $hp->balance_remaining - $amount);
-            $isComplete = $newBalance <= 0 || $hp->installments()->where('status', '!=', 'paid')->count() === 0;
-
-            $hp->update([
-                'balance_remaining' => $newBalance,
-                'status'            => $isComplete ? HirePurchaseStatus::Completed : $hp->status,
-                'completed_at'      => $isComplete ? now() : $hp->completed_at,
-            ]);
-
-            $hp->payments()->create([
-                'user_id'           => $hp->user_id,
-                'amount'            => $amount,
-                'currency'          => 'GHS',
-                'method'            => \App\Enums\PaymentMethod::MobileMoney,
-                'status'            => \App\Enums\PaymentStatus::Completed,
-                'reference'         => $txId,
-                'gateway_reference' => $request->transaction_id,
-                'notes'             => "Installment #{$installment->installment_number} payment confirmed by admin",
-                'paid_at'           => now(),
-            ]);
-        });
-
-        return response()->json([
-            'message' => 'Installment payment confirmed successfully.',
-            'data'    => $hp->fresh(['user', 'product', 'installments']),
-        ]);
+            return response()->json([
+                'message' => 'Failed to confirm installment: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

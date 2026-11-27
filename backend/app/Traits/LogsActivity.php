@@ -31,16 +31,20 @@ trait LogsActivity
 
     protected function logActivity(string $action, ?array $oldValues, ?array $newValues): void
     {
-        ActivityLog::create([
-            'user_id'      => Auth::id(),
-            'action'       => $action,
-            'subject_type' => get_class($this),
-            'subject_id'   => $this->getKey(),
-            'description'  => class_basename($this) . ' ' . $action,
-            'old_values'   => $oldValues,
-            'new_values'   => $newValues,
-            'ip_address'   => Request::ip(),
-            'user_agent'   => Request::userAgent(),
-        ]);
+        try {
+            ActivityLog::create([
+                'user_id'      => Auth::id(),
+                'action'       => $action,
+                'subject_type' => get_class($this),
+                'subject_id'   => $this->getKey(),
+                'description'  => class_basename($this) . ' ' . $action,
+                'old_values'   => $oldValues,
+                'new_values'   => $newValues,
+                'ip_address'   => Request::ip(),
+                'user_agent'   => Request::userAgent(),
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('ActivityLog skipped: ' . $e->getMessage());
+        }
     }
 }
