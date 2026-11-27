@@ -117,41 +117,52 @@ const Payments = () => {
                 <th className="p-4">Method</th>
                 <th className="p-4">Amount</th>
                 <th className="p-4">Status</th>
+                <th className="p-4">Date Initiated</th>
                 <th className="p-4">Paid At</th>
-                <th className="p-4 text-right">Confirm</th>
+                <th className="p-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-secondary-100 dark:divide-secondary-800">
               {paginatedPayments.map((p) => (
                 <tr key={p.uuid} className="hover:bg-secondary-50/50 dark:hover:bg-secondary-800/30">
-                  <td className="p-4 font-semibold text-secondary-900 dark:text-white">{p.reference}</td>
-                  <td className="p-4 text-secondary-700 dark:text-secondary-300 capitalize">{p.method}</td>
+                  <td className="p-4 font-semibold text-secondary-900 dark:text-white font-mono text-xs">{p.reference}</td>
+                  <td className="p-4 text-secondary-700 dark:text-secondary-300 capitalize">{(p.method || '').replace('_', ' ')}</td>
                   <td className="p-4 font-bold text-secondary-900 dark:text-white">GHS {parseFloat(p.amount || 0).toFixed(2)}</td>
                   <td className="p-4">
-                    <span className={`text-xxs px-2.5 py-0.5 rounded-full font-bold uppercase ${p.status === 'completed' ? 'bg-emerald-100 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400' : 'bg-yellow-100 dark:bg-yellow-950/20 text-yellow-800 dark:text-yellow-450'}`}>
+                    <span className={`text-xxs px-2.5 py-0.5 rounded-full font-bold uppercase ${
+                      p.status === 'completed'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400'
+                        : p.status === 'refunded'
+                        ? 'bg-blue-100 dark:bg-blue-950/20 text-blue-800 dark:text-blue-400'
+                        : p.status === 'failed'
+                        ? 'bg-red-100 dark:bg-red-950/20 text-red-700 dark:text-red-400'
+                        : 'bg-yellow-100 dark:bg-yellow-950/20 text-yellow-800 dark:text-yellow-450'
+                    }`}>
                       {p.status}
                     </span>
                   </td>
-                  <td className="p-4 text-secondary-500 dark:text-secondary-400">{p.paid_at ? new Date(p.paid_at).toLocaleString() : 'Pending'}</td>
+                  <td className="p-4 text-secondary-500 dark:text-secondary-400 text-xs">{p.created_at ? new Date(p.created_at).toLocaleString() : '—'}</td>
+                  <td className="p-4 text-secondary-500 dark:text-secondary-400 text-xs">{p.paid_at ? new Date(p.paid_at).toLocaleString() : 'Pending'}</td>
                   <td className="p-4 text-right">
                     {p.status === 'pending' && (
                       <div className="inline-flex items-center gap-2 justify-end">
-                        {p.method === 'paystack' && (
+                        {p.method === 'paystack' ? (
                           <button
                             onClick={() => handleReverifyPaystack(p)}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-primary-500 hover:bg-primary-600 text-secondary-950 transition-colors shadow-sm"
-                            title="Re-check transaction status with Paystack"
+                            title="Re-check transaction status directly with Paystack"
                           >
                             <ShieldCheck className="w-4 h-4" /> Verify Paystack
                           </button>
+                        ) : (
+                          <button
+                            onClick={() => handleConfirmManual(p)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-sm"
+                            title="Confirm Manual MoMo Payment Received"
+                          >
+                            <CheckCircle className="w-4 h-4" /> Confirm
+                          </button>
                         )}
-                        <button
-                          onClick={() => handleConfirmManual(p)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors shadow-sm"
-                          title="Confirm Payment Received"
-                        >
-                          <CheckCircle className="w-4 h-4" /> Confirm
-                        </button>
                       </div>
                     )}
                   </td>
