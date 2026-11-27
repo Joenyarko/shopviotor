@@ -50,6 +50,7 @@ const AdminPreOrders = () => {
   const [activeOrderTab, setActiveOrderTab] = useState('all');
   const [processing, setProcessing] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [prodSearch, setProdSearch] = useState('');
   const [selectedProdCategory, setSelectedProdCategory] = useState('all');
@@ -351,8 +352,26 @@ const AdminPreOrders = () => {
                           <div className="text-xs text-secondary-500">{order.customer_details?.phone || order.user?.email}</div>
                         </td>
                         <td className="p-4">
-                          <div className="font-medium text-secondary-900 dark:text-white max-w-[200px] truncate" title={order.product?.name}>
-                            {order.product?.name}
+                          <div className="flex items-center gap-3">
+                            {(order.product?.primary_image || order.product?.images?.[0]?.url || order.product?.images?.[0]?.path) ? (
+                              <img
+                                src={order.product?.primary_image || order.product?.images?.[0]?.url || order.product?.images?.[0]?.path}
+                                alt={order.product?.name}
+                                className="w-10 h-10 rounded-lg object-cover bg-secondary-100 dark:bg-secondary-800 border border-secondary-200 dark:border-secondary-700 shrink-0"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-lg bg-secondary-100 dark:bg-secondary-800 flex items-center justify-center shrink-0">
+                                <Package className="w-4 h-4 text-secondary-400" />
+                              </div>
+                            )}
+                            <div className="min-w-0">
+                              <div className="font-medium text-secondary-900 dark:text-white max-w-[200px] truncate" title={order.product?.name}>
+                                {order.product?.name}
+                              </div>
+                              <div className="text-xs text-secondary-500">
+                                Qty: {order.quantity || 1} {order.product?.sku ? `• ${order.product.sku}` : ''}
+                              </div>
+                            </div>
                           </div>
                         </td>
                         <td className="p-4">
@@ -369,6 +388,14 @@ const AdminPreOrders = () => {
                         </td>
                         <td className="p-4 text-right">
                           <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrder(order)}
+                              className="p-1.5 bg-primary-50 dark:bg-primary-950/30 text-primary-600 dark:text-primary-400 hover:bg-primary-100 rounded-lg transition-colors"
+                              title="Inspect Pre-Order Details"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
                             {order.status === 'pending' && parseFloat(order.deposit_paid || 0) <= 0 && (
                               <button
                                 disabled={processing}
@@ -421,31 +448,155 @@ const AdminPreOrders = () => {
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {paginatedProducts.map(p => (
-              <div key={p.id} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
-                <div className="aspect-square bg-secondary-100 dark:bg-secondary-800 p-4 flex items-center justify-center">
-                  {p.images?.length > 0 ? (
-                    <img src={p.images[0].image_url} alt={p.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal" />
-                  ) : <Package className="w-12 h-12 text-secondary-300" />}
+              {paginatedProducts.map(p => {
+                const imgSrc = p.primary_image || p.images?.[0]?.url || p.images?.[0]?.image_url || p.images?.[0]?.path || null;
+                const depositLabel = p.preorder_deposit_percent
+                  ? `${p.preorder_deposit_percent}% Deposit`
+                  : p.preorder_deposit_amount
+                    ? `GHS ${parseFloat(p.preorder_deposit_amount).toFixed(0)} Deposit`
+                    : 'Pre-Order';
+
+                return (
+                <div key={p.id} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl overflow-hidden shadow-sm flex flex-col">
+                  <div className="aspect-square bg-secondary-100 dark:bg-secondary-800 p-4 flex items-center justify-center">
+                    {imgSrc ? (
+                      <img src={imgSrc} alt={p.name} className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal" />
+                    ) : <Package className="w-12 h-12 text-secondary-300" />}
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col">
+                    <h3 className="font-bold text-secondary-900 dark:text-white line-clamp-1">{p.name}</h3>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="font-bold text-primary-600 dark:text-primary-400">GHS {parseFloat(p.price).toFixed(2)}</span>
+                      <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">{depositLabel}</span>
+                    </div>
+                    <div className="mt-4 pt-3 border-t border-secondary-100 dark:border-secondary-800 flex justify-between text-xs text-secondary-500">
+                      <span>Exp: {p.preorder_expected_date ? new Date(p.preorder_expected_date).toLocaleDateString() : 'TBD'}</span>
+                      <span>Rel: {p.preorder_release_date ? new Date(p.preorder_release_date).toLocaleDateString() : 'TBD'}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-4 flex-1 flex flex-col">
-                  <h3 className="font-bold text-secondary-900 dark:text-white line-clamp-1">{p.name}</h3>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="font-bold text-primary-600 dark:text-primary-400">GHS {parseFloat(p.price).toFixed(2)}</span>
-                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">{p.preorder_deposit_percent}% Deposit</span>
-                  </div>
-                  <div className="mt-4 pt-3 border-t border-secondary-100 dark:border-secondary-800 flex justify-between text-xs text-secondary-500">
-                    <span>Exp: {p.preorder_expected_date ? new Date(p.preorder_expected_date).toLocaleDateString() : 'TBD'}</span>
-                    <span>Rel: {p.preorder_release_date ? new Date(p.preorder_release_date).toLocaleDateString() : 'TBD'}</span>
-                  </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <DotPagination currentPage={prodPage} totalPages={totalProdPages} onPageChange={setProdPage} />
           </div>
         )
       )}
+
+      {/* PRE-ORDER DETAILS MODAL */}
+      {selectedOrder && (() => {
+        const prodImg = selectedOrder.product?.primary_image || selectedOrder.product?.images?.[0]?.url || selectedOrder.product?.images?.[0]?.path || null;
+        const custName = selectedOrder.customer_details?.name || selectedOrder.user?.name || `${selectedOrder.user?.first_name || ''} ${selectedOrder.user?.last_name || ''}`.trim() || 'Customer';
+        const custPhone = selectedOrder.customer_details?.phone || selectedOrder.user?.phone || 'N/A';
+        const custEmail = selectedOrder.customer_details?.email || selectedOrder.user?.email || 'N/A';
+        const custAddress = selectedOrder.customer_details?.address || selectedOrder.customer_details?.location || selectedOrder.shipping_address || null;
+        const total = parseFloat(selectedOrder.total_price || 0);
+        const depositPaid = parseFloat(selectedOrder.deposit_paid || 0);
+        const balance = selectedOrder.balance_remaining !== undefined && selectedOrder.balance_remaining !== null
+          ? parseFloat(selectedOrder.balance_remaining)
+          : Math.max(0, total - depositPaid);
+
+        return (
+          <div onClick={() => setSelectedOrder(null)} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-secondary-900/60 backdrop-blur-sm overflow-y-auto">
+            <div onClick={e => e.stopPropagation()} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden">
+              <div className="p-5 border-b border-secondary-200 dark:border-secondary-800 flex justify-between items-center">
+                <div>
+                  <h3 className="font-bold text-secondary-900 dark:text-white text-lg">Pre-Order Details</h3>
+                  <p className="text-xs text-secondary-500 font-mono">
+                    Ref: {selectedOrder.payment_reference || ('PRE-' + (selectedOrder.uuid || '').slice(0, 8).toUpperCase())} &bull; {selectedOrder.created_at ? new Date(selectedOrder.created_at).toLocaleString() : ''}
+                  </p>
+                </div>
+                <button type="button" onClick={() => setSelectedOrder(null)} className="p-1.5 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-800 text-secondary-500">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-5 space-y-5 max-h-[75vh] overflow-y-auto">
+                {/* Product Card */}
+                <div className="flex gap-4 p-4 rounded-xl bg-secondary-50 dark:bg-secondary-800/50 border border-secondary-200/70 dark:border-secondary-700/70">
+                  <div className="w-20 h-20 rounded-xl bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-700 flex items-center justify-center overflow-hidden shrink-0">
+                    {prodImg ? (
+                      <img src={prodImg} alt={selectedOrder.product?.name} className="w-full h-full object-contain p-1" />
+                    ) : (
+                      <Package className="w-8 h-8 text-secondary-300" />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <h4 className="font-extrabold text-sm text-secondary-900 dark:text-white">{selectedOrder.product?.name || 'Product'}</h4>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase shrink-0 ${statusBadge(selectedOrder.status)}`}>
+                        {selectedOrder.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-secondary-500">
+                      Unit Price: <strong className="text-secondary-800 dark:text-secondary-200">GHS {parseFloat(selectedOrder.product?.price || total).toFixed(2)}</strong>
+                      {' '}&bull; Qty: <strong className="text-secondary-800 dark:text-secondary-200">{selectedOrder.quantity || 1}</strong>
+                    </p>
+                    {selectedOrder.product?.category?.name && (
+                      <p className="text-[11px] text-secondary-500">Category: {selectedOrder.product.category.name}</p>
+                    )}
+                    {selectedOrder.product?.short_description && (
+                      <p className="text-xs text-secondary-600 dark:text-secondary-400 line-clamp-2 pt-1">{selectedOrder.product.short_description}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Financial Summary */}
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div className="p-3 rounded-xl bg-secondary-50 dark:bg-secondary-800/40 border border-secondary-200/60 dark:border-secondary-800">
+                    <span className="text-[10px] uppercase font-bold text-secondary-400 block">Total Price</span>
+                    <span className="text-sm font-black text-secondary-900 dark:text-white">GHS {total.toFixed(2)}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40">
+                    <span className="text-[10px] uppercase font-bold text-emerald-600 block">Deposit Paid</span>
+                    <span className="text-sm font-black text-emerald-700 dark:text-emerald-400">GHS {depositPaid.toFixed(2)}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40">
+                    <span className="text-[10px] uppercase font-bold text-amber-600 block">Balance Left</span>
+                    <span className="text-sm font-black text-amber-700 dark:text-amber-400">GHS {balance.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Customer Info */}
+                <div className="p-4 rounded-xl border border-secondary-200 dark:border-secondary-800 space-y-1.5 text-xs">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-secondary-400 block mb-1">Customer & Delivery Details</span>
+                  <div><strong className="text-secondary-700 dark:text-secondary-300">Name:</strong> {custName}</div>
+                  <div><strong className="text-secondary-700 dark:text-secondary-300">Phone:</strong> {custPhone}</div>
+                  <div><strong className="text-secondary-700 dark:text-secondary-300">Email:</strong> {custEmail}</div>
+                  {custAddress && <div><strong className="text-secondary-700 dark:text-secondary-300">Address:</strong> {custAddress}</div>}
+                  <div><strong className="text-secondary-700 dark:text-secondary-300">Expected Arrival:</strong> {selectedOrder.expected_date ? new Date(selectedOrder.expected_date).toLocaleDateString() : 'TBD'}</div>
+                  {selectedOrder.notes && (
+                    <div className="pt-1 border-t border-secondary-100 dark:border-secondary-800">
+                      <strong className="text-secondary-700 dark:text-secondary-300">Notes:</strong> {selectedOrder.notes}
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-secondary-100 dark:border-secondary-800">
+                  <button type="button" onClick={() => setSelectedOrder(null)} className="px-4 py-2 rounded-xl text-xs font-bold border border-secondary-300 dark:border-secondary-700 text-secondary-700 dark:text-secondary-300 hover:bg-secondary-50 dark:hover:bg-secondary-800">
+                    Close
+                  </button>
+                  {selectedOrder.status === 'pending' && depositPaid <= 0 && (
+                    <button
+                      type="button"
+                      disabled={processing}
+                      onClick={() => {
+                        const target = selectedOrder;
+                        setSelectedOrder(null);
+                        handleConfirmDeposit(target);
+                      }}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-sm"
+                    >
+                      <Check className="w-3.5 h-3.5" /> Confirm MoMo Deposit
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* CREATE PRE-ORDER PRODUCT MODAL */}
       {modalOpen && (

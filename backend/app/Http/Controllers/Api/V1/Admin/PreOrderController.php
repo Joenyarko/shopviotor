@@ -12,7 +12,7 @@ class PreOrderController extends Controller
     {
         $status = $request->query('status');
 
-        $query = PreOrder::with(['product', 'user'])->latest();
+        $query = PreOrder::with(['product.images', 'product.category', 'user'])->latest();
 
         if ($status && $status !== 'all') {
             $query->where('status', $status);
