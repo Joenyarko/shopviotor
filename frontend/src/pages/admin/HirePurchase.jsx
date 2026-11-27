@@ -276,8 +276,9 @@ const AdminHirePurchase = () => {
     setSelectedApp(app);
     try {
       const res = await hpService.adminGetAgreement(app.uuid);
-      if (res.data?.data) {
-        setSelectedApp(res.data.data);
+      const detail = res?.data?.data || res?.data || res;
+      if (detail && (detail.uuid || detail.installments)) {
+        setSelectedApp(detail);
       }
     } catch (e) {
       console.error(e);
@@ -726,37 +727,6 @@ const AdminHirePurchase = () => {
                 )}
               </div>
             </div>
-
-            {/* Full-size Document Lightbox Modal */}
-            {previewDoc && (
-              <div
-                onClick={() => setPreviewDoc(null)}
-                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-              >
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  className="bg-white dark:bg-secondary-900 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-secondary-200 dark:border-secondary-800"
-                >
-                  <div className="flex items-center justify-between px-5 py-3.5 border-b border-secondary-200 dark:border-secondary-800">
-                    <h4 className="font-extrabold text-sm text-secondary-900 dark:text-white">{previewDoc.label}</h4>
-                    <button
-                      type="button"
-                      onClick={() => setPreviewDoc(null)}
-                      className="p-1.5 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-800 text-secondary-500"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <div className="p-4 bg-secondary-950 flex items-center justify-center max-h-[80vh] overflow-auto">
-                    <img
-                      src={previewDoc.url}
-                      alt={previewDoc.label}
-                      className="max-w-full max-h-[72vh] object-contain rounded-lg"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         );
       })()}
@@ -931,13 +901,13 @@ const AdminHirePurchase = () => {
 
                         <div className="flex flex-wrap gap-2 pt-1 border-t border-secondary-200/50 dark:border-secondary-700/50">
                           {selectedApp.user?.ghana_card_front_url && (
-                            <a href={selectedApp.user.ghana_card_front_url} target="_blank" rel="noreferrer" className="text-[11px] font-bold text-primary-600 hover:underline">View Ghana Card Front</a>
+                            <button type="button" onClick={() => setPreviewDoc({ label: 'Ghana Card Front', url: selectedApp.user.ghana_card_front_url })} className="text-[11px] font-bold text-primary-600 hover:underline">View Ghana Card Front</button>
                           )}
                           {selectedApp.user?.ghana_card_back_url && (
-                            <a href={selectedApp.user.ghana_card_back_url} target="_blank" rel="noreferrer" className="text-[11px] font-bold text-primary-600 hover:underline">View Back</a>
+                            <button type="button" onClick={() => setPreviewDoc({ label: 'Ghana Card Back', url: selectedApp.user.ghana_card_back_url })} className="text-[11px] font-bold text-primary-600 hover:underline">View Back</button>
                           )}
                           {selectedApp.user?.selfie_url && (
-                            <a href={selectedApp.user.selfie_url} target="_blank" rel="noreferrer" className="text-[11px] font-bold text-emerald-600 hover:underline">View Live Selfie</a>
+                            <button type="button" onClick={() => setPreviewDoc({ label: 'Live Selfie', url: selectedApp.user.selfie_url })} className="text-[11px] font-bold text-emerald-600 hover:underline">View Live Selfie</button>
                           )}
                         </div>
                       </div>
@@ -947,7 +917,7 @@ const AdminHirePurchase = () => {
                         <div><strong>Course & Level:</strong> {selectedApp.user?.student_course || 'N/A'} ({selectedApp.user?.student_level || 'N/A'})</div>
                         {selectedApp.user?.student_id_picture_url && (
                           <div className="pt-1">
-                            <a href={selectedApp.user.student_id_picture_url} target="_blank" rel="noreferrer" className="text-[11px] font-bold text-primary-600 hover:underline">View Student ID Card</a>
+                            <button type="button" onClick={() => setPreviewDoc({ label: 'Student ID Card', url: selectedApp.user.student_id_picture_url })} className="text-[11px] font-bold text-primary-600 hover:underline">View Student ID Card</button>
                           </div>
                         )}
                       </div>
@@ -1196,6 +1166,37 @@ const AdminHirePurchase = () => {
                   {processing ? <RefreshCw className="w-5 h-5 animate-spin" /> : (editingProductId ? 'Save Changes' : 'Publish HP Product')}
                 </button>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full-size Document Lightbox Modal (shared across Applications & Order Plans tabs) */}
+      {previewDoc && (
+        <div
+          onClick={() => setPreviewDoc(null)}
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-secondary-900 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-secondary-200 dark:border-secondary-800"
+          >
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-secondary-200 dark:border-secondary-800">
+              <h4 className="font-extrabold text-sm text-secondary-900 dark:text-white">{previewDoc.label}</h4>
+              <button
+                type="button"
+                onClick={() => setPreviewDoc(null)}
+                className="p-1.5 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-800 text-secondary-500"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 bg-secondary-950 flex items-center justify-center max-h-[80vh] overflow-auto">
+              <img
+                src={previewDoc.url}
+                alt={previewDoc.label}
+                className="max-w-full max-h-[72vh] object-contain rounded-lg"
+              />
             </div>
           </div>
         </div>
