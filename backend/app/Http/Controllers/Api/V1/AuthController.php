@@ -200,16 +200,18 @@ class AuthController extends Controller
         }
 
         $request->validate([
-            'student_id' => 'required|string|max:255|unique:users,student_id,' . $user->id,
-            'student_name' => 'required|string|max:255',
-            'student_course' => 'required|string|max:255',
-            'student_level' => 'required|string|max:255',
+            'phone'              => ['required', 'string', 'min:9', 'max:25'],
+            'student_id'         => 'required|string|max:255|unique:users,student_id,' . $user->id,
+            'student_name'       => 'required|string|max:255',
+            'student_course'     => 'required|string|max:255',
+            'student_level'      => 'required|string|max:255',
             'student_id_picture' => 'required|image|max:10240',
         ]);
 
         $imageUrl = $this->storeKycFile($request->file('student_id_picture'), 'identity/student-ids');
 
         $updateData = [
+            'phone'                        => trim($request->phone),
             'applicant_type'               => 'student',
             'student_id'                   => $request->student_id,
             'student_name'                 => $request->student_name,
@@ -244,6 +246,7 @@ class AuthController extends Controller
         }
 
         $request->validate([
+            'phone'               => ['required', 'string', 'min:9', 'max:25'],
             'ghana_card_number'   => ['required', 'string', 'regex:/^GHA-\d{9}-\d$/i'],
             'digital_address'     => ['required', 'string', 'max:50'],
             'occupation'          => ['required', 'string', 'max:150'],
@@ -290,6 +293,7 @@ class AuthController extends Controller
         $finalStatus = 'pending';
 
         $updateData = [
+            'phone'                        => trim($request->phone),
             'applicant_type'               => 'general',
             'ghana_card_number'            => $cardPin,
             'ghana_card_front_url'         => $frontUrl,

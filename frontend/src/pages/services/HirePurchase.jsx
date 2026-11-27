@@ -45,6 +45,7 @@ const HirePurchase = () => {
   const [verificationType, setVerificationType] = useState('ghana_card'); // 'ghana_card' | 'student'
 
   // Ghana Card & Dojah KYC form state
+  const [applicantPhone, setApplicantPhone] = useState(user?.phone || '');
   const [ghanaCardNumber, setGhanaCardNumber] = useState('');
   const [digitalAddress, setDigitalAddress] = useState('');
   const [occupation, setOccupation] = useState('');
@@ -256,10 +257,15 @@ const HirePurchase = () => {
 
   const handleStudentSubmit = async (e) => {
     e.preventDefault();
+    if (!applicantPhone.trim() || applicantPhone.trim().length < 9) {
+      setErrorMsg('Please enter a valid phone number so we can call you regarding your application.');
+      return;
+    }
     setSubmittingStudent(true);
     setErrorMsg('');
     try {
       const formData = new FormData();
+      formData.append('phone', applicantPhone.trim());
       formData.append('student_name', studentName);
       formData.append('student_course', studentCourse);
       formData.append('student_level', studentLevel);
@@ -278,6 +284,10 @@ const HirePurchase = () => {
 
   const handleGhanaCardSubmit = async (e) => {
     e.preventDefault();
+    if (!applicantPhone.trim() || applicantPhone.trim().length < 9) {
+      setErrorMsg('Please enter a valid phone number so we can call you regarding your application.');
+      return;
+    }
     const cleanPin = ghanaCardNumber.trim().toUpperCase();
     if (!/^GHA-\d{9}-\d$/i.test(cleanPin)) {
       setErrorMsg('Invalid Ghana Card PIN format. Must match GHA-XXXXXXXXX-X (e.g. GHA-123456789-0).');
@@ -296,6 +306,7 @@ const HirePurchase = () => {
     setErrorMsg('');
     try {
       const formData = new FormData();
+      formData.append('phone', applicantPhone.trim());
       formData.append('ghana_card_number', cleanPin);
       formData.append('digital_address', digitalAddress.trim());
       formData.append('occupation', occupation.trim());
@@ -905,19 +916,35 @@ const HirePurchase = () => {
               {/* TAB 1: GHANA CARD & DOJAH IDENTITY VERIFICATION (FOR GENERAL PUBLIC / OUTSIDERS) */}
               {verificationType === 'ghana_card' && (
                 <form onSubmit={handleGhanaCardSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
-                      Ghana Card PIN (Official NIA Format) *
-                    </label>
-                    <input
-                      required
-                      type="text"
-                      value={ghanaCardNumber}
-                      onChange={e => setGhanaCardNumber(e.target.value.toUpperCase())}
-                      placeholder="e.g. GHA-123456789-0"
-                      className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm font-mono tracking-wider uppercase focus:ring-2 focus:ring-primary-500"
-                    />
-                    <span className="text-[10px] text-secondary-400 mt-0.5 block">Format: GHA-XXXXXXXXX-X</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
+                        Active Phone Number *
+                      </label>
+                      <input
+                        required
+                        type="tel"
+                        value={applicantPhone}
+                        onChange={e => setApplicantPhone(e.target.value)}
+                        placeholder="e.g. 0241234567"
+                        className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm focus:ring-2 focus:ring-primary-500"
+                      />
+                      <span className="text-[10px] text-secondary-400 mt-0.5 block">Required so our team can call you</span>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">
+                        Ghana Card PIN (Official NIA Format) *
+                      </label>
+                      <input
+                        required
+                        type="text"
+                        value={ghanaCardNumber}
+                        onChange={e => setGhanaCardNumber(e.target.value.toUpperCase())}
+                        placeholder="e.g. GHA-123456789-0"
+                        className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm font-mono tracking-wider uppercase focus:ring-2 focus:ring-primary-500"
+                      />
+                      <span className="text-[10px] text-secondary-400 mt-0.5 block">Format: GHA-XXXXXXXXX-X</span>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1082,9 +1109,15 @@ const HirePurchase = () => {
               {/* TAB 2: STUDENT VERIFICATION */}
               {verificationType === 'student' && (
                 <form onSubmit={handleStudentSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Full Legal Name *</label>
-                    <input required type="text" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g. Francis Joe Nyarko" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Full Legal Name *</label>
+                      <input required type="text" value={studentName} onChange={e => setStudentName(e.target.value)} placeholder="e.g. Francis Joe Nyarko" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold uppercase text-secondary-600 dark:text-secondary-400 mb-1">Active Phone Number *</label>
+                      <input required type="tel" value={applicantPhone} onChange={e => setApplicantPhone(e.target.value)} placeholder="e.g. 0241234567" className="w-full px-4 py-2.5 border rounded-xl dark:bg-secondary-800 dark:border-secondary-700 text-sm" />
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
