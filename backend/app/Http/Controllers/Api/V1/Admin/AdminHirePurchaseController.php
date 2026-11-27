@@ -419,4 +419,38 @@ class AdminHirePurchaseController extends Controller
             'verification_attempts' => $nextAttempts,
         ]);
     }
+
+    /**
+     * Delete/reset a customer's Hire Purchase KYC / Student application (preserves user account).
+     */
+    public function deleteApplication(string $userUuid): JsonResponse
+    {
+        $user = \App\Models\User::where('uuid', $userUuid)->firstOrFail();
+
+        $updates = [
+            'identity_verification_status' => null,
+            'student_verification_status'  => null,
+            'ghana_card_number'            => null,
+            'ghana_card_front_url'         => null,
+            'ghana_card_back_url'          => null,
+            'selfie_url'                   => null,
+            'student_id'                   => null,
+            'student_name'                 => null,
+            'student_course'               => null,
+            'student_level'                => null,
+            'student_id_picture_url'       => null,
+        ];
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'verification_attempts')) {
+            $updates['verification_attempts'] = 0;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('users', 'verification_rejection_reason')) {
+            $updates['verification_rejection_reason'] = null;
+        }
+
+        $user->update($updates);
+
+        return response()->json([
+            'message' => 'Application removed successfully.',
+        ]);
+    }
 }

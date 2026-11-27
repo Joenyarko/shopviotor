@@ -17,6 +17,7 @@ const hpService = {
   adminGetKycApplications: () => apiClient.get('/admin/hire-purchases/applications'),
   adminApproveKycApplication: (userUuid) => apiClient.post(`/admin/hire-purchases/applications/${userUuid}/approve`),
   adminRejectKycApplication: (userUuid, reason) => apiClient.post(`/admin/hire-purchases/applications/${userUuid}/reject`, { reason }),
+  adminDeleteKycApplication: (userUuid) => apiClient.delete(`/admin/hire-purchases/applications/${userUuid}`),
 };
 
 export default hpService;

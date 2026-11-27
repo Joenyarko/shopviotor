@@ -307,6 +307,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/hire-purchases/applications', [AdminHirePurchaseController::class, 'applications']);
             Route::post('/hire-purchases/applications/{userUuid}/approve', [AdminHirePurchaseController::class, 'approveApplication']);
             Route::post('/hire-purchases/applications/{userUuid}/reject', [AdminHirePurchaseController::class, 'rejectApplication']);
+            Route::delete('/hire-purchases/applications/{userUuid}', [AdminHirePurchaseController::class, 'deleteApplication']);
             Route::get('/hire-purchases', [AdminHirePurchaseController::class, 'index']);
             Route::get('/hire-purchases/{uuid}', [AdminHirePurchaseController::class, 'show']);
             Route::post('/hire-purchases/{uuid}/status', [AdminHirePurchaseController::class, 'updateStatus']);

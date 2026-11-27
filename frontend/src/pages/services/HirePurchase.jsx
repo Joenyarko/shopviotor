@@ -1114,18 +1114,16 @@ const HirePurchase = () => {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Verification status notice if pending */}
-              {(user?.student_verification_status === 'pending' || user?.identity_verification_status === 'pending') && (
-                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex items-start gap-3">
-                  <RefreshCw className="w-5 h-5 text-amber-500 animate-spin flex-shrink-0 mt-0.5" />
-                  <div className="text-xs">
-                    <strong className="text-amber-900 dark:text-amber-300 font-bold block mb-0.5">Verification Pending Review</strong>
-                    <span className="text-amber-800/80 dark:text-amber-300/80">
-                      Your identity documents have been safely received. You can configure your proposed installment plan below, obtain your payment reference, and pay your deposit directly via Mobile Money outside Paystack. The site records your payment once confirmed by admin.
-                    </span>
-                  </div>
+              {/* Approved status banner */}
+              <div className="bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 rounded-2xl p-4 flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+                <div className="text-xs">
+                  <strong className="text-emerald-900 dark:text-emerald-300 font-bold block mb-0.5">Identity Approved — Ready to Start Payments</strong>
+                  <span className="text-emerald-800/90 dark:text-emerald-300/90">
+                    Your Hire Purchase application has been approved! Configure your deposit, duration, and payment schedule below to get your deposit reference and start your plan.
+                  </span>
                 </div>
-              )}
+              </div>
 
               <form onSubmit={handleSubmitAgreement} className="bg-white dark:bg-secondary-900 border border-secondary-200 dark:border-secondary-800 rounded-2xl p-6 md:p-8 space-y-6 shadow-sm transition-colors">
                 

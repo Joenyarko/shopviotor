@@ -47,6 +47,7 @@ const AdminHirePurchase = () => {
   const [loadingKyc, setLoadingKyc] = useState(true);
   const [selectedKyc, setSelectedKyc] = useState(null);
   const [kycStatusFilter, setKycStatusFilter] = useState('all');
+  const [previewDoc, setPreviewDoc] = useState(null); // { label, url }
 
   // Order Plans State
   const [applications, setApplications] = useState([]);
@@ -220,6 +221,29 @@ const AdminHirePurchase = () => {
       loadKycApplications();
     } catch (err) {
       Swal.fire({ icon: 'error', title: 'Error', text: err?.message || 'Failed to reject application.' });
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleDeleteKyc = async (applicant) => {
+    const confirm = await Swal.fire({
+      title: 'Delete Application?',
+      text: `Remove ${applicant.name}'s Hire Purchase verification application? Their user account and orders will remain intact, and they can apply again fresh.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      confirmButtonText: 'Yes, Delete Application',
+    });
+    if (!confirm.isConfirmed) return;
+    setProcessing(true);
+    try {
+      await hpService.adminDeleteKycApplication(applicant.uuid);
+      Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Application removed.', timer: 1800, showConfirmButton: false });
+      if (selectedKyc?.uuid === applicant.uuid) setSelectedKyc(null);
+      loadKycApplications();
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: err?.message || 'Failed to delete application.' });
     } finally {
       setProcessing(false);
     }
@@ -588,12 +612,22 @@ const AdminHirePurchase = () => {
                               {k.verification_attempts || 0} / 3
                             </td>
                             <td className="p-4 text-right">
-                              <button
-                                onClick={() => setSelectedKyc(k)}
-                                className="px-3 py-1.5 rounded-lg text-xs font-bold bg-primary-500 hover:bg-primary-600 text-secondary-950 inline-flex items-center gap-1 shadow-sm"
-                              >
-                                <Eye className="w-3.5 h-3.5" /> Inspect
-                              </button>
+                              <div className="inline-flex items-center gap-1.5 justify-end">
+                                <button
+                                  onClick={() => setSelectedKyc(k)}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-primary-500 hover:bg-primary-600 text-secondary-950 inline-flex items-center gap-1 shadow-sm"
+                                >
+                                  <Eye className="w-3.5 h-3.5" /> Inspect
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteKyc(k)}
+                                  disabled={processing}
+                                  title="Delete application"
+                                  className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-900/50 transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -643,18 +677,17 @@ const AdminHirePurchase = () => {
                           { label: 'Live Selfie', url: selectedKyc.selfie_url },
                           { label: 'Student ID Card', url: selectedKyc.student_id_picture_url },
                         ].filter(d => d.url).map(doc => (
-                          <a
+                          <button
                             key={doc.label}
-                            href={doc.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="group block rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800"
+                            type="button"
+                            onClick={() => setPreviewDoc(doc)}
+                            className="group block w-full text-left rounded-xl overflow-hidden border border-secondary-200 dark:border-secondary-700 bg-secondary-50 dark:bg-secondary-800 hover:border-primary-500 transition-colors"
                           >
                             <img src={doc.url} alt={doc.label} className="w-full h-24 object-cover group-hover:scale-105 transition-transform" />
                             <div className="px-2 py-1 text-[10px] font-bold text-center text-primary-600 dark:text-primary-400 truncate">
-                              {doc.label} ↗
+                              {doc.label}
                             </div>
-                          </a>
+                          </button>
                         ))}
                       </div>
                     </div>
@@ -693,6 +726,37 @@ const AdminHirePurchase = () => {
                 )}
               </div>
             </div>
+
+            {/* Full-size Document Lightbox Modal */}
+            {previewDoc && (
+              <div
+                onClick={() => setPreviewDoc(null)}
+                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+              >
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white dark:bg-secondary-900 rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl border border-secondary-200 dark:border-secondary-800"
+                >
+                  <div className="flex items-center justify-between px-5 py-3.5 border-b border-secondary-200 dark:border-secondary-800">
+                    <h4 className="font-extrabold text-sm text-secondary-900 dark:text-white">{previewDoc.label}</h4>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDoc(null)}
+                      className="p-1.5 rounded-lg hover:bg-secondary-100 dark:hover:bg-secondary-800 text-secondary-500"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="p-4 bg-secondary-950 flex items-center justify-center max-h-[80vh] overflow-auto">
+                    <img
+                      src={previewDoc.url}
+                      alt={previewDoc.label}
+                      className="max-w-full max-h-[72vh] object-contain rounded-lg"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
       })()}
